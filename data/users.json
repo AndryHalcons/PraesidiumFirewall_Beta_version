@@ -1,13 +1,13 @@
 [
   {
-    "user_name": "praedisium",
-    "user_pass": "2f3c1c1e4c1f1f3f0b6f7e3c9e1a3b5e5e6f7d8c9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f708192a3b4c5d6e7f809",
+    "user_name": "praesidium",
+    "user_pass": "69310241919e43a4e9d1a10bf276b0333dc9374556303fb188f7c234a33dde405c5b9219447b11e78a3b114ef61d699844d46c28035c8baec3797a8c2f09c5a6",
     "user_rol": "admin",
     "user_languaje": "es"
   },
   {
     "user_name": "testuser",
-    "user_pass": "b0baee9d279d34fa1dfd71aadb908c3f8a4d2a3f9c9e8b7a6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2",
+    "user_pass": "d404559f602eab6fd602ac7680dacbfaadd13630335e951f097af3900e9de176b6db28512f2e000b9d04fba5133e8b1c6e8df59db3a8ab9d60be4b97cc9e81db",
     "user_rol": "viewer",
     "user_languaje": "en"
   }

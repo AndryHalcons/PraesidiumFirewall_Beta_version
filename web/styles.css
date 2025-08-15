@@ -1,3 +1,14 @@
+/* 
+#############################################################################
+#############################################################################
+#############################################################################
+   Estilos para el formulario de login
+   Styles for the login form
+#############################################################################
+#############################################################################
+#############################################################################
+*/
+
 .login-container {
     width: 300px;
     margin: 100px auto;
@@ -40,4 +51,101 @@
 .login-container .error-message {
     color: #e74c3c;
     text-align: center;
+}
+
+
+/* 
+#############################################################################
+#############################################################################
+#############################################################################
+   Estilos para la interfaz principal
+   Styles for the main interface
+#############################################################################
+#############################################################################
+#############################################################################
+*/
+
+/* Encabezado superior */
+.header-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #2f4050;
+    color: white;
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+.header-top h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.header-top h2 {
+    margin: 5px 0 0;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Menú horizontal */
+.top-menu {
+    position: fixed;
+    top: 100px; /* debajo del header */
+    left: 0;
+    right: 0;
+    background-color: #34495e;
+    padding: 10px 20px;
+    display: flex;
+    gap: 20px;
+    z-index: 999;
+}
+
+.top-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.top-menu a:hover {
+    color: #1abc9c;
+}
+
+/* Menú lateral */
+.sidebar {
+    position: fixed;
+    top: 140px; /* debajo del header + menú horizontal */
+    left: 0;
+    width: 200px;
+    height: calc(100% - 140px);
+    background-color: #34495e;
+    color: white;
+    padding-top: 20px;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #3d566e;
+}
+
+/* Contenido principal */
+.main-content {
+    margin-top: 140px; /* espacio para header y menú */
+    margin-left: 200px; /* espacio para sidebar */
+    padding: 20px;
+    background-color: #f5f7fa;
+    min-height: calc(100vh - 140px);
 }
