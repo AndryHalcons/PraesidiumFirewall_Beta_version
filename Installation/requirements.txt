@@ -1,2 +1,3 @@
 sudo
 git
+sqlite3
