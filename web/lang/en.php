@@ -10,6 +10,7 @@ return [
     'language'              => 'Language',
     // Top menu
     'menu_home'             => 'Home',
+    'menu_interfaces'       => 'Interfaces',
     'menu_monitor'          => 'Monitor',
     'menu_users'            => 'Users',
     'menu_logout'           => 'Log out',
@@ -30,6 +31,22 @@ return [
     'ram_used' => 'Used',
     'ram_free' => 'Free',
     'ram_cached' => 'Cached',
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   Interfaces.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'network_config_title' => 'Network Interface Configuration',
+    'add_interface' => 'Add Interface',
+    'name' => 'Name',
+    'trigger' => 'Trigger',
+    'method' => 'Method',
+    'ip' => 'IP Address',
+    'netmask' => 'Netmask',
+    'gateway' => 'Gateway',
+    'remove' => 'Remove',
+    'save_and_apply' => 'Save and Apply',
+    'ifreload_output' => 'ifreload Output:',
+    'unauthorized' => 'Unauthorized',
 
 
 ];

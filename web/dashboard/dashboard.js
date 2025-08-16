@@ -1,6 +1,7 @@
 console.log("✅ dashboard.js ejecutado");
-
-// CPU WIDGET
+///////////////////////////////////////////////////////////////
+///////////////////// CPU WIDGET /////////////////////
+///////////////////////////////////////////////////////////////
 (() => {
     const canvas = document.getElementById("cpuChart");
     const totalEl = document.getElementById("cpu-total");
@@ -61,8 +62,11 @@ console.log("✅ dashboard.js ejecutado");
     actualizarDatosCPU();
     setInterval(actualizarDatosCPU, 5000);
 })();
-
-// RAM WIDGET
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////// RAM WIDGET //////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 (() => {
     const canvas = document.getElementById("ramChart");
     const totalEl = document.getElementById("ram-total");
@@ -80,7 +84,7 @@ console.log("✅ dashboard.js ejecutado");
     const ramChart = new Chart(ctx, {
         type: "doughnut",
         data: {
-            labels: ["En uso", "Libre", "Reservada"],
+            labels: ["Used", "Free", "reserved"],
             datasets: [{
                 data: [],
                 backgroundColor: ["#ff6384", "#36a2eb", "#ffce56"],

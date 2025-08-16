@@ -2,10 +2,19 @@
 
 # Dar permisos de ejecución / Make scripts executable
 echo "Dando permisos a los scripts... / Granting execution permissions..."
+chmod +x uninstall_unnecessary.sh
 chmod +x system_requirements.sh
 chmod +x web_installation.sh
 chmod +x initial_data.sh
 chmod +x system_configuration.sh
+chmod +x uninstall_unnecessary.sh
+
+
+
+# Ejecutar system_requirements.sh / Run system_requirements.sh
+echo "desinstalando  dependencias innecesarias... / Installing system dependencies..."
+./uninstall_unnecessary.sh
+echo "✅ Desinstalando uninstall_unnecessary.shcompletada / uninstall uninstall_unnecessary.sh completed"
 
 # Ejecutar system_requirements.sh / Run system_requirements.sh
 echo "Instalando dependencias del sistema... / Installing system dependencies..."

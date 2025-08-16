@@ -22,7 +22,8 @@ $L = require $langFile;
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/libraries/chart.umd.js"></script>
+
 
 </head>
 <body>
@@ -40,6 +41,7 @@ $L = require $langFile;
 
     <div class="top-menu">
         <a href="#" data-page="home.php"><?= htmlspecialchars($L['menu_home']) ?></a>
+        <a href="#" data-page="interfaces/interfaces.php"><?= htmlspecialchars($L['menu_interfaces']) ?></a>
         <a href="#" data-page="monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
         <a href="#" data-page="users.php"><?= htmlspecialchars($L['menu_users']) ?></a>
         <a href="logout.php"><?= htmlspecialchars($L['menu_logout']) ?></a>
