@@ -47,6 +47,9 @@ return [
     'save_and_apply' => 'Save and Apply',
     'ifreload_output' => 'ifreload Output:',
     'unauthorized' => 'Unauthorized',
+    'edit' => 'Edit',
+    'save' => 'Save',
+    'interface' => 'Interface',
 
 
 ];

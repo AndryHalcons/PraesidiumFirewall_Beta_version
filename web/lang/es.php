@@ -47,6 +47,9 @@ return [
     'save_and_apply' => 'Guardar y aplicar',
     'ifreload_output' => 'Salida de ifreload:',
     'unauthorized' => 'No autorizado',
+    'edit' => 'Editar',
+    'save' => 'Guardar',
+    'interface' => 'Interfaz',
 
 
 

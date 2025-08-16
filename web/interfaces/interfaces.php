@@ -24,6 +24,8 @@ shell_exec("sudo $script3 2>&1");
     <meta charset="UTF-8">
     <title>Interfaces de red</title>
     <link rel="stylesheet" href="/styles.css">
+    <script>const lang = <?php echo json_encode($L); ?>;</script>
+
 </head>
 <body>
     <div id="tabla-interfaces">Cargando interfaces...</div>

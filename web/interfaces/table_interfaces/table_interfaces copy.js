@@ -51,10 +51,9 @@ fetch('/interfaces/table_interfaces/get_interfaces.php')
                     html += `<td><strong>${nombre}</strong></td>`;
                 } else if (filaIndex === 1) {
                     html += `<td>
-                                <button onclick="editarInterfaz('${nombre}')">${lang.edit}</button>
-                                <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>
+                                <button onclick="editarInterfaz('${nombre}')">Editar</button>
+                                <button onclick="guardarInterfaz('${nombre}')">Guardar</button>
                              </td>`;
-
                 } else {
                     html += `<td></td>`;
                 }
