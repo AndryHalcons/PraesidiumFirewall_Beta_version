@@ -1,26 +1,19 @@
 <?php
 session_start();
 
-// Verificar si el usuario está autenticado
 if (!isset($_SESSION['username'])) {
     header('Location: index.php');
     exit;
 }
 
-// Datos de sesión
 $username = $_SESSION['username'];
 $role     = $_SESSION['role'];
-$language = $_SESSION['language'] ?? 'es'; // Idioma por defecto si no está definido
+$language = $_SESSION['language'] ?? 'es';
 
-// Ruta del archivo de idioma
 $langFile = __DIR__ . "/lang/{$language}.php";
-
-// Si no existe el idioma solicitado, cargar español como fallback
 if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/lang/es.php";
 }
-
-// Cargar el array de traducciones
 $L = require $langFile;
 ?>
 <!DOCTYPE html>
@@ -29,10 +22,11 @@ $L = require $langFile;
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
-    <!-- Encabezado superior -->
     <div class="header-top">
         <div class="header-left">
             <h1><?= htmlspecialchars($L['title']) ?></h1>
@@ -44,26 +38,25 @@ $L = require $langFile;
         </div>
     </div>
 
-    <!-- Menú horizontal debajo del encabezado -->
     <div class="top-menu">
-        <a href="#"><?= htmlspecialchars($L['menu_home']) ?></a>
-        <a href="#"><?= htmlspecialchars($L['menu_monitor']) ?></a>
-        <a href="#"><?= htmlspecialchars($L['menu_users']) ?></a>
+        <a href="#" data-page="home.php"><?= htmlspecialchars($L['menu_home']) ?></a>
+        <a href="#" data-page="monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
+        <a href="#" data-page="users.php"><?= htmlspecialchars($L['menu_users']) ?></a>
         <a href="logout.php"><?= htmlspecialchars($L['menu_logout']) ?></a>
     </div>
 
-    <!-- Menú lateral vertical -->
     <div class="sidebar">
-        <a href="#"><?= htmlspecialchars($L['sidebar_dashboard']) ?></a>
-        <a href="#"><?= htmlspecialchars($L['sidebar_rules']) ?></a>
-        <a href="#"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
-        <a href="#"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
+        <a href="#" data-page="dashboard/dashboard.php"><?= htmlspecialchars($L['sidebar_dashboard']) ?></a>
+        <a href="#" data-page="policies/policies.php"><?= htmlspecialchars($L['sidebar_rules']) ?></a>
+        <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
+        <a href="#" data-page="settings.php"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
     </div>
 
-    <!-- Contenido principal -->
-    <div class="main-content">
+    <div class="main-content" id="main-content">
         <p><?= htmlspecialchars($L['main_content']) ?></p>
     </div>
 
+    <!-- JavaScript externo -->
+    <script src="javascript.js"></script>
 </body>
 </html>

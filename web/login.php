@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+// realiza el proceso de login //perform the login process
 $jsonPath = '/var/www/config/users.json';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $_SESSION['error'] = 'Usuario o contraseña incorrectos.';
+    $_SESSION['error'] = 'Incorrect username or password.';
     header('Location: index.php');
     exit;
 }

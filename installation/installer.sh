@@ -5,6 +5,7 @@ echo "Dando permisos a los scripts... / Granting execution permissions..."
 chmod +x system_requirements.sh
 chmod +x web_installation.sh
 chmod +x initial_data.sh
+chmod +x system_configuration.sh
 
 # Ejecutar system_requirements.sh / Run system_requirements.sh
 echo "Instalando dependencias del sistema... / Installing system dependencies..."
@@ -21,3 +22,7 @@ echo "Instalando initial_data... / Installing initial_data..."
 ./initial_data.sh
 echo "✅ Instalación initial_data.sh completada / Installation initial_data.sh completed"
 
+# Ejecutar system_configuration.sh / Run system_configuration.sh
+echo "Instalando system_configuration... / Installing system_configuration..."
+./system_configuration.sh
+echo "✅ Instalación system_configuration.sh completada / Installation system_configuration.sh completed"
