@@ -156,8 +156,63 @@
 #############################################################################
 #############################################################################
 #############################################################################
-   Estilos para la interfaz principal
-   Styles for the main interface
+   Estilos para la seccion interfaces
+   Styles for the section interfaces
 #############################################################################
 #############################################################################
 #############################################################################
+*/
+table.interfaz {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+table.interfaz thead th {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    text-align: left;
+    padding: 12px;
+    font-size: 16px;
+}
+
+table.interfaz tbody td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    vertical-align: top;
+}
+
+table.interfaz tbody td strong {
+    display: block;
+    color: #34495e;
+    margin-bottom: 4px;
+}
+
+table.interfaz tbody td span.valor {
+    display: block;
+    color: #2c3e50;
+}
+
+table.interfaz tbody td span.valor[contenteditable="true"] {
+    background-color: #fff8dc;
+    border: 1px dashed #f39c12;
+    padding: 4px;
+}
+
+table.interfaz button {
+    margin: 2px;
+    padding: 6px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+table.interfaz button:hover {
+    background-color: #2980b9;
+}

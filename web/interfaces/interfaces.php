@@ -13,18 +13,20 @@ if (!file_exists($langFile)) {
 }
 $L = require $langFile;
 
-// Ejecutar el primer script Python con sudo
-$script1 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/replace_allow-hotplug.py';
-$output1 = shell_exec("sudo $script1 2>&1");
-
-// Ejecutar el segundo script Python con sudo
-$script2 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/check_interfacesJSON.py';
-$output2 = shell_exec("sudo $script2 2>&1");
-
-// Mostrar la salida de ambos scripts
-echo "<h3>Resultado de replace_allow-hotplug.py</h3>";
-echo "<pre>$output1</pre>";
-
-echo "<h3>Resultado de check_interfacesJSON.py</h3>";
-echo "<pre>$output2</pre>";
+// Ejecutar el script principal
+$script3 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/compare_ifquery_iplinkshow.py';
+shell_exec("sudo $script3 2>&1");
 ?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Interfaces de red</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div id="tabla-interfaces">Cargando interfaces...</div>
+    <script src="/interfaces/table_interfaces/table_interfaces.js"></script>
+</body>
+</html>

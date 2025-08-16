@@ -11,33 +11,29 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(html => {
                 mainContent.innerHTML = html;
 
-                // Ejecutar scripts embebidos (pero NO dashboard.js)
+                // Crear un contenedor temporal para extraer scripts
                 const tempDiv = document.createElement("div");
                 tempDiv.innerHTML = html;
 
+                // Ejecutar scripts embebidos y externos
                 tempDiv.querySelectorAll("script").forEach(script => {
                     const newScript = document.createElement("script");
 
-                    if (script.src && !script.src.includes("dashboard.js")) {
+                    // Copiar atributos relevantes
+                    if (script.src) {
                         newScript.src = script.src;
-                    } else if (!script.src) {
+                    } else {
                         newScript.textContent = script.textContent;
                     }
 
+                    // Si el script tiene tipo (por ejemplo, module), conservarlo
                     if (script.type) {
                         newScript.type = script.type;
                     }
 
+                    // Añadir el script al documento
                     document.body.appendChild(newScript);
                 });
-
-                // 👉 Cargar dashboard.js solo si estamos en dashboard.php
-                if (page === "dashboard/dashboard.php") {
-                    const dashboardScript = document.createElement("script");
-                    dashboardScript.src = "/dashboard/dashboard.js";
-                    dashboardScript.defer = true;
-                    document.body.appendChild(dashboardScript);
-                }
             })
             .catch(err => {
                 mainContent.innerHTML = `<p style="color:red;">No se pudo cargar el contenido.</p>`;
