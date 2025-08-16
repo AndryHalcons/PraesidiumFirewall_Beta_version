@@ -8,6 +8,7 @@ chmod +x web_installation.sh
 chmod +x initial_data.sh
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
+chmod +x permissions.sh
 
 
 
@@ -35,3 +36,9 @@ echo "✅ Instalación initial_data.sh completada / Installation initial_data.sh
 echo "Instalando system_configuration... / Installing system_configuration..."
 ./system_configuration.sh
 echo "✅ Instalación system_configuration.sh completada / Installation system_configuration.sh completed"
+
+
+# Ejecutar system_configuration.sh / Run system_configuration.sh
+echo "Generando permisos de ejecucion / Generating execution permissions..."
+./permissions.sh
+echo "✅ Instalación permissions.sh completada / Installation permissions.sh completed"
