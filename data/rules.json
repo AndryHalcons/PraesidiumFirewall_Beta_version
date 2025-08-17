@@ -1,0 +1,97 @@
+{
+  "in_rules": {
+    "hook": "tc",
+    "direction": "ingress",
+    "comment": "entry rules",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_in_any",
+        "description": "Regla genérica que coincide con cualquier paquete en TC ingress",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  },
+  "out_rules": {
+    "hook": "tc",
+    "direction": "egress",
+    "comment": "reglas de salida",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_out_any",
+        "description": "Regla genérica que coincide con cualquier paquete en TC egress",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  },
+  "forwarding_rules": {
+    "hook": "tc",
+    "direction": "ingress",
+    "comment": "forwarding rules + bpf_redirect",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_forwarding_any",
+        "description": "Regla genérica que coincide con cualquier paquete en TC ingress",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  },
+  "xdp": {
+    "hook": "xdp",
+    "comment": "anti-ddos rules",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_xdp_any",
+        "description": "Regla genérica que coincide con cualquier paquete en XDP",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  },
+  "snat_rules": {
+    "hook": "tc",
+    "direction": "egress",
+    "comment": "reglas de salida",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_snat_any",
+        "description": "Regla genérica que coincide con cualquier paquete en TC egress SNAT",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  },
+  "dnat_rules": {
+    "hook": "tc",
+    "direction": "ingress",
+    "comment": "dnat rules or entry rules",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "rule_dnat_any",
+        "description": "Regla genérica que coincide con cualquier paquete en TC ingress DNAT",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      }
+    ]
+  }
+}
