@@ -47,10 +47,35 @@ return [
     'save_and_apply' => 'Guardar y aplicar',
     'ifreload_output' => 'Salida de ifreload:',
     'unauthorized' => 'No autorizado',
-    'edit' => 'Editar',
-    'save' => 'Guardar',
+    'edit' => '✏️ Editar',
+    'save' => '💾 Guardar',
     'interface' => 'Interfaz',
-
+    "create_bridge" => "➕ Crear Bridge",
+    "create_bond" => "➕ Crear Bond (grupo de agregación)",
+    "delete_interface" => "🗑️ Eliminar interfaz",
+    'enter_interface_name' => 'Introduce el nombre de la interfaz',
+    'invalid_name' => 'El nombre no puede estar vacío',
+    "ok" => "Aceptar",
+    "cancel" => "Cancelar",
+    "connection_error" => "Error de conexión.",
+    "invalid_interface_name" => "Solo se pueden eliminar interfaces lógicas (br* o bond*).",
+    "interface_deleted" => "Interfaz eliminada correctamente.",
+    "delete_failed" => "Error al eliminar la interfaz.",
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   users.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    "username" => "Usuario",
+    "password" => "Contraseña",
+    "role" => "Rol",
+    "language" => "Idioma",
+    "actions" => "Acciones",
+    "edit" => "✏️ Editar",
+    "save" => "💾 Guardar",
+    "delete" => "🗑️ Eliminar",
+    "add_user" => "➕ Añadir Usuario",
+    "cancel" => "Cancelar",
+    "confirm_delete" => "¿Seguro que deseas eliminar al usuario?",
 
 
 ];
