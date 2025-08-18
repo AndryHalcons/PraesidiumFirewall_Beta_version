@@ -17,6 +17,9 @@ return [
     // Sidebar
     'sidebar_dashboard'     => 'Dashboard',
     'sidebar_rules'         => 'Policies',
+    'sidebar_XDP_policies'  => 'Policies_XDP',
+    'sidebar_TC_Egress'     => 'Policies_TC_Egress',
+    'sidebar_TC_Ingress'    => 'Policies_TC_Ingress',
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
     // Content
@@ -75,6 +78,43 @@ return [
     "delete" => "🗑️ Delete",
     "add_user" => "➕ Add User",
     "cancel" => "Cancel",
-    "confirm_delete" => "Are you sure you want to delete the user"
+    "confirm_delete" => "Are you sure you want to delete the user",
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   policies.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    // Table headers
+    "actions" => "Actions",
+    "id" => "ID",
+    "position" => "Position",
+    "name" => "Name",
+    "description" => "Description",
+    "action" => "Action",
+    "enabled" => "Enabled?",
 
+    // Match fields
+    "iface" => "Interface",
+    "l3_proto" => "L3 Protocol",
+    "l4_proto" => "L4 Protocol",
+    "ip4_saddr" => "IPv4 Source",
+    "ip4_daddr" => "IPv4 Destination",
+    "ip4_snet" => "IPv4 Source Network",
+    "ip4_dnet" => "IPv4 Destination Network",
+    "ip4_proto" => "IPv4 Protocol",
+    "ip6_saddr" => "IPv6 Source",
+    "ip6_daddr" => "IPv6 Destination",
+    "ip6_snet" => "IPv6 Source Network",
+    "ip6_dnet" => "IPv6 Destination Network",
+    "ip6_nexthdr" => "IPv6 Next Header",
+    "tcp_sport" => "TCP Source Port",
+    "tcp_dport" => "TCP Destination Port",
+    "tcp_flags" => "TCP Flags",
+    "udp_sport" => "UDP Source Port",
+    "udp_dport" => "UDP Destination Port",
+    "icmp_type" => "ICMP Type",
+    "icmp_code" => "ICMP Code",
+    "icmpv6_type" => "ICMPv6 Type",
+    "icmpv6_code" => "ICMPv6 Code",
+    "probability" => "Probability",
+    "add_policy" => "➕ Add Policy",
 ];

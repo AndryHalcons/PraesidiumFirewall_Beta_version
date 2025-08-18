@@ -16,7 +16,9 @@ return [
     'menu_logout'           => 'Cerrar sesión',
     // Sidebar
     'sidebar_dashboard'     => 'Panel',
-    'sidebar_rules'         => 'Reglas',
+    'sidebar_XDP_policies'  => 'Reglas_XDP',
+    'sidebar_TC_Egress'     => 'Reglas_TC_Egress',
+    'sidebar_TC_Ingress'    => 'Reglas_TC_Ingress',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
     // Content
@@ -76,6 +78,42 @@ return [
     "add_user" => "➕ Añadir Usuario",
     "cancel" => "Cancelar",
     "confirm_delete" => "¿Seguro que deseas eliminar al usuario?",
-
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   policies.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    // Encabezados de tabla
+    "actions" => "Acciones",
+    "id" => "ID",
+    "position" => "Posición",
+    "name" => "Nombre",
+    "description" => "Descripción",
+    "action" => "Acción",
+    "enabled" => "¿Habilitada?",
+    // Campos de match
+    "iface" => "Interfaz",
+    "l3_proto" => "Protocolo L3",
+    "l4_proto" => "Protocolo L4",
+    "ip4_saddr" => "IPv4 Origen",
+    "ip4_daddr" => "IPv4 Destino",
+    "ip4_snet" => "Red IPv4 Origen",
+    "ip4_dnet" => "Red IPv4 Destino",
+    "ip4_proto" => "Protocolo IPv4",
+    "ip6_saddr" => "IPv6 Origen",
+    "ip6_daddr" => "IPv6 Destino",
+    "ip6_snet" => "Red IPv6 Origen",
+    "ip6_dnet" => "Red IPv6 Destino",
+    "ip6_nexthdr" => "Encabezado siguiente IPv6",
+    "tcp_sport" => "Puerto TCP Origen",
+    "tcp_dport" => "Puerto TCP Destino",
+    "tcp_flags" => "Flags TCP",
+    "udp_sport" => "Puerto UDP Origen",
+    "udp_dport" => "Puerto UDP Destino",
+    "icmp_type" => "Tipo ICMP",
+    "icmp_code" => "Código ICMP",
+    "icmpv6_type" => "Tipo ICMPv6",
+    "icmpv6_code" => "Código ICMPv6",
+    "probability" => "Probabilidad",
+    "add_policy" => "➕ Crear Regla",
 
 ];
