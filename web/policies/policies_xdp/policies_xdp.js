@@ -162,96 +162,6 @@ function mostrarTablaXDP() {
   container.appendChild(table);
 }
 
-function editarXDP(index, rule, row) {
-  const cells = row.querySelectorAll("td");
-  let cellIndex = 1;
-
-  const baseFields = ["id", "position", "name", "description", "action", "enabled"];
-
-  baseFields.forEach(field => {
-    const cell = cells[cellIndex];
-    if (field === "id") {
-      cell.textContent = rule.id ?? "";
-    } else if (field === "enabled") {
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = rule.enabled ?? false;
-      cell.innerHTML = "";
-      cell.appendChild(checkbox);
-    } else {
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = rule[field] ?? "";
-      cell.innerHTML = "";
-      cell.appendChild(input);
-    }
-    cellIndex++;
-  });
-
-  const matchFields = [
-    "iface", "l3_proto", "l4_proto",
-    "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
-    "ip6_saddr", "ip6_daddr", "ip6_snet", "ip6_dnet", "ip6_nexthdr",
-    "tcp_sport", "tcp_dport", "tcp_flags",
-    "udp_sport", "udp_dport",
-    "icmp_type", "icmp_code",
-    "icmpv6_type", "icmpv6_code",
-    "probability"
-  ];
-
-  matchFields.forEach(field => {
-    const cell = cells[cellIndex];
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = rule.match?.[field] ?? "";
-    cell.innerHTML = "";
-    cell.appendChild(input);
-    cellIndex++;
-  });
-}
-
-function guardarXDP(index, rule, row) {
-  const cells = row.querySelectorAll("td");
-  let cellIndex = 1;
-
-  const baseFields = ["id", "position", "name", "description", "action", "enabled"];
-
-  baseFields.forEach(field => {
-    const cell = cells[cellIndex];
-    if (field === "id") {
-      cell.textContent = rule.id ?? "";
-    } else if (field === "enabled") {
-      const checkbox = cell.querySelector("input[type='checkbox']");
-      const checked = checkbox?.checked ?? false;
-      cell.textContent = checked ? "✅" : "❌";
-    } else {
-      const input = cell.querySelector("input");
-      cell.textContent = input?.value ?? "";
-    }
-    cellIndex++;
-  });
-
-  const matchFields = [
-    "iface", "l3_proto", "l4_proto",
-    "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
-    "ip6_saddr", "ip6_daddr", "ip6_snet", "ip6_dnet", "ip6_nexthdr",
-    "tcp_sport", "tcp_dport", "tcp_flags",
-    "udp_sport", "udp_dport",
-    "icmp_type", "icmp_code",
-    "icmpv6_type", "icmpv6_code",
-    "probability"
-  ];
-
-  matchFields.forEach(field => {
-    const cell = cells[cellIndex];
-    const input = cell.querySelector("input");
-    cell.textContent = input?.value ?? "";
-    cellIndex++;
-  });
-}
-
-
-
 
 function addNewXDP() {
   const params = new URLSearchParams();
@@ -307,6 +217,126 @@ function eliminarXDP(index, rule, row) {
   });
 }
 
+function editarXDP(index, rule, row) {
+  const cells = row.querySelectorAll("td");
+  let cellIndex = 1;
+
+  const baseFields = ["id", "position", "name", "description", "action", "enabled"];
+
+  baseFields.forEach(field => {
+    const cell = cells[cellIndex];
+    if (field === "id") {
+      cell.textContent = rule.id ?? "";
+    } else if (field === "enabled") {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = rule.enabled ?? false;
+      cell.innerHTML = "";
+      cell.appendChild(checkbox);
+    } else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = rule[field] ?? "";
+      cell.innerHTML = "";
+      cell.appendChild(input);
+    }
+    cellIndex++;
+  });
+
+  const matchFields = [
+    "iface", "l3_proto", "l4_proto",
+    "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
+    "ip6_saddr", "ip6_daddr", "ip6_snet", "ip6_dnet", "ip6_nexthdr",
+    "tcp_sport", "tcp_dport", "tcp_flags",
+    "udp_sport", "udp_dport",
+    "icmp_type", "icmp_code",
+    "icmpv6_type", "icmpv6_code",
+    "probability"
+  ];
+
+  matchFields.forEach(field => {
+    const cell = cells[cellIndex];
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = rule.match?.[field] ?? "";
+    cell.innerHTML = "";
+    cell.appendChild(input);
+    cellIndex++;
+  });
+}
+
+
+
+
+function guardarXDP(index, rule, row) {
+  const cells = row.querySelectorAll("td");
+  let cellIndex = 1;
+
+  const baseFields = ["id", "position", "name", "description", "action", "enabled"];
+  const updatedRule = {};
+
+  baseFields.forEach(field => {
+    const cell = cells[cellIndex];
+    if (field === "enabled") {
+      const checkbox = cell.querySelector("input[type='checkbox']");
+      updatedRule.enabled = checkbox?.checked ?? false;
+      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
+    } else if (field === "id") {
+      updatedRule.id = cell.textContent.trim(); // Recoge el ID como texto
+    } else {
+      const input = cell.querySelector("input");
+      updatedRule[field] = input?.value ?? "";
+      cell.textContent = updatedRule[field];
+    }
+    cellIndex++;
+  });
+
+  const matchFields = [
+    "iface", "l3_proto", "l4_proto",
+    "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
+    "ip6_saddr", "ip6_daddr", "ip6_snet", "ip6_dnet", "ip6_nexthdr",
+    "tcp_sport", "tcp_dport", "tcp_flags",
+    "udp_sport", "udp_dport",
+    "icmp_type", "icmp_code",
+    "icmpv6_type", "icmpv6_code",
+    "probability"
+  ];
+
+  updatedRule.match = {};
+  matchFields.forEach(field => {
+    const cell = cells[cellIndex];
+    const input = cell.querySelector("input");
+    updatedRule.match[field] = input?.value ?? "";
+    cell.textContent = updatedRule.match[field];
+    cellIndex++;
+  });
+
+  const hook = "BF_HOOK_XDP";
+  const payload = {
+    hook: hook,
+    rule: updatedRule
+  };
+
+  fetch("/policies/common_policy_actions/update_policies.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(response => {
+    if (response.includes("OK")) {
+      alert("✅ Regla actualizada correctamente");
+      cargarPolicies(); // 🔄 Refresca la tabla
+    } else {
+      alert("❌ Error al guardar la regla: " + response);
+    }
+  })
+  .catch(err => {
+    alert("⚠️ Error de red al intentar guardar la regla.");
+  });
+}
 
 //  Ejecutar al cargar
 cargarPolicies();

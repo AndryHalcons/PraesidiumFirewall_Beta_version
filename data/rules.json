@@ -5,7 +5,7 @@
       {
         "id": 1,
         "position": 1,
-        "name": "rule_in_any",
+        "name": "BF_HOOK_TC_INGRESS_1",
         "description": "Regla genérica que coincide con cualquier paquete en TC ingress",
         "match": "any",
         "action": "any",
@@ -14,7 +14,7 @@
       {
         "id": 2,
         "position": 2,
-        "name": "rule_example_full",
+        "name": "BF_HOOK_TC_INGRESS_2",
         "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
         "match": {
           "iface": "iface example",
@@ -52,7 +52,7 @@
       {
         "id": 1,
         "position": 1,
-        "name": "rule_out_any",
+        "name": "BF_HOOK_TC_EGRESS_1",
         "description": "Regla genérica que coincide con cualquier paquete en TC egress",
         "match": "any",
         "action": "any",
@@ -61,7 +61,7 @@
       {
         "id": 2,
         "position": 2,
-        "name": "rule_example_full",
+        "name": "BF_HOOK_TC_EGRESS_2",
         "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
         "match": {
           "iface": "iface example",
@@ -99,7 +99,7 @@
       {
         "id": 1,
         "position": 1,
-        "name": "rule_xdp_any",
+        "name": "BF_HOOK_XDP_1",
         "description": "Regla genérica que coincide con cualquier paquete en XDP",
         "match": "any",
         "action": "any",
@@ -108,7 +108,7 @@
       {
         "id": 2,
         "position": 2,
-        "name": "rule_example_full",
+        "name": "BF_HOOK_XDP_2",
         "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
         "match": {
           "iface": "iface example",

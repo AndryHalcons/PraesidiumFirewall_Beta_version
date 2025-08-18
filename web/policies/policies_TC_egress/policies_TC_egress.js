@@ -1,26 +1,50 @@
 function cargarPolicies() {
   const hook = "BF_HOOK_TC_EGRESS";
 
-  fetch("/policies/common_policy_actions/get_policies.php", {
+  // 🧩 Paso 1: ordenar las reglas
+  fetch("/policies/common_policy_actions/order_policies.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body: `hook=${encodeURIComponent(hook)}`
   })
-    .then(response => response.json())
-    .then(data => {
-      const container = document.getElementById("rules-output");
-      container.textContent = JSON.stringify(data, null, 2);
-      mostrarTablaDesdeJSON(); // 🔥 Se dispara automáticamente
-    })
-    .catch(error => {
-      const container = document.getElementById("rules-output");
-      container.textContent = `Error: ${error.message}`;
+  .then(() => {
+    // 🧩 Paso 2: reordenar posiciones
+    return fetch("/policies/common_policy_actions/reorder_positions.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `hook=${encodeURIComponent(hook)}`
     });
+  })
+  .then(() => {
+    // 🧩 Paso 3: obtener las reglas ordenadas
+    return fetch("/policies/common_policy_actions/get_policies.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `hook=${encodeURIComponent(hook)}`
+    });
+  })
+  .then(response => response.json())
+  .then(data => {
+    // 🧩 Paso 4: mostrar resultados
+    const container = document.getElementById("rules-output");
+    container.textContent = JSON.stringify(data, null, 2);
+    mostrarTablaTC_EGRESS(); // 🔥 Se dispara automáticamente
+  })
+  .catch(error => {
+    const container = document.getElementById("rules-output");
+    container.textContent = `Error: ${error.message}`;
+  });
 }
 
-function mostrarTablaDesdeJSON() {
+
+
+function mostrarTablaTC_EGRESS() {
   const container = document.getElementById("rules-output");
   let data;
 
@@ -38,12 +62,11 @@ function mostrarTablaDesdeJSON() {
 
   container.innerHTML = "";
 
-  // 🔘 Botón "Añadir regla"
   const btnAdd = document.createElement("button");
   btnAdd.textContent = LANG.add_policy;
   btnAdd.className = "añadir-regla";
   btnAdd.style.marginBottom = "12px";
-  btnAdd.onclick = () => añadirNuevaRegla(); // lógica por definir
+  btnAdd.onclick = () => addNewTC_EGRESS();
 
   container.appendChild(btnAdd);
 
@@ -61,7 +84,6 @@ function mostrarTablaDesdeJSON() {
     "probability"
   ];
 
-  // 🔧 Crear <thead>
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
 
@@ -77,29 +99,27 @@ function mostrarTablaDesdeJSON() {
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // 🔧 Crear <tbody>
   const tbody = document.createElement("tbody");
 
   data.forEach((rule, index) => {
     const row = document.createElement("tr");
 
-    // 🔘 Botones de acción en primera columna
     const actionCell = document.createElement("td");
 
     const btnEditar = document.createElement("button");
     btnEditar.textContent = LANG.edit;
     btnEditar.className = "editar";
-    btnEditar.onclick = () => editarFila(index, rule, row);
-    
+    btnEditar.onclick = () => editarTC_EGRESS(index, rule, row);
+
     const btnGuardar = document.createElement("button");
     btnGuardar.textContent = LANG.save;
     btnGuardar.className = "guardar";
-    btnGuardar.onclick = () => guardarFila(index, rule, row);
-    
+    btnGuardar.onclick = () => guardarTC_EGRESS(index, rule, row);
+
     const btnEliminar = document.createElement("button");
     btnEliminar.textContent = LANG.delete;
     btnEliminar.className = "eliminar";
-    btnEliminar.onclick = () => eliminarFila(index, rule, row);
+    btnEliminar.onclick = () => eliminarTC_EGRESS(index, rule, row);
 
     [btnEditar, btnGuardar, btnEliminar].forEach(btn => {
       btn.style.marginRight = "4px";
@@ -108,7 +128,6 @@ function mostrarTablaDesdeJSON() {
 
     row.appendChild(actionCell);
 
-    // 🔢 Datos base
     const baseValues = [
       rule.id,
       rule.position,
@@ -124,7 +143,6 @@ function mostrarTablaDesdeJSON() {
       row.appendChild(cell);
     });
 
-    // 🎯 Campos de match (corregido)
     matchFields.forEach((field, i) => {
       const cell = document.createElement("td");
 
@@ -145,41 +163,86 @@ function mostrarTablaDesdeJSON() {
 }
 
 
-function editarFila(index, rule, row) {
-  const cells = row.querySelectorAll("td");
+function addNewTC_EGRESS() {
+  const params = new URLSearchParams();
+  params.append("BF_HOOK_TC_EGRESS", "BF_HOOK_TC_EGRESS");
+  params.append("new", "true");
 
-  // Saltar la primera celda (botones)
+  fetch("/policies/common_policy_actions/add_policies.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: params.toString()
+  })
+  .then(res => res.ok ? res.text() : Promise.reject(res))
+  .then(data => {
+    console.log("✅ Regla añadida:", data);
+    alert("Regla añadida correctamente.");
+    cargarPolicies();
+  })
+  .catch(err => {
+    console.error("❌ Error al añadir la regla:", err);
+    alert("Error al añadir la regla.");
+  });
+}
+
+function eliminarTC_EGRESS(index, rule, row) {
+  if (!confirm("¿Seguro que deseas eliminar esta regla?")) return;
+
+  const hook = "BF_HOOK_TC_EGRESS"; 
+  const payload = {
+    hook: hook,
+    id: rule.id
+  };
+
+  fetch("/policies/common_policy_actions/del_policies.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(response => {
+    if (response.includes("OK")) {
+      row.remove();          // 🧹 Elimina la fila visualmente
+      cargarPolicies();      // 🔄 Refresca la tabla completa
+    } else {
+      alert("Error al eliminar la regla: " + response);
+    }
+  })
+  .catch(err => {
+    alert("Error de red al intentar eliminar la regla.");
+  });
+}
+
+function editarTC_EGRESS(index, rule, row) {
+  const cells = row.querySelectorAll("td");
   let cellIndex = 1;
 
-  // Campos base (ID, position, name, description, action, enabled)
   const baseFields = ["id", "position", "name", "description", "action", "enabled"];
 
-  baseFields.forEach((field, i) => {
+  baseFields.forEach(field => {
     const cell = cells[cellIndex];
-
     if (field === "id") {
-      // ID no editable
       cell.textContent = rule.id ?? "";
     } else if (field === "enabled") {
-      // Campo booleano como checkbox
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = rule.enabled ?? false;
       cell.innerHTML = "";
       cell.appendChild(checkbox);
     } else {
-      // Texto editable
       const input = document.createElement("input");
       input.type = "text";
       input.value = rule[field] ?? "";
       cell.innerHTML = "";
       cell.appendChild(input);
     }
-
     cellIndex++;
   });
 
-  // Campos de match
   const matchFields = [
     "iface", "l3_proto", "l4_proto",
     "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
@@ -203,36 +266,31 @@ function editarFila(index, rule, row) {
 }
 
 
-function guardarFila(index, rule, row) {
-  const cells = row.querySelectorAll("td");
 
-  // Saltar la primera celda (botones)
+
+function guardarTC_EGRESS(index, rule, row) {
+  const cells = row.querySelectorAll("td");
   let cellIndex = 1;
 
-  // Campos base (ID, position, name, description, action, enabled)
   const baseFields = ["id", "position", "name", "description", "action", "enabled"];
+  const updatedRule = {};
 
-  baseFields.forEach((field, i) => {
+  baseFields.forEach(field => {
     const cell = cells[cellIndex];
-
-    if (field === "id") {
-      // ID no editable, mantener como texto
-      cell.textContent = rule.id ?? "";
-    } else if (field === "enabled") {
-      // Obtener valor del checkbox y mostrar como ✅❌
+    if (field === "enabled") {
       const checkbox = cell.querySelector("input[type='checkbox']");
-      const checked = checkbox?.checked ?? false;
-      cell.textContent = checked ? "✅" : "❌";
+      updatedRule.enabled = checkbox?.checked ?? false;
+      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
+    } else if (field === "id") {
+      updatedRule.id = cell.textContent.trim(); // Recoge el ID como texto
     } else {
-      // Obtener valor del input y mostrar como texto
       const input = cell.querySelector("input");
-      cell.textContent = input?.value ?? "";
+      updatedRule[field] = input?.value ?? "";
+      cell.textContent = updatedRule[field];
     }
-
     cellIndex++;
   });
 
-  // Campos de match
   const matchFields = [
     "iface", "l3_proto", "l4_proto",
     "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
@@ -244,18 +302,41 @@ function guardarFila(index, rule, row) {
     "probability"
   ];
 
+  updatedRule.match = {};
   matchFields.forEach(field => {
     const cell = cells[cellIndex];
     const input = cell.querySelector("input");
-    cell.textContent = input?.value ?? "";
+    updatedRule.match[field] = input?.value ?? "";
+    cell.textContent = updatedRule.match[field];
     cellIndex++;
+  });
+
+  const hook = "BF_HOOK_TC_EGRESS";
+  const payload = {
+    hook: hook,
+    rule: updatedRule
+  };
+
+  fetch("/policies/common_policy_actions/update_policies.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(response => {
+    if (response.includes("OK")) {
+      alert("✅ Regla actualizada correctamente");
+      cargarPolicies(); // 🔄 Refresca la tabla
+    } else {
+      alert("❌ Error al guardar la regla: " + response);
+    }
+  })
+  .catch(err => {
+    alert("⚠️ Error de red al intentar guardar la regla.");
   });
 }
 
-
-function eliminarFila(index, rule, row) {
-  console.log("Eliminar fila", index, rule);
-  // Aquí irá la lógica para eliminar
-}
 //  Ejecutar al cargar
 cargarPolicies();
