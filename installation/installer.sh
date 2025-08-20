@@ -9,6 +9,7 @@ chmod +x initial_data.sh
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
+chmod +x install_bpfilter.sh
 
 
 
@@ -42,3 +43,10 @@ echo "✅ Instalación system_configuration.sh completada / Installation system_
 echo "Generando permisos de ejecucion / Generating execution permissions..."
 ./permissions.sh
 echo "✅ Instalación permissions.sh completada / Installation permissions.sh completed"
+
+
+
+# Ejecutar install_bpfilter.sh / Run install_bpfilter.sh
+echo "Generando permisos de ejecucion / Generating execution permissions..."
+./install_bpfilter.sh
+echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"
