@@ -77,62 +77,29 @@ check_requirements() {
     fi
 }
 
-
-# ⚙️ Instala y compila bpfilter / Install and compile bpfilter
+# ⚙️ Instala bpfilter en Ubuntu 24.04+ / Install bpfilter on Ubuntu 24.04+
 install_bpfilter() {
-    local INSTALL_DIR="/home/bpfilter"
-    local REPO_URL="https://github.com/facebook/bpfilter.git"
+    echo "🚀 Iniciando instalación de bpfilter desde repositorios oficiales... / Starting bpfilter installation from official repositories..."
 
-    echo "🚀 Iniciando instalación de bpfilter en $INSTALL_DIR... / Starting bpfilter installation in $INSTALL_DIR..."
-
-    # Crear directorio limpio / Create clean directory
-    if [ -d "$INSTALL_DIR" ]; then
-        echo "🧹 Eliminando instalación previa... / Removing previous installation..."
-        sudo rm -rf "$INSTALL_DIR"
+    # Verificar si el paquete ya está instalado
+    if dpkg -l | grep -q "^ii  bpfilter "; then
+        echo "✅ bpfilter ya está instalado en el sistema. / bpfilter is already installed on the system."
+        return
     fi
-    mkdir -p "$INSTALL_DIR"
-    cd "$INSTALL_DIR"
 
-    # Clonar repositorio / Clone repository
-    echo "📥 Clonando repositorio bpfilter... / Cloning bpfilter repository..."
-    git clone "$REPO_URL" src
-    cd src
+    # Instalar bpfilter
+    sudo apt update
+    sudo apt install -y bpfilter
 
-    # Configurar con CMake / Configure with CMake
-    echo "🔧 Configurando proyecto con CMake... / Configuring project with CMake..."
-    cmake -S . -B "$INSTALL_DIR/build" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DNO_DOCS=ON \
-        -DNO_TESTS=ON \
-        -DNO_CHECKS=ON \
-        -DNO_BENCHMARKS=ON
-
-    # Compilar proyecto / Build project
-    echo "🔨 Compilando bpfilter... / Building bpfilter..."
-    cmake --build "$INSTALL_DIR/build" --target install
-
-    echo "✅ Instalación completada. Binarios disponibles en: $INSTALL_DIR/build/output / Installation complete. Binaries available at: $INSTALL_DIR/build/output"
-}
-
-
-# 🛡️ Habilita e inicia el servicio bpfilter / Enable and start bpfilter service
-start_bpfilter_service() {
-    echo "📚 Registrando ruta de bibliotecas compartidas... / Registering shared library path..."
-    echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/bpfilter.conf >/dev/null
-    sudo ldconfig
-
-    echo "🛡️ Activando el servicio bpfilter... / Enabling bpfilter service..."
-    sudo systemctl enable bpfilter
-    sudo systemctl start bpfilter
-
-    if systemctl is-active --quiet bpfilter; then
-        echo "✅ Servicio bpfilter iniciado correctamente. / bpfilter service started successfully."
+    # Verificar instalación
+    if dpkg -l | grep -q "^ii  bpfilter "; then
+        echo "✅ bpfilter ha sido instalado correctamente. / bpfilter has been successfully installed."
     else
-        echo "❌ Error al iniciar el servicio bpfilter. / Failed to start bpfilter service."
+        echo "❌ Error al instalar bpfilter. / Failed to install bpfilter."
     fi
 }
+
 
 # 🧪 Ejecutar verificación e instalación / Run verification and installation
 check_requirements
 install_bpfilter
-start_bpfilter_service
