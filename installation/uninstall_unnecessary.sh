@@ -23,3 +23,11 @@ if dpkg -l | grep -q "^ii  nftables "; then
 else
     echo "❌ nftables no está instalado en este sistema. / nftables is not installed on this system."
 fi
+
+# 🔧 Desinstalando netplan / Uninstalling netplan
+if dpkg -l | grep -q "^ii  netplan.io "; then
+    apt purge -y netplan.io
+    echo "✅ netplan ha sido desinstalado correctamente. / netplan has been successfully uninstalled."
+else
+    echo "❌ netplan no está instalado en este sistema. / netplan is not installed on this system."
+fi
