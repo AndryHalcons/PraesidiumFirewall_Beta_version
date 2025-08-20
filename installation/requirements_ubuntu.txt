@@ -3,7 +3,6 @@ git
 sqlite3
 php
 libapache2-mod-php
-ifupdown2
 autoconf
 automake
 bison

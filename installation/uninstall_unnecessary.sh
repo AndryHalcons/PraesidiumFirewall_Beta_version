@@ -8,6 +8,16 @@ else
     echo "❌ ifupdown no está instalado en este sistema. / ifupdown is not installed on this system."
 fi
 
+# 🔧 Desinstalando UFW / Uninstalling UFW
+if dpkg -l | grep -q "^ii  ufw "; then
+    apt remove -y ufw
+    echo "✅ UFW ha sido desinstalado correctamente. / UFW has been successfully uninstalled."
+else
+    echo "❌ UFW no está instalado en este sistema. / UFW is not installed on this system."
+fi
+
+
+
 # 🔧 Desinstalando iptables / Uninstalling iptables
 if dpkg -l | grep -q "^ii  iptables "; then
     apt remove -y iptables
@@ -22,12 +32,4 @@ if dpkg -l | grep -q "^ii  nftables "; then
     echo "✅ nftables ha sido desinstalado correctamente. / nftables has been successfully uninstalled."
 else
     echo "❌ nftables no está instalado en este sistema. / nftables is not installed on this system."
-fi
-
-# 🔧 Desinstalando netplan / Uninstalling netplan
-if dpkg -l | grep -q "^ii  netplan.io "; then
-    apt purge -y netplan.io
-    echo "✅ netplan ha sido desinstalado correctamente. / netplan has been successfully uninstalled."
-else
-    echo "❌ netplan no está instalado en este sistema. / netplan is not installed on this system."
 fi

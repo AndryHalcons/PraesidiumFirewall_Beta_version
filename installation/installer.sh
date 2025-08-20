@@ -48,5 +48,5 @@ echo "✅ Instalación permissions.sh completada / Installation permissions.sh c
 
 # Ejecutar install_bpfilter.sh / Run install_bpfilter.sh
 echo "Generando permisos de ejecucion / Generating execution permissions..."
-./install_bpfilter.sh
+#./install_bpfilter.sh
 echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"

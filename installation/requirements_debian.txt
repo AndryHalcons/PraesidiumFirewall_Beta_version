@@ -43,3 +43,6 @@ linux-perf
 msr-tools
 libbpf-dev
 bpftool
+python3-pip 
+python3-setuptools 
+python3-wheel
