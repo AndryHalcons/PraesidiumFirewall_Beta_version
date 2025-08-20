@@ -1,74 +1,30 @@
 function loadInterfaceTable() {
     fetch('/interfaces/table_interfaces/get_interfaces.php')
         .then(response => response.json())
-        .then(data => {
-            renderInterfaceTable(data);  // Para ethernets
-            renderBridgeTable(data);     // Para bridges
-            renderBondTable(data);       // Para bonds ✅
-        })
+        .then(data => renderInterfaceTable(data.interfaces || []))
         .catch(err => {
             console.error('Error al cargar el JSON:', err);
         });
 }
 
-
-
 function renderInterfaceTable(interfaces) {
     const container = document.getElementById('tabla-interfaces');
-    if (!container || !interfaces.network) return;
-
-    const grupoEthernet = interfaces.network.ethernets || {};
-    const resultado = [];
-
-    Object.entries(grupoEthernet).forEach(([nombre, config]) => {
-        const iface = {
-            name: nombre,
-            type: 'ethernet',
-            ...config
-        };
-
-        if (config.nameservers?.addresses) {
-            iface['dns-nameservers'] = config.nameservers.addresses.join(', ');
-        }
-        if (config.nameservers?.search) {
-            iface['dns-search'] = config.nameservers.search.join(', ');
-        }
-        if (config.addresses) {
-            iface['address'] = config.addresses.join(', ');
-        }
-        if (config.gateway4) {
-            iface['gateway'] = config.gateway4;
-        }
-        if (config.gateway6) {
-            iface['gateway'] = config.gateway6;
-        }
-        if (config.macaddress) {
-            iface['hwaddress'] = config.macaddress;
-        }
-        if (config.routes) {
-            iface['routes'] = config.routes.map(r => {
-                const parts = [`to: ${r.to}`, `via: ${r.via}`];
-                if (r.metric !== undefined) parts.push(`metric: ${r.metric}`);
-                if (r['on-link']) parts.push(`on-link: true`);
-                return parts.join(', ');
-            }).join(' | ');
-        }
-
-        resultado.push(iface);
-    });
-
-    interfaces = resultado;
+    if (!container) return;
 
     const camposPrioritarios = [
-        'name', 'type', 'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress'
+        'name', 'auto', 'family', 'method',
+        'address', 'netmask', 'gateway', 'broadcast', 'network'
     ];
 
     const camposAvanzados = [
-        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
-        'routes',
-        'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
-        'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
-        'match', 'set-name', 'renderer', 'description'
+        'hwaddress', 'hostname', 'domain', 'source',
+        'pre-up', 'up', 'post-up', 'down', 'post-down',
+        'vlan-raw-device',
+        'bridge_ports', 'bridge_fd', 'bridge_maxwait', 'bridge_stp',
+        'bond-mode', 'bond-miimon', 'bond-slaves', 'bond-primary', 'bond-xmit_hash_policy',
+        'wireless-essid', 'wireless-mode', 'wireless-key', 'wpa-ssid', 'wpa-psk',
+        'dns-nameservers', 'dns-search', 'mtu', 'metric', 'scope',
+        'accept_ra', 'autoconf', 'privext'
     ];
 
     const camposRestantes = camposAvanzados.filter(c => !camposPrioritarios.includes(c));
@@ -102,98 +58,8 @@ function renderInterfaceTable(interfaces) {
 
             grupo.forEach(campo => {
                 let valor = iface[campo];
-                if (Array.isArray(valor)) {
-                    valor = valor.join(', ');
-                } else if (typeof valor === 'object' && valor !== null) {
-                    valor = JSON.stringify(valor);
-                }
-                const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
-                html += `<td data-campo="${campo}">
-                            <strong>${campo}:</strong> 
-                            <span contenteditable="false" class="valor">${mostrarValor}</span>
-                         </td>`;
-            });
-
-            html += `</tr>`;
-        });
-
-        html += `</tbody>`;
-    });
-
-    html += `</table>`;
-
-    // 👇 Se ha eliminado el bloque <tfoot> con los botones
-    container.innerHTML = html;
-}
-
-
-function renderBridgeTable(interfaces) {
-    const container = document.getElementById('tabla-bridges');
-    if (!container || !interfaces.network) return;
-
-    const grupoBridges = interfaces.network.bridges || {};
-    const resultado = [];
-
-    Object.entries(grupoBridges).forEach(([nombre, config]) => {
-        const bridge = {
-            name: nombre,
-            type: 'bridge',
-            ...config
-        };
-
-        if (config.interfaces) {
-            bridge['interfaces'] = config.interfaces.join(', ');
-        }
-
-        resultado.push(bridge);
-    });
-
-    interfaces = resultado;
-
-    const camposPrioritarios = ['name', 'type', 'interfaces'];
-    const camposAvanzados = [
-        'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress',
-        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
-        'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
-        'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
-        'match', 'set-name', 'renderer', 'description'
-    ];
-
-    const camposRestantes = camposAvanzados.filter(c => !camposPrioritarios.includes(c));
-    const todosLosCampos = [...camposPrioritarios, ...camposRestantes];
-
-    const total = todosLosCampos.length;
-    const tercio = Math.ceil(total / 3);
-
-    const grupo1 = todosLosCampos.slice(0, tercio);
-    const grupo2 = todosLosCampos.slice(tercio, tercio * 2);
-    const grupo3 = todosLosCampos.slice(tercio * 2);
-
-    let html = `<table class="interfaz">`;
-
-    interfaces.forEach((bridge, index) => {
-        const nombre = bridge.name || `bridge_${index}`;
-
-        html += `<thead>
-                    <tr style="background-color: #e0f7fa;">
-                        <th colspan="${tercio + 1}">Bridge: ${nombre}</th>
-                    </tr>
-                </thead>
-                <tbody id="${nombre}">`;
-
-        [grupo1, grupo2, grupo3].forEach((grupo, filaIndex) => {
-            html += `<tr>`;
-            html += `<td>${filaIndex === 0 ? `<strong>${nombre}</strong>` :
-                        filaIndex === 1 ? `
-                            <button onclick="editarInterfaz('${nombre}')">${lang.edit}</button>
-                            <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>` : ''}</td>`;
-
-            grupo.forEach(campo => {
-                let valor = bridge[campo];
-                if (Array.isArray(valor)) {
-                    valor = valor.join(', ');
-                } else if (typeof valor === 'object' && valor !== null) {
-                    valor = JSON.stringify(valor);
+                if (valor === undefined && iface.options) {
+                    valor = iface.options[campo];
                 }
                 const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
                 html += `<td data-campo="${campo}">
@@ -227,107 +93,6 @@ function renderBridgeTable(interfaces) {
     container.innerHTML = html;
 }
 
-
-function renderBondTable(interfaces) {
-    const container = document.getElementById('tabla-bonds');
-    if (!container || !interfaces.network) return;
-
-    const grupoBonds = interfaces.network.bonds || {};
-    const resultado = [];
-
-    Object.entries(grupoBonds).forEach(([nombre, config]) => {
-        const bond = {
-            name: nombre,
-            type: 'bonds',
-            ...config
-        };
-
-        if (config.interfaces) {
-            bond['interfaces'] = config.interfaces.join(', ');
-        }
-
-        resultado.push(bond);
-    });
-
-    interfaces = resultado;
-
-    const camposPrioritarios = ['name', 'type', 'interfaces'];
-    const camposAvanzados = [
-        'dhcp4', 'dhcp6', 'addresses', 'gateway4', 'mtu', 'macaddress',
-        'parameters', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
-        'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
-        'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
-        'match', 'set-name', 'renderer', 'description'
-    ];
-
-    const camposRestantes = camposAvanzados.filter(c => !camposPrioritarios.includes(c));
-    const todosLosCampos = [...camposPrioritarios, ...camposRestantes];
-
-    const total = todosLosCampos.length;
-    const tercio = Math.ceil(total / 3);
-
-    const grupo1 = todosLosCampos.slice(0, tercio);
-    const grupo2 = todosLosCampos.slice(tercio, tercio * 2);
-    const grupo3 = todosLosCampos.slice(tercio * 2);
-
-    let html = `<table class="interfaz">`;
-
-    interfaces.forEach((bond, index) => {
-        const nombre = bond.name || `bond_${index}`;
-
-        html += `<thead>
-                    <tr style="background-color: #ffe0b2;">
-                        <th colspan="${tercio + 1}">Bond: ${nombre}</th>
-                    </tr>
-                </thead>
-                <tbody id="${nombre}">`;
-
-        [grupo1, grupo2, grupo3].forEach((grupo, filaIndex) => {
-            html += `<tr>`;
-            html += `<td>${filaIndex === 0 ? `<strong>${nombre}</strong>` :
-                        filaIndex === 1 ? `
-                            <button onclick="editarInterfaz('${nombre}')">${lang.edit}</button>
-                            <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>` : ''}</td>`;
-
-            grupo.forEach(campo => {
-                let valor = bond[campo];
-                if (Array.isArray(valor)) {
-                    valor = valor.join(', ');
-                } else if (typeof valor === 'object' && valor !== null) {
-                    valor = JSON.stringify(valor);
-                }
-                const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
-                html += `<td data-campo="${campo}">
-                            <strong>${campo}:</strong> 
-                            <span contenteditable="false" class="valor">${mostrarValor}</span>
-                         </td>`;
-            });
-
-            html += `</tr>`;
-        });
-
-        html += `</tbody>`;
-    });
-
-    html += `</table>`;
-
-    html += `
-        <table class="interfaz">
-            <tfoot>
-                <tr>
-                    <td colspan="${tercio + 1}">
-                        <button onclick="crearBond()">${lang.create_bond}</button>
-                        <button onclick="eliminarInterfazGlobal()">${lang.delete_interface}</button>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
-    `;
-
-    container.innerHTML = html;
-}
-
-
 function editarInterfaz(nombre) {
     const tbody = document.getElementById(nombre);
     if (!tbody) return;
@@ -336,8 +101,7 @@ function editarInterfaz(nombre) {
     valores.forEach(span => {
         const td = span.closest('td');
         const campo = td?.getAttribute('data-campo');
-        if (campo === 'name' || campo === 'type') return;
-
+        if (campo === 'name') return;
 
         span.setAttribute('contenteditable', 'true');
         span.style.backgroundColor = '#ffffcc';
@@ -349,24 +113,53 @@ function guardarInterfaz(nombre) {
     if (!tbody) return;
 
     const celdas = tbody.querySelectorAll('td[data-campo]');
-    const datos = {};
+
+    const datos = {
+        name: nombre,
+        auto: null,
+        family: null,
+        method: null,
+        options: {}
+    };
+
+    const camposFuera = ['auto', 'family', 'method'];
+
+    const camposOptions = [
+        'address', 'netmask', 'gateway', 'broadcast', 'network',
+        'hwaddress', 'hostname', 'domain', 'source',
+        'pre-up', 'up', 'post-up', 'down', 'post-down',
+        'vlan-raw-device',
+        'bridge_ports', 'bridge_fd', 'bridge_maxwait', 'bridge_stp',
+        'bond-mode', 'bond-miimon', 'bond-slaves', 'bond-primary', 'bond-xmit_hash_policy',
+        'wireless-essid', 'wireless-mode', 'wireless-key', 'wpa-ssid', 'wpa-psk',
+        'dns-nameservers', 'dns-search', 'mtu', 'metric', 'scope',
+        'accept_ra', 'autoconf', 'privext'
+    ];
 
     celdas.forEach(td => {
         const campo = td.getAttribute('data-campo');
         const span = td.querySelector('span.valor');
-        if (!span || campo === 'name' || campo === 'type') return;
+        if (!span) return;
 
         const valor = span.innerText.trim();
+
         if (valor !== '') {
-            datos[campo] = valor;
+            if (camposFuera.includes(campo)) {
+                datos[campo] = valor;
+            } else if (camposOptions.includes(campo)) {
+                datos.options[campo] = valor;
+            }
         }
 
         span.setAttribute('contenteditable', 'false');
         span.style.backgroundColor = '';
     });
 
-    // Añadir el nombre como identificador principal
-    datos.name = nombre;
+    camposFuera.forEach(campo => {
+        if (datos[campo] === null) {
+            delete datos[campo];
+        }
+    });
 
     console.log('📦 JSON enviado al servidor:', datos);
 
@@ -387,7 +180,6 @@ function guardarInterfaz(nombre) {
         alert(`Error al guardar la interfaz "${nombre}".`);
     });
 }
-
 
 // Invocar la tabla al cargar
 loadInterfaceTable();

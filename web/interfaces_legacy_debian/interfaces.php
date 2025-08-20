@@ -13,10 +13,8 @@ if (!file_exists($langFile)) {
 }
 $L = require $langFile;
 
-// check interfaces scripts
-$script1 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/check_interfacesYML.py';
-shell_exec("sudo $script1 2>&1");
-$script3 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/check_new_interfaces.py';
+// Ejecutar el script principal
+$script3 = '/usr/bin/python3 /var/www/html/interfaces/check_new_physical_interfaces/compare_ifquery_iplinkshow.py';
 shell_exec("sudo $script3 2>&1");
 ?>
 
@@ -31,8 +29,6 @@ shell_exec("sudo $script3 2>&1");
 </head>
 <body>
     <div id="tabla-interfaces">Cargando interfaces...</div>
-    <div id="tabla-bridges"></div>
-    <div id="tabla-bonds"></div>
     <script src="/interfaces/table_interfaces/table_interfaces.js"></script>
 </body>
 </html>

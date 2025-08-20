@@ -5,14 +5,8 @@ EXCEPCIONES_FILE="/etc/sudoers.d/praesidium_excepciones"
 
 registrar_excepciones_python() {
     local excepciones=(
-        "/var/www/html/interfaces/check_new_physical_interfaces/replace_allow-hotplug.py"
-        "/var/www/html/interfaces/check_new_physical_interfaces/check_interfacesJSON.py"
-        "/var/www/html/interfaces/check_new_physical_interfaces/ifquery_list.py"
-        "/var/www/html/interfaces/check_new_physical_interfaces/ip_link_show.py"
-        "/var/www/html/interfaces/check_new_physical_interfaces/compare_ifquery_iplinkshow.py"
-        "/var/www/html/interfaces/table_interfaces/table_interfaces.py"
-        "/var/www/html/interfaces/table_interfaces/get_interfaces.py"
-        "/var/www/html/interfaces/table_interfaces/update_interfaces.py"
+        "/var/www/html/interfaces/check_new_physical_interfaces/check_interfacesYML.py"
+        "/var/www/html/interfaces/check_new_physical_interfaces/check_new_interfaces.py"
         "/var/www/html/routing/update_routing/reload_system_routes_running.py"
     )
 

@@ -1,8 +1,11 @@
-sudo
+apache2
 git
 sqlite3
 php
 libapache2-mod-php
+php-pear
+php-dev
+libyaml-dev
 autoconf
 automake
 bison

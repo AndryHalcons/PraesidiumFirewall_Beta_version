@@ -1,20 +1,26 @@
 <?php
 header('Content-Type: application/json');
 
-$jsonFile = '/var/www/config/interfaces.json';
+$yamlFile = '/var/www/config/interfaces.yml';
 
-if (!file_exists($jsonFile)) {
+if (!file_exists($yamlFile)) {
     http_response_code(404);
     echo json_encode(['error' => 'Archivo no encontrado']);
     exit;
 }
 
-$jsonContent = file_get_contents($jsonFile);
-$data = json_decode($jsonContent, true);
-
-if (json_last_error() !== JSON_ERROR_NONE) {
+// Verifica que la extensión YAML esté disponible //verify php extension installed
+if (!function_exists('yaml_parse_file')) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error al decodificar JSON']);
+    echo json_encode(['error' => 'La extensión YAML no está habilitada en PHP']);
+    exit;
+}
+
+$data = yaml_parse_file($yamlFile);
+
+if ($data === false) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al parsear YAML']);
     exit;
 }
 
