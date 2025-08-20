@@ -21,6 +21,7 @@ return [
     'sidebar_TC_Ingress'    => 'Reglas_TC_Ingress',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
+    'sidebar_Routing'      => 'Enrutamiento',
     // Content
     'main_content'          => 'Contenido aquí...',
     ///////////////////////////////////////////////////////////////////////
@@ -115,5 +116,25 @@ return [
     "icmpv6_code" => "Código ICMPv6",
     "probability" => "Probabilidad",
     "add_policy" => "➕ Crear Regla",
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   routing.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'routing_title' => 'Tabla de rutas del sistema',
+    'loading_routes' => 'Cargando rutas...',
+    'table' => 'Tabla',
+    'ip_version' => 'Versión IP',
+    'action' => 'Acción',
+    'destination' => 'Destino',
+    'interface' => 'Interfaz',
+    'gateway' => 'Gateway',
+    'metric' => 'Métrica',
+    'proto' => 'Protocolo',
+    'scope' => 'Scope',
+    'src' => 'Origen',
+    'rules_title' => 'Reglas de enrutamiento',
+    'rule_from' => 'Desde',
+    'rule_table' => 'Tabla',
+    'reload_routes' => 'Recargar rutas del sistema en ejecución',
 
 ];

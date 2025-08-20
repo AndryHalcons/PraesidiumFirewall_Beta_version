@@ -13,6 +13,7 @@ registrar_excepciones_python() {
         "/var/www/html/interfaces/table_interfaces/table_interfaces.py"
         "/var/www/html/interfaces/table_interfaces/get_interfaces.py"
         "/var/www/html/interfaces/table_interfaces/update_interfaces.py"
+        "/var/www/html/routing/update_routing/reload_system_routes_running.py"
     )
 
     # Crear el archivo si no existe

@@ -22,6 +22,7 @@ return [
     'sidebar_TC_Ingress'    => 'Policies_TC_Ingress',
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
+    'sidebar_Routing'      => 'Routing',
     // Content
     'main_content'          => 'Content here...',
     ///////////////////////////////////////////////////////////////////////
@@ -117,4 +118,24 @@ return [
     "icmpv6_code" => "ICMPv6 Code",
     "probability" => "Probability",
     "add_policy" => "➕ Add Policy",
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   routing.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'routing_title' => 'System Routing Table',
+    'loading_routes' => 'Loading routes...',
+    'table' => 'Table',
+    'ip_version' => 'IP Version',
+    'action' => 'Action',
+    'destination' => 'Destination',
+    'interface' => 'Interface',
+    'gateway' => 'Gateway',
+    'metric' => 'Metric',
+    'proto' => 'Protocol',
+    'scope' => 'Scope',
+    'src' => 'Source',
+    'rules_title' => 'Routing Rules',
+    'rule_from' => 'From',
+    'rule_table' => 'Table',
+    'reload_routes' => 'Reload system routes running',
 ];
