@@ -31,8 +31,8 @@ shell_exec("sudo $script3 2>&1");
 </head>
 <body>
     <div id="tabla-interfaces">Cargando interfaces...</div>
-    <div id="tabla-bridges"></div>
     <div id="tabla-bonds"></div>
+    <div id="tabla-bridges"></div>
     <script src="/interfaces/table_interfaces/table_interfaces.js"></script>
 </body>
 </html>

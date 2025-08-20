@@ -3,8 +3,8 @@ function loadInterfaceTable() {
         .then(response => response.json())
         .then(data => {
             renderInterfaceTable(data);  // Para ethernets
-            renderBridgeTable(data);     // Para bridges
             renderBondTable(data);       // Para bonds ✅
+            renderBridgeTable(data);     // Para bridges
         })
         .catch(err => {
             console.error('Error al cargar el JSON:', err);
@@ -126,108 +126,6 @@ function renderInterfaceTable(interfaces) {
     container.innerHTML = html;
 }
 
-
-function renderBridgeTable(interfaces) {
-    const container = document.getElementById('tabla-bridges');
-    if (!container || !interfaces.network) return;
-
-    const grupoBridges = interfaces.network.bridges || {};
-    const resultado = [];
-
-    Object.entries(grupoBridges).forEach(([nombre, config]) => {
-        const bridge = {
-            name: nombre,
-            type: 'bridge',
-            ...config
-        };
-
-        if (config.interfaces) {
-            bridge['interfaces'] = config.interfaces.join(', ');
-        }
-
-        resultado.push(bridge);
-    });
-
-    interfaces = resultado;
-
-    const camposPrioritarios = ['name', 'type', 'interfaces'];
-    const camposAvanzados = [
-        'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress',
-        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
-        'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
-        'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
-        'match', 'set-name', 'renderer', 'description'
-    ];
-
-    const camposRestantes = camposAvanzados.filter(c => !camposPrioritarios.includes(c));
-    const todosLosCampos = [...camposPrioritarios, ...camposRestantes];
-
-    const total = todosLosCampos.length;
-    const tercio = Math.ceil(total / 3);
-
-    const grupo1 = todosLosCampos.slice(0, tercio);
-    const grupo2 = todosLosCampos.slice(tercio, tercio * 2);
-    const grupo3 = todosLosCampos.slice(tercio * 2);
-
-    let html = `<table class="interfaz">`;
-
-    interfaces.forEach((bridge, index) => {
-        const nombre = bridge.name || `bridge_${index}`;
-
-        html += `<thead>
-                    <tr style="background-color: #e0f7fa;">
-                        <th colspan="${tercio + 1}">Bridge: ${nombre}</th>
-                    </tr>
-                </thead>
-                <tbody id="${nombre}">`;
-
-        [grupo1, grupo2, grupo3].forEach((grupo, filaIndex) => {
-            html += `<tr>`;
-            html += `<td>${filaIndex === 0 ? `<strong>${nombre}</strong>` :
-                        filaIndex === 1 ? `
-                            <button onclick="editarInterfaz('${nombre}')">${lang.edit}</button>
-                            <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>` : ''}</td>`;
-
-            grupo.forEach(campo => {
-                let valor = bridge[campo];
-                if (Array.isArray(valor)) {
-                    valor = valor.join(', ');
-                } else if (typeof valor === 'object' && valor !== null) {
-                    valor = JSON.stringify(valor);
-                }
-                const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
-                html += `<td data-campo="${campo}">
-                            <strong>${campo}:</strong> 
-                            <span contenteditable="false" class="valor">${mostrarValor}</span>
-                         </td>`;
-            });
-
-            html += `</tr>`;
-        });
-
-        html += `</tbody>`;
-    });
-
-    html += `</table>`;
-
-    html += `
-        <table class="interfaz">
-            <tfoot>
-                <tr>
-                    <td colspan="${tercio + 1}">
-                        <button onclick="crearBridge()">${lang.create_bridge}</button>
-                        <button onclick="crearBond()">${lang.create_bond}</button>
-                        <button onclick="eliminarInterfazGlobal()">${lang.delete_interface}</button>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
-    `;
-
-    container.innerHTML = html;
-}
-
-
 function renderBondTable(interfaces) {
     const container = document.getElementById('tabla-bonds');
     if (!container || !interfaces.network) return;
@@ -327,6 +225,104 @@ function renderBondTable(interfaces) {
     container.innerHTML = html;
 }
 
+function renderBridgeTable(interfaces) {
+    const container = document.getElementById('tabla-bridges');
+    if (!container || !interfaces.network) return;
+
+    const grupoBridges = interfaces.network.bridges || {};
+    const resultado = [];
+
+    Object.entries(grupoBridges).forEach(([nombre, config]) => {
+        const bridge = {
+            name: nombre,
+            type: 'bridge',
+            ...config
+        };
+
+        if (config.interfaces) {
+            bridge['interfaces'] = config.interfaces.join(', ');
+        }
+
+        resultado.push(bridge);
+    });
+
+    interfaces = resultado;
+
+    const camposPrioritarios = ['name', 'type', 'interfaces'];
+    const camposAvanzados = [
+        'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress',
+        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
+        'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
+        'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
+        'match', 'set-name', 'renderer', 'description'
+    ];
+
+    const camposRestantes = camposAvanzados.filter(c => !camposPrioritarios.includes(c));
+    const todosLosCampos = [...camposPrioritarios, ...camposRestantes];
+
+    const total = todosLosCampos.length;
+    const tercio = Math.ceil(total / 3);
+
+    const grupo1 = todosLosCampos.slice(0, tercio);
+    const grupo2 = todosLosCampos.slice(tercio, tercio * 2);
+    const grupo3 = todosLosCampos.slice(tercio * 2);
+
+    let html = `<table class="interfaz">`;
+
+    interfaces.forEach((bridge, index) => {
+        const nombre = bridge.name || `bridge_${index}`;
+
+        html += `<thead>
+                    <tr style="background-color: #e0f7fa;">
+                        <th colspan="${tercio + 1}">Bridge: ${nombre}</th>
+                    </tr>
+                </thead>
+                <tbody id="${nombre}">`;
+
+        [grupo1, grupo2, grupo3].forEach((grupo, filaIndex) => {
+            html += `<tr>`;
+            html += `<td>${filaIndex === 0 ? `<strong>${nombre}</strong>` :
+                        filaIndex === 1 ? `
+                            <button onclick="editarInterfaz('${nombre}')">${lang.edit}</button>
+                            <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>` : ''}</td>`;
+
+            grupo.forEach(campo => {
+                let valor = bridge[campo];
+                if (Array.isArray(valor)) {
+                    valor = valor.join(', ');
+                } else if (typeof valor === 'object' && valor !== null) {
+                    valor = JSON.stringify(valor);
+                }
+                const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
+                html += `<td data-campo="${campo}">
+                            <strong>${campo}:</strong> 
+                            <span contenteditable="false" class="valor">${mostrarValor}</span>
+                         </td>`;
+            });
+
+            html += `</tr>`;
+        });
+
+        html += `</tbody>`;
+    });
+
+    html += `</table>`;
+
+    html += `
+        <table class="interfaz">
+            <tfoot>
+                <tr>
+                    <td colspan="${tercio + 1}">
+                        <button onclick="crearBridge()">${lang.create_bridge}</button>
+                        <button onclick="eliminarInterfazGlobal()">${lang.delete_interface}</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+
+    container.innerHTML = html;
+}
 
 function editarInterfaz(nombre) {
     const tbody = document.getElementById(nombre);
