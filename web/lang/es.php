@@ -19,6 +19,8 @@ return [
     'sidebar_XDP_policies'  => 'Reglas_XDP',
     'sidebar_TC_Egress'     => 'Reglas_TC_Egress',
     'sidebar_TC_Ingress'    => 'Reglas_TC_Ingress',
+    'sidebar_nftables_prerouting'    => 'Policies_Prerouting',
+    'sidebar_nftables_postrouting'   => 'Policies_Postrouting',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
     'sidebar_Routing'      => 'Enrutamiento',

@@ -20,6 +20,8 @@ return [
     'sidebar_XDP_policies'  => 'Policies_XDP',
     'sidebar_TC_Egress'     => 'Policies_TC_Egress',
     'sidebar_TC_Ingress'    => 'Policies_TC_Ingress',
+    'sidebar_nftables_prerouting'    => 'Policies_Prerouting',
+    'sidebar_nftables_postrouting'   => 'Policies_Postrouting',
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
     'sidebar_Routing'      => 'Routing',

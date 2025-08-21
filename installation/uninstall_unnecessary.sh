@@ -27,9 +27,9 @@ else
 fi
 
 # 🔧 Desinstalando nftables / Uninstalling nftables
-if dpkg -l | grep -q "^ii  nftables "; then
-    apt remove -y nftables
-    echo "✅ nftables ha sido desinstalado correctamente. / nftables has been successfully uninstalled."
-else
-    echo "❌ nftables no está instalado en este sistema. / nftables is not installed on this system."
-fi
+#if dpkg -l | grep -q "^ii  nftables "; then
+#    apt remove -y nftables
+#    echo "✅ nftables ha sido desinstalado correctamente. / nftables has been successfully uninstalled."
+#else
+#    echo "❌ nftables no está instalado en este sistema. / nftables is not installed on this system."
+#fi

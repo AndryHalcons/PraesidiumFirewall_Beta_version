@@ -40,3 +40,4 @@ python3-scapy
 python3-sphinx
 sed
 xxd
+nftables

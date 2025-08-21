@@ -55,5 +55,5 @@ echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpf
 
 # Ejecutar configure_bpfilter.sh / Run configure_bpfilter.sh
 echo "Configurando bpfilter / Configuring bpfilter"
-./configure_bpfilter.sh
+#./configure_bpfilter.sh
 echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"
