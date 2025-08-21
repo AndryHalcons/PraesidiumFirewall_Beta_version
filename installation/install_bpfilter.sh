@@ -77,27 +77,67 @@ check_requirements() {
     fi
 }
 
-# ⚙️ Instala bpfilter en Ubuntu 24.04+ / Install bpfilter on Ubuntu 24.04+
+# Compila bpfilter desde código fuente en Ubuntu 24.04+ usando rutas absolutas
 install_bpfilter() {
-    echo "🚀 Iniciando instalación de bpfilter desde repositorios oficiales... / Starting bpfilter installation from official repositories..."
+    echo "🧨 Iniciando compilación de bpfilter desde código fuente..."
 
-    # Verificar si el paquete ya está instalado
-    if dpkg -l | grep -q "^ii  bpfilter "; then
-        echo "✅ bpfilter ya está instalado en el sistema. / bpfilter is already installed on the system."
+    # Ruta absoluta donde se clonará y compilará bpfilter
+    local BPFILTER_DIR="/home/praesidium/bpfilter"
+    local BUILD_DIR="/home/praesidium/bpfilter/build"
+    local REPO_URL="https://github.com/facebook/bpfilter.git"
+    local BFCLI_PATH="$BUILD_DIR/output/sbin/bfcli"
+    local BPFILTER_PATH="$BUILD_DIR/output/sbin/bpfilter"
+
+    # Verificar si ya está compilado
+    if [ -f "$BFCLI_PATH" ] && [ -f "$BPFILTER_PATH" ]; then
+        echo "✅ bpfilter ya está compilado en: $BFCLI_PATH"
+        echo "📦 Copiando binarios a /usr/local/bin/..."
+        sudo cp "$BFCLI_PATH" /usr/local/bin/
+        sudo cp "$BPFILTER_PATH" /usr/local/bin/
+        echo "✅ Binarios instalados en /usr/local/bin/"
         return
     fi
 
-    # Instalar bpfilter
-    sudo apt update
-    sudo apt install -y bpfilter
-
-    # Verificar instalación
-    if dpkg -l | grep -q "^ii  bpfilter "; then
-        echo "✅ bpfilter ha sido instalado correctamente. / bpfilter has been successfully installed."
+    # Clonar el repositorio si no existe
+    if [ ! -d "$BPFILTER_DIR" ]; then
+        echo "📥 Clonando repositorio bpfilter desde $REPO_URL..."
+        git clone "$REPO_URL" "$BPFILTER_DIR"
     else
-        echo "❌ Error al instalar bpfilter. / Failed to install bpfilter."
+        echo "🔄 Actualizando repositorio bpfilter..."
+        git -C "$BPFILTER_DIR" pull
+    fi
+
+    # Crear directorio de compilación si no existe
+    mkdir -p "$BUILD_DIR"
+
+    # Generar sistema de compilación con CMake
+    echo "🔧 Generando sistema de compilación con CMake..."
+    cmake -S "$BPFILTER_DIR" -B "$BUILD_DIR"
+
+    # Compilar con salida detallada
+    echo "🛠️ Compilando bpfilter con salida verbose..."
+    cmake --build "$BUILD_DIR" --verbose
+
+    # Verificar compilación
+    if [ -f "$BFCLI_PATH" ] && [ -f "$BPFILTER_PATH" ]; then
+        echo "✅ bpfilter compilado correctamente en: $BFCLI_PATH"
+        echo "📦 Copiando binarios a /usr/local/bin/..."
+        sudo cp "$BFCLI_PATH" /usr/local/bin/
+        sudo cp "$BPFILTER_PATH" /usr/local/bin/
+        echo "✅ Binarios instalados en /usr/local/bin/"
+    else
+        echo "❌ Error al compilar bpfilter. Revisa la salida detallada arriba."
     fi
 }
+
+
+
+
+
+
+
+
+
 
 
 # 🧪 Ejecutar verificación e instalación / Run verification and installation
