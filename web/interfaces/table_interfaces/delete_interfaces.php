@@ -1,82 +1,68 @@
 <?php
 session_start();
 
-// Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
     header('Location: index.php');
     exit;
 }
 
-// Cargar archivo de idioma según la sesión
-$language = $_SESSION['language'] ?? 'es';
-$langFile = __DIR__ . "/../../lang/{$language}.php";
-if (!file_exists($langFile)) {
-    $langFile = __DIR__ . "/../../lang/es.php";
-}
-$L = require $langFile;
+header('Content-Type: application/json');
 
-// Recibir datos JSON
-$input = json_decode(file_get_contents("php://input"), true);
-$interfaceName = $input['interface'] ?? '';
+$archivoYAML = '/var/www/config/interfaces.yml';
 
-// Validar nombre de interfaz lógica: debe empezar por br o bond
-if (!preg_match('/^(br|bond)/', $interfaceName)) {
-    echo json_encode([
-        "success" => false,
-        "error" => $L["invalid_interface_name"]
-    ]);
+// Verifica que la solicitud sea POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['error' => 'Método no permitido']);
     exit;
 }
 
-// Ruta del archivo de configuración
-$configPath = "/var/www/config/interfaces.json";
-
-// Verificar existencia del archivo
-if (!file_exists($configPath)) {
-    echo json_encode([
-        "success" => false,
-        "error" => $L["connection_error"]
-    ]);
+// Decodifica el cuerpo JSON
+$input = json_decode(file_get_contents('php://input'), true);
+if ($input === null || !isset($input['interface'])) {
+    echo json_encode(['error' => 'Datos JSON inválidos']);
     exit;
 }
 
-// Leer y decodificar el archivo
-$jsonData = json_decode(file_get_contents($configPath), true);
+$interfaz = trim($input['interface']);
 
-// Verificar estructura
-if (!isset($jsonData["interfaces"]) || !is_array($jsonData["interfaces"])) {
-    echo json_encode([
-        "success" => false,
-        "error" => "Invalid configuration format."
-    ]);
+// Verifica si el nombre empieza por "br" o "bond"
+if (preg_match('/^br[0-9a-zA-Z_-]+$/', $interfaz)) {
+    $seccion = 'bridges';
+} elseif (preg_match('/^bond[0-9a-zA-Z_-]+$/', $interfaz)) {
+    $seccion = 'bonds';
+} else {
+    echo json_encode(['error' => 'Solo se pueden eliminar interfaces tipo bridge o bond']);
     exit;
 }
 
-// Filtrar interfaces, eliminando la que coincide y reindexar
-$originalCount = count($jsonData["interfaces"]);
-$jsonData["interfaces"] = array_values(array_filter($jsonData["interfaces"], function ($iface) use ($interfaceName) {
-    return $iface["name"] !== $interfaceName;
-}));
-
-// Verificar si se eliminó algo
-if (count($jsonData["interfaces"]) === $originalCount) {
-    echo json_encode([
-        "success" => false,
-        "error" => "Interface not found."
-    ]);
+// Carga el archivo YAML
+$config = yaml_parse_file($archivoYAML);
+if ($config === false) {
+    echo json_encode(['error' => 'No se pudo leer el archivo YAML']);
     exit;
 }
 
-// Guardar el archivo actualizado
-if (file_put_contents($configPath, json_encode($jsonData, JSON_PRETTY_PRINT)) === false) {
-    echo json_encode([
-        "success" => false,
-        "error" => "Failed to write configuration."
-    ]);
+// Verifica que la sección exista
+if (!isset($config['network'][$seccion])) {
+    echo json_encode(['error' => "La sección '$seccion' no existe en el archivo YAML"]);
     exit;
 }
 
-// Éxito
-echo json_encode([
-    "success" => true
-]);
+// Verifica si la interfaz existe
+if (!isset($config['network'][$seccion][$interfaz])) {
+    echo json_encode(['error' => "La interfaz '$interfaz' no existe en '$seccion'"]);
+    exit;
+}
+
+// Elimina la interfaz
+unset($config['network'][$seccion][$interfaz]);
+
+// Guarda el YAML actualizado
+$yaml = yaml_emit($config);
+if (file_put_contents($archivoYAML, $yaml) === false) {
+    echo json_encode(['error' => 'No se pudo guardar el archivo YAML']);
+    exit;
+}
+
+// Devuelve éxito
+echo json_encode(['success' => true, 'mensaje' => "Interfaz '$interfaz' eliminada correctamente"]);

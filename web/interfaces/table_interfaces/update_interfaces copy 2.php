@@ -13,8 +13,12 @@ $yamlPath = '/var/www/config/interfaces.yml';
 function normalizarCamposLista(array &$config, array $camposLista) {
     foreach ($camposLista as $campo) {
         if (isset($config[$campo])) {
+            // Si ya es array, no tocar
             if (is_array($config[$campo])) continue;
+
+            // Si es string, convertir en array
             if (is_string($config[$campo])) {
+                // Separar por comas, espacios o saltos de línea
                 $items = preg_split('/[\s,]+/', $config[$campo]);
                 $items = array_filter(array_map('trim', $items));
                 $config[$campo] = array_values($items);
@@ -38,13 +42,9 @@ function formatearNameservers(array &$config) {
     }
 }
 
-// 🧼 Función para eliminar TODAS las comillas del archivo YAML
-function limpiarComillasDelArchivo($ruta) {
-    if (!file_exists($ruta)) return;
-    $contenido = file_get_contents($ruta);
-    $contenido = str_replace(['"', "'"], '', $contenido);
-    file_put_contents($ruta, $contenido);
-}
+
+
+
 
 // Leer el contenido actual del YAML
 $contenido = file_exists($yamlPath) ? yaml_parse_file($yamlPath) : ['network' => ['version' => 2]];
@@ -59,7 +59,7 @@ if (!$input || !isset($input['name'])) {
 
 $nombre = $input['name'];
 $configNueva = $input;
-unset($configNueva['name']);
+unset($configNueva['name']); // Ya lo usamos como clave
 
 // 📋 Lista de campos que deben ser listas en YAML
 $camposQueDebenSerLista = [
@@ -93,9 +93,6 @@ $contenido['network'][$seccion][$nombre] = $configNueva;
 
 // Guardar el YAML actualizado
 yaml_emit_file($yamlPath, $contenido);
-
-// 🔧 Limpiar comillas del archivo YAML
-limpiarComillasDelArchivo($yamlPath);
 
 // Respuesta JSON para el frontend
 echo json_encode([

@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['username'])) {
+    header('Location: index.php');
+    exit;
+}
 header('Content-Type: application/json');
 
 $yamlFile = '/var/www/config/interfaces.yml';
