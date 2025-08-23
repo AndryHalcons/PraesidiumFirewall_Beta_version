@@ -79,7 +79,8 @@ function mostrarTablaNftablesPrerouting() {
     "family", "table", "chain", "handle", "comment", "position",
     "ip.protocol",
     "ip.saddr", "sport", "ip.daddr", "dport",
-    "meta.oifname", "ct.state",
+    "meta.iifname", 
+    "ct.state",
     "packets", "bytes",
     "log.prefix", "log.group",
     "dnat.addr", "dnat.port"
@@ -289,7 +290,7 @@ function editarNftablesPrerouting(index, rule, row) {
       const left = contenido.left;
       let campo = "";
 
-      if (left.meta?.key) campo = `meta.${left.meta.key}`;
+      if (left.meta?.key) campo = `meta.${left.meta.key}`; // Aquí se capturará meta.iifname correctamente
       if (left.payload) {
         const proto = left.payload.protocol;
         const field = left.payload.field;
@@ -430,8 +431,7 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
   const celdas = row.querySelectorAll("td");
   const nuevaExpr = [];
 
-  // Primero obtenemos el protocolo seleccionado en ip.protocol
-  let protocoloSeleccionado = "tcp"; // valor por defecto
+  let protocoloSeleccionado = "tcp";
   columnas.slice(1).forEach((col, i) => {
     if (col === "ip.protocol") {
       const celda = celdas[i + 1];
@@ -506,8 +506,8 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
       return;
     }
 
-    if (col.startsWith("meta.")) {
-      match.match.left.meta = { key: col.split(".")[1] };
+    if (col === "meta.iifname") {
+      match.match.left.meta = { key: "iifname" };
       match.match.right = limpio;
     } else if (col.startsWith("ct.")) {
       match.match.left.ct = { key: col.split(".")[1] };
