@@ -1,45 +1,43 @@
 function cargarPoliciesNftablesPrerouting() {
-  const chain = "PREROUTING";
-
-  fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
+const chain = "PREROUTING";
+fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: `chain=${encodeURIComponent(chain)}`
+})
+.then(() => {
+  return fetch("/policies/common_policy_actions_nftables/reorder_positions_nftables.php", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `chain=${encodeURIComponent(chain)}`
-  })
-  .then(() => {
-    return fetch("/policies/common_policy_actions_nftables/reorder_positions_nftables.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `chain=${encodeURIComponent(chain)}`
-    });
-  })
-  .then(() => {
-    return fetch("/policies/common_policy_actions_nftables/get_policies_nftables.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `chain=${encodeURIComponent(chain)}`
-    });
-  })
-  .then(response => response.text())
-  .then(text => {
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      // Si no es JSON válido, asumimos que no hay reglas
-      data = [];
-    }
-
-    const container = document.getElementById("nftablesrules-output");
-    container.textContent = JSON.stringify(data, null, 2);
-    mostrarTablaNftablesPrerouting();
-  })
-  .catch(error => {
-    const container = document.getElementById("nftablesrules-output");
-    container.textContent = JSON.stringify([], null, 2); // ⚠️ Tabla vacía pero funcional
-    mostrarTablaNftablesPrerouting();
   });
+})
+.then(() => {
+  return fetch("/policies/common_policy_actions_nftables/get_policies_nftables.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `chain=${encodeURIComponent(chain)}`
+  });
+})
+.then(response => response.text())
+.then(text => {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    data = []; // ⚠️ Si no es JSON válido, asumimos que no hay reglas
+  }
+  const container = document.getElementById("nftablesrules-output");
+  container.textContent = JSON.stringify(data, null, 2);
+  mostrarTablaNftablesPrerouting();
+})
+.catch(error => {
+  const container = document.getElementById("nftablesrules-output");
+  container.textContent = JSON.stringify([], null, 2); // ⚠️ Tabla vacía pero funcional
+  mostrarTablaNftablesPrerouting();
+});
 }
+
 
 
 
@@ -50,7 +48,6 @@ function mostrarTablaNftablesPrerouting() {
   const rawJson = container.textContent.trim();
   container.innerHTML = "";
 
-  // 🟢 Botón "Añadir regla" SIEMPRE visible
   const btnAdd = document.createElement("button");
   btnAdd.textContent = LANG.add_policy;
   btnAdd.className = "añadir-regla";
@@ -63,12 +60,12 @@ function mostrarTablaNftablesPrerouting() {
     data = JSON.parse(rawJson);
   } catch (e) {
     container.appendChild(document.createTextNode("Error al parsear el JSON."));
-    data = []; // ⚠️ Continuamos con tabla vacía
+    return;
   }
 
   if (!Array.isArray(data)) {
     container.appendChild(document.createTextNode("El JSON no contiene una lista de reglas."));
-    data = []; // ⚠️ Continuamos con tabla vacía
+    return;
   }
 
   const table = document.createElement("table");
@@ -80,8 +77,9 @@ function mostrarTablaNftablesPrerouting() {
   const columnas = [
     "actions",
     "family", "table", "chain", "handle", "comment", "position",
-    "ip.saddr ==", "tcp.sport ==", "ip.daddr ==", "tcp.dport ==",
-    "meta.iifname ==", "ct.state in",
+    "ip.protocol",
+    "ip.saddr", "sport", "ip.daddr", "dport",
+    "meta.oifname", "ct.state",
     "packets", "bytes",
     "log.prefix", "log.group",
     "dnat.addr", "dnat.port"
@@ -128,9 +126,11 @@ function mostrarTablaNftablesPrerouting() {
     columnas.slice(1).forEach(col => {
       const td = document.createElement("td");
       let valor = "";
+      let op = "==";
 
       if (["family", "table", "chain", "handle", "comment", "position"].includes(col)) {
         valor = rule[col] ?? "";
+        td.innerHTML = `<span class="valor">${valor}</span>`;
       } else {
         (rule.expr || []).forEach(expr => {
           const tipo = Object.keys(expr)[0];
@@ -141,17 +141,28 @@ function mostrarTablaNftablesPrerouting() {
             let campo = "";
 
             if (left?.meta?.key) campo = `meta.${left.meta.key}`;
-            if (left?.payload) campo = `${left.payload.protocol}.${left.payload.field}`;
+            if (left?.payload) {
+              const proto = left.payload.protocol;
+              const field = left.payload.field;
+              if (proto === "tcp" && field === "sport") campo = "sport";
+              else if (proto === "tcp" && field === "dport") campo = "dport";
+              else campo = `${proto}.${field}`;
+            }
             if (left?.ct?.key) campo = `ct.${left.ct.key}`;
 
-            const etiqueta = `${campo} ${contenido.op}`;
-
-            if (etiqueta === col) {
+            if (campo === col) {
+              op = contenido.op;
               const right = contenido.right;
-              if (right && typeof right === "object" && right.prefix) {
+
+              if (right?.prefix) {
                 valor = `${right.prefix.addr}/${right.prefix.len}`;
               } else if (Array.isArray(right)) {
                 valor = right.join(", ");
+              } else if (right?.set) {
+                valor = right.set.map(item => {
+                  if (item.prefix) return `${item.prefix.addr}/${item.prefix.len}`;
+                  return item;
+                }).join(", ");
               } else if (right !== null && right !== undefined) {
                 valor = right;
               }
@@ -173,9 +184,46 @@ function mostrarTablaNftablesPrerouting() {
             if (col === "dnat.port") valor = contenido.port ?? "";
           }
         });
+
+        if (col === "ip.protocol") {
+          const select = document.createElement("select");
+          select.disabled = true;
+
+          ["tcp", "udp"].forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.textContent = opt;
+            if (opt === valor) option.selected = true;
+            select.appendChild(option);
+          });
+
+          td.appendChild(select);
+        } else if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.disabled = true;
+          checkbox.checked = op === "!=";
+          checkbox.className = "negate";
+          checkbox.title = "Negate (usa != en vez de ==)";
+
+          const label = document.createElement("label");
+          label.style.fontWeight = "bold";
+          label.textContent = "negate";
+          label.style.marginRight = "6px";
+
+          const span = document.createElement("span");
+          span.className = "valor";
+          span.textContent = valor;
+
+          td.appendChild(label);
+          td.appendChild(checkbox);
+          td.appendChild(document.createTextNode(" "));
+          td.appendChild(span);
+        } else {
+          td.innerHTML = `<span class="valor">${valor}</span>`;
+        }
       }
 
-      td.innerHTML = `<span class="valor">${valor}</span>`;
       fila.appendChild(td);
     });
 
@@ -185,6 +233,10 @@ function mostrarTablaNftablesPrerouting() {
   table.appendChild(tbody);
   container.appendChild(table);
 }
+
+
+
+
 
 
 
@@ -227,6 +279,7 @@ function editarNftablesPrerouting(index, rule, row) {
   const columnas = Array.from(document.querySelectorAll("table.interfaz thead th")).map(th => th.textContent);
 
   const exprMap = {};
+  const opMap = {};
 
   (rule.expr || []).forEach(expr => {
     const tipo = Object.keys(expr)[0];
@@ -237,11 +290,17 @@ function editarNftablesPrerouting(index, rule, row) {
       let campo = "";
 
       if (left.meta?.key) campo = `meta.${left.meta.key}`;
-      if (left.payload) campo = `${left.payload.protocol}.${left.payload.field}`;
+      if (left.payload) {
+        const proto = left.payload.protocol;
+        const field = left.payload.field;
+        if (proto === "tcp" && field === "sport") campo = "sport";
+        else if (proto === "tcp" && field === "dport") campo = "dport";
+        else campo = `${proto}.${field}`;
+      }
       if (left.ct?.key) campo = `ct.${left.ct.key}`;
 
-      const etiqueta = `${campo} ${contenido.op}`;
-      exprMap[etiqueta] = contenido.right;
+      exprMap[campo] = contenido.right;
+      opMap[campo] = contenido.op;
     }
 
     if (tipo === "counter") {
@@ -266,6 +325,19 @@ function editarNftablesPrerouting(index, rule, row) {
 
     if (camposNoEditables.includes(col)) {
       cell.innerHTML = `<span class="valor">${rule[col] ?? ""}</span>`;
+    } else if (col === "ip.protocol") {
+      const select = document.createElement("select");
+      select.className = "valor-editable";
+
+      ["tcp", "udp"].forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        if (opt === exprMap[col]) option.selected = true;
+        select.appendChild(option);
+      });
+
+      cell.appendChild(select);
     } else {
       const input = document.createElement("input");
       input.type = "text";
@@ -276,16 +348,40 @@ function editarNftablesPrerouting(index, rule, row) {
         valor = rule[col] ?? "";
       } else {
         const exprValor = exprMap[col];
-        if (typeof exprValor === "object" && exprValor?.prefix) {
+
+        if (exprValor?.prefix) {
           valor = `${exprValor.prefix.addr}/${exprValor.prefix.len}`;
         } else if (Array.isArray(exprValor)) {
           valor = exprValor.join(", ");
-        } else {
-          valor = exprValor ?? "";
+        } else if (exprValor?.set) {
+          valor = exprValor.set.map(item => {
+            if (item.prefix) return `${item.prefix.addr}/${item.prefix.len}`;
+            return item;
+          }).join(", ");
+        } else if (exprValor !== null && exprValor !== undefined) {
+          valor = exprValor;
         }
       }
 
       input.value = valor;
+      input.className = "valor-editable";
+
+      if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "negate";
+        checkbox.checked = opMap[col] === "!=";
+
+        const label = document.createElement("label");
+        label.style.fontWeight = "bold";
+        label.textContent = "negate";
+        label.style.marginRight = "6px";
+
+        cell.appendChild(label);
+        cell.appendChild(checkbox);
+        cell.appendChild(document.createTextNode(" "));
+      }
+
       cell.appendChild(input);
     }
 
@@ -298,11 +394,13 @@ function editarNftablesPrerouting(index, rule, row) {
 
 
 
+
+
 function eliminarNftablesPrerouting(index, rule, row) {
   console.log(`Eliminar regla en índice ${index}`, rule);
 
   const formData = new FormData();
-  formData.append("chain", rule.chain);   // Cadena: PREROUTING, POSTROUTING, input
+  formData.append("chain", rule.chain);   // Cadena: PREROUTING, PREROUTING, input
   formData.append("handle", rule.handle); // ID único de la regla
 
   fetch("/policies/common_policy_actions_nftables/del_policies_nftables.php", {
@@ -332,11 +430,24 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
   const celdas = row.querySelectorAll("td");
   const nuevaExpr = [];
 
+  // Primero obtenemos el protocolo seleccionado en ip.protocol
+  let protocoloSeleccionado = "tcp"; // valor por defecto
+  columnas.slice(1).forEach((col, i) => {
+    if (col === "ip.protocol") {
+      const celda = celdas[i + 1];
+      const select = celda.querySelector("select.valor-editable");
+      protocoloSeleccionado = select?.value.trim() || "tcp";
+    }
+  });
+
   columnas.slice(1).forEach((col, i) => {
     const celda = celdas[i + 1];
-    const input = celda.querySelector("input");
+    const input = celda.querySelector("input.valor-editable");
+    const select = celda.querySelector("select.valor-editable");
     const span = celda.querySelector(".valor");
-    const valor = input?.value.trim() ?? span?.textContent.trim() ?? "";
+    const checkbox = celda.querySelector("input.negate");
+
+    const valor = input?.value.trim() ?? select?.value.trim() ?? span?.textContent.trim() ?? "";
     const limpio = valor === "" ? "" : valor;
 
     if (["family", "table", "chain", "handle", "comment", "position"].includes(col)) {
@@ -374,35 +485,91 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
       return;
     }
 
+    if (limpio === "") return;
+
     const match = {
       match: {
-        op: col.split(" ").pop(),
+        op: "==",
         left: {},
         right: null
       }
     };
 
-    const campo = col.replace(` ${match.match.op}`, "");
+    if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
+      match.match.op = checkbox?.checked ? "!=" : "==";
+    }
 
-    if (campo.startsWith("meta.")) {
-      match.match.left.meta = { key: campo.split(".")[1] };
+    if (col === "ip.protocol") {
+      match.match.left.payload = { protocol: "ip", field: "protocol" };
       match.match.right = limpio;
-    } else if (campo.startsWith("ct.")) {
-      match.match.left.ct = { key: campo.split(".")[1] };
-      match.match.right = limpio.split(",").map(v => v.trim());
-    } else if (campo.includes(".")) {
-      const [proto, field] = campo.split(".");
+      nuevaExpr.push(match);
+      return;
+    }
+
+    if (col.startsWith("meta.")) {
+      match.match.left.meta = { key: col.split(".")[1] };
+      match.match.right = limpio;
+    } else if (col.startsWith("ct.")) {
+      match.match.left.ct = { key: col.split(".")[1] };
+      const valores = limpio.split(",").map(v => v.trim()).filter(v => v !== "");
+      match.match.right = { set: valores };
+    } else if (col === "sport" || col === "dport") {
+      match.match.left.payload = { protocol: protocoloSeleccionado, field: col };
+      const valores = limpio.split(",").map(v => v.trim()).filter(v => v !== "");
+
+      if (valores.length > 1) {
+        match.match.right = {
+          set: valores.map(v => {
+            if (v.includes("/")) {
+              const [addr, len] = v.split("/");
+              return { prefix: { addr, len: parseInt(len) || 0 } };
+            } else if (!isNaN(v)) {
+              return parseInt(v);
+            } else {
+              return v;
+            }
+          })
+        };
+      } else {
+        const v = valores[0];
+        if (v?.includes("/")) {
+          const [addr, len] = v.split("/");
+          match.match.right = { prefix: { addr, len: parseInt(len) || 0 } };
+        } else if (!isNaN(v)) {
+          match.match.right = parseInt(v);
+        } else {
+          match.match.right = v;
+        }
+      }
+    } else if (col.includes(".")) {
+      const [proto, field] = col.split(".");
       match.match.left.payload = { protocol: proto, field: field };
 
-      if (limpio.includes("/")) {
-        const [addr, len] = limpio.split("/");
-        match.match.right = { prefix: { addr, len: parseInt(len) || 0 } };
-      } else if (limpio.includes(",")) {
-        match.match.right = limpio.split(",").map(v => v.trim());
-      } else if (!isNaN(limpio)) {
-        match.match.right = parseInt(limpio);
+      const valores = limpio.split(",").map(v => v.trim()).filter(v => v !== "");
+
+      if (valores.length > 1) {
+        match.match.right = {
+          set: valores.map(v => {
+            if (v.includes("/")) {
+              const [addr, len] = v.split("/");
+              return { prefix: { addr, len: parseInt(len) || 0 } };
+            } else if (!isNaN(v)) {
+              return parseInt(v);
+            } else {
+              return v;
+            }
+          })
+        };
       } else {
-        match.match.right = limpio;
+        const v = valores[0];
+        if (v?.includes("/")) {
+          const [addr, len] = v.split("/");
+          match.match.right = { prefix: { addr, len: parseInt(len) || 0 } };
+        } else if (!isNaN(v)) {
+          match.match.right = parseInt(v);
+        } else {
+          match.match.right = v;
+        }
       }
     }
 
@@ -411,10 +578,8 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
 
   rule.expr = nuevaExpr;
 
-  // 🖥️ Mostrar el JSON generado en consola
   console.log("JSON generado para la regla:", JSON.stringify(rule, null, 2));
 
-  // 📤 Enviar al backend
   fetch("/policies/common_policy_actions_nftables/update_policies_nftables.php", {
     method: "POST",
     headers: {
@@ -428,7 +593,7 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
   .then(res => res.json())
   .then(data => {
     console.log("Respuesta del servidor:", data);
-    cargarPoliciesNftablesPrerouting(); // Recargar tabla si todo va bien
+    cargarPoliciesNftablesPrerouting();
   })
   .catch(err => {
     console.error("Error al enviar la regla:", err);
@@ -445,4 +610,12 @@ function guardarNftablesPrerouting(index, rule, row, columnas) {
 
 
 
+
+
+
+
+
+
 cargarPoliciesNftablesPrerouting()
+
+

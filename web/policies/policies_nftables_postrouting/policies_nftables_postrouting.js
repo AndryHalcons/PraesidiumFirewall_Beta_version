@@ -77,12 +77,12 @@ function mostrarTablaNftablesPostrouting() {
   const columnas = [
     "actions",
     "family", "table", "chain", "handle", "comment", "position",
-    "ip.protocol", // ← Añadido aquí
-    "ip.saddr", "tcp.sport", "ip.daddr", "tcp.dport",
+    "ip.protocol",
+    "ip.saddr", "sport", "ip.daddr", "dport",
     "meta.oifname", "ct.state",
     "packets", "bytes",
     "log.prefix", "log.group",
-    "snat.addr", "snat.port"
+    "snat.addr"
   ];
 
   columnas.forEach(col => {
@@ -141,7 +141,13 @@ function mostrarTablaNftablesPostrouting() {
             let campo = "";
 
             if (left?.meta?.key) campo = `meta.${left.meta.key}`;
-            if (left?.payload) campo = `${left.payload.protocol}.${left.payload.field}`;
+            if (left?.payload) {
+              const proto = left.payload.protocol;
+              const field = left.payload.field;
+              if (proto === "tcp" && field === "sport") campo = "sport";
+              else if (proto === "tcp" && field === "dport") campo = "dport";
+              else campo = `${proto}.${field}`;
+            }
             if (left?.ct?.key) campo = `ct.${left.ct.key}`;
 
             if (campo === col) {
@@ -175,7 +181,6 @@ function mostrarTablaNftablesPostrouting() {
 
           if (tipo === "snat") {
             if (col === "snat.addr") valor = contenido.addr ?? "";
-            if (col === "snat.port") valor = contenido.port ?? "";
           }
         });
 
@@ -192,7 +197,7 @@ function mostrarTablaNftablesPostrouting() {
           });
 
           td.appendChild(select);
-        } else if (["ip.saddr", "tcp.sport", "ip.daddr", "tcp.dport"].includes(col)) {
+        } else if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.disabled = true;
@@ -227,6 +232,7 @@ function mostrarTablaNftablesPostrouting() {
   table.appendChild(tbody);
   container.appendChild(table);
 }
+
 
 
 
@@ -288,7 +294,13 @@ function editarNftablesPostrouting(index, rule, row) {
       let campo = "";
 
       if (left.meta?.key) campo = `meta.${left.meta.key}`;
-      if (left.payload) campo = `${left.payload.protocol}.${left.payload.field}`;
+      if (left.payload) {
+        const proto = left.payload.protocol;
+        const field = left.payload.field;
+        if (proto === "tcp" && field === "sport") campo = "sport";
+        else if (proto === "tcp" && field === "dport") campo = "dport";
+        else campo = `${proto}.${field}`; // ← mantiene ip.saddr, ip.daddr intactos
+      }
       if (left.ct?.key) campo = `ct.${left.ct.key}`;
 
       exprMap[campo] = contenido.right;
@@ -358,7 +370,7 @@ function editarNftablesPostrouting(index, rule, row) {
       input.value = valor;
       input.className = "valor-editable";
 
-      if (["ip.saddr", "tcp.sport", "ip.daddr", "tcp.dport"].includes(col)) {
+      if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.className = "negate";
@@ -380,6 +392,7 @@ function editarNftablesPostrouting(index, rule, row) {
     cellIndex++;
   });
 }
+
 
 
 
@@ -422,6 +435,16 @@ function guardarNftablesPostrouting(index, rule, row, columnas) {
   const celdas = row.querySelectorAll("td");
   const nuevaExpr = [];
 
+  // Primero obtenemos el protocolo seleccionado en ip.protocol
+  let protocoloSeleccionado = "tcp"; // valor por defecto
+  columnas.slice(1).forEach((col, i) => {
+    if (col === "ip.protocol") {
+      const celda = celdas[i + 1];
+      const select = celda.querySelector("select.valor-editable");
+      protocoloSeleccionado = select?.value.trim() || "tcp";
+    }
+  });
+
   columnas.slice(1).forEach((col, i) => {
     const celda = celdas[i + 1];
     const input = celda.querySelector("input.valor-editable");
@@ -457,17 +480,16 @@ function guardarNftablesPostrouting(index, rule, row, columnas) {
       return;
     }
 
-    if (col === "snat.addr" || col === "snat.port") {
+    if (col === "snat.addr") {
       let snat = nuevaExpr.find(e => e.snat);
       if (!snat) {
         snat = { snat: {} };
         nuevaExpr.push(snat);
       }
-      snat.snat[col.split(".")[1]] = col === "snat.port" ? parseInt(valor) || 0 : valor;
+      snat.snat.addr = valor;
       return;
     }
 
-    // Si el campo está vacío, no lo añadimos
     if (limpio === "") return;
 
     const match = {
@@ -478,7 +500,7 @@ function guardarNftablesPostrouting(index, rule, row, columnas) {
       }
     };
 
-    if (["ip.saddr", "tcp.sport", "ip.daddr", "tcp.dport"].includes(col)) {
+    if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
       match.match.op = checkbox?.checked ? "!=" : "==";
     }
 
@@ -496,6 +518,34 @@ function guardarNftablesPostrouting(index, rule, row, columnas) {
       match.match.left.ct = { key: col.split(".")[1] };
       const valores = limpio.split(",").map(v => v.trim()).filter(v => v !== "");
       match.match.right = { set: valores };
+    } else if (col === "sport" || col === "dport") {
+      match.match.left.payload = { protocol: protocoloSeleccionado, field: col };
+      const valores = limpio.split(",").map(v => v.trim()).filter(v => v !== "");
+
+      if (valores.length > 1) {
+        match.match.right = {
+          set: valores.map(v => {
+            if (v.includes("/")) {
+              const [addr, len] = v.split("/");
+              return { prefix: { addr, len: parseInt(len) || 0 } };
+            } else if (!isNaN(v)) {
+              return parseInt(v);
+            } else {
+              return v;
+            }
+          })
+        };
+      } else {
+        const v = valores[0];
+        if (v?.includes("/")) {
+          const [addr, len] = v.split("/");
+          match.match.right = { prefix: { addr, len: parseInt(len) || 0 } };
+        } else if (!isNaN(v)) {
+          match.match.right = parseInt(v);
+        } else {
+          match.match.right = v;
+        }
+      }
     } else if (col.includes(".")) {
       const [proto, field] = col.split(".");
       match.match.left.payload = { protocol: proto, field: field };
@@ -569,4 +619,7 @@ function guardarNftablesPostrouting(index, rule, row, columnas) {
 
 
 
+
 cargarPoliciesNftablesPostrouting()
+
+
