@@ -13,6 +13,9 @@ $L = require $langFile;
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
+  <script>
+    const LANG = <?= json_encode($L) ?>;
+  </script>
   <meta charset="UTF-8">
   <title><?= htmlspecialchars($L['sidebar_TC_Egress']) ?></title>
 </head>
