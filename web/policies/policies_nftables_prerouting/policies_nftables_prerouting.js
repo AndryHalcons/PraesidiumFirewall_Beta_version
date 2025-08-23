@@ -1,43 +1,43 @@
 function cargarPoliciesNftablesPrerouting() {
   const chain = "PREROUTING";
 
-  // 🥇 Primero: ordenar las reglas por posición (orden lógico inicial)
   fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `chain=${encodeURIComponent(chain)}`
   })
   .then(() => {
-    // 🥈 Segundo: reordenar posiciones secuenciales
     return fetch("/policies/common_policy_actions_nftables/reorder_positions_nftables.php", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `chain=${encodeURIComponent(chain)}`
     });
   })
   .then(() => {
-    // 🥉 Tercero: cargar las reglas ordenadas
     return fetch("/policies/common_policy_actions_nftables/get_policies_nftables.php", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `chain=${encodeURIComponent(chain)}`
     });
   })
-  .then(response => response.json())
-  .then(data => {
+  .then(response => response.text())
+  .then(text => {
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      // Si no es JSON válido, asumimos que no hay reglas
+      data = [];
+    }
+
     const container = document.getElementById("nftablesrules-output");
     container.textContent = JSON.stringify(data, null, 2);
-    mostrarTablaNftablesPrerouting(); 
+    mostrarTablaNftablesPrerouting();
   })
   .catch(error => {
     const container = document.getElementById("nftablesrules-output");
-    container.textContent = `Error: ${error.message}`;
+    container.textContent = JSON.stringify([], null, 2); // ⚠️ Tabla vacía pero funcional
+    mostrarTablaNftablesPrerouting();
   });
 }
 
@@ -50,6 +50,7 @@ function mostrarTablaNftablesPrerouting() {
   const rawJson = container.textContent.trim();
   container.innerHTML = "";
 
+  // 🟢 Botón "Añadir regla" SIEMPRE visible
   const btnAdd = document.createElement("button");
   btnAdd.textContent = LANG.add_policy;
   btnAdd.className = "añadir-regla";
@@ -62,12 +63,12 @@ function mostrarTablaNftablesPrerouting() {
     data = JSON.parse(rawJson);
   } catch (e) {
     container.appendChild(document.createTextNode("Error al parsear el JSON."));
-    return;
+    data = []; // ⚠️ Continuamos con tabla vacía
   }
 
   if (!Array.isArray(data)) {
     container.appendChild(document.createTextNode("El JSON no contiene una lista de reglas."));
-    return;
+    data = []; // ⚠️ Continuamos con tabla vacía
   }
 
   const table = document.createElement("table");
