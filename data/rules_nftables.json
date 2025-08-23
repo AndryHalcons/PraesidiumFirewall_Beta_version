@@ -151,7 +151,7 @@
                                     "key": "oifname"
                                 }
                             },
-                            "right": "any"
+                            "right": "eth2"
                         }
                     },
                     {
@@ -409,10 +409,10 @@
                             "op": "==",
                             "left": {
                                 "meta": {
-                                    "key": "oifname"
+                                    "key": "iifname"
                                 }
                             },
-                            "right": "any"
+                            "right": "eth1"
                         }
                     },
                     {
