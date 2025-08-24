@@ -1,7 +1,7 @@
 <?php
 session_start();
 // realiza el proceso de login //perform the login process
-$jsonPath = '/var/www/config/users.json';
+$jsonPath = '/var/www/config_running/users.json';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');

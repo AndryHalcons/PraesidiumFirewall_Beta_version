@@ -1,21 +1,39 @@
 #!/bin/bash
 
-# Destination directory / Directorio de destino
-DEST_DIR="/var/www/config"
+# Directorios de destino / Destination directories
+DEST_CONFIG="/var/www/config"
+DEST_RUNNING="/var/www/config_running"
 
-# 1️ Create the directory if it doesn't exist / Crear el directorio si no existe
-if [ ! -d "$DEST_DIR" ]; then
-  echo "Creating directory $DEST_DIR... / Creando directorio $DEST_DIR..."
-  mkdir -p "$DEST_DIR"
+# 1️ Preparar /var/www/config
+# Prepare /var/www/config
+if [ ! -d "$DEST_CONFIG" ]; then
+  echo "Creating directory $DEST_CONFIG... / Creando directorio $DEST_CONFIG..."
+  mkdir -p "$DEST_CONFIG"
 else
-  # If it exists, delete its contents / Si existe, borrar su contenido
-  echo "Directory $DEST_DIR already exists. Deleting contents... / El directorio $DEST_DIR ya existe. Borrando contenido..."
-  rm -rf "$DEST_DIR"/*
+  echo "Directory $DEST_CONFIG already exists. Deleting contents... / El directorio $DEST_CONFIG ya existe. Borrando contenido..."
+  rm -rf "$DEST_CONFIG"/*
 fi
 
-#  Copy ../data contents to /var/www/config / Copiar el contenido de ../data a /var/www/config
-echo "Copying ../data to $DEST_DIR... / Copiando ../data a $DEST_DIR..."
-cp -r ../data/* "$DEST_DIR/"
+# 2️ Preparar /var/www/config_running
+# Prepare /var/www/config_running
+if [ ! -d "$DEST_RUNNING" ]; then
+  echo "Creating directory $DEST_RUNNING... / Creando directorio $DEST_RUNNING..."
+  mkdir -p "$DEST_RUNNING"
+else
+  echo "Directory $DEST_RUNNING already exists. Deleting contents... / El directorio $DEST_RUNNING ya existe. Borrando contenido..."
+  rm -rf "$DEST_RUNNING"/*
+fi
 
-#  Done / Hecho
-echo " Script completed. / Script completado."
+# 3️ Copiar ../data a /var/www/config
+# Copy ../data to /var/www/config
+echo "Copying ../data to $DEST_CONFIG... / Copiando ../data a $DEST_CONFIG..."
+cp -r ../data/* "$DEST_CONFIG/"
+
+# 4️ Copiar ../data_running a /var/www/config_running
+# Copy ../data_running to /var/www/config_running
+echo "Copying ../data_running to $DEST_RUNNING... / Copiando ../data_running a $DEST_RUNNING..."
+cp -r ../data_running/* "$DEST_RUNNING/"
+
+# 5️ Finalizado
+# Done
+echo "Script completed. / Script completado."

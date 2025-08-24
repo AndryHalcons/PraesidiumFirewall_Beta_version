@@ -61,6 +61,26 @@ grant_apache_permissions() {
     echo "Permisos aplicados correctamente a $target_dir"
     echo "Permissions successfully applied to $target_dir"
 }
+grant_apache_permissions_running() {
+    local target_dir="/var/www/config_running"
+
+    # Asignar el grupo www-data a todos los archivos y directorios
+    # Assign www-data group to all files and directories
+    echo "Asignando grupo www-data a todos los archivos y directorios..."
+    echo "Assigning www-data group to all files and directories..."
+    sudo chown -R :www-data "$target_dir"
+
+    # Dar permisos de lectura y escritura al grupo www-data
+    # Grant read and write permissions to www-data group
+    echo "Dando permisos de lectura y escritura al grupo www-data..."
+    echo "Granting read and write permissions to www-data group..."
+    sudo chmod -R g+rw "$target_dir"
+
+    # Confirmación final
+    # Final confirmation
+    echo "Permisos aplicados correctamente a $target_dir"
+    echo "Permissions successfully applied to $target_dir"
+}
 grant_backend_permissions() {
     local target_dir="/var/www/backend"
 
@@ -87,4 +107,5 @@ grant_backend_permissions() {
 registrar_excepciones_python
 registrar_excepciones_php
 grant_apache_permissions
+grant_apache_permissions_running
 grant_backend_permissions

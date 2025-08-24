@@ -1,0 +1,143 @@
+{
+  "BF_HOOK_TC_INGRESS": {
+    "comment": "entry rules & dnat",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "BF_HOOK_TC_INGRESS_1",
+        "description": "Regla genérica que coincide con cualquier paquete en TC ingress",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "position": 2,
+        "name": "BF_HOOK_TC_INGRESS_2",
+        "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
+        "match": {
+          "iface": "iface example",
+          "l3_proto": "l3_proto example",
+          "l4_proto": "l4_proto example",
+          "ip4_saddr": "ip4_saddr example",
+          "ip4_daddr": "ip4_daddr example",
+          "ip4_snet": "ip4_snet example",
+          "ip4_dnet": "ip4_dnet example",
+          "ip4_proto": "ip4_proto example",
+          "ip6_saddr": "ip6_saddr example",
+          "ip6_daddr": "ip6_daddr example",
+          "ip6_snet": "ip6_snet example",
+          "ip6_dnet": "ip6_dnet example",
+          "ip6_nexthdr": "ip6_nexthdr example",
+          "tcp_sport": "tcp_sport example",
+          "tcp_dport": "tcp_dport example",
+          "tcp_flags": "tcp_flags example",
+          "udp_sport": "udp_sport example",
+          "udp_dport": "udp_dport example",
+          "icmp_type": "icmp_type example",
+          "icmp_code": "icmp_code example",
+          "icmpv6_type": "icmpv6_type example",
+          "icmpv6_code": "icmpv6_code example",
+          "probability": "probability example"
+        },
+        "action": "action example",
+        "enabled": true
+      }
+    ]
+  },
+  "BF_HOOK_TC_EGRESS": {
+    "comment": "reglas de salida & SNAT",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "BF_HOOK_TC_EGRESS_1",
+        "description": "Regla genérica que coincide con cualquier paquete en TC egress",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "position": 2,
+        "name": "BF_HOOK_TC_EGRESS_2",
+        "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
+        "match": {
+          "iface": "iface example",
+          "l3_proto": "l3_proto example",
+          "l4_proto": "l4_proto example",
+          "ip4_saddr": "ip4_saddr example",
+          "ip4_daddr": "ip4_daddr example",
+          "ip4_snet": "ip4_snet example",
+          "ip4_dnet": "ip4_dnet example",
+          "ip4_proto": "ip4_proto example",
+          "ip6_saddr": "ip6_saddr example",
+          "ip6_daddr": "ip6_daddr example",
+          "ip6_snet": "ip6_snet example",
+          "ip6_dnet": "ip6_dnet example",
+          "ip6_nexthdr": "ip6_nexthdr example",
+          "tcp_sport": "tcp_sport example",
+          "tcp_dport": "tcp_dport example",
+          "tcp_flags": "tcp_flags example",
+          "udp_sport": "udp_sport example",
+          "udp_dport": "udp_dport example",
+          "icmp_type": "icmp_type example",
+          "icmp_code": "icmp_code example",
+          "icmpv6_type": "icmpv6_type example",
+          "icmpv6_code": "icmpv6_code example",
+          "probability": "probability example"
+        },
+        "action": "action example",
+        "enabled": true
+      }
+    ]
+  },
+  "BF_HOOK_XDP": {
+    "comment": "anti-ddos rules and high performance (permit to forwarding rules), rules no log",
+    "rules": [
+      {
+        "id": 1,
+        "position": 1,
+        "name": "BF_HOOK_XDP_1",
+        "description": "Regla genérica que coincide con cualquier paquete en XDP",
+        "match": "any",
+        "action": "any",
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "position": 2,
+        "name": "BF_HOOK_XDP_2",
+        "description": "Regla con todos los campos de coincidencia rellenados con 'example'",
+        "match": {
+          "iface": "iface example",
+          "l3_proto": "l3_proto example",
+          "l4_proto": "l4_proto example",
+          "ip4_saddr": "ip4_saddr example",
+          "ip4_daddr": "ip4_daddr example",
+          "ip4_snet": "ip4_snet example",
+          "ip4_dnet": "ip4_dnet example",
+          "ip4_proto": "ip4_proto example",
+          "ip6_saddr": "ip6_saddr example",
+          "ip6_daddr": "ip6_daddr example",
+          "ip6_snet": "ip6_snet example",
+          "ip6_dnet": "ip6_dnet example",
+          "ip6_nexthdr": "ip6_nexthdr example",
+          "tcp_sport": "tcp_sport example",
+          "tcp_dport": "tcp_dport example",
+          "tcp_flags": "tcp_flags example",
+          "udp_sport": "udp_sport example",
+          "udp_dport": "udp_dport example",
+          "icmp_type": "icmp_type example",
+          "icmp_code": "icmp_code example",
+          "icmpv6_type": "icmpv6_type example",
+          "icmpv6_code": "icmpv6_code example",
+          "probability": "probability example"
+        },
+        "action": "action example",
+        "enabled": true
+      }
+    ]
+  }
+}

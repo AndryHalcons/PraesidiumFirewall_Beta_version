@@ -1,0 +1,14 @@
+[
+  {
+    "user_name": "praesidium",
+    "user_pass": "69310241919e43a4e9d1a10bf276b0333dc9374556303fb188f7c234a33dde405c5b9219447b11e78a3b114ef61d699844d46c28035c8baec3797a8c2f09c5a6",
+    "user_rol": "admin",
+    "user_languaje": "es"
+  },
+  {
+    "user_name": "testuser",
+    "user_pass": "d404559f602eab6fd602ac7680dacbfaadd13630335e951f097af3900e9de176b6db28512f2e000b9d04fba5133e8b1c6e8df59db3a8ab9d60be4b97cc9e81db",
+    "user_rol": "viewer",
+    "user_languaje": "en"
+  }
+]
