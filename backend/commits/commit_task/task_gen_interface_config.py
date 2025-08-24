@@ -142,8 +142,6 @@ def gen_interface_config(user, date):
         task_update_json(date, "gen_json_interface_config_verify", "fail")
         exit()
 
-
-
     try:
         #obtiene el archivo de configuracion actual de netplan
         # Retrieves the current Netplan configuration file
