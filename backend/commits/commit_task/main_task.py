@@ -1,6 +1,6 @@
 from task_gen_json_entry import gen_json_entry
 from task_gen_json_mkdir import gen_json_mkdir
-from task_gen_interface_config import gen_interface_config
+#from task_gen_interface_config import gen_interface_config
 
 def start_commit_process(user, date):
     # genera la entrada en /var/www/config/commit_history/commit_history.json
@@ -13,7 +13,7 @@ def start_commit_process(user, date):
 
     # Aplica la configuración de las interfaces de red  
     # Applies the network interface configuration
-    gen_interface_config(user, date)
+    #gen_interface_config(user, date)
 
 
 
