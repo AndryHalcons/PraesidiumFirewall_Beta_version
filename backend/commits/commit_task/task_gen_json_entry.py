@@ -14,8 +14,8 @@ def ensure_commit_history():
     if not os.path.exists(history_dir):
         os.makedirs(history_dir)
 
-    # Verificar si el archivo existe
-    # Check if the file exists
+    # Verificar si el archivo existe , si no lo creamos.
+    # Check if the file exists if missing, create them.
     if not os.path.exists(history_file):
         with open(history_file, 'w') as f:
             json.dump({"commits": {}}, f, indent=4)
