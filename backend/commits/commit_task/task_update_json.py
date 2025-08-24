@@ -2,6 +2,12 @@ import json
 import os
 
 def task_update_json(date, process, status):
+    # Esta función añade en el archivo /var/www/config/commit_history/commit_history.json
+    # claves a la entrada del commit, como control de errores, para poder visualizar cuál es el problema cuando falla un proceso
+    
+    # This function adds keys to the commit entry in /var/www/config/commit_history/commit_history.json
+    # as error tracking, to help identify what went wrong when a process fails
+
     history_path = '/var/www/config/commit_history/commit_history.json'
 
     # Verificar si el archivo existe
