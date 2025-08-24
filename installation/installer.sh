@@ -6,6 +6,7 @@ chmod +x uninstall_unnecessary.sh
 chmod +x system_requirements.sh
 chmod +x web_installation.sh
 chmod +x initial_data.sh
+chmod +x install_backend.sh
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
@@ -33,6 +34,11 @@ echo "✅ Instalación web_installation.sh completada / Installation web_install
 echo "Instalando initial_data... / Installing initial_data..."
 ./initial_data.sh
 echo "✅ Instalación initial_data.sh completada / Installation initial_data.sh completed"
+
+# Ejecutar install_backend.sh / Run install_backend.sh
+echo "Instalando install_backend... / Installing install_backend..."
+./install_backend.sh
+echo "✅ Instalación install_backend.sh completada / Installation install_backend.sh completed"
 
 # Ejecutar system_configuration.sh / Run system_configuration.sh
 echo "Instalando system_configuration... / Installing system_configuration..."

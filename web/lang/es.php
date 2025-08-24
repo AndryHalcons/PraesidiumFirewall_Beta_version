@@ -14,6 +14,7 @@ return [
     'menu_monitor'          => 'Monitor',
     'menu_users'            => 'Usuarios',
     'menu_logout'           => 'Cerrar sesión',
+    'menu_commit'           => 'Commit',
     // Sidebar
     'sidebar_dashboard'     => 'Panel',
     'sidebar_XDP_policies'  => 'Reglas_XDP',
@@ -138,5 +139,11 @@ return [
     'rule_from' => 'Desde',
     'rule_table' => 'Tabla',
     'reload_routes' => 'Recargar rutas del sistema en ejecución',
-
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   commit.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'compare_commit' => 'Comparar commit',
+    'apply_commit'   => 'Aplicar commit',
+    'config_audit' => 'Auditoría de configuración',
 ];

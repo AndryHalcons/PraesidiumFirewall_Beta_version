@@ -14,6 +14,7 @@ return [
     'menu_monitor'          => 'Monitor',
     'menu_users'            => 'Users',
     'menu_logout'           => 'Log out',
+    'menu_commit'           => 'Commit',
     // Sidebar
     'sidebar_dashboard'     => 'Dashboard',
     'sidebar_rules'         => 'Policies',
@@ -140,4 +141,12 @@ return [
     'rule_from' => 'From',
     'rule_table' => 'Table',
     'reload_routes' => 'Reload system routes running',
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   commit.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'compare_commit' => 'Compare commit',
+    'apply_commit'   => 'Apply commit',
+    'config_audit' => 'Config Audit',
+
 ];
