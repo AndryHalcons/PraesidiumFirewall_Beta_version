@@ -23,7 +23,7 @@ function starting_commit() {
     // Ejecutar el script y pasarle el JSON como argumento
     // IMPORTANTE: Escapar el JSON para evitar problemas con comillas
     $escapedJson = escapeshellarg($json);
-    $command = "python3 $pythonScript $escapedJson";
+    $command = "sudo /usr/bin/python3 $pythonScript $escapedJson";
 
     // Ejecutar el comando
     $output = shell_exec($command);

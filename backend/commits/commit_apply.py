@@ -1,6 +1,9 @@
 import sys
+sys.path.append('/var/www/backend/commits/commit_task')
+
 import json
-from commit_task.main_task import start_commit_process  # Importar la función
+from main_task import start_commit_process
+
 
 def start_commit(user, date):
     try:

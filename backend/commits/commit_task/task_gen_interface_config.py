@@ -163,5 +163,3 @@ def gen_interface_config(user, date):
         task_update_json(date, "gen_json_interface_config_netplanApply", "fail")
         exit()
 
-
-gen_interface_config("praesidium","20250824142408")

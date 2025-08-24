@@ -8,6 +8,7 @@ registrar_excepciones_python() {
         "/var/www/html/interfaces/check_new_physical_interfaces/check_interfacesYML.py"
         "/var/www/html/interfaces/check_new_physical_interfaces/check_new_interfaces.py"
         "/var/www/html/routing/update_routing/reload_system_routes_running.py"
+        "/var/www/backend/commits/commit_apply.py *"
     )
 
     # Crear el archivo si no existe
