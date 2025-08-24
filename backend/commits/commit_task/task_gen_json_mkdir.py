@@ -1,0 +1,40 @@
+import os
+import shutil
+from task_update_json import task_update_json
+
+def gen_json_mkdir(user, date):
+    #directorio origen configuracion  
+    #configuration source directory  
+    source_dir = '/var/www/config'
+
+    #directorio destino archivos commit  
+    #destination directory for commit files  
+    target_dir = f'/var/www/config/commit_history/commit_{user}_{date}'
+
+    #proceso de copia de archivos  
+    #file copy process  
+    try:
+        os.makedirs(target_dir, exist_ok=True)
+
+        files_to_copy = [
+            'interfaces.yml',
+            'routes.json',
+            'rules.json',
+            'rules_nftables.json',
+            'users.json'
+        ]
+
+        for filename in files_to_copy:
+            source_file = os.path.join(source_dir, filename)
+            target_file = os.path.join(target_dir, filename)
+            if os.path.exists(source_file):
+                shutil.copy2(source_file, target_file)
+
+        # Si todo va bien actualizamos el commit_history.json añadiendo a la entrada success  
+        # If everything goes well, update commit_history.json adding success to the entry  
+        task_update_json(date, "gen_json_mkdir", "success")
+
+    except Exception:
+        # Si algo falla actualizamos el commit_history.json añadiendo a la entrada fail  
+        # If something fails, update commit_history.json adding fail to the entry  
+        task_update_json(date, "gen_json_mkdir", "fail")

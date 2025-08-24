@@ -8,9 +8,10 @@ if [ ! -d "$DEST_DIR" ]; then
   echo "Creando directorio $DEST_DIR..."
   mkdir -p "$DEST_DIR"
 else
-  # Si existe, borrar su contenido
-  echo "El directorio $DEST_DIR ya existe. Borrando contenido..."
-  rm -rf "$DEST_DIR"/*
+  # Si existe, eliminarlo completamente y volver a crearlo
+  echo "El directorio $DEST_DIR ya existe. Eliminando y recreando..."
+  rm -rf "$DEST_DIR"
+  mkdir -p "$DEST_DIR"
 fi
 
 # 2️ Copiar el contenido de ../backend al destino
@@ -19,3 +20,6 @@ cp -r ../backend/* "$DEST_DIR/"
 
 # 3️ Finalizado
 echo "Instalación del backend completada."
+
+# solo desarrollo
+bash permissions.sh
