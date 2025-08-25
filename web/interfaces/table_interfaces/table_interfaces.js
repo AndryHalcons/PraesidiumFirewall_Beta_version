@@ -34,7 +34,7 @@ function renderInterfaceTable(interfaces) {
             iface['dns-search'] = config.nameservers.search.join(', ');
         }
         if (config.addresses) {
-            iface['address'] = config.addresses.join(', ');
+            iface['addresses'] = config.addresses.join(', ');
         }
         if (config.gateway4) {
             iface['gateway'] = config.gateway4;
@@ -60,7 +60,7 @@ function renderInterfaceTable(interfaces) {
     interfaces = resultado;
 
     const camposPrioritarios = [
-        'name', 'type', 'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress'
+        'name', 'type', 'dhcp4', 'dhcp6', 'addresses', 'gateway', 'mtu', 'hwaddress'
     ];
 
     const camposAvanzados = [
@@ -303,7 +303,7 @@ function renderBridgeTable(interfaces) {
 
     const camposPrioritarios = ['name', 'type', 'interfaces'];
     const camposAvanzados = [
-        'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress',
+        'dhcp4', 'dhcp6', 'addresses', 'gateway', 'mtu', 'hwaddress',
         'nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
         'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
         'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',

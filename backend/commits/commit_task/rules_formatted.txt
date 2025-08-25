@@ -1,0 +1,6 @@
+chain myingress BF_HOOK_TC_INGRESS ACCEPT
+rule match any action ACCEPT
+chain mytcegress BF_HOOK_TC_EGRESS ACCEPT
+rule match any action ACCEPT
+chain myxdp BF_HOOK_XDP ACCEPT
+rule l3.proto IPv4 ip4.snet 10.0.0.0/8 probability 1.0 action ACCEPT

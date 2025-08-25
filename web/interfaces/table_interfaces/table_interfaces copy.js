@@ -28,7 +28,7 @@ function renderInterfaceTable(interfaces) {
         };
 
         if (config.nameservers?.addresses) {
-            iface['dns-nameservers'] = config.nameservers.addresses.join(', ');
+            iface['nameservers'] = config.nameservers.addresses.join(', ');
         }
         if (config.nameservers?.search) {
             iface['dns-search'] = config.nameservers.search.join(', ');
@@ -64,7 +64,7 @@ function renderInterfaceTable(interfaces) {
     ];
 
     const camposAvanzados = [
-        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
+        'nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
         'routes',
         'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
         'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
@@ -168,6 +168,17 @@ function renderBondTable(interfaces) {
     const grupo2 = todosLosCampos.slice(tercio, tercio * 2);
     const grupo3 = todosLosCampos.slice(tercio * 2);
 
+    const posiblesParametrosBond = [
+        'mode', 'primary', 'mii-monitor-interval', 'up-delay', 'down-delay',
+        'lacp-rate', 'min-links', 'transmit-hash-policy', 'ad-select',
+        'fail-over-mac', 'arp-interval', 'arp-ip-target', 'arp-validation', 'resend-igmp'
+    ];
+
+    const opcionesModoBond = [
+        '', 'balance-rr', 'active-backup', 'balance-xor',
+        'broadcast', '802.3ad', 'balance-tlb', 'balance-alb'
+    ];
+
     let html = `<table class="interfaz">`;
 
     interfaces.forEach((bond, index) => {
@@ -188,13 +199,19 @@ function renderBondTable(interfaces) {
                             <button onclick="guardarInterfaz('${nombre}')">${lang.save}</button>` : ''}</td>`;
 
             grupo.forEach(campo => {
+                if (campo === 'parameters') return;
+
                 let valor = bond[campo];
+                let mostrarValor = '';
+
                 if (Array.isArray(valor)) {
-                    valor = valor.join(', ');
+                    mostrarValor = valor.join(', ');
                 } else if (typeof valor === 'object' && valor !== null) {
-                    valor = JSON.stringify(valor);
+                    mostrarValor = JSON.stringify(valor);
+                } else {
+                    mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
                 }
-                const mostrarValor = (valor !== undefined && valor !== null && valor !== '') ? valor : '';
+
                 html += `<td data-campo="${campo}">
                             <strong>${campo}:</strong> 
                             <span contenteditable="false" class="valor">${mostrarValor}</span>
@@ -202,6 +219,38 @@ function renderBondTable(interfaces) {
             });
 
             html += `</tr>`;
+
+            if (filaIndex === 2) {
+                html += `<tr><td colspan="${tercio + 1}">
+                            <strong>parameters:</strong>
+                            <table class="subtabla"><tr>`;
+
+                posiblesParametrosBond.forEach((param, i) => {
+                    const val = (bond.parameters && bond.parameters[param] !== undefined) ? bond.parameters[param] : '';
+
+                    let inputHTML = `<span contenteditable="false" class="valor">${val}</span>`;
+                    if (param === 'mode') {
+                        inputHTML = `<select class="valor" disabled>`;
+                        opcionesModoBond.forEach(opcion => {
+                            const selected = opcion === val ? 'selected' : '';
+                            inputHTML += `<option value="${opcion}" ${selected}>${opcion}</option>`;
+                        });
+                        inputHTML += `</select>`;
+                    }
+
+                    html += `
+                        <td>
+                            <strong>${param}:</strong><br>
+                            ${inputHTML}
+                        </td>`;
+
+                    if ((i + 1) % 4 === 0 && i !== posiblesParametrosBond.length - 1) {
+                        html += `</tr><tr>`;
+                    }
+                });
+
+                html += `</tr></table></td></tr>`;
+            }
         });
 
         html += `</tbody>`;
@@ -224,6 +273,10 @@ function renderBondTable(interfaces) {
 
     container.innerHTML = html;
 }
+
+
+
+
 
 function renderBridgeTable(interfaces) {
     const container = document.getElementById('tabla-bridges');
@@ -251,7 +304,7 @@ function renderBridgeTable(interfaces) {
     const camposPrioritarios = ['name', 'type', 'interfaces'];
     const camposAvanzados = [
         'dhcp4', 'dhcp6', 'address', 'gateway', 'mtu', 'hwaddress',
-        'dns-nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
+        'nameservers', 'dns-search', 'optional', 'link-local', 'accept-ra', 'critical', 'wakeonlan',
         'routes', 'ipv6-address-generation', 'ipv6-mtu', 'ipv6-privacy',
         'dhcp-identifier', 'dhcp4-overrides', 'dhcp6-overrides',
         'match', 'set-name', 'renderer', 'description'
@@ -328,42 +381,91 @@ function editarInterfaz(nombre) {
     const tbody = document.getElementById(nombre);
     if (!tbody) return;
 
-    const valores = tbody.querySelectorAll('span.valor');
-    valores.forEach(span => {
+    const spans = tbody.querySelectorAll('span.valor');
+    spans.forEach(span => {
         const td = span.closest('td');
         const campo = td?.getAttribute('data-campo');
         if (campo === 'name' || campo === 'type') return;
 
-
         span.setAttribute('contenteditable', 'true');
         span.style.backgroundColor = '#ffffcc';
     });
+
+    const selects = tbody.querySelectorAll('select.valor');
+    selects.forEach(select => {
+        select.disabled = false;
+        select.style.backgroundColor = '#ffffcc';
+    });
 }
+
 
 function guardarInterfaz(nombre) {
     const tbody = document.getElementById(nombre);
     if (!tbody) return;
 
-    const celdas = tbody.querySelectorAll('td[data-campo]');
-    const datos = {};
+    const datos = { name: nombre };
 
+    // 🔒 Desactivar y recoger campos principales
+    const celdas = tbody.querySelectorAll('td[data-campo]');
     celdas.forEach(td => {
         const campo = td.getAttribute('data-campo');
-        const span = td.querySelector('span.valor');
-        if (!span || campo === 'name' || campo === 'type') return;
+        if (campo === 'name' || campo === 'type') return;
 
-        const valor = span.innerText.trim();
+        const span = td.querySelector('span.valor');
+        const select = td.querySelector('select.valor');
+
+        let valor = '';
+        if (select) {
+            valor = select.value?.trim() || '';
+            select.disabled = true;
+            select.style.backgroundColor = '';
+        } else if (span) {
+            valor = span.innerText?.trim() || '';
+            span.setAttribute('contenteditable', 'false');
+            span.style.backgroundColor = '';
+        }
+
         if (valor !== '') {
             datos[campo] = valor;
         }
-
-        span.setAttribute('contenteditable', 'false');
-        span.style.backgroundColor = '';
     });
 
-    // Añadir el nombre como identificador principal
-    datos.name = nombre;
+    // 🔧 Desactivar y recoger parámetros si existen
+    const parameters = {};
+    const subtabla = tbody.querySelector('.subtabla');
+    if (subtabla) {
+        const celdasParametros = subtabla.querySelectorAll('td');
 
+        celdasParametros.forEach(td => {
+            const strong = td.querySelector('strong');
+            if (!strong) return;
+
+            const clave = strong.textContent.replace(':', '').trim();
+            const span = td.querySelector('span.valor');
+            const select = td.querySelector('select.valor');
+
+            let valor = '';
+            if (select) {
+                valor = select.value?.trim() || '';
+                select.disabled = true;
+                select.style.backgroundColor = '';
+            } else if (span) {
+                valor = span.innerText?.trim() || '';
+                span.setAttribute('contenteditable', 'false');
+                span.style.backgroundColor = '';
+            }
+
+            if (clave && valor !== '') {
+                parameters[clave] = valor;
+            }
+        });
+
+        if (Object.keys(parameters).length > 0) {
+            datos.parameters = parameters;
+        }
+    }
+
+    // 📤 Enviar al servidor
     console.log('📦 JSON enviado al servidor:', datos);
 
     fetch('/interfaces/table_interfaces/update_interfaces.php', {
@@ -383,6 +485,9 @@ function guardarInterfaz(nombre) {
         alert(`Error al guardar la interfaz "${nombre}".`);
     });
 }
+
+
+
 
 
 // Invocar la tabla al cargar
