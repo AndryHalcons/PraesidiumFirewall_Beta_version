@@ -71,18 +71,6 @@
                             "left": {
                                 "payload": {
                                     "protocol": "ip",
-                                    "field": "protocol"
-                                }
-                            },
-                            "right": "tcp"
-                        }
-                    },
-                    {
-                        "match": {
-                            "op": "==",
-                            "left": {
-                                "payload": {
-                                    "protocol": "ip",
                                     "field": "saddr"
                                 }
                             },
@@ -147,17 +135,6 @@
                         "match": {
                             "op": "==",
                             "left": {
-                                "meta": {
-                                    "key": "oifname"
-                                }
-                            },
-                            "right": "eth2"
-                        }
-                    },
-                    {
-                        "match": {
-                            "op": "==",
-                            "left": {
                                 "ct": {
                                     "key": "state"
                                 }
@@ -185,7 +162,7 @@
                     },
                     {
                         "snat": {
-                            "addr": "192.168.1.1"
+                            "addr": "192.168.100.201"
                         }
                     }
                 ],
@@ -206,10 +183,122 @@
                             "left": {
                                 "payload": {
                                     "protocol": "ip",
+                                    "field": "saddr"
+                                }
+                            },
+                            "right": {
+                                "set": [
+                                    {
+                                        "prefix": {
+                                            "addr": "10.0.0.0",
+                                            "len": 8
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "172.16.0.0",
+                                            "len": 12
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "192.168.0.0",
+                                            "len": 16
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "match": {
+                            "op": "!=",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
+                                    "field": "daddr"
+                                }
+                            },
+                            "right": {
+                                "set": [
+                                    {
+                                        "prefix": {
+                                            "addr": "10.0.0.0",
+                                            "len": 8
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "172.16.0.0",
+                                            "len": 12
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "192.168.0.0",
+                                            "len": 16
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "ct": {
+                                    "key": "state"
+                                }
+                            },
+                            "right": {
+                                "set": [
+                                    "established",
+                                    "related",
+                                    "new"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "counter": {
+                            "packets": 0,
+                            "bytes": 0
+                        }
+                    },
+                    {
+                        "log": {
+                            "prefix": "",
+                            "group": 0
+                        }
+                    },
+                    {
+                        "snat": {
+                            "addr": "192.168.100.201"
+                        }
+                    }
+                ],
+                "comment": "wan_out_nat_example_UDP"
+            }
+        },
+        {
+            "rule": {
+                "family": "inet",
+                "table": "nat",
+                "chain": "POSTROUTING",
+                "handle": "3",
+                "position": 3,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
                                     "field": "protocol"
                                 }
                             },
-                            "right": "udp"
+                            "right": "icmp"
                         }
                     },
                     {
@@ -282,11 +371,103 @@
                         "match": {
                             "op": "==",
                             "left": {
-                                "meta": {
-                                    "key": "oifname"
+                                "ct": {
+                                    "key": "state"
                                 }
                             },
-                            "right": "any"
+                            "right": {
+                                "set": [
+                                    "established",
+                                    "related",
+                                    "new"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "counter": {
+                            "packets": 0,
+                            "bytes": 0
+                        }
+                    },
+                    {
+                        "log": {
+                            "prefix": "",
+                            "group": 0
+                        }
+                    },
+                    {
+                        "snat": {
+                            "addr": "192.168.100.201"
+                        }
+                    }
+                ],
+                "comment": "wan_out_nat_example_icmp"
+            }
+        },
+        {
+            "rule": {
+                "family": "inet",
+                "table": "nat",
+                "chain": "PREROUTING",
+                "handle": "3",
+                "position": 1,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
+                                    "field": "protocol"
+                                }
+                            },
+                            "right": "icmp"
+                        }
+                    },
+                    {
+                        "match": {
+                            "op": "!=",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
+                                    "field": "saddr"
+                                }
+                            },
+                            "right": {
+                                "set": [
+                                    {
+                                        "prefix": {
+                                            "addr": "10.0.0.0",
+                                            "len": 8
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "172.16.0.0",
+                                            "len": 12
+                                        }
+                                    },
+                                    {
+                                        "prefix": {
+                                            "addr": "192.168.0.0",
+                                            "len": 16
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
+                                    "field": "daddr"
+                                }
+                            },
+                            "right": "192.168.1.1"
                         }
                     },
                     {
@@ -319,12 +500,12 @@
                         }
                     },
                     {
-                        "snat": {
-                            "addr": "192.168.1.1"
+                        "dnat": {
+                            "addr": "10.0.50.10"
                         }
                     }
                 ],
-                "comment": "wan_out_nat_example_UDP"
+                "comment": "marimolestandoexample"
             }
         },
         {
@@ -333,7 +514,7 @@
                 "table": "nat",
                 "chain": "PREROUTING",
                 "handle": "2",
-                "position": 1,
+                "position": 2,
                 "expr": [
                     {
                         "match": {
@@ -408,17 +589,6 @@
                         "match": {
                             "op": "==",
                             "left": {
-                                "meta": {
-                                    "key": "iifname"
-                                }
-                            },
-                            "right": "eth1"
-                        }
-                    },
-                    {
-                        "match": {
-                            "op": "==",
-                            "left": {
                                 "ct": {
                                     "key": "state"
                                 }
@@ -446,7 +616,7 @@
                     },
                     {
                         "dnat": {
-                            "addr": "192.168.50.1",
+                            "addr": "10.0.50.10",
                             "port": 443
                         }
                     }
@@ -460,7 +630,7 @@
                 "table": "nat",
                 "chain": "PREROUTING",
                 "handle": "1",
-                "position": 2,
+                "position": 3,
                 "expr": [
                     {
                         "match": {
@@ -535,17 +705,6 @@
                         "match": {
                             "op": "==",
                             "left": {
-                                "meta": {
-                                    "key": "oifname"
-                                }
-                            },
-                            "right": "any"
-                        }
-                    },
-                    {
-                        "match": {
-                            "op": "==",
-                            "left": {
                                 "ct": {
                                     "key": "state"
                                 }
@@ -573,7 +732,7 @@
                     },
                     {
                         "dnat": {
-                            "addr": "192.168.50.1",
+                            "addr": "10.0.50.10",
                             "port": 1194
                         }
                     }

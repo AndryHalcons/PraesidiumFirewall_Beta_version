@@ -1,22 +1,30 @@
+---
 network:
-  version: 2
-  ethernets:
-    ens18:
-      dhcp4: true
-    ens19:
-      dhcp4: false
   bonds:
     bond0:
-      interfaces: [ens19]
+      dhcp4: true
+      interfaces:
+      - ens19
+      macaddress: 00:11:22:33:44:55
+      mtu: 1500
       parameters:
+        mii-monitor-interval: 100
         mode: active-backup
         primary: ens19
-        mii-monitor-interval: 100
-      dhcp4: true
-      mtu: 1500
-      macaddress: "00:11:22:33:44:55"
   bridges:
     br0:
       interfaces: []
     br1:
       interfaces: []
+  ethernets:
+    ens18:
+      dhcp4: true
+    ens19:
+      dhcp4: false
+    ens20:
+      dhcp4: false
+    ens21:
+      dhcp4: false
+      addresses:
+      - 10.0.50.254/24
+  version: 2

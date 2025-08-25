@@ -45,4 +45,25 @@ function renderCommitButtons() {
   applyBtn.addEventListener("click", buttonApplyCommit);
 }
 
+
+function showLoading(container, message = "Generando commit...") {
+  let loadingMsg = document.getElementById("loading-msg");
+  if (!loadingMsg) {
+    loadingMsg = document.createElement("div");
+    loadingMsg.id = "loading-msg";
+    loadingMsg.style.marginTop = "10px";
+    container.appendChild(loadingMsg);
+  }
+  loadingMsg.textContent = message;
+  loadingMsg.style.display = "block";
+}
+
+function hideLoading() {
+  const loadingMsg = document.getElementById("loading-msg");
+  if (loadingMsg) {
+    loadingMsg.style.display = "none";
+  }
+}
+
+
 renderCommitButtons();
