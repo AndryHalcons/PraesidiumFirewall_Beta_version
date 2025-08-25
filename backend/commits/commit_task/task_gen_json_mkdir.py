@@ -2,6 +2,42 @@ import os
 import shutil
 from task_update_json import task_update_json
 
+
+
+
+def copy_to_running(date):
+    #directorio origen configuracion  
+    #configuration source directory  
+    source_dir = '/var/www/config'
+
+    #directorio destino ejecución  
+    #destination directory for runtime  
+    running_dir = '/var/www/config_running'
+
+    #proceso de copia de archivos  
+    #file copy process  
+    try:
+        os.makedirs(running_dir, exist_ok=True)
+
+        files_to_copy = [
+            'interfaces.yml',
+            'routes.json',
+            'rules.json',
+            'rules_nftables.json',
+            'users.json'
+        ]
+
+        for filename in files_to_copy:
+            source_file = os.path.join(source_dir, filename)
+            running_file = os.path.join(running_dir, filename)
+            if os.path.exists(source_file):
+                shutil.copy2(source_file, running_file)
+        task_update_json(date, "gen_json_mkdir_copy_to_running", "success")
+
+    except Exception:
+        task_update_json(date, "gen_json_mkdir_copy_to_running", "fail")
+
+
 def gen_json_mkdir(user, date):
     #directorio origen configuracion  
     #configuration source directory  
@@ -42,34 +78,4 @@ def gen_json_mkdir(user, date):
 
 
 
-def copy_to_running(date):
-    #directorio origen configuracion  
-    #configuration source directory  
-    source_dir = '/var/www/config'
 
-    #directorio destino ejecución  
-    #destination directory for runtime  
-    running_dir = '/var/www/config_running'
-
-    #proceso de copia de archivos  
-    #file copy process  
-    try:
-        os.makedirs(running_dir, exist_ok=True)
-
-        files_to_copy = [
-            'interfaces.yml',
-            'routes.json',
-            'rules.json',
-            'rules_nftables.json',
-            'users.json'
-        ]
-
-        for filename in files_to_copy:
-            source_file = os.path.join(source_dir, filename)
-            running_file = os.path.join(running_dir, filename)
-            if os.path.exists(source_file):
-                shutil.copy2(source_file, running_file)
-        task_update_json(date, "gen_json_mkdir_copy_to_running", "success")
-
-    except Exception:
-        task_update_json(date, "gen_json_mkdir_copy_to_running", "fail")

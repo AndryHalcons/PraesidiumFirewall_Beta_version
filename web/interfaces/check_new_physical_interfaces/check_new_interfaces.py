@@ -14,9 +14,13 @@ def get_system_interfaces():
     for line in lines:
         if ": " in line:
             name = line.split(": ")[1].split("@")[0].strip()
-            if name != "lo":  # Excluir la interfaz loopback / Exclude loopback interface
+            if (
+                name != "lo"
+                and not name.startswith(("br", "bond", "docker", "veth", "vir", "tun"))
+            ):
                 interfaces.append(name)
     return interfaces
+
 
 # Leer el archivo YAML existente
 # Read the existing YAML file
