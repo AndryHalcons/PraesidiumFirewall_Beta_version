@@ -139,8 +139,9 @@ function mostrarTablaNftablesPostrouting() {
           if (tipo === "match") {
             const left = contenido.left;
             let campo = "";
-
+            
             if (left?.meta?.key) campo = `meta.${left.meta.key}`;
+            /*
             if (left?.payload) {
               const proto = left.payload.protocol;
               const field = left.payload.field;
@@ -148,6 +149,16 @@ function mostrarTablaNftablesPostrouting() {
               else if (proto === "tcp" && field === "dport") campo = "dport";
               else campo = `${proto}.${field}`;
             }
+            */
+            if (left?.payload) {
+                const proto = left.payload.protocol;
+                const field = left.payload.field;
+            
+                if (field === "sport") campo = "sport";
+                else if (field === "dport") campo = "dport";
+                else campo = `${proto}.${field}`;
+              }
+
             if (left?.ct?.key) campo = `ct.${left.ct.key}`;
 
             if (campo === col) {
@@ -188,7 +199,7 @@ function mostrarTablaNftablesPostrouting() {
           const select = document.createElement("select");
           select.disabled = true;
 
-          ["tcp", "udp"].forEach(opt => {
+          ["tcp", "udp", "icmp", "icmpv6"].forEach(opt => {
             const option = document.createElement("option");
             option.value = opt;
             option.textContent = opt;
@@ -333,7 +344,7 @@ function editarNftablesPostrouting(index, rule, row) {
       const select = document.createElement("select");
       select.className = "valor-editable";
 
-      ["tcp", "udp"].forEach(opt => {
+      ["tcp", "udp", "icmp", "icmpv6"].forEach(opt => {
         const option = document.createElement("option");
         option.value = opt;
         option.textContent = opt;

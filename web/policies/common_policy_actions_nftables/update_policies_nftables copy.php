@@ -22,21 +22,6 @@ if (!$nuevaRegla || !isset($nuevaRegla['table']) || !isset($nuevaRegla['chain'])
     exit;
 }
 
-// Validar la regla con el script de validación
-require_once __DIR__ . '/validation_policies_nftables.php';
-
-try {
-    $nuevaRegla = validarReglaNftables($nuevaRegla);
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        "status" => "error",
-        "message" => "La validación de la regla falló.",
-        "details" => $e->getMessage()
-    ]);
-    exit;
-}
-
 // Cargar el archivo JSON existente
 $archivo = "/var/www/config/rules_nftables.json";
 $contenido = file_exists($archivo) ? file_get_contents($archivo) : '';

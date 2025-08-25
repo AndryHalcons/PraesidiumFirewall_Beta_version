@@ -140,8 +140,9 @@ function mostrarTablaNftablesPrerouting() {
           if (tipo === "match") {
             const left = contenido.left;
             let campo = "";
-
+            
             if (left?.meta?.key) campo = `meta.${left.meta.key}`;
+            /*
             if (left?.payload) {
               const proto = left.payload.protocol;
               const field = left.payload.field;
@@ -149,6 +150,16 @@ function mostrarTablaNftablesPrerouting() {
               else if (proto === "tcp" && field === "dport") campo = "dport";
               else campo = `${proto}.${field}`;
             }
+            */
+            if (left?.payload) {
+              const proto = left.payload.protocol;
+              const field = left.payload.field;
+
+              if (field === "sport") campo = "sport";
+              else if (field === "dport") campo = "dport";
+              else campo = `${proto}.${field}`;
+            }
+
             if (left?.ct?.key) campo = `ct.${left.ct.key}`;
 
             if (campo === col) {
@@ -190,7 +201,7 @@ function mostrarTablaNftablesPrerouting() {
           const select = document.createElement("select");
           select.disabled = true;
 
-          ["tcp", "udp"].forEach(opt => {
+          ["tcp", "udp", "icmp", "icmpv6"].forEach(opt => {
             const option = document.createElement("option");
             option.value = opt;
             option.textContent = opt;
@@ -291,6 +302,7 @@ function editarNftablesPrerouting(index, rule, row) {
       let campo = "";
 
       if (left.meta?.key) campo = `meta.${left.meta.key}`; // Aquí se capturará meta.iifname correctamente
+      /*
       if (left.payload) {
         const proto = left.payload.protocol;
         const field = left.payload.field;
@@ -298,6 +310,17 @@ function editarNftablesPrerouting(index, rule, row) {
         else if (proto === "tcp" && field === "dport") campo = "dport";
         else campo = `${proto}.${field}`;
       }
+        */
+      if (left.payload) {
+        const proto = left.payload.protocol;
+        const field = left.payload.field;
+      
+        if (field === "sport") campo = "sport";
+        else if (field === "dport") campo = "dport";
+        else campo = `${proto}.${field}`;
+      }
+
+
       if (left.ct?.key) campo = `ct.${left.ct.key}`;
 
       exprMap[campo] = contenido.right;
@@ -330,7 +353,7 @@ function editarNftablesPrerouting(index, rule, row) {
       const select = document.createElement("select");
       select.className = "valor-editable";
 
-      ["tcp", "udp"].forEach(opt => {
+      ["tcp", "udp", "icmp", "icmpv6"].forEach(opt => {
         const option = document.createElement("option");
         option.value = opt;
         option.textContent = opt;
