@@ -25,5 +25,8 @@ $L = require $langFile;
   <div id="commit-table"></div>
   <script src="/commits/commit.js"></script>
 
+</div>
+
+
 </body>
 </html>

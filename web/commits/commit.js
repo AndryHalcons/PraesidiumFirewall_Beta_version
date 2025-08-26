@@ -1,3 +1,4 @@
+
 function buttonApplyCommit() {
   fetch("/commits/check_commit/commit_apply/commit_apply.php")
   //fetch("/commits/check_commit/commit_common_actions/get_user.php")
@@ -10,60 +11,94 @@ function buttonApplyCommit() {
       console.error("Error al obtener el commit:", err);
     });
 }
-
-
-function renderCommitButtons() {
+function renderCommitTable() {
   const container = document.getElementById("commit-table");
 
-  const compareBtn = document.createElement("button");
-  compareBtn.id = "compare-btn";
-  compareBtn.className = "save-btn";
-  compareBtn.textContent = LANG.compare_commit;
+  const table = document.createElement("table");
+  table.border = "1";
 
-  const applyBtn = document.createElement("button");
-  applyBtn.id = "apply-btn";
-  applyBtn.className = "save-btn";
-  applyBtn.textContent = LANG.apply_commit;
+  for (let i = 0; i < 3; i++) {
+    const row = document.createElement("tr");
 
-  const auditBtn = document.createElement("button");
-  auditBtn.id = "audit-btn";
-  auditBtn.className = "save-btn";
-  auditBtn.textContent = LANG.config_audit;
+    for (let j = 0; j < 2; j++) {
+      const cell = document.createElement("td");
 
-  container.appendChild(compareBtn);
-  container.appendChild(applyBtn);
-  container.appendChild(auditBtn);
+      if (i === 0 && j === 0) {
+        const compareBtn = document.createElement("button");
+        compareBtn.id = "compare-btn";
+        compareBtn.className = "save-btn";
+        compareBtn.textContent = LANG.compare_commit;
 
-  compareBtn.addEventListener("click", () => {
-    console.log("Compare Commit clicked");
-  });
+        const applyBtn = document.createElement("button");
+        applyBtn.id = "apply-btn";
+        applyBtn.className = "save-btn";
+        applyBtn.textContent = LANG.apply_commit;
 
-  auditBtn.addEventListener("click", () => {
-    console.log("Config Audit clicked");
-  });
+        const auditBtn = document.createElement("button");
+        auditBtn.id = "audit-btn";
+        auditBtn.className = "save-btn";
+        auditBtn.textContent = LANG.config_audit;
 
-  applyBtn.addEventListener("click", buttonApplyCommit);
-}
+        cell.appendChild(compareBtn);
+        cell.appendChild(applyBtn);
+        cell.appendChild(auditBtn);
+
+        compareBtn.addEventListener("click", handleCompareCommit);
 
 
-function showLoading(container, message = "Generando commit...") {
-  let loadingMsg = document.getElementById("loading-msg");
-  if (!loadingMsg) {
-    loadingMsg = document.createElement("div");
-    loadingMsg.id = "loading-msg";
-    loadingMsg.style.marginTop = "10px";
-    container.appendChild(loadingMsg);
+        auditBtn.addEventListener("click", () => {
+          console.log("Config Audit clicked");
+        });
+
+        applyBtn.addEventListener("click", buttonApplyCommit);
+      }
+
+      row.appendChild(cell);
+    }
+
+    table.appendChild(row);
   }
-  loadingMsg.textContent = message;
-  loadingMsg.style.display = "block";
-}
 
-function hideLoading() {
-  const loadingMsg = document.getElementById("loading-msg");
-  if (loadingMsg) {
-    loadingMsg.style.display = "none";
-  }
+  container.appendChild(table);
 }
 
 
-renderCommitButtons();
+function handleCompareCommit() {
+  // Abrir ventana emergente
+  const win = window.open("", "Comparador", "width=1000,height=800");
+
+  // Crear tabla básica
+  win.document.write("<html><head><title>Comparador de Configuraciones</title></head><body>");
+  win.document.write("<table border='1'><tr><th>Candidate Config</th><th>Running Config</th></tr>");
+  win.document.write("<tr><td id='candidateCell'>Cargando...</td><td id='runningCell'>Cargando...</td></tr>");
+  win.document.write("</table></body></html>");
+
+  // Referencias a las celdas
+  const candidateCell = win.document.getElementById("candidateCell");
+  const runningCell = win.document.getElementById("runningCell");
+
+  // Fetch candidate config
+  fetch("/commits/check_commit/commit_common_actions/get_praesidium_config.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "mode=candidate"
+  })
+    .then(res => res.ok ? res.text() : Promise.reject("Error al obtener candidate"))
+    .then(data => candidateCell.innerHTML = `<pre>${data}</pre>`)
+    .catch(err => candidateCell.textContent = err);
+
+  // Fetch running config
+  fetch("/commits/check_commit/commit_common_actions/get_praesidium_config.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "mode=running"
+  })
+    .then(res => res.ok ? res.text() : Promise.reject("Error al obtener running"))
+    .then(data => runningCell.innerHTML = `<pre>${data}</pre>`)
+    .catch(err => runningCell.textContent = err);
+}
+
+
+
+
+renderCommitTable();
