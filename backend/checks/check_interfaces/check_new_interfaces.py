@@ -4,6 +4,9 @@ import subprocess
 import yaml
 import os
 
+#Este script añade las interfaces FISICAS nuevas detectadas por el sistema al archivo interfaces
+#This script adds newly detected physical interfaces from the system to the interfaces file.
+
 # Ejecutar 'ip link show' y obtener nombres de interfaces físicas (excluyendo loopback)
 # Run 'ip link show' and get physical interface names (excluding loopback)
 def get_system_interfaces():
@@ -72,6 +75,4 @@ def run_check_new_interfaces():
         updated_data = add_new_interfaces(netplan_data, new_ifaces)
         save_netplan_file(netplan_path, updated_data)
 
-# Llamar directamente a la función principal sin bloque condicional
-# Call the main function directly without conditional block
 run_check_new_interfaces()

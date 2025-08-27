@@ -3,6 +3,8 @@ import json
 import os
 import re
 
+#Este archivo extrae la tabla de rutas del sistema y genera el archivo routes.json que es el que se muestra en sistema->enrutamiento
+#This script extracts the system's routing table and generates the routes.json file, which is displayed under System → Routing.
 ROUTES_FILE = "/var/www/config/routes.json"
 
 def run_command(cmd):

@@ -9,7 +9,7 @@ if (!isset($_SESSION['username'])) {
 header("Content-Type: application/json");
 
 // Ruta absoluta al script Python
-$script = escapeshellcmd("/var/www/html/routing/update_routing/reload_system_routes_running.py");
+$script = escapeshellcmd("/var/www/backend/checks/check_routes/check_system_routes_running.py");
 
 // Ejecutar con sudo (asumiendo que el visudo permite esto sin contraseña)
 $output = shell_exec("sudo python3 $script 2>&1");
