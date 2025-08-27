@@ -8,7 +8,7 @@ if (!isset($_SESSION['username'])) {
 $chain = $_POST['chain'] ?? null;
 $handle = $_POST['handle'] ?? null;
 
-$validChains = ['input', 'POSTROUTING', 'PREROUTING'];
+$validChains = ['input', 'POSTROUTING', 'PREROUTING', 'FORWARDING'];
 
 if (!in_array($chain, $validChains)) {
     exit("Cadena inválida");

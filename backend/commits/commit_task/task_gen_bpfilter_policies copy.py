@@ -52,52 +52,53 @@ def format_match_fields(match):
 
 def process_rules(user, date, json_path, output_path):
     try:
+        # Abrimos y cargamos el archivo JSON que contiene las reglas
         with open(json_path, "r") as f:
             data = json.load(f)
 
-        lines = []
+        lines = []  # Lista donde se almacenarán las líneas del archivo de salida
 
+        # Iteramos sobre cada hook definido en el JSON (por ejemplo: BF_HOOK_XDP)
         for hook_name, hook_data in data.items():
+            # Obtenemos el nombre de la cadena, o generamos uno por defecto si no está definido
             chain_name = hook_data.get("chain", f"chain_{hook_name.lower()}")
-            policy = "ACCEPT"
-            rules = hook_data.get("rules", [])
 
-            # Encabezado de la cadena
-            chain_header = f"chain {chain_name} {hook_name}{{}} {policy}"
-            chain_lines = [chain_header]
+            policy = "ACCEPT"  # Política por defecto para la cadena
+            rules = hook_data.get("rules", [])  # Lista de reglas asociadas al hook
 
+            # Iteramos sobre cada regla dentro del hook
             for rule in rules:
+                # Ignoramos reglas que no estén habilitadas
                 if not rule.get("enabled", False):
                     continue
 
-                match = rule.get("match", {})
-                action = rule.get("action", "DROP")
+                match = rule.get("match", {})  # Obtenemos los criterios de coincidencia
+                action = rule.get("action", "DROP")  # Acción por defecto si no se especifica
+
+                # Generamos las condiciones de filtrado usando la función anterior
                 match_lines = format_match_fields(match)
 
+                # Si no hay condiciones válidas, omitimos la regla (evita errores de sintaxis)
                 if not match_lines:
                     continue
 
-                # Construimos el bloque de la regla con indentación
-                rule_block = ["    rule"]
-                for condition in match_lines:
-                    rule_block.append(f"        {condition}")
-                rule_block.append("        counter")
-                rule_block.append(f"        {action}")
+                # Unimos todas las condiciones en una sola cadena
+                match_str = " ".join(match_lines)
 
-                chain_lines.extend(rule_block)
+                # Construimos la línea completa de la regla en el formato requerido por bpfilter
+                rule_line = f"chain {chain_name} {hook_name}{{}} {policy} rule {match_str} counter {action}"
+                lines.append(rule_line)  # Añadimos la línea al archivo de salida
 
-            # Solo añadimos la cadena si tiene reglas válidas
-            if len(chain_lines) > 1:
-                lines.extend(chain_lines)
-
-        # Escribimos el archivo
+        # Escribimos todas las líneas generadas en el archivo de salida
         with open(output_path, "w") as f_out:
             for line in lines:
                 f_out.write(line + "\n")
 
+        # Registramos que la tarea se completó con éxito
         task_update_json(date, "flush_bpfilter_json_to_txt", "success")
 
     except Exception as e:
+        # Si ocurre un error, registramos el fallo de la tarea
         task_update_json(date, "flush_bpfilter_json_to_txt", "fail")
 
 

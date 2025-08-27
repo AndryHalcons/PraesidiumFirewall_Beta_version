@@ -5,7 +5,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 $chain = $_POST['chain'] ?? null;
-$validChains = ['input', 'POSTROUTING', 'PREROUTING'];
+$validChains = ['input', 'POSTROUTING', 'PREROUTING', 'FORWARDING'];
 
 if (!$chain || !in_array($chain, $validChains)) {
     http_response_code(400);

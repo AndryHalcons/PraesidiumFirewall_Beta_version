@@ -6,7 +6,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 $chain = $_POST['chain'] ?? null;
-$validChains = ['input', 'POSTROUTING', 'PREROUTING'];
+$validChains = ['input', 'POSTROUTING', 'PREROUTING', 'FORWARDING'];
 
 if (!in_array($chain, $validChains)) {
     exit("Cadena inválida");
