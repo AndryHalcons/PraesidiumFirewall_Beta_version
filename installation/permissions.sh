@@ -6,7 +6,7 @@ EXCEPCIONES_FILE="/etc/sudoers.d/praesidium_excepciones"
 registrar_excepciones_python() {
     local excepciones=(
         "/var/www/backend/checks/check_routes/check_system_routes_running.py"
-        "/var/www/backend/checks/check_interfaces/main_interfaces_check.py *"
+        "/var/www/backend/checks/check_interfaces/main_interfaces_check.py"
         "/var/www/backend/commits/commit_apply.py *"
     )
 

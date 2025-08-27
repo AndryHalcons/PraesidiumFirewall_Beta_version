@@ -4,7 +4,9 @@ import os
 import re
 
 #Este archivo extrae la tabla de rutas del sistema y genera el archivo routes.json que es el que se muestra en sistema->enrutamiento
+#se ejecuta solo si el archivo no existe, para no sobreescribir las rutas del usuario.
 #This script extracts the system's routing table and generates the routes.json file, which is displayed under System → Routing.
+# Executes only if the file doesn't exist, to avoid overwriting the user's routes.
 ROUTES_FILE = "/var/www/config/routes.json"
 
 def run_command(cmd):
@@ -98,7 +100,15 @@ def save_to_json(routes, rules, path):
         json.dump(data, f, indent=4)
     print(f"Rutas y reglas guardadas en {path}")
 
-# Ejecutar directamente
-routes = get_routes()
-rules = get_rules()
-save_to_json(routes, rules, ROUTES_FILE)
+def generate_routes_file_if_missing():
+    #se ejecuta solo si el archivo no existe, para no sobreescribir las rutas del usuario.
+    # Executes only if the file doesn't exist, to avoid overwriting the user's routes.
+    if not os.path.exists(ROUTES_FILE):
+        routes = get_routes()
+        rules = get_rules()
+        save_to_json(routes, rules, ROUTES_FILE)
+    else:
+        print(f"El archivo {ROUTES_FILE} ya existe. No se generó uno nuevo.")
+
+# Llamada principal
+generate_routes_file_if_missing()
