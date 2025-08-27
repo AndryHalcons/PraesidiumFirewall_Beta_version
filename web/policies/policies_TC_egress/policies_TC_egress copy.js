@@ -1,5 +1,5 @@
 function cargarPolicies() {
-  const hook = "BF_HOOK_TC_INGRESS";
+  const hook = "BF_HOOK_TC_EGRESS";
 
   // 🧩 Paso 1: ordenar las reglas
   fetch("/policies/common_policy_actions/order_policies.php", {
@@ -34,7 +34,7 @@ function cargarPolicies() {
     // 🧩 Paso 4: mostrar resultados
     const container = document.getElementById("rules-output");
     container.textContent = JSON.stringify(data, null, 2);
-    mostrarTablaTC_INGRESS(); // 🔥 Se dispara automáticamente
+    mostrarTablaTC_EGRESS(); // 🔥 Se dispara automáticamente
   })
   .catch(error => {
     const container = document.getElementById("rules-output");
@@ -44,7 +44,7 @@ function cargarPolicies() {
 
 
 
-function mostrarTablaTC_INGRESS() {
+function mostrarTablaTC_EGRESS() {
   const container = document.getElementById("rules-output");
   let data;
 
@@ -66,7 +66,7 @@ function mostrarTablaTC_INGRESS() {
   btnAdd.textContent = LANG.add_policy;
   btnAdd.className = "añadir-regla";
   btnAdd.style.marginBottom = "12px";
-  btnAdd.onclick = () => addNewTC_INGRESS();
+  btnAdd.onclick = () => addNewTC_EGRESS();
 
   container.appendChild(btnAdd);
 
@@ -109,17 +109,17 @@ function mostrarTablaTC_INGRESS() {
     const btnEditar = document.createElement("button");
     btnEditar.textContent = LANG.edit;
     btnEditar.className = "editar";
-    btnEditar.onclick = () => editarTC_INGRESS(index, rule, row);
+    btnEditar.onclick = () => editarTC_EGRESS(index, rule, row);
 
     const btnGuardar = document.createElement("button");
     btnGuardar.textContent = LANG.save;
     btnGuardar.className = "guardar";
-    btnGuardar.onclick = () => guardarTC_INGRESS(index, rule, row);
+    btnGuardar.onclick = () => guardarTC_EGRESS(index, rule, row);
 
     const btnEliminar = document.createElement("button");
     btnEliminar.textContent = LANG.delete;
     btnEliminar.className = "eliminar";
-    btnEliminar.onclick = () => eliminarTC_INGRESS(index, rule, row);
+    btnEliminar.onclick = () => eliminarTC_EGRESS(index, rule, row);
 
     [btnEditar, btnGuardar, btnEliminar].forEach(btn => {
       btn.style.marginRight = "4px";
@@ -163,9 +163,9 @@ function mostrarTablaTC_INGRESS() {
 }
 
 
-function addNewTC_INGRESS() {
+function addNewTC_EGRESS() {
   const params = new URLSearchParams();
-  params.append("BF_HOOK_TC_INGRESS", "BF_HOOK_TC_INGRESS");
+  params.append("BF_HOOK_TC_EGRESS", "BF_HOOK_TC_EGRESS");
   params.append("new", "true");
 
   fetch("/policies/common_policy_actions/add_policies.php", {
@@ -187,10 +187,10 @@ function addNewTC_INGRESS() {
   });
 }
 
-function eliminarTC_INGRESS(index, rule, row) {
+function eliminarTC_EGRESS(index, rule, row) {
   if (!confirm("¿Seguro que deseas eliminar esta regla?")) return;
 
-  const hook = "BF_HOOK_TC_INGRESS"; 
+  const hook = "BF_HOOK_TC_EGRESS"; 
   const payload = {
     hook: hook,
     id: rule.id
@@ -217,7 +217,7 @@ function eliminarTC_INGRESS(index, rule, row) {
   });
 }
 
-function editarTC_INGRESS(index, rule, row) {
+function editarTC_EGRESS(index, rule, row) {
   const cells = row.querySelectorAll("td");
   let cellIndex = 1;
 
@@ -256,92 +256,19 @@ function editarTC_INGRESS(index, rule, row) {
 
   matchFields.forEach(field => {
     const cell = cells[cellIndex];
-
-    if (field === "iface") {
-      const select = document.createElement("select");
-      cell.innerHTML = "";
-      cell.appendChild(select);
-
-      fetch("/policies/common_policy_forms/get_physical_interfaces.php")
-        .then(response => response.json())
-        .then(data => {
-          const interfaces = data.physical_interfaces ?? [];
-          interfaces.forEach(iface => {
-            const option = document.createElement("option");
-            option.value = iface.name;
-            option.textContent = iface.name;
-            if (rule.match?.iface === iface.name) {
-              option.selected = true;
-            }
-            select.appendChild(option);
-          });
-        })
-        .catch(error => {
-          console.error("Error loading interfaces:", error);
-          const fallback = document.createElement("option");
-          fallback.textContent = "Error loading interfaces";
-          select.appendChild(fallback);
-        });
-
-    } else {
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = rule.match?.[field] ?? "";
-      cell.innerHTML = "";
-      cell.appendChild(input);
-    }
-
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = rule.match?.[field] ?? "";
+    cell.innerHTML = "";
+    cell.appendChild(input);
     cellIndex++;
   });
-
-  const fieldsWithOptions = [
-    "l3_proto", "l4_proto", "ip4_proto", "ip6_nexthdr",
-    "tcp_flags", "icmp_type", "icmp_code",
-    "icmpv6_type", "icmpv6_code"
-  ];
-
-  fetch("/policies/common_policy_forms/get_form_interface_bpfilter.php")
-    .then(response => response.json())
-    .then(formOptions => {
-      let cellIndex = baseFields.length + 1; // después de "actions" y baseFields
-
-      matchFields.forEach(field => {
-        if (field === "iface") {
-          cellIndex++; // saltar iface, ya procesado
-          return;
-        }
-
-        const cell = cells[cellIndex];
-        if (!cell) {
-          cellIndex++;
-          return;
-        }
-
-        if (fieldsWithOptions.includes(field) && Array.isArray(formOptions[field])) {
-          const select = document.createElement("select");
-          cell.innerHTML = "";
-          formOptions[field].forEach(optionValue => {
-            const option = document.createElement("option");
-            option.value = optionValue;
-            option.textContent = optionValue;
-            if (rule.match?.[field] == optionValue) {
-              option.selected = true;
-            }
-            select.appendChild(option);
-          });
-          cell.appendChild(select);
-        }
-
-        cellIndex++;
-      });
-    })
-    .catch(error => {
-      console.error("Error loading bpfilter form options:", error);
-    });
 }
 
 
-function guardarTC_INGRESS(index, rule, row) {
+
+
+function guardarTC_EGRESS(index, rule, row) {
   const cells = row.querySelectorAll("td");
   let cellIndex = 1;
 
@@ -384,7 +311,7 @@ function guardarTC_INGRESS(index, rule, row) {
     cellIndex++;
   });
 
-  const hook = "BF_HOOK_TC_INGRESS";
+  const hook = "BF_HOOK_TC_EGRESS";
   const payload = {
     hook: hook,
     rule: updatedRule
@@ -402,91 +329,6 @@ function guardarTC_INGRESS(index, rule, row) {
     if (response.includes("OK")) {
       alert("✅ Regla actualizada correctamente");
       cargarPolicies(); // 🔄 Refresca la tabla
-    } else {
-      alert("❌ Error al guardar la regla: " + response);
-    }
-  })
-  .catch(err => {
-    alert("⚠️ Error de red al intentar guardar la regla.");
-  });
-}
-
-function guardarTC_INGRESS(index, rule, row) {
-  const cells = row.querySelectorAll("td");
-  let cellIndex = 1;
-
-  const baseFields = ["id", "position", "name", "description", "action", "enabled"];
-  const updatedRule = {};
-
-  baseFields.forEach(field => {
-    const cell = cells[cellIndex];
-    if (field === "enabled") {
-      const checkbox = cell.querySelector("input[type='checkbox']");
-      updatedRule.enabled = checkbox?.checked ?? false;
-      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
-    } else if (field === "id") {
-      updatedRule.id = cell.textContent.trim();
-    } else {
-      const input = cell.querySelector("input");
-      updatedRule[field] = input?.value ?? "";
-      cell.textContent = updatedRule[field];
-    }
-    cellIndex++;
-  });
-
-  const matchFields = [
-    "iface", "l3_proto", "l4_proto",
-    "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
-    "ip6_saddr", "ip6_daddr", "ip6_snet", "ip6_dnet", "ip6_nexthdr",
-    "tcp_sport", "tcp_dport", "tcp_flags",
-    "udp_sport", "udp_dport",
-    "icmp_type", "icmp_code",
-    "icmpv6_type", "icmpv6_code",
-    "probability"
-  ];
-
-  const fieldsWithOptions = [
-    "l3_proto", "l4_proto", "ip4_proto", "ip6_nexthdr",
-    "tcp_flags", "icmp_type", "icmp_code",
-    "icmpv6_type", "icmpv6_code"
-  ];
-
-  updatedRule.match = {};
-  matchFields.forEach(field => {
-    const cell = cells[cellIndex];
-    let value;
-
-    if (field === "iface" || fieldsWithOptions.includes(field)) {
-      const select = cell.querySelector("select");
-      value = select?.value ?? "";
-    } else {
-      const input = cell.querySelector("input");
-      value = input?.value ?? "";
-    }
-
-    updatedRule.match[field] = value;
-    cell.textContent = value;
-    cellIndex++;
-  });
-
-  const hook = "BF_HOOK_TC_INGRESS";
-  const payload = {
-    hook: hook,
-    rule: updatedRule
-  };
-
-  fetch("/policies/common_policy_actions/update_policies.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.text())
-  .then(response => {
-    if (response.includes("OK")) {
-      alert("✅ Regla actualizada correctamente");
-      cargarPolicies(); // Refresca la tabla
     } else {
       alert("❌ Error al guardar la regla: " + response);
     }

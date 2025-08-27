@@ -256,16 +256,89 @@ function editarTC_EGRESS(index, rule, row) {
 
   matchFields.forEach(field => {
     const cell = cells[cellIndex];
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = rule.match?.[field] ?? "";
-    cell.innerHTML = "";
-    cell.appendChild(input);
+
+    if (field === "iface") {
+      const select = document.createElement("select");
+      cell.innerHTML = "";
+      cell.appendChild(select);
+
+      fetch("/policies/common_policy_forms/get_physical_interfaces.php")
+        .then(response => response.json())
+        .then(data => {
+          const interfaces = data.physical_interfaces ?? [];
+          interfaces.forEach(iface => {
+            const option = document.createElement("option");
+            option.value = iface.name;
+            option.textContent = iface.name;
+            if (rule.match?.iface === iface.name) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error("Error loading interfaces:", error);
+          const fallback = document.createElement("option");
+          fallback.textContent = "Error loading interfaces";
+          select.appendChild(fallback);
+        });
+
+    } else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = rule.match?.[field] ?? "";
+      cell.innerHTML = "";
+      cell.appendChild(input);
+    }
+
     cellIndex++;
   });
+
+  const fieldsWithOptions = [
+    "l3_proto", "l4_proto", "ip4_proto", "ip6_nexthdr",
+    "tcp_flags", "icmp_type", "icmp_code",
+    "icmpv6_type", "icmpv6_code"
+  ];
+
+  fetch("/policies/common_policy_forms/get_form_interface_bpfilter.php")
+    .then(response => response.json())
+    .then(formOptions => {
+      let cellIndex = baseFields.length + 1; // después de "actions" y baseFields
+
+      matchFields.forEach(field => {
+        if (field === "iface") {
+          cellIndex++; // saltar iface, ya procesado
+          return;
+        }
+
+        const cell = cells[cellIndex];
+        if (!cell) {
+          cellIndex++;
+          return;
+        }
+
+        if (fieldsWithOptions.includes(field) && Array.isArray(formOptions[field])) {
+          const select = document.createElement("select");
+          cell.innerHTML = "";
+          formOptions[field].forEach(optionValue => {
+            const option = document.createElement("option");
+            option.value = optionValue;
+            option.textContent = optionValue;
+            if (rule.match?.[field] == optionValue) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          });
+          cell.appendChild(select);
+        }
+
+        cellIndex++;
+      });
+    })
+    .catch(error => {
+      console.error("Error loading bpfilter form options:", error);
+    });
 }
-
-
 
 
 function guardarTC_EGRESS(index, rule, row) {
@@ -282,7 +355,7 @@ function guardarTC_EGRESS(index, rule, row) {
       updatedRule.enabled = checkbox?.checked ?? false;
       cell.textContent = updatedRule.enabled ? "✔️" : "❌";
     } else if (field === "id") {
-      updatedRule.id = cell.textContent.trim(); // Recoge el ID como texto
+      updatedRule.id = cell.textContent.trim();
     } else {
       const input = cell.querySelector("input");
       updatedRule[field] = input?.value ?? "";
@@ -302,12 +375,27 @@ function guardarTC_EGRESS(index, rule, row) {
     "probability"
   ];
 
+  const fieldsWithOptions = [
+    "l3_proto", "l4_proto", "ip4_proto", "ip6_nexthdr",
+    "tcp_flags", "icmp_type", "icmp_code",
+    "icmpv6_type", "icmpv6_code"
+  ];
+
   updatedRule.match = {};
   matchFields.forEach(field => {
     const cell = cells[cellIndex];
-    const input = cell.querySelector("input");
-    updatedRule.match[field] = input?.value ?? "";
-    cell.textContent = updatedRule.match[field];
+    let value;
+
+    if (field === "iface" || fieldsWithOptions.includes(field)) {
+      const select = cell.querySelector("select");
+      value = select?.value ?? "";
+    } else {
+      const input = cell.querySelector("input");
+      value = input?.value ?? "";
+    }
+
+    updatedRule.match[field] = value;
+    cell.textContent = value;
     cellIndex++;
   });
 
@@ -328,7 +416,7 @@ function guardarTC_EGRESS(index, rule, row) {
   .then(response => {
     if (response.includes("OK")) {
       alert("✅ Regla actualizada correctamente");
-      cargarPolicies(); // 🔄 Refresca la tabla
+      cargarPolicies(); // Refresca la tabla
     } else {
       alert("❌ Error al guardar la regla: " + response);
     }
