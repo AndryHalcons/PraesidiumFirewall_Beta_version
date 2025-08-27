@@ -6,7 +6,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 $chain = $_POST['chain'] ?? null;
-$validChains = ['input', 'POSTROUTING', 'PREROUTING', 'FORWARDING'];
+$validChains = ['input','output', 'POSTROUTING', 'PREROUTING', 'FORWARDING'];
 
 if (!in_array($chain, $validChains)) {
     exit("Cadena inválida");
@@ -27,7 +27,7 @@ if (!is_array($data) || !isset($data['nftables'])) {
 
 // 🔍 Buscar el nombre de tabla según la cadena
 //si es input o forwarding la tabla es filter, si no, es
-$tableName = in_array($chain, ['input', 'FORWARDING']) ? 'filter' : 'nat';
+$tableName = in_array($chain, ['input', 'output', 'FORWARDING']) ? 'filter' : 'nat';
 
 
 // 🔢 Buscar el menor handle disponible en la cadena específica

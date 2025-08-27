@@ -25,6 +25,7 @@ return [
     'sidebar_nftables_postrouting'   => 'Reglas Postrouting',
     'sidebar_nftables_input'   =>  'Reglas input Management',
     'sidebar_nftables_output'   => 'Reglas output Management',
+    'sidebar_system'   => 'Sistema',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
     'sidebar_Routing'      => 'Enrutamiento',
