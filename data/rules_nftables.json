@@ -27,6 +27,18 @@
             }
         },
         {
+              "chain": {
+                "family": "inet",
+                "table": "filter",
+                "name": "FORWARDING",
+                "handle": 3,
+                "type": "filter",
+                "hook": "forward",
+                "prio": 0,
+                "policy": "accept"
+              }
+        },
+        {
             "table": {
                 "family": "inet",
                 "name": "nat",

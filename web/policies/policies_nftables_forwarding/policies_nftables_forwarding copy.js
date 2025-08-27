@@ -41,6 +41,7 @@ fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
 
 
 
+
 function mostrarTablaNftablesForwarding() {
   const container = document.getElementById("nftablesrules-forwarding");
 
@@ -81,8 +82,7 @@ function mostrarTablaNftablesForwarding() {
     "meta.iifname", "meta.oifname",
     "ct.state",
     "packets", "bytes",
-    "log.prefix", "log.group",
-    "action"
+    "log.prefix", "log.group"
   ];
 
   columnas.forEach(col => {
@@ -180,12 +180,6 @@ function mostrarTablaNftablesForwarding() {
           if (tipo === "log") {
             if (col === "log.prefix") valor = contenido.prefix ?? "";
             if (col === "log.group") valor = contenido.group ?? "";
-          }
-
-          if (["accept", "drop", "reject", "queue", "continue", "return"].includes(tipo)) {
-            if (col === "action") {
-              valor = tipo;
-            }
           }
         });
 
@@ -285,7 +279,6 @@ function editarNftablesForwarding(index, rule, row) {
 
   const exprMap = {};
   const opMap = {};
-  let actionVeredict = "";
 
   (rule.expr || []).forEach(expr => {
     const tipo = Object.keys(expr)[0];
@@ -319,9 +312,11 @@ function editarNftablesForwarding(index, rule, row) {
       exprMap["log.group"] = contenido.group;
     }
 
-    if (["accept", "drop", "reject", "queue", "continue", "return"].includes(tipo)) {
-      actionVeredict = tipo;
-    }
+    // Eliminado: no se usa en forwarding
+    // if (tipo === "dnat") {
+    //   exprMap["dnat.addr"] = contenido.addr;
+    //   exprMap["dnat.port"] = contenido.port;
+    // }
   });
 
   columnas.slice(1).forEach(col => {
@@ -339,19 +334,6 @@ function editarNftablesForwarding(index, rule, row) {
         option.value = opt;
         option.textContent = opt;
         if (opt === exprMap[col]) option.selected = true;
-        select.appendChild(option);
-      });
-
-      cell.appendChild(select);
-    } else if (col === "action") {
-      const select = document.createElement("select");
-      select.className = "valor-editable";
-
-      ["accept", "drop", "reject", "queue", "continue", "return"].forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        if (opt === actionVeredict) option.selected = true;
         select.appendChild(option);
       });
 
@@ -475,12 +457,16 @@ function guardarNftablesForwarding(index, rule, row, columnas) {
       return;
     }
 
-    if (col === "action") {
-      if (["accept", "drop", "reject", "queue", "continue", "return"].includes(limpio)) {
-        nuevaExpr.push({ [limpio]: null });
-      }
-      return;
-    }
+    // Eliminado: no se usa en forwarding
+    // if (col === "dnat.addr" || col === "dnat.port") {
+    //   let dnat = nuevaExpr.find(e => e.dnat);
+    //   if (!dnat) {
+    //     dnat = { dnat: {} };
+    //     nuevaExpr.push(dnat);
+    //   }
+    //   dnat.dnat[col.split(".")[1]] = col === "dnat.port" ? parseInt(valor) || 0 : valor;
+    //   return;
+    // }
 
     if (limpio === "") return;
 
@@ -599,7 +585,6 @@ function guardarNftablesForwarding(index, rule, row, columnas) {
     console.error("Error al enviar la regla:", err);
   });
 }
-
 
 
 

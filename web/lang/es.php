@@ -23,6 +23,8 @@ return [
     'sidebar_nftables_prerouting'    => 'Reglas Prerouting',
     'sidebar_nftables_forwarding'    => 'Reglas Forwarding',
     'sidebar_nftables_postrouting'   => 'Reglas Postrouting',
+    'sidebar_nftables_input'   =>  'Reglas input Management',
+    'sidebar_nftables_output'   => 'Reglas output Management',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
     'sidebar_Routing'      => 'Enrutamiento',

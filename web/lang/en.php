@@ -24,6 +24,8 @@ return [
     'sidebar_nftables_prerouting'    => 'Policies Prerouting',
     'sidebar_nftables_forwarding'    => 'Policies Forwarding',
     'sidebar_nftables_postrouting'   => 'Policies Postrouting',
+    'sidebar_nftables_input'   =>  'Policies input Management',
+    'sidebar_nftables_output'   => 'Policies output Management',
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
     'sidebar_Routing'      => 'Routing',

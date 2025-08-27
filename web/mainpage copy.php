@@ -48,37 +48,20 @@ $L = require $langFile;
         <a href="logout.php"><?= htmlspecialchars($L['menu_logout']) ?></a>
     </div>
 
-
     <div class="sidebar">
-      <details open>
-        <summary><?= htmlspecialchars($L['sidebar_dashboard']) ?></summary>
         <a href="#" data-page="dashboard/dashboard.php"><?= htmlspecialchars($L['sidebar_dashboard']) ?></a>
-      </details>
-
-      <details>
-        <summary>BPfilter</summary>
         <a href="#" data-page="policies/policies_xdp.php"><?= htmlspecialchars($L['sidebar_XDP_policies']) ?></a>
         <a href="#" data-page="policies/policies_TC_ingress.php"><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></a>
         <a href="#" data-page="policies/policies_TC_egress.php"><?= htmlspecialchars($L['sidebar_TC_Egress']) ?></a>
-      </details>
-
-      <details>
-        <summary>Nftables</summary>
         <a href="#" data-page="policies/policies_nftables_prerouting.php"><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></a>
         <a href="#" data-page="policies/policies_nftables_forwarding.php"><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></a>
         <a href="#" data-page="policies/policies_nftables_postrouting.php"><?= htmlspecialchars($L['sidebar_nftables_postrouting']) ?></a>
         <a href="#" data-page="policies/policies_nftables_input.php"><?= htmlspecialchars($L['sidebar_nftables_input']) ?></a>
         <a href="#" data-page="policies/policies_nftables_output.php"><?= htmlspecialchars($L['sidebar_nftables_output']) ?></a>
-      </details>
-
-      <details>
-        <summary>System</summary>
         <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>
         <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
         <a href="#" data-page="settings.php"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
-      </details>
     </div>
-
 
     <div class="main-content" id="main-content">
         <p><?= htmlspecialchars($L['main_content']) ?></p>

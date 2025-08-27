@@ -26,7 +26,9 @@ if (!is_array($data) || !isset($data['nftables'])) {
 }
 
 // 🔍 Buscar el nombre de tabla según la cadena
-$tableName = ($chain === 'input') ? 'filter' : 'nat';
+//si es input o forwarding la tabla es filter, si no, es
+$tableName = in_array($chain, ['input', 'FORWARDING']) ? 'filter' : 'nat';
+
 
 // 🔢 Buscar el menor handle disponible en la cadena específica
 $usedHandles = [];
