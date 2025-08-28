@@ -4,6 +4,25 @@ import json
 
 
 
+
+
+def get_ifindex(iface_name, iface_system_path):
+    #obtiene el ifindex de las interfaces fisicas para la chain
+    # Retrieves the ifindex of physical interfaces for the chain
+    try:
+        with open(iface_system_path, "r") as f:
+            data = json.load(f)
+            interfaces = data.get("physical_interfaces", [])
+            for iface in interfaces:
+                if iface.get("name") == iface_name:
+                    return iface.get("ifindex")
+    except Exception as e:
+        pass  # Silenciar errores si el archivo no existe o está mal formado
+
+    return None  # Si no se encuentra la interfaz o hay error
+
+
+
 def format_match_fields(match):
     # Si el valor de 'match' es la cadena "any", no se aplica ningún filtro
     # y por lo tanto no se genera ninguna condición.
@@ -50,7 +69,7 @@ def format_match_fields(match):
     return parts
 
 
-def process_rules(user, date, json_path, output_path):
+def process_rules(user, date, json_path, output_path, iface_system_path):
     try:
         with open(json_path, "r") as f:
             data = json.load(f)
@@ -58,12 +77,34 @@ def process_rules(user, date, json_path, output_path):
         lines = []
 
         for hook_name, hook_data in data.items():
-            chain_name = hook_data.get("chain", f"chain_{hook_name.lower()}")
             policy = "ACCEPT"
             rules = hook_data.get("rules", [])
 
+            # Buscar la primera interfaz válida en las reglas habilitadas
+            iface = None
+            for rule in rules:
+                if rule.get("enabled", False):
+                    match = rule.get("match", {})
+                    iface_candidate = match.get("iface")
+                    if iface_candidate and iface_candidate != "any" and "example" not in iface_candidate:
+                        iface = iface_candidate
+                        break
+
+            # Construir el nombre de la cadena como iface + hook, todo en minúsculas
+            if iface:
+                chain_name = f"{iface}{hook_name}".lower()
+            else:
+                chain_name = f"chain_{hook_name.lower()}"
+
+            # Obtener el ifindex si hay interfaz válida
+            chain_args = "{}"
+            if iface:
+                ifindex = get_ifindex(iface, iface_system_path)
+                if ifindex is not None:
+                    chain_args = f"{{ifindex={ifindex}}}"
+
             # Encabezado de la cadena
-            chain_header = f"chain {chain_name} {hook_name}{{}} {policy}"
+            chain_header = f"chain {chain_name} {hook_name}{chain_args} {policy}"
             chain_lines = [chain_header]
 
             for rule in rules:
@@ -127,7 +168,8 @@ def apply_bpfilter_policies(output_path, user, date):
 def task_gen_bpfilter_policies(user, date):
     json_path = "/var/www/config_running/rules.json"
     output_path = "/home/praesidium/PraesidiumFirewall/backend/commits/commit_task/rules_formatted.txt"
-    process_rules(user, date, json_path, output_path)
+    iface_system_path = "/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json"
+    process_rules(user, date, json_path, output_path, iface_system_path)
     #apply_bpfilter_policies(output_path, user, date)
 
 

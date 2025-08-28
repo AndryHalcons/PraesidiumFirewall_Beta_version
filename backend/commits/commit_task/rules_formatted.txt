@@ -1,24 +1,53 @@
-chain myxdp BF_HOOK_XDP{ifindex=5} ACCEPT
+chain ens18bf_hook_tc_ingress BF_HOOK_TC_INGRESS{ifindex=2} ACCEPT
     rule
-        ip4.daddr eq 8.8.8.8
-        meta.probability eq 100%
+        meta.iface eq ens18
         counter
         DROP
     rule
-        meta.l3_proto eq IPv4
-        ip4.snet eq 10.0.0.0/8
-        meta.probability eq 100%
+        meta.iface eq ens21
+        icmp.code eq 0
+        icmpv6.code eq 0
         counter
         ACCEPT
-chain myxdpindex BF_HOOK_XDP{ifindex=2} ACCEPT
+chain ens19bf_hook_tc_egress BF_HOOK_TC_EGRESS{ifindex=3} ACCEPT
     rule
-        ip4.daddr eq 8.8.8.8
-        meta.probability eq 100%
+        meta.iface eq ens19
+        meta.l3_proto eq IPv6
+        meta.l4_proto eq UDP
+        ip4.saddr eq 2345
+        ip4.daddr eq 2354
+        ip4.snet eq 2345
+        ip4.dnet eq 2345
+        ip4.proto eq UDP
+        ip6.saddr eq 2345
+        ip6.daddr eq 23454
+        ip6.snet eq 2345
+        ip6.dnet eq 2345
+        ip6.nexthdr eq ICMPv6
+        tcp.sport eq 23452354
+        tcp.dport eq 2345423452345
+        tcp.flags eq psh
+        udp.sport eq rto UDP Ori
+        udp.dport eq erto UDP Des
+        icmp.type eq destination-unreachable
+        icmp.code eq 3
+        icmpv6.type eq packet-too-big
+        icmpv6.code eq 1
+        meta.probability eq 10000%
+        counter
+        DROP
+chain ens20bf_hook_xdp BF_HOOK_XDP{ifindex=4} ACCEPT
+    rule
+        meta.iface eq ens20
+        ip4.saddr eq 1.1.1.1
+        ip4.daddr eq 2.2.2.2
+        tcp.flags eq fin
+        meta.probability eq 10000%
         counter
         DROP
     rule
-        meta.l3_proto eq IPv4
-        ip4.snet eq 10.0.0.0/8
-        meta.probability eq 100%
+        meta.iface eq ens21
+        icmp.code eq 0
+        icmpv6.code eq 0
         counter
         ACCEPT
