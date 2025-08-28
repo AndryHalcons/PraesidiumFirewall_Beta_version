@@ -37,10 +37,6 @@ try {
     exit;
 }
 
-//Aqui se construye el bloque prefix cuando el usuario marca el checkbox de log
-// Extraer acción directamente del último elemento del array expr
-$ultimaExpr = end($nuevaRegla['expr']);
-$accion = strtoupper(array_key_first($ultimaExpr)); // "ACCEPT" o "DROP"
 
 foreach ($nuevaRegla['expr'] as $k => &$expresion) {
     if (isset($expresion['log'])) {
@@ -49,26 +45,25 @@ foreach ($nuevaRegla['expr'] as $k => &$expresion) {
         if ($prefix === 'enabled') {
             $handle = $nuevaRegla['handle'];
             $chain = strtolower($nuevaRegla['chain']);
-
-            // Construir el prefix incluyendo la acción
-            $expresion['log']['prefix'] = "nftables {$handle} {$chain} {$accion}  ";
+            $expresion['log']['prefix'] = "nftables {$handle} {$chain}";
             $expresion['log']['flags'] = 'all';
             $expresion['log']['level'] = 'info';
 
+            // Eliminar group explícitamente si existe
             if (isset($expresion['log']['group'])) {
                 unset($expresion['log']['group']);
             }
         }
 
+        // Si prefix está vacío, eliminar todo el bloque log
         if ($prefix === '') {
             unset($nuevaRegla['expr'][$k]);
         }
     }
 }
 unset($expresion);
+// 🔧 Reindexar para evitar claves numéricas en JSON
 $nuevaRegla['expr'] = array_values($nuevaRegla['expr']);
-
-
 
 
 

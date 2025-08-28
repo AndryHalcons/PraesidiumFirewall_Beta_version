@@ -166,5 +166,12 @@ return [
     'ip_dest' => 'Destination IP',
     'sport' => 'Source Port',
     'dport' => 'Destination Port',
-    'max_record' => 'Max Records'
+    'max_record' => 'Max Records',
+    'protocol' => 'protocol',
+    'date' => 'Fecha',
+    'time' => 'Time',
+    'action' => 'Action',
+
+
+
 ];

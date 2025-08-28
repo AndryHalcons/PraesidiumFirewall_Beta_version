@@ -164,5 +164,8 @@ return [
     'ip_dest' => 'IP destino',
     'sport' => 'Puerto origen',
     'dport' => 'Puerto destino',
-    'max_record' => 'Máx. registros'
+    'max_record' => 'Máx. registros',
+    'protocol' => 'Protocolo',
+    'time' => 'Tiempo',
+    'action' => 'Accion',
 ];
