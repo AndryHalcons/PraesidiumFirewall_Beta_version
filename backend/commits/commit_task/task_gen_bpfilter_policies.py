@@ -66,16 +66,26 @@ def format_match_fields(match):
                                                 # Example: ip4_saddr → ip4.saddr
 
         # Si el campo es 'probability', el parser espera un valor en porcentaje (ej. "100%")
-        # Convertimos valores decimales como "1.0" → "100%"
         # If the field is 'probability', the parser expects a percentage value (e.g. "100%")
-        # Convert decimal values like "1.0" → "100%"
-        if key == "probability" and not value.endswith("%"):
-            try:
-                value_float = float(value)
-                value = f"{int(value_float * 100)}%"
-            except ValueError:
-                continue  # Si no se puede convertir, ignoramos el campo
-                          # If conversion fails, we ignore the field
+        if key == "probability":
+            # Si el valor está vacío o nulo → asignamos "100%"
+            # If the value is empty or null → assign "100%"
+            if value is None or value == "":
+                value = "100%"
+            else:
+                # Validamos que sea un entero entre 1 y 100 terminado en "%"
+                # Validate it's an integer between 1 and 100 ending with "%"
+                if isinstance(value, str) and value.endswith("%"):
+                    try:
+                        numeric = int(value.strip('%'))
+                        if not (1 <= numeric <= 100):
+                            value = "100%"
+                    except ValueError:
+                        value = "100%"
+                else:
+                    # Si no termina en "%", lo consideramos inválido
+                    # If it doesn't end with "%", treat as invalid
+                    value = "100%"
 
         # Añadimos la condición al listado, usando el operador 'eq' por defecto
         # Ejemplo: meta.l3_proto eq IPv4
