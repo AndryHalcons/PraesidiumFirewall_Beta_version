@@ -464,47 +464,26 @@ function guardarTC_INGRESS(index, rule, row) {
 
   const baseFields = ["id", "position", "name", "description", "action", "enabled"];
   const updatedRule = {};
-  /*
+
   baseFields.forEach(field => {
     const cell = cells[cellIndex];
+
     if (field === "enabled") {
       const checkbox = cell.querySelector("input[type='checkbox']");
       updatedRule.enabled = checkbox?.checked ?? false;
-      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
     } else if (field === "id") {
       updatedRule.id = cell.textContent.trim();
-    } else {
-      const input = cell.querySelector("input");
-      updatedRule[field] = input?.value ?? "";
-      cell.textContent = updatedRule[field];
-    }
-    cellIndex++;
-  });
-  */
-  baseFields.forEach(field => {
-    const cell = cells[cellIndex];
-    
-    if (field === "enabled") {
-      const checkbox = cell.querySelector("input[type='checkbox']");
-      updatedRule.enabled = checkbox?.checked ?? false;
-      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
-    
-    } else if (field === "id") {
-      updatedRule.id = cell.textContent.trim();
-    
     } else if (field === "action") {
       const select = cell.querySelector("select");
       updatedRule.action = select?.value ?? "";
-      cell.textContent = updatedRule.action;
-    
     } else {
       const input = cell.querySelector("input");
       updatedRule[field] = input?.value ?? "";
-      cell.textContent = updatedRule[field];
     }
-  
+
     cellIndex++;
   });
+
   const matchFields = [
     "iface", "l3_proto", "l4_proto",
     "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
@@ -536,7 +515,6 @@ function guardarTC_INGRESS(index, rule, row) {
     }
 
     updatedRule.match[field] = value;
-    cell.textContent = value;
     cellIndex++;
   });
 
@@ -557,15 +535,37 @@ function guardarTC_INGRESS(index, rule, row) {
   .then(response => {
     if (response.includes("OK")) {
       alert("✅ Regla actualizada correctamente");
+
+      // 🧩 Solo ahora actualizamos visualmente la fila
+      cellIndex = 1;
+      baseFields.forEach(field => {
+        const cell = cells[cellIndex];
+        if (field === "enabled") {
+          cell.textContent = updatedRule.enabled ? "✔️" : "❌";
+        } else {
+          cell.textContent = updatedRule[field];
+        }
+        cellIndex++;
+      });
+
+      matchFields.forEach(field => {
+        const cell = cells[cellIndex];
+        cell.textContent = updatedRule.match[field];
+        cellIndex++;
+      });
+
       cargarPolicies(); // Refresca la tabla
     } else {
       alert("❌ Error al guardar la regla: " + response);
+      // La fila se queda editable, sin cambios visuales
     }
   })
   .catch(err => {
     alert("⚠️ Error de red al intentar guardar la regla.");
+    // La fila se queda editable, sin cambios visuales
   });
 }
+
 
 //  Ejecutar al cargar
 cargarPolicies();

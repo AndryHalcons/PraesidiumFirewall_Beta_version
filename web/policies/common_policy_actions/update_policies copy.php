@@ -4,26 +4,8 @@ if (!isset($_SESSION['username'])) {
     exit("No autorizado");
 }
 
-// 🧩 Incluir el validador
-require_once __DIR__ . "/validation_policies_bpfilter.php";
-
-// 🧩 Paso 1: recibir el JSON sin decodificar
-$rawInput = file_get_contents("php://input");
-
-// 🧩 Paso 2: validar la regla antes de procesarla
-$validationData = validate_bpfilter_rule($rawInput);
-
-if (!$validationData || ($validationData["status"] ?? null) !== "OK") {
-    http_response_code(422);
-    echo json_encode([
-        "error" => "La regla no pasó la validación",
-        "details" => $validationData
-    ]);
-    exit;
-}
-
-// 🧩 Paso 3: decodificar el JSON para continuar
-$input = json_decode($rawInput, true);
+// 🧩 Paso 1: recibir y decodificar el JSON
+$input = json_decode(file_get_contents("php://input"), true);
 $hook = $input["hook"] ?? null;
 $updatedRule = $input["rule"] ?? null;
 
@@ -33,7 +15,7 @@ if (!$hook || !$updatedRule || !isset($updatedRule["id"])) {
     exit;
 }
 
-// 🧩 Paso 4: cargar el archivo JSON de reglas
+// 🧩 Paso 2: cargar el archivo JSON
 $jsonPath = "/var/www/config/rules.json";
 if (!file_exists($jsonPath)) {
     http_response_code(500);
@@ -48,7 +30,7 @@ if (!isset($data[$hook]["rules"])) {
     exit;
 }
 
-// 🧩 Paso 5: buscar y reemplazar la regla por ID
+// 🧩 Paso 3: buscar y reemplazar la regla por ID
 $found = false;
 foreach ($data[$hook]["rules"] as &$rule) {
     if (isset($rule["id"]) && $rule["id"] == $updatedRule["id"]) {
@@ -64,10 +46,10 @@ if (!$found) {
     exit;
 }
 
-// 🧩 Paso 6: guardar el archivo actualizado
+// 🧩 Paso 4: guardar el archivo actualizado
 file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-// 🧩 Paso 7: responder con éxito
+// 🧩 Paso 5: responder
 echo json_encode([
     "status" => "OK",
     "message" => "Regla actualizada correctamente",
