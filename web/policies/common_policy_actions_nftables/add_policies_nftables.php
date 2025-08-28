@@ -81,7 +81,7 @@ $newRule = [
                             "key" => "iifname"
                         ]
                     ],
-                    "right" => "any"
+                    "right" => ""
                 ]
             ],
             [
@@ -92,13 +92,13 @@ $newRule = [
                             "key" => "oifname"
                         ]
                     ],
-                    "right" => "any"
+                    "right" => ""
                 ]
             ],
             [
                 "counter" => [
-                    "packets" => 0,
-                    "bytes" => 0
+                    "packets" => "",
+                    "bytes" => ""
                 ]
             ]
         ]

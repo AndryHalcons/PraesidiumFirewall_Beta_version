@@ -278,7 +278,7 @@ function addNewNftablesNft_output() {
 
 function editarNftablesNft_output(index, rule, row) {
   const cells = row.querySelectorAll("td");
-  let cellIndex = 1; // Saltamos la celda de acciones
+  let cellIndex = 1;
 
   const camposNoEditables = ["family", "table", "chain", "handle"];
   const columnas = Array.from(document.querySelectorAll("table.interfaz thead th")).map(th => th.textContent);
@@ -296,6 +296,7 @@ function editarNftablesNft_output(index, rule, row) {
       let campo = "";
 
       if (left.meta?.key) campo = `meta.${left.meta.key}`;
+      if (left.ct?.key) campo = `ct.${left.ct.key}`;
       if (left.payload) {
         const proto = left.payload.protocol;
         const field = left.payload.field;
@@ -303,7 +304,6 @@ function editarNftablesNft_output(index, rule, row) {
         else if (field === "dport") campo = "dport";
         else campo = `${proto}.${field}`;
       }
-      if (left.ct?.key) campo = `ct.${left.ct.key}`;
 
       exprMap[campo] = contenido.right;
       opMap[campo] = contenido.op;
@@ -356,6 +356,42 @@ function editarNftablesNft_output(index, rule, row) {
       });
 
       cell.appendChild(select);
+    } else if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "negate";
+      checkbox.checked = opMap[col] === "!=";
+      checkbox.title = "Negate (usa != en vez de ==)";
+
+      const label = document.createElement("label");
+      label.textContent = "negate";
+      label.style.marginRight = "6px";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "valor-editable";
+
+      let valor = "";
+      const exprValor = exprMap[col];
+
+      if (exprValor?.prefix) {
+        valor = `${exprValor.prefix.addr}/${exprValor.prefix.len}`;
+      } else if (Array.isArray(exprValor)) {
+        valor = exprValor.join(", ");
+      } else if (exprValor?.set) {
+        valor = exprValor.set.map(item => {
+          if (item.prefix) return `${item.prefix.addr}/${item.prefix.len}`;
+          return item;
+        }).join(", ");
+      } else if (exprValor !== null && exprValor !== undefined) {
+        valor = exprValor;
+      }
+
+      input.value = valor;
+      cell.appendChild(label);
+      cell.appendChild(checkbox);
+      cell.appendChild(document.createTextNode(" "));
+      cell.appendChild(input);
     } else {
       const input = document.createElement("input");
       input.type = "text";

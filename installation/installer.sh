@@ -12,6 +12,7 @@ chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
 chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
+chmod +x configure_logs.sh
 
 
 
@@ -63,3 +64,9 @@ echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpf
 echo "Configurando bpfilter / Configuring bpfilter"
 #./configure_bpfilter.sh
 echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"
+
+
+# Ejecutar configure_bpfilter.sh / Run configure_bpfilter.sh
+echo "Configurando configure_logs.sh / Configuring configure_logs.sh"
+./configure_logs.sh
+echo "✅ Instalación configure_logs.sh completada / Installation configure_logs.sh completed"

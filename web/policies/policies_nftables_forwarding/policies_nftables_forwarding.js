@@ -141,16 +141,13 @@ function mostrarTablaNftablesForwarding() {
             let campo = "";
 
             if (left?.meta?.key) campo = `meta.${left.meta.key}`;
-
             if (left?.payload) {
               const proto = left.payload.protocol;
               const field = left.payload.field;
-
               if (field === "sport") campo = "sport";
               else if (field === "dport") campo = "dport";
               else campo = `${proto}.${field}`;
             }
-
             if (left?.ct?.key) campo = `ct.${left.ct.key}`;
 
             if (campo === col) {
@@ -178,7 +175,31 @@ function mostrarTablaNftablesForwarding() {
           }
 
           if (tipo === "log") {
-            if (col === "log.prefix") valor = contenido.prefix ?? "";
+            if (col === "log.prefix") {
+              valor = contenido.prefix ?? "";
+
+              const checkbox = document.createElement("input");
+              checkbox.type = "checkbox";
+              checkbox.disabled = true;
+              checkbox.checked = valor.trim() !== "";
+              checkbox.className = "activate";
+              checkbox.title = "Activado si hay contenido en log.prefix";
+
+              const label = document.createElement("label");
+              label.style.fontWeight = "bold";
+              label.textContent = "activate";
+              label.style.marginRight = "6px";
+
+              const span = document.createElement("span");
+              span.className = "valor";
+              span.textContent = valor;
+
+              td.appendChild(label);
+              td.appendChild(checkbox);
+              td.appendChild(document.createTextNode(" "));
+              td.appendChild(span);
+            }
+
             if (col === "log.group") valor = contenido.group ?? "";
           }
 
@@ -223,7 +244,7 @@ function mostrarTablaNftablesForwarding() {
           td.appendChild(checkbox);
           td.appendChild(document.createTextNode(" "));
           td.appendChild(span);
-        } else {
+        } else if (col !== "log.prefix") {
           td.innerHTML = `<span class="valor">${valor}</span>`;
         }
       }
@@ -280,7 +301,7 @@ function editarNftablesForwarding(index, rule, row) {
   const cells = row.querySelectorAll("td");
   let cellIndex = 1; // Saltamos la celda de acciones
 
-  const camposNoEditables = ["family", "table", "chain", "handle"];
+  const camposNoEditables = ["family", "table", "chain", "handle", "log.group"];
   const columnas = Array.from(document.querySelectorAll("table.interfaz thead th")).map(th => th.textContent);
 
   const exprMap = {};
@@ -296,6 +317,7 @@ function editarNftablesForwarding(index, rule, row) {
       let campo = "";
 
       if (left.meta?.key) campo = `meta.${left.meta.key}`;
+      if (left.ct?.key) campo = `ct.${left.ct.key}`;
       if (left.payload) {
         const proto = left.payload.protocol;
         const field = left.payload.field;
@@ -303,7 +325,6 @@ function editarNftablesForwarding(index, rule, row) {
         else if (field === "dport") campo = "dport";
         else campo = `${proto}.${field}`;
       }
-      if (left.ct?.key) campo = `ct.${left.ct.key}`;
 
       exprMap[campo] = contenido.right;
       opMap[campo] = contenido.op;
@@ -329,7 +350,8 @@ function editarNftablesForwarding(index, rule, row) {
     cell.innerHTML = "";
 
     if (camposNoEditables.includes(col)) {
-      cell.innerHTML = `<span class="valor">${rule[col] ?? ""}</span>`;
+      const valor = col === "log.group" ? exprMap[col] ?? "" : rule[col] ?? "";
+      cell.innerHTML = `<span class="valor">${valor}</span>`;
     } else if (col === "ip.protocol") {
       const select = document.createElement("select");
       select.className = "valor-editable";
@@ -356,6 +378,63 @@ function editarNftablesForwarding(index, rule, row) {
       });
 
       cell.appendChild(select);
+    } else if (["ip.saddr", "sport", "ip.daddr", "dport"].includes(col)) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "negate";
+      checkbox.checked = opMap[col] === "!=";
+      checkbox.title = "Negate (usa != en vez de ==)";
+
+      const label = document.createElement("label");
+      label.textContent = "negate";
+      label.style.marginRight = "6px";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "valor-editable";
+
+      let valor = "";
+      const exprValor = exprMap[col];
+
+      if (exprValor?.prefix) {
+        valor = `${exprValor.prefix.addr}/${exprValor.prefix.len}`;
+      } else if (Array.isArray(exprValor)) {
+        valor = exprValor.join(", ");
+      } else if (exprValor?.set) {
+        valor = exprValor.set.map(item => {
+          if (item.prefix) return `${item.prefix.addr}/${item.prefix.len}`;
+          return item;
+        }).join(", ");
+      } else if (exprValor !== null && exprValor !== undefined) {
+        valor = exprValor;
+      }
+
+      input.value = valor;
+      cell.appendChild(label);
+      cell.appendChild(checkbox);
+      cell.appendChild(document.createTextNode(" "));
+      cell.appendChild(input);
+    } else if (col === "log.prefix") {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "negate";
+      checkbox.checked = (exprMap[col] ?? "").trim() !== "";
+      checkbox.title = "Activado si hay contenido en log.prefix";
+
+      const label = document.createElement("label");
+      label.textContent = "activate";
+      label.style.marginRight = "6px";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "valor-editable";
+      input.value = exprMap[col] ?? "";
+      input.disabled = true;
+
+      cell.appendChild(label);
+      cell.appendChild(checkbox);
+      cell.appendChild(document.createTextNode(" "));
+      cell.appendChild(input);
     } else {
       const input = document.createElement("input");
       input.type = "text";
@@ -397,6 +476,8 @@ function editarNftablesForwarding(index, rule, row) {
 
 
 
+
+
 function eliminarNftablesForwarding(index, rule, row) {
   console.log(`Eliminar regla en índice ${index}`, rule);
 
@@ -426,7 +507,6 @@ function eliminarNftablesForwarding(index, rule, row) {
 }
 
 
-
 function guardarNftablesForwarding(index, rule, row, columnas) {
   const celdas = row.querySelectorAll("td");
   const nuevaExpr = [];
@@ -447,7 +527,22 @@ function guardarNftablesForwarding(index, rule, row, columnas) {
     const span = celda.querySelector(".valor");
     const checkbox = celda.querySelector("input.negate");
 
-    const valor = input?.value.trim() ?? select?.value.trim() ?? span?.textContent.trim() ?? "";
+    let valor = "";
+
+    // 🔧 log.prefix: usar checkbox, ignorar input
+    if (col === "log.prefix") {
+      valor = checkbox?.checked ? "enabled" : "";
+    }
+
+    // 🔧 log.group: tratar como campo no editable (leer desde span)
+    else if (col === "log.group") {
+      valor = span?.textContent.trim() ?? "";
+    }
+
+    else {
+      valor = input?.value.trim() ?? select?.value.trim() ?? span?.textContent.trim() ?? "";
+    }
+
     const limpio = valor === "" ? "" : valor;
 
     if (["family", "table", "chain", "handle", "comment", "position"].includes(col)) {
@@ -599,6 +694,7 @@ function guardarNftablesForwarding(index, rule, row, columnas) {
     console.error("Error al enviar la regla:", err);
   });
 }
+
 
 
 

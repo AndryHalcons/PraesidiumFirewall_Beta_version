@@ -37,42 +37,6 @@ try {
     exit;
 }
 
-
-foreach ($nuevaRegla['expr'] as $k => &$expresion) {
-    if (isset($expresion['log'])) {
-        $prefix = trim($expresion['log']['prefix'] ?? '');
-
-        if ($prefix === 'enabled') {
-            $handle = $nuevaRegla['handle'];
-            $chain = strtolower($nuevaRegla['chain']);
-            $expresion['log']['prefix'] = "nftables {$handle} {$chain}";
-            $expresion['log']['flags'] = 'all';
-            $expresion['log']['level'] = 'info';
-
-            // Eliminar group explícitamente si existe
-            if (isset($expresion['log']['group'])) {
-                unset($expresion['log']['group']);
-            }
-        }
-
-        // Si prefix está vacío, eliminar todo el bloque log
-        if ($prefix === '') {
-            unset($nuevaRegla['expr'][$k]);
-        }
-    }
-}
-unset($expresion);
-
-// 🔧 Reindexar para evitar claves numéricas en JSON
-$nuevaRegla['expr'] = array_values($nuevaRegla['expr']);
-
-
-
-
-
-
-
-
 // Cargar el archivo JSON existente
 $archivo = "/var/www/config/rules_nftables.json";
 $contenido = file_exists($archivo) ? file_get_contents($archivo) : '';

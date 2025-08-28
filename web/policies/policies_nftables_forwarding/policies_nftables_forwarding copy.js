@@ -1,5 +1,5 @@
-function cargarPoliciesNftablesNft_input() {
-const chain = "input";
+function cargarPoliciesNftablesForwarding() {
+const chain = "FORWARDING";
 fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -27,22 +27,22 @@ fetch("/policies/common_policy_actions_nftables/order_policies_nftables.php", {
   } catch (e) {
     data = []; // ⚠️ Si no es JSON válido, asumimos que no hay reglas
   }
-  const container = document.getElementById("nftablesrules-input");
+  const container = document.getElementById("nftablesrules-forwarding");
   container.textContent = JSON.stringify(data, null, 2);
-  mostrarTablaNftablesNft_input();
+  mostrarTablaNftablesForwarding();
 })
 .catch(error => {
-  const container = document.getElementById("nftablesrules-input");
+  const container = document.getElementById("nftablesrules-forwarding");
   container.textContent = JSON.stringify([], null, 2); // ⚠️ Tabla vacía pero funcional
-  mostrarTablaNftablesNft_input();
+  mostrarTablaNftablesForwarding();
 });
 }
 
 
 
 
-function mostrarTablaNftablesNft_input() {
-  const container = document.getElementById("nftablesrules-input");
+function mostrarTablaNftablesForwarding() {
+  const container = document.getElementById("nftablesrules-forwarding");
 
   const rawJson = container.textContent.trim();
   container.innerHTML = "";
@@ -51,7 +51,7 @@ function mostrarTablaNftablesNft_input() {
   btnAdd.textContent = LANG.add_policy;
   btnAdd.className = "añadir-regla";
   btnAdd.style.marginBottom = "12px";
-  btnAdd.onclick = () => addNewNftablesNft_input();
+  btnAdd.onclick = () => addNewNftablesForwarding();
   container.appendChild(btnAdd);
 
   let data;
@@ -104,17 +104,17 @@ function mostrarTablaNftablesNft_input() {
     const btnEditar = document.createElement("button");
     btnEditar.textContent = LANG.edit;
     btnEditar.className = "editar";
-    btnEditar.onclick = () => editarNftablesNft_input(index, rule, fila, columnas);
+    btnEditar.onclick = () => editarNftablesForwarding(index, rule, fila, columnas);
 
     const btnGuardar = document.createElement("button");
     btnGuardar.textContent = LANG.save;
     btnGuardar.className = "guardar";
-    btnGuardar.onclick = () => guardarNftablesNft_input(index, rule, fila, columnas);
+    btnGuardar.onclick = () => guardarNftablesForwarding(index, rule, fila, columnas);
 
     const btnEliminar = document.createElement("button");
     btnEliminar.textContent = LANG.delete;
     btnEliminar.className = "eliminar";
-    btnEliminar.onclick = () => eliminarNftablesNft_input(index, rule, fila);
+    btnEliminar.onclick = () => eliminarNftablesForwarding(index, rule, fila);
 
     [btnEditar, btnGuardar, btnEliminar].forEach(btn => {
       btn.style.marginRight = "4px";
@@ -241,11 +241,18 @@ function mostrarTablaNftablesNft_input() {
 
 
 
-function addNewNftablesNft_input() {
+
+
+
+
+
+
+
+function addNewNftablesForwarding() {
   console.log("Añadir nueva regla");
 
   const formData = new FormData();
-  formData.append("chain", "input");
+  formData.append("chain", "FORWARDING");
 
   fetch("/policies/common_policy_actions_nftables/add_policies_nftables.php", {
     method: "POST",
@@ -258,8 +265,8 @@ function addNewNftablesNft_input() {
     alert(result);
 
     // ✅ Recargar correctamente el JSON actualizado
-    if (typeof cargarPoliciesNftablesNft_input === "function") {
-      cargarPoliciesNftablesNft_input();
+    if (typeof cargarPoliciesNftablesForwarding === "function") {
+      cargarPoliciesNftablesForwarding();
     }
   })
   .catch(error => {
@@ -269,9 +276,9 @@ function addNewNftablesNft_input() {
 }
 
 
-function editarNftablesNft_input(index, rule, row) {
+function editarNftablesForwarding(index, rule, row) {
   const cells = row.querySelectorAll("td");
-  let cellIndex = 1;
+  let cellIndex = 1; // Saltamos la celda de acciones
 
   const camposNoEditables = ["family", "table", "chain", "handle"];
   const columnas = Array.from(document.querySelectorAll("table.interfaz thead th")).map(th => th.textContent);
@@ -426,11 +433,11 @@ function editarNftablesNft_input(index, rule, row) {
 
 
 
-function eliminarNftablesNft_input(index, rule, row) {
+function eliminarNftablesForwarding(index, rule, row) {
   console.log(`Eliminar regla en índice ${index}`, rule);
 
   const formData = new FormData();
-  formData.append("chain", rule.chain);   // Cadena: input, input, input
+  formData.append("chain", rule.chain);   // Cadena: FORWARDING, FORWARDING, input
   formData.append("handle", rule.handle); // ID único de la regla
 
   fetch("/policies/common_policy_actions_nftables/del_policies_nftables.php", {
@@ -444,8 +451,8 @@ function eliminarNftablesNft_input(index, rule, row) {
     alert(result);
 
     // 🔄 Recargar tabla actualizada
-    if (typeof cargarPoliciesNftablesNft_input === "function") {
-      cargarPoliciesNftablesNft_input();
+    if (typeof cargarPoliciesNftablesForwarding === "function") {
+      cargarPoliciesNftablesForwarding();
     }
   })
   .catch(error => {
@@ -456,7 +463,7 @@ function eliminarNftablesNft_input(index, rule, row) {
 
 
 
-function guardarNftablesNft_input(index, rule, row, columnas) {
+function guardarNftablesForwarding(index, rule, row, columnas) {
   const celdas = row.querySelectorAll("td");
   const nuevaExpr = [];
 
@@ -615,14 +622,14 @@ function guardarNftablesNft_input(index, rule, row, columnas) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      chain: "input",
+      chain: "FORWARDING",
       rule: rule
     })
   })
   .then(res => res.json())
   .then(data => {
     console.log("Respuesta del servidor:", data);
-    cargarPoliciesNftablesNft_input();
+    cargarPoliciesNftablesForwarding();
   })
   .catch(err => {
     console.error("Error al enviar la regla:", err);
@@ -646,6 +653,6 @@ function guardarNftablesNft_input(index, rule, row, columnas) {
 
 
 
-cargarPoliciesNftablesNft_input()
+cargarPoliciesNftablesForwarding()
 
 
