@@ -210,7 +210,7 @@ def apply_bpfilter_policies(output_path, user, date):
     try:
         # Ejecutar el comando bfcli con el archivo generado
         result = subprocess.run(
-            ["bfcli", "ruleset", "set", "--from-file", output_path],
+            ["/usr/local/bin/bfcli", "ruleset", "set", "--from-file", output_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
@@ -228,13 +228,10 @@ def apply_bpfilter_policies(output_path, user, date):
 
 
 
-def task_gen_bpfilter_policies(user, date):
+def gen_bpfilter_policies(user, date):
     json_path = "/var/www/config_running/rules.json"
-    output_path = "/home/praesidium/PraesidiumFirewall/backend/commits/commit_task/rules_formatted.txt"
+    output_path = "/var/www/config_running/rules_formatted.txt"
     iface_system_path = "/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json"
     process_rules(user, date, json_path, output_path, iface_system_path)
-    #apply_bpfilter_policies(output_path, user, date)
+    apply_bpfilter_policies(output_path, user, date)
 
-
-
-task_gen_bpfilter_policies("praesidium", "20250825134059")
