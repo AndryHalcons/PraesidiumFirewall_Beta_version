@@ -152,5 +152,19 @@ return [
     'compare_commit' => 'Compare commit',
     'apply_commit'   => 'Apply commit',
     'config_audit' => 'Config Audit',
-
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   monitor.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'menu_monitor' => 'Traffic Monitor',
+    'search' => 'Search',
+    'init_date' => 'Start Date',
+    'init_time' => 'Start Time',
+    'end_date' => 'End Date',
+    'end_time' => 'End Time',
+    'ip_addr' => 'Source IP',
+    'ip_dest' => 'Destination IP',
+    'sport' => 'Source Port',
+    'dport' => 'Destination Port',
+    'max_record' => 'Max Records'
 ];

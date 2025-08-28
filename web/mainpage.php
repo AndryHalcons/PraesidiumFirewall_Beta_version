@@ -42,7 +42,7 @@ $L = require $langFile;
     <div class="top-menu">
         <a href="#" data-page="home.php"><?= htmlspecialchars($L['menu_home']) ?></a>
         <a href="#" data-page="interfaces/interfaces.php"><?= htmlspecialchars($L['menu_interfaces']) ?></a>
-        <a href="#" data-page="monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
+        <a href="#" data-page="monitor/monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
         <a href="#" data-page="users/users.php"><?= htmlspecialchars($L['menu_users']) ?></a>
         <a href="#" data-page="commits/commit.php"><?= htmlspecialchars($L['menu_commit']) ?></a>
         <a href="logout.php"><?= htmlspecialchars($L['menu_logout']) ?></a>

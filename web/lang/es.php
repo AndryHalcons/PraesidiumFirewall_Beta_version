@@ -150,4 +150,19 @@ return [
     'compare_commit' => 'Comparar commit',
     'apply_commit'   => 'Aplicar commit',
     'config_audit' => 'Auditoría de configuración',
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   monitor.php  //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'menu_monitor' => 'Monitor de tráfico',
+    'search' => 'Buscar',
+    'init_date' => 'Fecha inicio',
+    'init_time' => 'Hora inicio',
+    'end_date' => 'Fecha fin',
+    'end_time' => 'Hora fin',
+    'ip_addr' => 'IP origen',
+    'ip_dest' => 'IP destino',
+    'sport' => 'Puerto origen',
+    'dport' => 'Puerto destino',
+    'max_record' => 'Máx. registros'
 ];

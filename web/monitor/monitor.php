@@ -1,0 +1,29 @@
+<?php
+session_start();
+if (!isset($_SESSION['username'])) {
+    exit("No autorizado");
+}
+$language = $_SESSION['language'] ?? 'es';
+$langFile = __DIR__ . "/../lang/{$language}.php";
+if (!file_exists($langFile)) {
+    $langFile = __DIR__ . "/../lang/es.php";
+}
+$L = require $langFile;
+?>
+<!DOCTYPE html>
+<html lang="<?= htmlspecialchars($language) ?>">
+<head>
+  <script>
+    const LANG = <?= json_encode($L) ?>;
+  </script>
+  <meta charset="UTF-8">
+  <title><?= htmlspecialchars($L['menu_monitor']) ?></title>
+</head>
+<body>
+  <h2><?= htmlspecialchars($L['menu_monitor']) ?></h2>
+  <div id="tabla-monitorOptions"></div>
+
+  <script src="/monitor/logs_table/monitor.js"></script>
+</body>
+</html>
+

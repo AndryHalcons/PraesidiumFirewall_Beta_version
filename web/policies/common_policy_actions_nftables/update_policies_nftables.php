@@ -62,7 +62,6 @@ foreach ($nuevaRegla['expr'] as $k => &$expresion) {
     }
 }
 unset($expresion);
-
 // 🔧 Reindexar para evitar claves numéricas en JSON
 $nuevaRegla['expr'] = array_values($nuevaRegla['expr']);
 
