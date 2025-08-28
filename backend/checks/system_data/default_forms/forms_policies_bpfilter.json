@@ -1,4 +1,8 @@
 {
+  "action": [
+    "ACCEPT",
+    "DROP"
+  ],
   "l3_proto": [
     "",
     "IPv4",
@@ -7,6 +11,7 @@
     "IPX",
     "ARP"
   ],
+  
   "l4_proto": [
     "",
     "TCP",

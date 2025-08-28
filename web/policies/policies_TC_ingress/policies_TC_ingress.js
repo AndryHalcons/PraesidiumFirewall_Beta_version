@@ -222,7 +222,7 @@ function editarTC_INGRESS(index, rule, row) {
   let cellIndex = 1;
 
   const baseFields = ["id", "position", "name", "description", "action", "enabled"];
-
+  /*
   baseFields.forEach(field => {
     const cell = cells[cellIndex];
     if (field === "id") {
@@ -242,6 +242,53 @@ function editarTC_INGRESS(index, rule, row) {
     }
     cellIndex++;
   });
+  */
+  baseFields.forEach(field => {
+		const cell = cells[cellIndex];
+		
+		if (field === "id") {
+			cell.textContent = rule.id ?? "";
+		
+		} else if (field === "enabled") {
+			const checkbox = document.createElement("input");
+			checkbox.type = "checkbox";
+			checkbox.checked = rule.enabled ?? false;
+			cell.innerHTML = "";
+			cell.appendChild(checkbox);
+		
+		} else if (field === "action") {
+			fetch("/policies/common_policy_forms/get_form_interface_bpfilter.php")
+			.then(response => response.json())
+			.then(formOptions => {
+				const actions = formOptions.action ?? [];
+				const select = document.createElement("select");
+				actions.forEach(actionValue => {
+				const option = document.createElement("option");
+				option.value = actionValue;
+				option.textContent = actionValue;
+				if (rule.action === actionValue) {
+					option.selected = true;
+				}
+				select.appendChild(option);
+				});
+				cell.innerHTML = "";
+				cell.appendChild(select);
+			})
+			.catch(error => {
+				console.error("Error loading action options:", error);
+				cell.textContent = "Error loading actions";
+			});
+		
+		} else {
+			const input = document.createElement("input");
+			input.type = "text";
+			input.value = rule[field] ?? "";
+			cell.innerHTML = "";
+			cell.appendChild(input);
+		}
+		
+		cellIndex++;
+	});
 
   const matchFields = [
     "iface", "l3_proto", "l4_proto",
@@ -417,7 +464,7 @@ function guardarTC_INGRESS(index, rule, row) {
 
   const baseFields = ["id", "position", "name", "description", "action", "enabled"];
   const updatedRule = {};
-
+  /*
   baseFields.forEach(field => {
     const cell = cells[cellIndex];
     if (field === "enabled") {
@@ -433,7 +480,31 @@ function guardarTC_INGRESS(index, rule, row) {
     }
     cellIndex++;
   });
-
+  */
+  baseFields.forEach(field => {
+    const cell = cells[cellIndex];
+    
+    if (field === "enabled") {
+      const checkbox = cell.querySelector("input[type='checkbox']");
+      updatedRule.enabled = checkbox?.checked ?? false;
+      cell.textContent = updatedRule.enabled ? "✔️" : "❌";
+    
+    } else if (field === "id") {
+      updatedRule.id = cell.textContent.trim();
+    
+    } else if (field === "action") {
+      const select = cell.querySelector("select");
+      updatedRule.action = select?.value ?? "";
+      cell.textContent = updatedRule.action;
+    
+    } else {
+      const input = cell.querySelector("input");
+      updatedRule[field] = input?.value ?? "";
+      cell.textContent = updatedRule[field];
+    }
+  
+    cellIndex++;
+  });
   const matchFields = [
     "iface", "l3_proto", "l4_proto",
     "ip4_saddr", "ip4_daddr", "ip4_snet", "ip4_dnet", "ip4_proto",
