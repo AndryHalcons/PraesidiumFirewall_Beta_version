@@ -18,16 +18,15 @@ function tablaMonigorOptions() {
     { key: "ip_dest", label: LANG.ip_dest },
     { key: "sport", label: LANG.sport },
     { key: "dport", label: LANG.dport },
-    { key: "proto", label: LANG.proto },
+    { key: "L4protocol", label: LANG.L4protocol },
     { key: "action", label: LANG.action },
-    { key: "firewall", label: LANG.firewall },
+    { key: "firewall", label: LANG.firewall }, // 👈 Añadido aquí
     { key: "max_record", label: LANG.max_record }
   ];
 
   columnas.forEach(col => {
     const th = document.createElement("th");
     th.textContent = col.label;
-    th.dataset.key = col.key; // 👈 clave interna guardada
     headerRow.appendChild(th);
   });
 
@@ -48,7 +47,7 @@ function tablaMonigorOptions() {
       btn.className = "buscar-monitor";
       btn.onclick = () => buttonSearchMonitor();
       td.appendChild(btn);
-    } else if (col.key === "proto") {
+    } else if (col.key === "protocol") {
       const select = document.createElement("select");
       select.className = "campo-resumen";
       ["", "TCP", "UDP", "ICMP"].forEach(proto => {
@@ -161,9 +160,15 @@ function mostrarMonitorRegistros(data) {
     "fecha", "hora", "handle", "SRC", "SPT", "DST", "DPT", "PROTO", "IN", "OUT", "action"
   ];
 
+  const encabezadosTraducidos = {
+    fecha: LANG.mydate,
+    hora: LANG.mytime,
+    action: LANG.action
+  };
+
   columnas.forEach(col => {
     const th = document.createElement("th");
-    th.textContent = col;
+    th.textContent = encabezadosTraducidos[col] || col;
     headerRow.appendChild(th);
   });
 
@@ -207,16 +212,16 @@ function mostrarMonitorRegistros(data) {
 }
 
 
+
+
 function buttonSearchMonitor() {
   const inputs = document.querySelectorAll(".campo-resumen");
   const params = {};
 
   inputs.forEach(input => {
-    const td = input.closest("td");
-    const colIndex = td.cellIndex;
-    const header = document.querySelectorAll("#tabla-monitorOptions thead th")[colIndex];
-    const key = header.dataset.key;
-
+    const col = input.closest("td").cellIndex;
+    const header = document.querySelectorAll("#tabla-monitorOptions thead th")[col];
+    const key = Object.keys(LANG).find(k => LANG[k] === header.textContent);
     if (key) {
       params[key] = input.value;
     }
@@ -225,8 +230,7 @@ function buttonSearchMonitor() {
   // Añadir el usuario de sesión al JSON
   params.user = USERNAME;
 
-  // Mostrar el JSON final serializado
-  console.log("📤 JSON enviado al backend:\n", JSON.stringify(params, null, 2));
+  console.log("📤 Parámetros enviados al backend:", params);
 
   fetch("/monitor/get_logs/get_logs.php", {
     method: "POST",

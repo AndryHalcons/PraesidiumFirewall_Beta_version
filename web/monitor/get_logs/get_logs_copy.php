@@ -7,7 +7,23 @@ if (!isset($_SESSION['username'])) {
 header('Content-Type: application/json');
 
 // Leer el JSON recibido
-$input = json_decode(file_get_contents("php://input"), true);
+// DEBUG: Simulación de entrada JSON directa
+$input = [
+    'user' => "mierda",
+    'init_date' => '2025-08-29',
+    'init_time' => '14:24',
+    'end_date' => '2025-08-29',
+    'end_time' => '15:24',
+    'ip_addr' => '',
+    'ip_dest' => '',
+    'sport' => '',
+    'dport' => '',
+    'proto' => '',
+    'action' => '',
+    'firewall' => 'NFTABLES',
+    'max_record' => '100'
+];
+
 
 // Validar que sea un array
 if (!is_array($input)) {

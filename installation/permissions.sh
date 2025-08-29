@@ -8,6 +8,7 @@ registrar_excepciones_python() {
         "/var/www/backend/checks/check_routes/check_system_routes_running.py"
         "/var/www/backend/checks/check_interfaces/main_interfaces_check.py"
         "/var/www/backend/commits/commit_apply.py *"
+        "/var/www/backend/checks/check_monitor_log_extract/extract_monitor_log_nftables_for_get_user.py *"
     )
 
     # Crear el archivo si no existe

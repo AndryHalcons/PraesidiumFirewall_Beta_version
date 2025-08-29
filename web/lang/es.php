@@ -131,7 +131,6 @@ return [
     'loading_routes' => 'Cargando rutas...',
     'table' => 'Tabla',
     'ip_version' => 'Versión IP',
-    'action' => 'Acción',
     'destination' => 'Destino',
     'interface' => 'Interfaz',
     'gateway' => 'Gateway',
@@ -165,7 +164,11 @@ return [
     'sport' => 'Puerto origen',
     'dport' => 'Puerto destino',
     'max_record' => 'Máx. registros',
-    'protocol' => 'Protocolo',
+    'L4protocol' => 'Proto',
     'time' => 'Tiempo',
-    'action' => 'Accion',
+    'firewall' => 'Cortafuegos',
+    'Logdate' => 'Fecha',
+    'Logtime' => 'Hora'
+    
+
 ];

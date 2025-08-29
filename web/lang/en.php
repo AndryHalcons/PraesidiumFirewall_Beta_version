@@ -167,11 +167,10 @@ return [
     'sport' => 'Source Port',
     'dport' => 'Destination Port',
     'max_record' => 'Max Records',
-    'protocol' => 'protocol',
-    'date' => 'Fecha',
+    'L4protocol' => 'Proto',
     'time' => 'Time',
     'action' => 'Action',
-
-
-
+    'firewall' => 'Firewall',
+    'Logdate' => 'Log Date',
+    'Logtime' => 'Log Time',
 ];
