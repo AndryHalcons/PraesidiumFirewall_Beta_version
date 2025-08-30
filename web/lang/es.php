@@ -29,6 +29,11 @@ return [
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
     'sidebar_Routing'      => 'Enrutamiento',
+    'sidebar_AliasObjects'      => 'Alias de objetos',
+    'sidebar_address_alias'      => 'Direcciones',
+    'sidebar_address_group_alias'      => 'Grupos de direcciones',
+    'sidebar_services_objects'      => 'Servicios',
+    'sidebar_services_group_objects'      => 'Grupos de servicios',
     // Content
     'main_content'          => 'Contenido aquí...',
     ///////////////////////////////////////////////////////////////////////

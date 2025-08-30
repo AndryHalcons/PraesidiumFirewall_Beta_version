@@ -30,6 +30,12 @@ return [
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
     'sidebar_Routing'      => 'Routing',
+    'sidebar_AliasObjects'      => 'Objects Aliases',
+    'sidebar_address_alias'           => 'Address Aliases',
+    'sidebar_address_group_alias'     => 'Address Groups',
+    'sidebar_services_objects'        => 'Service Aliases',
+    'sidebar_services_group_objects'  => 'Service Groups',
+
     // Content
     'main_content'          => 'Content here...',
     ///////////////////////////////////////////////////////////////////////
