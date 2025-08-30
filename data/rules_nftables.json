@@ -1164,8 +1164,9 @@
                     },
                     {
                         "log": {
-                            "prefix": "nftables forward udp",
-                            "group": 0
+                            "prefix": "nftables 3 forwarding ACCEPT  ",
+                            "flags": "all",
+                            "level": "info"
                         }
                     },
                     {
@@ -1183,6 +1184,18 @@
                 "handle": "2",
                 "position": 2,
                 "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ip",
+                                    "field": "protocol"
+                                }
+                            },
+                            "right": "tcp"
+                        }
+                    },
                     {
                         "match": {
                             "op": "==",
@@ -1257,8 +1270,9 @@
                     },
                     {
                         "log": {
-                            "prefix": "nftables forward tcp",
-                            "group": 0
+                            "prefix": "nftables 2 forwarding ACCEPT  ",
+                            "flags": "all",
+                            "level": "info"
                         }
                     },
                     {
@@ -1362,8 +1376,9 @@
                     },
                     {
                         "log": {
-                            "prefix": "nftables forward icmp",
-                            "group": 0
+                            "prefix": "nftables 1 forwarding ACCEPT  ",
+                            "flags": "all",
+                            "level": "info"
                         }
                     },
                     {

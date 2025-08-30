@@ -18,15 +18,16 @@ function tablaMonigorOptions() {
     { key: "ip_dest", label: LANG.ip_dest },
     { key: "sport", label: LANG.sport },
     { key: "dport", label: LANG.dport },
-    { key: "L4protocol", label: LANG.L4protocol },
+    { key: "proto", label: LANG.proto },
     { key: "action", label: LANG.action },
-    { key: "firewall", label: LANG.firewall }, // 👈 Añadido aquí
+    { key: "firewall", label: LANG.firewall },
     { key: "max_record", label: LANG.max_record }
   ];
 
   columnas.forEach(col => {
     const th = document.createElement("th");
     th.textContent = col.label;
+    th.dataset.key = col.key; // 
     headerRow.appendChild(th);
   });
 
@@ -47,7 +48,7 @@ function tablaMonigorOptions() {
       btn.className = "buscar-monitor";
       btn.onclick = () => buttonSearchMonitor();
       td.appendChild(btn);
-    } else if (col.key === "protocol") {
+    } else if (col.key === "proto") {
       const select = document.createElement("select");
       select.className = "campo-resumen";
       ["", "TCP", "UDP", "ICMP"].forEach(proto => {
@@ -72,7 +73,7 @@ function tablaMonigorOptions() {
     } else if (col.key === "firewall") {
       const select = document.createElement("select");
       select.className = "campo-resumen";
-      ["", "BPFILTER", "NFTABLES"].forEach(val => {
+      ["NFTABLES", "BPFILTER"].forEach(val => {
         const option = document.createElement("option");
         option.value = val;
         option.textContent = val;
@@ -160,15 +161,9 @@ function mostrarMonitorRegistros(data) {
     "fecha", "hora", "handle", "SRC", "SPT", "DST", "DPT", "PROTO", "IN", "OUT", "action"
   ];
 
-  const encabezadosTraducidos = {
-    fecha: LANG.mydate,
-    hora: LANG.mytime,
-    action: LANG.action
-  };
-
   columnas.forEach(col => {
     const th = document.createElement("th");
-    th.textContent = encabezadosTraducidos[col] || col;
+    th.textContent = col;
     headerRow.appendChild(th);
   });
 
@@ -177,41 +172,41 @@ function mostrarMonitorRegistros(data) {
 
   const tbody = document.createElement("tbody");
 
-  Object.entries(data).forEach(([timestamp, registro]) => {
-    const fila = document.createElement("tr");
+  Object.entries(data)
+    .sort(([a], [b]) => new Date(b) - new Date(a)) // Ordenar por timestamp descendente
+    .forEach(([timestamp, registro]) => {
+      const fila = document.createElement("tr");
 
-    const fechaObj = new Date(timestamp);
-    const fecha = fechaObj.toISOString().slice(0, 10);
-    const hora = fechaObj.toTimeString().slice(0, 8);
+      const fechaObj = new Date(timestamp);
+      const fecha = fechaObj.toISOString().slice(0, 10);
+      const hora = fechaObj.toTimeString().slice(0, 8);
 
-    const valores = {
-      fecha,
-      hora,
-      handle: registro.handle || "",
-      SRC: registro.SRC || "",
-      SPT: registro.SPT || "",
-      DST: registro.DST || "",
-      DPT: registro.DPT || "",
-      PROTO: registro.PROTO || "",
-      IN: registro.IN || "",
-      OUT: registro.OUT || "",
-      action: registro.action || ""
-    };
+      const valores = {
+        fecha,
+        hora,
+        handle: registro.handle || "",
+        SRC: registro.SRC || "",
+        SPT: registro.SPT || "",
+        DST: registro.DST || "",
+        DPT: registro.DPT || "",
+        PROTO: registro.PROTO || "",
+        IN: registro.IN || "",
+        OUT: registro.OUT || "",
+        action: registro.action || ""
+      };
 
-    columnas.forEach(col => {
-      const td = document.createElement("td");
-      td.textContent = valores[col];
-      fila.appendChild(td);
+      columnas.forEach(col => {
+        const td = document.createElement("td");
+        td.textContent = valores[col];
+        fila.appendChild(td);
+      });
+
+      tbody.appendChild(fila);
     });
-
-    tbody.appendChild(fila);
-  });
 
   table.appendChild(tbody);
   container.appendChild(table);
 }
-
-
 
 
 function buttonSearchMonitor() {
@@ -219,9 +214,11 @@ function buttonSearchMonitor() {
   const params = {};
 
   inputs.forEach(input => {
-    const col = input.closest("td").cellIndex;
-    const header = document.querySelectorAll("#tabla-monitorOptions thead th")[col];
-    const key = Object.keys(LANG).find(k => LANG[k] === header.textContent);
+    const td = input.closest("td");
+    const colIndex = td.cellIndex;
+    const header = document.querySelectorAll("#tabla-monitorOptions thead th")[colIndex];
+    const key = header.dataset.key;
+
     if (key) {
       params[key] = input.value;
     }
@@ -230,7 +227,8 @@ function buttonSearchMonitor() {
   // Añadir el usuario de sesión al JSON
   params.user = USERNAME;
 
-  console.log("📤 Parámetros enviados al backend:", params);
+  // Mostrar el JSON final serializado
+  console.log("📤 JSON enviado al backend:\n", JSON.stringify(params, null, 2));
 
   fetch("/monitor/get_logs/get_logs.php", {
     method: "POST",

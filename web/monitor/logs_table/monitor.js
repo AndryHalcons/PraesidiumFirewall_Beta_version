@@ -27,7 +27,7 @@ function tablaMonigorOptions() {
   columnas.forEach(col => {
     const th = document.createElement("th");
     th.textContent = col.label;
-    th.dataset.key = col.key; // 👈 clave interna guardada
+    th.dataset.key = col.key; // 
     headerRow.appendChild(th);
   });
 
@@ -73,7 +73,7 @@ function tablaMonigorOptions() {
     } else if (col.key === "firewall") {
       const select = document.createElement("select");
       select.className = "campo-resumen";
-      ["", "BPFILTER", "NFTABLES"].forEach(val => {
+      ["NFTABLES", "BPFILTER"].forEach(val => {
         const option = document.createElement("option");
         option.value = val;
         option.textContent = val;
@@ -172,35 +172,37 @@ function mostrarMonitorRegistros(data) {
 
   const tbody = document.createElement("tbody");
 
-  Object.entries(data).forEach(([timestamp, registro]) => {
-    const fila = document.createElement("tr");
+  Object.entries(data)
+    .sort(([a], [b]) => new Date(b) - new Date(a)) // Ordenar por timestamp descendente
+    .forEach(([timestamp, registro]) => {
+      const fila = document.createElement("tr");
 
-    const fechaObj = new Date(timestamp);
-    const fecha = fechaObj.toISOString().slice(0, 10);
-    const hora = fechaObj.toTimeString().slice(0, 8);
+      const fechaObj = new Date(timestamp);
+      const fecha = fechaObj.toISOString().slice(0, 10);
+      const hora = fechaObj.toTimeString().slice(0, 8);
 
-    const valores = {
-      fecha,
-      hora,
-      handle: registro.handle || "",
-      SRC: registro.SRC || "",
-      SPT: registro.SPT || "",
-      DST: registro.DST || "",
-      DPT: registro.DPT || "",
-      PROTO: registro.PROTO || "",
-      IN: registro.IN || "",
-      OUT: registro.OUT || "",
-      action: registro.action || ""
-    };
+      const valores = {
+        fecha,
+        hora,
+        handle: registro.handle || "",
+        SRC: registro.SRC || "",
+        SPT: registro.SPT || "",
+        DST: registro.DST || "",
+        DPT: registro.DPT || "",
+        PROTO: registro.PROTO || "",
+        IN: registro.IN || "",
+        OUT: registro.OUT || "",
+        action: registro.action || ""
+      };
 
-    columnas.forEach(col => {
-      const td = document.createElement("td");
-      td.textContent = valores[col];
-      fila.appendChild(td);
+      columnas.forEach(col => {
+        const td = document.createElement("td");
+        td.textContent = valores[col];
+        fila.appendChild(td);
+      });
+
+      tbody.appendChild(fila);
     });
-
-    tbody.appendChild(fila);
-  });
 
   table.appendChild(tbody);
   container.appendChild(table);
