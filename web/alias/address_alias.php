@@ -21,5 +21,14 @@ $L = require $langFile;
   <meta charset="UTF-8">
   <title><?= htmlspecialchars($L['sidebar_address_alias']) ?></title>
 </head>
-<?= htmlspecialchars($L['sidebar_address_alias']) ?>
+<body>
+  <h1><?= htmlspecialchars($L['sidebar_address_alias']) ?></h1>
+
+  <div id="alias_address-table"></div>
+
+  <script src="/alias/address_alias/address_alias.js"></script>
+  <script>
+    renderTableFromAlias("alias_address");
+  </script>
+</body>
 </html>

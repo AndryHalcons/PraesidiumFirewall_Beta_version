@@ -1,0 +1,22 @@
+{
+  "alias_address": [
+    "name",
+    "id",
+    "address"
+  ],
+  "alias_address_groups": [
+    "name",
+    "id",
+    "address_group"
+  ],
+  "alias_service": [
+    "name",
+    "id",
+    "service"
+  ],
+  "alias_service_group": [
+    "name",
+    "id",
+    "service_group"
+  ]
+}
