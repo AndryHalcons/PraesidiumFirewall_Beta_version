@@ -9,9 +9,9 @@ if (!isset($_SESSION['username'])) {
 
 $allowedTables = [
     'alias_address',
-    'alias_address_group',
-    'alias_services',
-    'alias_services_group'
+    'alias_addr_group',
+    'alias_service',
+    'alias_service_group'
 ];
 
 $table = $_GET['table'] ?? '';
@@ -31,7 +31,7 @@ if (!file_exists($jsonPath)) {
 $structures = json_decode(file_get_contents($jsonPath), true);
 
 if (!isset($structures[$table])) {
-    echo json_encode(['error' => 'Estructura no definida para esta tabla']);
+    echo json_encode(['error' => 'Estructura no definida para esta tabla: '. $table]);
     exit;
 }
 

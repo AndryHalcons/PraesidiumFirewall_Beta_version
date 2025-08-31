@@ -179,4 +179,7 @@ return [
     'firewall' => 'Firewall',
     'Logdate' => 'Log Date',
     'Logtime' => 'Log Time',
+    'id' => 'ID',
+    'name' => 'Name',
+    'content' => 'Content'
 ];

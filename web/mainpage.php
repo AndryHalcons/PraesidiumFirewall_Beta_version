@@ -23,6 +23,8 @@ $L = require $langFile;
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
     <script src="/libraries/chart.umd.js"></script>
+    <script src="/alias/common_alias_actions/alias_table.js"></script>
+
 
 
 </head>

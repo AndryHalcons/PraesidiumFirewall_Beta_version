@@ -10,6 +10,7 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
+$currentAlias = "alias_addr_group";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
@@ -19,7 +20,12 @@ $L = require $langFile;
     const USERNAME = <?= json_encode($username) ?>;
   </script>
   <meta charset="UTF-8">
-  <title><?= htmlspecialchars($L['sidebar_services_group_objects']) ?></title>
 </head>
-<?= htmlspecialchars($L['sidebar_services_group_objects']) ?>
+<body>
+  <h1><?= htmlspecialchars($L['sidebar_address_group_alias']) ?></h1>
+  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
+  <script>
+    renderTableFromAlias("<?= htmlspecialchars($currentAlias) ?>");
+  </script>
+</body>
 </html>

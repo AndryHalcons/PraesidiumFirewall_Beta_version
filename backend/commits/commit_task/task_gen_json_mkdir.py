@@ -21,14 +21,10 @@ def copy_to_running(date):
 
         files_to_copy = [
             'interfaces.yml',
-            'routes.json',
             'rules.json',
             'rules_nftables.json',
             'users.json',
-            'address_alias.json',
-            'address_alias_group.json',
-            'services_alias.json',
-            'services_alias_group.json'
+            'alias.json',
         ]
 
         for filename in files_to_copy:

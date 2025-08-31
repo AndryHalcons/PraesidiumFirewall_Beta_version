@@ -173,7 +173,12 @@ return [
     'time' => 'Tiempo',
     'firewall' => 'Cortafuegos',
     'Logdate' => 'Fecha',
-    'Logtime' => 'Hora'
+    'Logtime' => 'Hora',
+    'id' => 'ID',
+    'name' => 'Nombre',
+    'content' => 'Contenido'
+
+
     
 
 ];
