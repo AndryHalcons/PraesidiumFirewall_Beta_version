@@ -68,6 +68,12 @@ function loadTableContent(aliasName) {
       const container = document.getElementById(`${aliasName}_table`);
       if (!container) return;
 
+      // Botón "Añadir alias"
+      const addBtn = document.createElement("button");
+      addBtn.textContent = LANG["add_alias"] || "Añadir alias";
+      addBtn.onclick = () => handleDelete(null, null, aliasName);
+      container.insertAdjacentElement("beforebegin", addBtn);
+
       if (data.error) {
         container.innerHTML += `<div class="error">${data.error}</div>`;
         return;
@@ -132,6 +138,7 @@ function loadTableContent(aliasName) {
       }
     });
 }
+
 
 
 
