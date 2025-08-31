@@ -271,5 +271,90 @@ function handleDelete(row, tr, aliasName, ) {
 
 
 function handleAdd(aliasName) {
-  console.log(`Añadir alias en: ${aliasName}`);
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "modal-window modal-1-alias-example";
+
+    modal.innerHTML = `
+        <h3>${LANG["add_alias"]}</h3>
+
+        <label for="alias-name">${LANG["name"]}</label>
+        <input type="text" id="alias-name" class="modal-input" placeholder="${LANG["name"]}">
+
+        <label for="alias-content">${LANG["content"]}</label>
+        <textarea id="alias-content" class="modal-input" placeholder="${LANG["content"]}"></textarea>
+
+        <div class="modal-actions">
+            <button id="confirm-alias" class="modal-button">${LANG["ok"]}</button>
+            <button id="cancel-alias" class="modal-button cancel">${LANG["cancel"]}</button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Cancelar modal
+    document.getElementById("cancel-alias").onclick = () => {
+        document.body.removeChild(overlay);
+    };
+
+    // Confirmar y enviar datos
+    document.getElementById("confirm-alias").onclick = () => {
+        const name = document.getElementById("alias-name").value.trim();
+        const content = document.getElementById("alias-content").value.trim();
+
+        if (!name || !content) {
+            alert(LANG["invalid_data"]);
+            return;
+        }
+
+        const data = {
+            alias_address: {
+                id: "",
+                name,
+                content
+            }
+        };
+
+        console.log("Datos enviados al servidor:", JSON.stringify(data, null, 2));
+
+        fetch("/alias/common_alias_actions/update_alias.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(async res => {
+            let bodyText = await res.text(); 
+            let parsed;
+            try {
+                parsed = bodyText ? JSON.parse(bodyText) : {};
+            } catch (e) {
+                parsed = {};
+            }
+
+            if (!res.ok) {
+                // Si el backend devolvió error, mostramos el mensaje si existe
+                throw new Error(parsed.error || bodyText || `Error HTTP ${res.status}`);
+            }
+            return parsed;
+        })
+        .then(response => {
+            alert(response.mensaje || LANG["ok"]);
+            document.body.removeChild(overlay);
+            loadTableContent(aliasName);
+        })
+        .catch(err => {
+            console.error("Error al crear alias:", err);
+            alert(err.message || LANG["connection_error"]);
+            document.body.removeChild(overlay);
+        });
+    };
 }
+
+
+
+
+
+

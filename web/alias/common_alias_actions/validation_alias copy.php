@@ -7,12 +7,12 @@ if (!isset($_SESSION['username'])) {
 
 
 
-//valida que los datos recibiods son validos asigna id si es nuevo, y comprueba que no haya nombre repetidos
-//validates that the data received is valid assigns id if it is new, and checks that there are no duplicate names
-
+//valida que los datos recibiods son validos
+//validates that the data received is valid
+// validates that the data received is valid
 function validateSimply($data, $path, $keyJson) {
     // Verifica que los campos requeridos estén presentes
-    if (!isset($data['name'], $data['content'])) {
+    if (!isset( $data['name'], $data['content'])) {
         http_response_code(400);
         echo json_encode(['error' => 'Required fields are missing']);
         exit;
@@ -20,6 +20,7 @@ function validateSimply($data, $path, $keyJson) {
 
     // Validación separada del campo 'id'
     if (!is_numeric($data['id'])) {
+        // Aquí le pasamos el array de esa sección a getNextID
         $data['id'] = getNextID($data, $path, $keyJson);
     }
 
@@ -37,30 +38,9 @@ function validateSimply($data, $path, $keyJson) {
         exit;
     }
 
-    // 🔹 Validación de nombre duplicado en la misma sección
-    if (file_exists($path)) {
-        $jsonContent = file_get_contents($path);
-        $aliasData = json_decode($jsonContent, true);
-
-        if (isset($aliasData[$keyJson]) && is_array($aliasData[$keyJson])) {
-            foreach ($aliasData[$keyJson] as $item) {
-                // Si el nombre ya existe y no es el mismo ID → error
-                if (
-                    isset($item['name']) &&
-                    $item['name'] === $data['name'] &&
-                    (string)$item['id'] !== (string)$data['id']
-                ) {
-                    http_response_code(409);
-                    echo json_encode(['error' => 'Alias name already exists']);
-                    exit;
-                }
-            }
-        }
-    }
-
+    // Devuelve el array validado (y posiblemente modificado)
     return $data;
 }
-
 
 
 //si viene con id erroneo le generamos uno nuevo, util para crear nuevas entradas o verificar updates

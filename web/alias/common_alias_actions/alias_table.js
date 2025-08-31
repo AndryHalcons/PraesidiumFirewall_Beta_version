@@ -275,7 +275,7 @@ function handleAdd(aliasName) {
     overlay.className = "modal-overlay";
 
     const modal = document.createElement("div");
-    modal.className = "modal-window modal-1-alias-example"; // 👈 clase personalizada
+    modal.className = "modal-window modal-1-alias-example";
 
     modal.innerHTML = `
         <h3>${LANG["add_alias"]}</h3>
@@ -310,26 +310,45 @@ function handleAdd(aliasName) {
             return;
         }
 
-        const data = { name, content };
+        const data = {
+            [aliasName]: { id: "", name, content }
+          };
 
-        fetch("/alias/common_alias_actions/add_alias.php", {
+
+        console.log("Datos enviados al servidor:", JSON.stringify(data, null, 2));
+
+        fetch("/alias/common_alias_actions/update_alias.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         })
-        .then(res => res.json())
+        .then(async res => {
+            let bodyText = await res.text(); 
+            let parsed;
+            try {
+                parsed = bodyText ? JSON.parse(bodyText) : {};
+            } catch (e) {
+                parsed = {};
+            }
+
+            if (!res.ok) {
+                // Si el backend devolvió error, mostramos el mensaje si existe
+                throw new Error(parsed.error || bodyText || `Error HTTP ${res.status}`);
+            }
+            return parsed;
+        })
         .then(response => {
             alert(response.mensaje || LANG["ok"]);
             document.body.removeChild(overlay);
-            renderTableFromAlias(aliasName);
+            loadTableContent(aliasName);
         })
         .catch(err => {
             console.error("Error al crear alias:", err);
-            alert(LANG["connection_error"]);
-            document.body.removeChild(overlay);
+            alert(err.message || LANG["connection_error"]);
         });
     };
 }
+
 
 
 

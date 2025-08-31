@@ -3,16 +3,14 @@ session_start();
 if (!isset($_SESSION['username'])) {
     exit("No autorizado");
 }
-$path = '/var/www/config/alias.json';
+
 // Ruta local del archivo JSON de configuración
 // Local path to the alias configuration JSON file
-
+$path = '/var/www/config/alias.json';
 
 //funciones de validacion de datos:
 //data validation functions
 require_once __DIR__ . '/validation_alias.php';
-
-
 // Carga el contenido actual del archivo JSON
 // Load the current content of the JSON file
 function loadAliasData($path) {
@@ -32,9 +30,8 @@ function saveAliasData($path, $data) {
 
 // Actualiza una entrada del tipo alias_address
 // Update an entry of type alias_address
-function updateAliasAddress($data, &$aliasData, $path) {
-    $keyJson = 'alias_address';
-    $data = validateSimply($data, $path, $keyJson);
+function updateAliasAddress($data, &$aliasData) {
+    validateSimply($data);
     validateIPandCIDR($data['content']);
     updateAliasAddressONgroups($data, $aliasData);
     updateAliasEntry('alias_address', $data, $aliasData);
@@ -43,17 +40,15 @@ function updateAliasAddress($data, &$aliasData, $path) {
 
 // Actualiza una entrada del tipo alias_addr_group
 // Update an entry of type alias_addr_group
-function updateAliasAddrGroup($data, &$aliasData, $path) {
-    $keyJson = 'alias_addr_group';
-    $data = validateSimply($data, $path, $keyJson);
+function updateAliasAddrGroup($data, &$aliasData) {
+    validateSimply($data);
     updateAliasEntry('alias_addr_group', $data, $aliasData);
 }
 
 // Actualiza una entrada del tipo alias_service
 // Update an entry of type alias_service
-function updateAliasService($data, &$aliasData, $path) {
-    $keyJson = 'alias_service';
-    $data = validateSimply($data, $path, $keyJson);
+function updateAliasService($data, &$aliasData) {
+    validateSimply($data);
     validatePort($data['content']);
     updateAliasServiceONgroups($data, $aliasData);
     updateAliasEntry('alias_service', $data, $aliasData);
@@ -62,9 +57,8 @@ function updateAliasService($data, &$aliasData, $path) {
 
 // Actualiza una entrada del tipo alias_service_group
 // Update an entry of type alias_service_group
-function updateAliasServiceGroup($data, &$aliasData, $path) {
-    $keyJson = 'alias_service_group';
-    $data = validateSimply($data, $path, $keyJson);
+function updateAliasServiceGroup($data, &$aliasData) {
+    validateSimply($data);
     updateAliasEntry('alias_service_group', $data, $aliasData);
 }
 
@@ -101,13 +95,13 @@ $aliasData = loadAliasData($path); // Carga los datos actuales del archivo
 // Determina qué tipo de alias se está actualizando
 // Determine which alias type is being updated
 if (isset($inputData['alias_address'])) {
-    updateAliasAddress($inputData['alias_address'], $aliasData, $path);
+    updateAliasAddress($inputData['alias_address'], $aliasData);
 } elseif (isset($inputData['alias_addr_group'])) {
-    updateAliasAddrGroup($inputData['alias_addr_group'], $aliasData, $path);
+    updateAliasAddrGroup($inputData['alias_addr_group'], $aliasData);
 } elseif (isset($inputData['alias_service'])) {
-    updateAliasService($inputData['alias_service'], $aliasData, $path);
+    updateAliasService($inputData['alias_service'], $aliasData);
 } elseif (isset($inputData['alias_service_group'])) {
-    updateAliasServiceGroup($inputData['alias_service_group'], $aliasData, $path);
+    updateAliasServiceGroup($inputData['alias_service_group'], $aliasData);
 } else {
     http_response_code(400); // Código de error si no se encuentra alias válido
                              // Error code if no valid alias found
