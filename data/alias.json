@@ -3,73 +3,86 @@
     {
       "id": 1,
       "name": "Wan",
-      "content": "192.168.100.201"
+      "content": ["192.168.100.201"]
     },
     {
       "id": 2,
       "name": "cloudflare",
-      "content": "1.1.1.1"
+      "content": ["1.1.1.1"]
     },
     {
       "id": 3,
       "name": "Google_DNS",
-      "content": "8.8.8.8"
+      "content": ["8.8.8.8"]
     },
     {
       "id": 4,
       "name": "private-networks-1",
-      "content": "10.0.0.0/8"
+      "content": ["10.0.0.0/8"]
     },
     {
       "id": 5,
       "name": "private-networks-2",
-      "content": "192.168.0.0/16"
+      "content": ["192.168.0.0/16"]
     },
     {
       "id": 6,
       "name": "private-networks-3",
-      "content": "172.16.0.0/12"
+      "content": ["172.16.0.0/12"]
     }
   ],
   "alias_addr_group": [
     {
       "id": 1,
       "name": "Private-networks",
-      "content": ["private-networks-1", "private-networks-2", "private-networks-3"]
+      "content": [
+        "private-networks-1",
+        "private-networks-2",
+        "private-networks-3"
+      ]
     },
     {
       "id": 2,
       "name": "Servidores-DNS",
-      "content": ["cloudflare", "Google_DNS"]
+      "content": [
+        "cloudflare",
+        "Google_DNS"
+      ]
     }
   ],
   "alias_service": [
     {
       "id": 1,
       "name": "SSH",
-      "content": "22"
+      "content": ["22"]
     },
     {
       "id": 2,
       "name": "HTTP",
-      "content": "80"
+      "content": ["80"]
     },
     {
       "id": 3,
       "name": "HTTPS",
-      "content": "443"
+      "content": ["443"]
     }
   ],
   "alias_service_group": [
     {
       "id": 1,
       "name": "Management",
-      "content": ["HTTP", "HTTPS", "SSH"]
+      "content": [
+        "HTTP",
+        "HTTPS",
+        "SSH"
+      ]
     },
     {
       "id": 2,
       "name": "Administración Remota",
-      "content": ["SSH"]
+      "content": [
+        "SSH"
+      ]
     }
   ]
 }

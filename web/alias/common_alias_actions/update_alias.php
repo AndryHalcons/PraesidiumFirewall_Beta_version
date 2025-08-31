@@ -21,14 +21,54 @@ function loadAliasData($path) {
     return json_decode($json, true);
 }
 
-// Guarda los datos actualizados en el archivo JSON
-// Save updated data to the JSON file
+// Guarda los datos actualizados en el archivo JSON (tambien normaliza los arrays)
+// Save updated data to the JSON file (also normalizes arrays)
 function saveAliasData($path, $data) {
-    $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); // Codifica con formato legible
-                                                                            // Encode with readable formatting
-    file_put_contents($path, $json); // Escribe el contenido en el archivo
-                                     // Write content to file
+    foreach ($data as $sectionKey => &$section) {
+        if (is_array($section)) {
+            foreach ($section as &$entry) {
+                if (isset($entry['content'])) {
+                    $normalizado = [];
+
+                    // Si viene como string → lo partimos por comas
+                    if (is_string($entry['content'])) {
+                        $normalizado = array_map('trim', explode(',', $entry['content']));
+                    }
+                    // Si viene como array
+                    elseif (is_array($entry['content'])) {
+                        foreach ($entry['content'] as $c) {
+                            if (is_string($c)) {
+                                // Si el string tiene comas, lo partimos
+                                if (strpos($c, ',') !== false) {
+                                    $partes = array_map('trim', explode(',', $c));
+                                    $normalizado = array_merge($normalizado, $partes);
+                                } else {
+                                    $normalizado[] = trim($c);
+                                }
+                            }
+                        }
+                    }
+
+                    // Eliminar duplicados y vacíos
+                    $normalizado = array_values(array_filter(array_unique($normalizado), 'strlen'));
+
+                    // Guardar normalizado
+                    $entry['content'] = $normalizado;
+                }
+            }
+        }
+    }
+
+    // Guardar en JSON
+    $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    file_put_contents($path, $json);
 }
+
+
+
+
+
+
 
 // Actualiza una entrada del tipo alias_address
 // Update an entry of type alias_address
