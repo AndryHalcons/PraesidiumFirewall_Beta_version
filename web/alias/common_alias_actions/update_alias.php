@@ -86,6 +86,7 @@ function updateAliasAddress($data, &$aliasData, $path) {
 function updateAliasAddrGroup($data, &$aliasData, $path) {
     $keyJson = 'alias_addr_group';
     $data = validateSimply($data, $path, $keyJson);
+    isAliasAddressNameIP_ORserviceAlias($data, $path);
     updateAliasEntry('alias_addr_group', $data, $aliasData);
 }
 
@@ -105,6 +106,7 @@ function updateAliasService($data, &$aliasData, $path) {
 function updateAliasServiceGroup($data, &$aliasData, $path) {
     $keyJson = 'alias_service_group';
     $data = validateSimply($data, $path, $keyJson);
+    isAliasServiceNamePort_ORserviceAlias($data,$path);
     updateAliasEntry('alias_service_group', $data, $aliasData);
 }
 

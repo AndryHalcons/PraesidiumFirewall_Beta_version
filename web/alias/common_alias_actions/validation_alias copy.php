@@ -317,86 +317,7 @@ function isAliasServiceNameInGroupContent($data, $id) {
 
 
 
-function isAliasAddressNameIP_ORserviceAlias($data, $path) {
-    $keyJson = 'alias_address';
-
-    // --- Normalizar $data['content'] ---
-    if (isset($data['content'])) {
-        $normalizado = [];
-
-        if (is_string($data['content'])) {
-            $normalizado = array_map('trim', explode(',', $data['content']));
-        } elseif (is_array($data['content'])) {
-            foreach ($data['content'] as $c) {
-                if (is_string($c)) {
-                    if (strpos($c, ',') !== false) {
-                        $partes = array_map('trim', explode(',', $c));
-                        $normalizado = array_merge($normalizado, $partes);
-                    } else {
-                        $normalizado[] = trim($c);
-                    }
-                }
-            }
-        }
-
-        $data['content'] = array_values(array_filter(array_unique($normalizado), 'strlen'));
-    } else {
-        http_response_code(400);
-        header('Content-Type: application/json; charset=utf-8');
-        exit(json_encode(['error' => "El campo 'content' no existe"]));
-    }
-    // --- Fin normalización ---
-
-    // Cargar JSON
-    if (!file_exists($path)) {
-        http_response_code(500);
-        header('Content-Type: application/json; charset=utf-8');
-        exit(json_encode(['error' => 'No se encontró el archivo de datos']));
-    }
-
-    $aliasData = json_decode(file_get_contents($path), true);
-
-    if (!isset($aliasData[$keyJson]) || !is_array($aliasData[$keyJson])) {
-        http_response_code(500);
-        header('Content-Type: application/json; charset=utf-8');
-        exit(json_encode(['error' => "No se encontró la sección '$keyJson' o no es válida"]));
-    }
-
-    // Lista de nombres válidos
-    $validNames = array_column($aliasData[$keyJson], 'name');
-
-    // Buscar inválidos (permitiendo IPs y CIDR)
-    $invalid = [];
-    foreach ($data['content'] as $item) {
-        // Si está en alias_address → válido
-        if (in_array($item, $validNames, true)) {
-            continue;
-        }
-        // Si es una IP válida → válido
-        if (filter_var($item, FILTER_VALIDATE_IP)) {
-            continue;
-        }
-        // Si es una red CIDR válida → válido
-        if (strpos($item, '/') !== false) {
-            [$ip, $mask] = explode('/', $item, 2);
-            if (filter_var($ip, FILTER_VALIDATE_IP) && ctype_digit($mask) && (int)$mask >= 0 && (int)$mask <= 128) {
-                continue;
-            }
-        }
-        // Si no cumple ninguna condición → inválido
-        $invalid[] = $item;
-    }
-
-    if (!empty($invalid)) {
-        http_response_code(400);
-        header('Content-Type: application/json; charset=utf-8');
-        exit(json_encode([
-            'error' => "Los siguientes valores no existen en '$keyJson' ni son IP/CIDR válidos: " . implode(', ', $invalid)
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    }
-
-    return true;
-}
+function isAliasAddressNameIP_ORserviceAlias($data){}
 
 
 function isAliasServiceNamePort_ORserviceAlias($data, $path) {
@@ -447,20 +368,8 @@ function isAliasServiceNamePort_ORserviceAlias($data, $path) {
     // Lista de nombres válidos
     $validNames = array_column($aliasData[$keyJson], 'name');
 
-    // Buscar inválidos (permitiendo puertos válidos)
-    $invalid = [];
-    foreach ($data['content'] as $item) {
-        // Si está en alias_service → válido
-        if (in_array($item, $validNames, true)) {
-            continue;
-        }
-        // Si es un puerto válido → válido
-        if (ctype_digit($item) && (int)$item >= 1 && (int)$item <= 65535) {
-            continue;
-        }
-        // Si no cumple ninguna condición → inválido
-        $invalid[] = $item;
-    }
+    // Buscar inválidos
+    $invalid = array_diff($data['content'], $validNames);
 
     if (!empty($invalid)) {
         http_response_code(400);
@@ -470,8 +379,8 @@ function isAliasServiceNamePort_ORserviceAlias($data, $path) {
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
+
     return true;
 }
-
 
 
