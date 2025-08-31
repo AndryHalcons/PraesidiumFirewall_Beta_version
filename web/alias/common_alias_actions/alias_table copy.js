@@ -19,6 +19,12 @@ function renderTableFromAlias(aliasName) {
         return;
       }
 
+      //  Insertar el botón "Agregar alias" antes del contenedor
+      const addBtn = document.createElement("button");
+      addBtn.textContent = LANG["add_alias"] || "Agregar alias";
+      addBtn.onclick = () => handleAdd(aliasName);
+      container.insertAdjacentElement("beforebegin", addBtn);
+
       container.innerHTML = "";
 
       const table = document.createElement("table");
@@ -27,12 +33,12 @@ function renderTableFromAlias(aliasName) {
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
 
-      // 👉 Insertar primero la columna de acciones
+      //  Insertar primero la columna de acciones
       const actionsTh = document.createElement("th");
       actionsTh.textContent = typeof LANG !== "undefined" && LANG["actions"] ? LANG["actions"] : "Acciones";
       headerRow.appendChild(actionsTh);
 
-      // Luego las columnas normales
+      //  Luego las columnas normales
       columns.forEach(col => {
         const th = document.createElement("th");
         th.textContent = typeof LANG !== "undefined" && LANG[col] ? LANG[col] : col;
@@ -47,6 +53,7 @@ function renderTableFromAlias(aliasName) {
 
       container.appendChild(table);
 
+      //  Cargar contenido de la tabla
       loadTableContent(aliasName);
     })
     .catch(error => {
@@ -67,6 +74,7 @@ function loadTableContent(aliasName) {
     .then(data => {
       const container = document.getElementById(`${aliasName}_table`);
       if (!container) return;
+
 
       if (data.error) {
         container.innerHTML += `<div class="error">${data.error}</div>`;
@@ -132,6 +140,7 @@ function loadTableContent(aliasName) {
       }
     });
 }
+
 
 
 
@@ -261,4 +270,6 @@ function handleDelete(row, tr, aliasName, ) {
 
 
 
-
+function handleAdd(aliasName) {
+  console.log(`Añadir alias en: ${aliasName}`);
+}

@@ -448,12 +448,33 @@ table.interfaz button:hover {
 #############################################################################
 #############################################################################
 #############################################################################
-   Estilos para la seccion commit
-   Styles for the section commit
+   Estilos para la seccion alias
+   Styles for the section alias
 #############################################################################
 #############################################################################
 #############################################################################
 */
+
+/* El modal se adapta al contenido */
+.modal-1-alias-example {
+    display: inline-block;       /* ancho y alto según contenido */
+    max-width: none;             /* sin límite artificial */
+    max-height: none;
+    width: 50%;                 /* que no esté forzado */
+    height: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* El textarea más grande */
+.modal-1-alias-example textarea.modal-input {
+    width: 100%;   /* 200% del ancho base */
+    height: 200%;  /* 300% del alto base */
+    box-sizing: border-box;
+    resize: both;  /* opcional: permitir redimensionar manualmente */
+}
 
 
 

@@ -8,80 +8,9 @@ if (!isset($_SESSION['username'])) {
 $aliasFile = '/var/www/config/alias.json'; 
 
 //validaciones de  borrados:
-// Verifica si el name de alias_address está en el content de alias_addr_group
-// Checks if alias_address name is inside alias_addr_group content
-function isAliasAddressNameInGroupContent($data, $id) {
-    // Buscar el name del alias_address por su ID
-    // Find the name of alias_address by its ID
-    $aliasName = null;
-    foreach ($data['alias_address'] as $item) {
-        if (intval($item['id']) === intval($id)) {
-            $aliasName = $item['name'];
-            break;
-        }
-    }
-    // Si no se encuentra el alias, devolver error
-    // If alias not found, return error
-    if (!$aliasName) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Alias no encontrado']);
-        exit;
-    }
-    // Verificar si el name está en algún grupo
-    // Check if the name is referenced in any group
-    foreach ($data['alias_addr_group'] as $group) {
-        if (in_array($aliasName, $group['content'])) {
-            http_response_code(409);
-            echo json_encode([
-                'error' => 'El alias está siendo usado en el grupo "' . $group['name'] . '" y no puede eliminarse'
-            ]);
-            exit;
-        }
-    }
+//delete validations
+require_once __DIR__ . '/validation_alias.php';
 
-    // Si no hay conflicto, continuar
-    // No conflict, continue
-    return;
-}
-
-
-// Verifica si el name de alias_service está en el content de alias_service_group
-// Checks if alias_service name is inside alias_service_group content
-function isAliasServiceNameInGroupContent($data, $id) {
-    // Buscar el name del alias_service por su ID
-    // Find the name of alias_service by its ID
-    $aliasName = null;
-    foreach ($data['alias_service'] as $item) {
-        if (intval($item['id']) === intval($id)) {
-            $aliasName = $item['name'];
-            break;
-        }
-    }
-
-    // Si no se encuentra el alias, devolver error
-    // If alias not found, return error
-    if (!$aliasName) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Alias de servicio no encontrado']);
-        exit;
-    }
-
-    // Verificar si el name está en algún grupo
-    // Check if the name is referenced in any group
-    foreach ($data['alias_service_group'] as $group) {
-        if (in_array($aliasName, $group['content'])) {
-            http_response_code(409);
-            echo json_encode([
-                'error' => 'El alias de servicio está siendo usado en el grupo "' . $group['name'] . '" y no puede eliminarse'
-            ]);
-            exit;
-        }
-    }
-
-    // Si no hay conflicto, continuar
-    // No conflict, continue
-    return;
-}
 
 
 // Leer el cuerpo del request como JSON

@@ -19,6 +19,12 @@ function renderTableFromAlias(aliasName) {
         return;
       }
 
+      //  Insertar el botón "Agregar alias" antes del contenedor
+      const addBtn = document.createElement("button");
+      addBtn.textContent = LANG["add_alias"] || "Agregar alias";
+      addBtn.onclick = () => handleAdd(aliasName);
+      container.insertAdjacentElement("beforebegin", addBtn);
+
       container.innerHTML = "";
 
       const table = document.createElement("table");
@@ -27,12 +33,12 @@ function renderTableFromAlias(aliasName) {
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
 
-      // 👉 Insertar primero la columna de acciones
+      //  Insertar primero la columna de acciones
       const actionsTh = document.createElement("th");
       actionsTh.textContent = typeof LANG !== "undefined" && LANG["actions"] ? LANG["actions"] : "Acciones";
       headerRow.appendChild(actionsTh);
 
-      // Luego las columnas normales
+      //  Luego las columnas normales
       columns.forEach(col => {
         const th = document.createElement("th");
         th.textContent = typeof LANG !== "undefined" && LANG[col] ? LANG[col] : col;
@@ -47,6 +53,7 @@ function renderTableFromAlias(aliasName) {
 
       container.appendChild(table);
 
+      //  Cargar contenido de la tabla
       loadTableContent(aliasName);
     })
     .catch(error => {
@@ -68,11 +75,6 @@ function loadTableContent(aliasName) {
       const container = document.getElementById(`${aliasName}_table`);
       if (!container) return;
 
-      // Botón "Añadir alias"
-      const addBtn = document.createElement("button");
-      addBtn.textContent = LANG["add_alias"] || "Añadir alias";
-      addBtn.onclick = () => handleDelete(null, null, aliasName);
-      container.insertAdjacentElement("beforebegin", addBtn);
 
       if (data.error) {
         container.innerHTML += `<div class="error">${data.error}</div>`;
@@ -265,6 +267,70 @@ function handleDelete(row, tr, aliasName, ) {
       alert("Error de conexión con el servidor");
     });
 }
+
+
+
+function handleAdd(aliasName) {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "modal-window modal-1-alias-example"; // 👈 clase personalizada
+
+    modal.innerHTML = `
+        <h3>${LANG["add_alias"]}</h3>
+
+        <label for="alias-name">${LANG["name"]}</label>
+        <input type="text" id="alias-name" class="modal-input" placeholder="${LANG["name"]}">
+
+        <label for="alias-content">${LANG["content"]}</label>
+        <textarea id="alias-content" class="modal-input" placeholder="${LANG["content"]}"></textarea>
+
+        <div class="modal-actions">
+            <button id="confirm-alias" class="modal-button">${LANG["ok"]}</button>
+            <button id="cancel-alias" class="modal-button cancel">${LANG["cancel"]}</button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Cancelar modal
+    document.getElementById("cancel-alias").onclick = () => {
+        document.body.removeChild(overlay);
+    };
+
+    // Confirmar y enviar datos
+    document.getElementById("confirm-alias").onclick = () => {
+        const name = document.getElementById("alias-name").value.trim();
+        const content = document.getElementById("alias-content").value.trim();
+
+        if (!name || !content) {
+            alert(LANG["invalid_data"]);
+            return;
+        }
+
+        const data = { name, content };
+
+        fetch("/alias/common_alias_actions/add_alias.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(response => {
+            alert(response.mensaje || LANG["ok"]);
+            document.body.removeChild(overlay);
+            renderTableFromAlias(aliasName);
+        })
+        .catch(err => {
+            console.error("Error al crear alias:", err);
+            alert(LANG["connection_error"]);
+            document.body.removeChild(overlay);
+        });
+    };
+}
+
 
 
 
