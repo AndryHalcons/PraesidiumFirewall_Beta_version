@@ -11,7 +11,7 @@
             "table": {
                 "family": "inet",
                 "name": "filter",
-                "handle": 21
+                "handle": 1
             }
         },
         {
@@ -54,7 +54,7 @@
             "table": {
                 "family": "inet",
                 "name": "nat",
-                "handle": 22
+                "handle": 2
             }
         },
         {
@@ -62,7 +62,7 @@
                 "family": "inet",
                 "table": "nat",
                 "name": "POSTROUTING",
-                "handle": 1,
+                "handle": 4,
                 "type": "nat",
                 "hook": "postrouting",
                 "prio": 100,
@@ -74,7 +74,7 @@
                 "family": "inet",
                 "table": "nat",
                 "name": "PREROUTING",
-                "handle": 2,
+                "handle": 5,
                 "type": "nat",
                 "hook": "prerouting",
                 "prio": -100,
@@ -86,7 +86,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "PREROUTING",
-                "handle": "3",
                 "position": 1,
                 "expr": [
                     {
@@ -181,7 +180,7 @@
                         }
                     }
                 ],
-                "comment": "marimolestandoexample"
+                "comment": "id='1',name='ping my server'"
             }
         },
         {
@@ -189,7 +188,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "PREROUTING",
-                "handle": "2",
                 "position": 2,
                 "expr": [
                     {
@@ -297,7 +295,7 @@
                         }
                     }
                 ],
-                "comment": "myWeb_1_example"
+                "comment": "id='2',name='my web server'"
             }
         },
         {
@@ -305,7 +303,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "PREROUTING",
-                "handle": "1",
                 "position": 3,
                 "expr": [
                     {
@@ -413,7 +410,7 @@
                         }
                     }
                 ],
-                "comment": "server_vpn_1_example"
+                "comment": "id='3',name='my vpn'"
             }
         },
         {
@@ -421,7 +418,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "POSTROUTING",
-                "handle": "2",
                 "position": 1,
                 "expr": [
                     {
@@ -520,7 +516,7 @@
                         }
                     }
                 ],
-                "comment": "wan_out_nat_example"
+                "comment": "id='4',name='NAT Internet TCP'"
             }
         },
         {
@@ -528,7 +524,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "POSTROUTING",
-                "handle": "1",
                 "position": 2,
                 "expr": [
                     {
@@ -627,7 +622,7 @@
                         }
                     }
                 ],
-                "comment": "wan_out_nat_example_UDP"
+                "comment": "id='5',name='NAT Internet UDP'"
             }
         },
         {
@@ -635,7 +630,6 @@
                 "family": "inet",
                 "table": "nat",
                 "chain": "POSTROUTING",
-                "handle": "3",
                 "position": 3,
                 "expr": [
                     {
@@ -734,7 +728,7 @@
                         }
                     }
                 ],
-                "comment": "wan_out_nat_example_icmp"
+                "comment": "id='6',name='NAT Internet Ping'"
             }
         },
         {
@@ -742,7 +736,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "input",
-                "handle": "1",
                 "position": 1,
                 "expr": [
                     {
@@ -806,7 +799,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='7',name='Management  TCP'"
             }
         },
         {
@@ -814,7 +807,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "input",
-                "handle": "2",
                 "position": 2,
                 "expr": [
                     {
@@ -878,7 +870,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='8',name='Management UDP'"
             }
         },
         {
@@ -886,7 +878,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "input",
-                "handle": "3",
                 "position": 3,
                 "expr": [
                     {
@@ -950,7 +941,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='9',name='Management Ping'"
             }
         },
         {
@@ -958,7 +949,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "output",
-                "handle": "1",
                 "position": 1,
                 "expr": [
                     {
@@ -989,7 +979,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='10',name='Management tcp access'"
             }
         },
         {
@@ -997,7 +987,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "output",
-                "handle": "2",
                 "position": 2,
                 "expr": [
                     {
@@ -1028,7 +1017,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='11',name='Management udp access'"
             }
         },
         {
@@ -1036,7 +1025,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "output",
-                "handle": "3",
                 "position": 3,
                 "expr": [
                     {
@@ -1067,7 +1055,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='12',name='Management ping access'"
             }
         },
         {
@@ -1075,7 +1063,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "FORWARDING",
-                "handle": "3",
                 "position": 1,
                 "expr": [
                     {
@@ -1173,7 +1160,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='13',name='Tcp forwarding permit'"
             }
         },
         {
@@ -1181,7 +1168,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "FORWARDING",
-                "handle": "2",
                 "position": 2,
                 "expr": [
                     {
@@ -1279,7 +1265,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='14',name='UDP forwarding accept'"
             }
         },
         {
@@ -1287,7 +1273,6 @@
                 "family": "inet",
                 "table": "filter",
                 "chain": "FORWARDING",
-                "handle": "1",
                 "position": 3,
                 "expr": [
                     {
@@ -1385,7 +1370,7 @@
                         "accept": null
                     }
                 ],
-                "comment": ""
+                "comment": "id='15',name='ICMP forwarding accept'"
             }
         }
     ]

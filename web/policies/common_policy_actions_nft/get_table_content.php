@@ -68,9 +68,21 @@ function extract_ip_set($value) {
 function satinize_rule($rule, $columns) {
     $flat = [];
 
-    foreach (["family", "table", "chain", "handle", "position", "comment"] as $key) {
+    // Campos generales excluyendo 'handle'
+    foreach (["family", "table", "chain", "position"] as $key) {
         if (in_array($key, $columns)) {
             $flat[$key] = $rule[$key] ?? "";
+        }
+    }
+
+    // Extrae id y name del campo comment si está presente
+    if (in_array("id", $columns) || in_array("name", $columns)) {
+        $comment = $rule["comment"] ?? "";
+        if (preg_match("/id='([^']+)'/", $comment, $idMatch)) {
+            $flat["id"] = $idMatch[1];
+        }
+        if (preg_match("/name='([^']+)'/", $comment, $nameMatch)) {
+            $flat["name"] = $nameMatch[1];
         }
     }
 
@@ -189,6 +201,7 @@ function satinize_rule($rule, $columns) {
 
     return $flat;
 }
+
 
 $sanitized = [];
 foreach ($data['nftables'] as $item) {

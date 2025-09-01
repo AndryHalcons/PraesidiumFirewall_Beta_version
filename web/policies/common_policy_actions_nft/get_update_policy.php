@@ -39,6 +39,7 @@ require __DIR__ . '/validation_policy.php';
 function validate_nftables_policy(array $rule): array {
     $rule = validation_icmp_no_ports($rule);
     $rule = Main_convert_alias_object_to_network_object($rule);
+    $rule = comment_convert_id_name($rule);
 
     return $rule;
 }
@@ -118,3 +119,6 @@ if (file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSO
 } else {
     echo json_encode(["error" => "No se pudo guardar el archivo"]);
 }
+
+
+

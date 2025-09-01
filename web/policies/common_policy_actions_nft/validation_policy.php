@@ -25,9 +25,105 @@ function import_alias_json() {
     return $aliasJsonData;
 }
 
+// Importa el archivo de reglas actual para consultas
+// Imports the current rules file for queries
+function import_policy_nft_json() {
+    $jsonPath = '/var/www/config/rules_nftables.json';
+
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $aliasJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $aliasJsonData;
+}
+//importa el archivo de formulario para validar los datos del resto de campos
+//import the form file to validate the data in the remaining fields
+function import_forms_nft_json() {
+    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_policies_nft.json';
+
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $aliasJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $aliasJsonData;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    form field review        /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////ID and name section     /////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Genera un ID único buscando el primer número no usado en los comentarios
+// Generates a unique ID by finding the first unused number in rule comments
+function get_id_from_policy(): string {
+    $data = import_policy_nft_json();
+    if (!$data || !isset($data['nftables']) || !is_array($data['nftables'])) {
+        return "1"; // fallback si no se puede leer el archivo
+    }
+
+    $usedIds = [];
+
+    foreach ($data['nftables'] as $entry) {
+        if (isset($entry['rule']) && isset($entry['rule']['comment'])) {
+            $comment = $entry['rule']['comment'];
+            if (preg_match("/id='(\d+)'/", $comment, $match)) {
+                $usedIds[] = (int)$match[1];
+            }
+        }
+    }
+
+    // Busca el primer ID libre empezando desde 1
+    $id = 1;
+    while (in_array($id, $usedIds, true)) {
+        $id++;
+    }
+
+    return (string)$id;
+}
+//convierte el campo name y el campo id en partes del campo comment de nftables
+//si no hay id por que la regla por ejemplo es nueva, se llama a get_id_from_policy() que devuelve un id unico
+//makes the name field and id field parts of the nftables comment field
+//if there is no id because the rule is new, for example, get_id_from_policy() is called which returns a unique id
+function comment_convert_id_name(array $rule): array {
+    // Si no hay id, se genera automáticamente
+    // If 'id' is missing, generate it automatically
+    $id = isset($rule['id']) && trim($rule['id']) !== '' ? trim($rule['id']) : get_id_from_policy();
+
+    // El name puede estar vacío, pero debe incluirse
+    // 'name' can be empty, but must be included
+    $name = isset($rule['name']) ? trim($rule['name']) : '';
+
+    // Construye el campo comment con ambas claves
+    // Builds the 'comment' field with both keys
+    $rule['comment'] = "id='{$id}',name='{$name}'";
+
+    // Elimina los campos originales
+    // Removes the original fields
+    unset($rule['id'], $rule['name']);
+
+    return $rule;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////PORTS VALIDATION SECTION/////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+//elimina puertos de los campos puerto si el protocolo de la regla es icmp
+//Remove ports from the port fields if the rule protocol is icmp
 function validation_icmp_no_ports(array $rule): array {
     $protocol = strtolower($rule['ip.protocol'] ?? '');
 
@@ -385,7 +481,6 @@ function validation_ip_networks(string $value): string {
     // Returns the normalized and filtered networks as a string
     return implode(',', $final);
 }
-
 // Valida que las IPs o CIDRs tengan formato correcto
 // Validates that IPs or CIDRs have correct format
 function validate_ip_or_cidr(string $value): bool {
@@ -424,7 +519,8 @@ function validate_ip_or_cidr(string $value): bool {
 
     return true;
 }
-
+// Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
+// Returns the first IP or CIDR linked to a named alias in alias_address.
 function convert_alias_ip_to_ip(string $value): string {
     $aliasJsonData = import_alias_json();
 
@@ -450,24 +546,26 @@ function convert_alias_ip_to_ip(string $value): string {
     echo json_encode(["error" => "alias IP '{$value}' not found"]);
     exit;
 }
-
-
-
-
-
+// Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
+// Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
 function convert_alias_group_to_Network_ips(string $value): string {
     $aliasJsonData = import_alias_json();
 
+    // Verifica que se haya cargado correctamente el JSON
+    // Check that the JSON was loaded successfully
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    $items = array_map('trim', explode(',', $value)); // Divide por comas
+    // Divide la cadena por comas y elimina espacios
+    // Split the input string by commas and trim whitespace
+    $items = array_map('trim', explode(',', $value));
     $resolvedIps = [];
 
     foreach ($items as $item) {
         // Si es IP o CIDR válida, se conserva
+        // If it's a valid IP or CIDR, keep it as-is
         if (validate_ip_or_cidr($item)) {
             $resolvedIps[] = $item;
             continue;
@@ -475,10 +573,13 @@ function convert_alias_group_to_Network_ips(string $value): string {
 
         $foundGroup = false;
 
-        // Verifica si es un grupo
+        // Verifica si el elemento es un grupo de alias
+        // Check if the item is an alias group
         if (isset($aliasJsonData['alias_addr_group'])) {
             foreach ($aliasJsonData['alias_addr_group'] as $group) {
                 if (isset($group['name']) && $group['name'] === $item) {
+                    // Recorre cada alias dentro del grupo
+                    // Iterate over each alias inside the group
                     foreach ($group['content'] as $aliasName) {
                         $ip = convert_alias_ip_to_ip($aliasName);
                         if ($ip !== '') {
@@ -492,6 +593,7 @@ function convert_alias_group_to_Network_ips(string $value): string {
         }
 
         // Si no es grupo, lo tratamos como alias individual
+        // If it's not a group, treat it as an individual alias
         if (!$foundGroup) {
             $ip = convert_alias_ip_to_ip($item);
             if ($ip !== '') {
@@ -500,32 +602,16 @@ function convert_alias_group_to_Network_ips(string $value): string {
             }
 
             // Si no se pudo resolver, se lanza error
+            // If resolution fails, throw an error
             echo json_encode(["error" => "alias or group '{$item}' not found or invalid"]);
             exit;
         }
     }
 
-    return implode(',', $resolvedIps);
+    // Normaliza y elimina duplicados antes de devolver
+    // Normalize and remove duplicates before returning
+    return validation_ip_networks(implode(',', $resolvedIps));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Convierte alias en objetos de red reales usando funciones auxiliares
 // Converts aliases into real network objects using helper functions
 function Main_convert_alias_object_to_network_object(array $rule): array {
@@ -559,12 +645,14 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
 
 
 
+
+
 // Simulación de datos de entrada
 $fakeRule = [
     'ip.daddr'=> '192.168.1.1',  
     'ip.saddr'=> '10.10.10.10',  
     'dnat.addr'=> 'Google_DNS', 
-    'snat.addr' => 'Private-networks,Google_DNS,7.7.7.7/26,10.0.0.1/24,10.50.100.1',
+    'snat.addr' => 'Private-networks,Google_DNS,7.7.7.7/26,10.0.0.1/24,10.50.100.1,cloudflare,3.3.3.3,1.1.1.2',
     'ifname' => 'ens21',
     'sport' => 'HTTPS',
     'dport' => '22-50,77,45-80,100-200,98',
@@ -572,14 +660,12 @@ $fakeRule = [
 ];
 
 // Ejecuta la conversión
-$convertedRule = Main_convert_alias_object_to_network_object($fakeRule);
+$convertedRule = validate_nftables_policy($fakeRule);
 
 // Muestra el resultado
 echo "<pre>";
 print_r($convertedRule);
 echo "</pre>";
-
-
 
 
 
