@@ -8,7 +8,6 @@ if (!isset($_SESSION['username'])) {
 
 header('Content-Type: application/json');
 
-// 1) Leer parámetro: aceptamos ?table= o ?chain=
 $chain = $_GET['table'] ?? $_GET['chain'] ?? '';
 $chain = is_string($chain) ? trim($chain) : '';
 
@@ -17,14 +16,12 @@ if ($chain === '') {
     exit;
 }
 
-// 2) Restringir a cadenas permitidas
 $allowedChains = ['FORWARDING', 'PREROUTING', 'POSTROUTING', 'input', 'output'];
 if (!in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'get_table_content: Parámetro inválido']);
     exit;
 }
 
-// 3) Cargar estructura de columnas
 $structurePath = '/var/www/backend/checks/system_data/default_tables_structure/structure_tables_policies.json';
 if (!file_exists($structurePath)) {
     echo json_encode(['error' => 'Archivo de estructura no encontrado']);
@@ -40,7 +37,6 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($structureData[$chain])) {
 
 $columns = $structureData[$chain];
 
-// 4) Cargar JSON de nftables
 $jsonPath = '/var/www/config/rules_nftables.json';
 if (!file_exists($jsonPath)) {
     echo json_encode(['error' => 'Archivo de datos no encontrado']);
@@ -54,7 +50,6 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data['nftables']) || !is_ar
     exit;
 }
 
-// 5) Funciones de satinización
 function extract_ip_set($value) {
     if (is_string($value)) return $value;
     if (!isset($value["set"])) return "";
@@ -72,7 +67,6 @@ function extract_ip_set($value) {
 
 function satinize_rule($rule, $columns) {
     $flat = [];
-    $otherData = [];
 
     foreach (["family", "table", "chain", "handle", "position", "comment"] as $key) {
         if (in_array($key, $columns)) {
@@ -98,28 +92,28 @@ function satinize_rule($rule, $columns) {
                 if (in_array("ip.saddr", $columns)) {
                     $flat["ip.saddr"] = extract_ip_set($value);
                 }
-                $otherData["ip.saddr.op"] = $op;
+                $flat["ip.saddr.op"] = $op;
             }
 
             if ($field === "daddr") {
                 if (in_array("ip.daddr", $columns)) {
                     $flat["ip.daddr"] = extract_ip_set($value);
                 }
-                $otherData["ip.daddr.op"] = $op;
+                $flat["ip.daddr.op"] = $op;
             }
 
             if ($field === "sport") {
                 if (in_array("sport", $columns)) {
                     $flat["sport"] = is_string($value) ? $value : json_encode($value);
                 }
-                $otherData["sport.op"] = $op;
+                $flat["sport.op"] = $op;
             }
 
             if ($field === "dport") {
                 if (in_array("dport", $columns)) {
                     $flat["dport"] = is_string($value) ? $value : json_encode($value);
                 }
-                $otherData["dport.op"] = $op;
+                $flat["dport.op"] = $op;
             }
         }
 
@@ -140,7 +134,6 @@ function satinize_rule($rule, $columns) {
             in_array("ct.state", $columns)
         ) {
             $right = $expr["match"]["right"] ?? null;
-        
             if (isset($right["set"]) && is_array($right["set"])) {
                 $flat["ct.state"] = implode(", ", $right["set"]);
             } elseif (is_array($right)) {
@@ -149,8 +142,6 @@ function satinize_rule($rule, $columns) {
                 $flat["ct.state"] = $right;
             }
         }
-
-
 
         if (isset($expr["dnat"])) {
             if (in_array("dnat.addr", $columns)) {
@@ -178,49 +169,31 @@ function satinize_rule($rule, $columns) {
 
         if (in_array("log", $columns)) {
             $hasLogPrefix = false;
-
             foreach ($rule["expr"] ?? [] as $expr) {
                 if (isset($expr["log"]) && isset($expr["log"]["prefix"]) && trim($expr["log"]["prefix"]) !== "") {
                     $hasLogPrefix = true;
                     break;
                 }
             }
-        
             $flat["log"] = $hasLogPrefix ? "true" : "false";
         }
 
         foreach ($rule["expr"] ?? [] as $expr) {
-            // ... otros bloques de análisis ...
-                
-            // Este bloque debe estar al mismo nivel que los demás, no dentro de ningún otro if
             foreach (["accept", "drop", "reject"] as $actionType) {
                 if (array_key_exists($actionType, $expr) && in_array("action", $columns)) {
                     $flat["action"] = $actionType;
                 }
             }
         }
-
-
-
     }
 
-    return [$flat, $otherData];
+    return $flat;
 }
 
-// 6) Filtrar y devolver reglas satinizadas
 $sanitized = [];
 foreach ($data['nftables'] as $item) {
     if (isset($item['rule']) && $item['rule']['chain'] === $chain) {
-        list($flat, $otherData) = satinize_rule($item['rule'], $columns);
-
-        // Aseguramos que $flat es un array
-        if (!is_array($flat)) {
-            $flat = [];
-        }
-
-        // Añadimos siempre other_data como objeto vacío si no hay datos
-        $flat['other_data'] = !empty($otherData) ? $otherData : new stdClass();
-
+        $flat = satinize_rule($item['rule'], $columns);
         $sanitized[] = $flat;
     }
 }

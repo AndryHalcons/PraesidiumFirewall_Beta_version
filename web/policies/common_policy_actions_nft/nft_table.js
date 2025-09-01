@@ -68,21 +68,18 @@ function renderTableFromNftables(nftName) {
 function loadTableContentNftables(nftName, columns) {
   const endpoint = "/policies/common_policy_actions_nft/get_table_content.php"; 
   const param = `table=${nftName}`;
-  console.log("Solicitando datos NFTables:", `${endpoint}?${param}`);
-
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
-      console.log("JSON recibido del backend:", data);
       const tbody = document.querySelector(`#${nftName}_table table tbody`);
       if (!tbody) return;
 
-      tbody.innerHTML = ""; // limpiar contenido previo
+      tbody.innerHTML = "";
 
       if (data.error) {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.colSpan = columns.length + 1; // +1 por la columna de acciones
+        td.colSpan = columns.length + 1;
         td.className = "error";
         td.textContent = data.error;
         tr.appendChild(td);
@@ -101,30 +98,70 @@ function loadTableContentNftables(nftName, columns) {
         return;
       }
 
-      rules.forEach(rule => {
-        const tr = document.createElement("tr");
+      const formEndpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
+      fetch(`${formEndpoint}?table=${nftName}`)
+        .then(res => res.json())
+        .then(formConfig => {
+          rules.forEach(rule => {
+            const tr = document.createElement("tr");
 
-        // Columna de acciones
-        const actionsTd = document.createElement("td");
-        const editBtn = document.createElement("button");
-        editBtn.textContent = LANG["edit"] || "Editar";
-        editBtn.onclick = () => Edit_nft_policy(nftName, rule);
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = LANG["delete"] || "Eliminar";
-        deleteBtn.onclick = () => Delete_nft_policy(nftName, rule);
-        actionsTd.appendChild(editBtn);
-        actionsTd.appendChild(deleteBtn);
-        tr.appendChild(actionsTd);
+            // Columna de acciones
+            const actionsTd = document.createElement("td");
 
-        // Rellenar columnas dinámicamente
-        columns.forEach(key => {
-          const td = document.createElement("td");
-          td.textContent = rule[key] !== undefined ? rule[key] : "";
-          tr.appendChild(td);
+            const editBtn = document.createElement("button");
+            editBtn.textContent = LANG["edit"] || "Editar";
+
+            const saveBtn = document.createElement("button");
+            saveBtn.textContent = LANG["save"] || "Guardar";
+            saveBtn.style.display = "none";
+
+            editBtn.onclick = () => edit_nft_policy(nftName, rule, columns, tr, editBtn, saveBtn);
+            saveBtn.onclick = () => save_nft_policy(nftName, rule, columns, tr, editBtn, saveBtn);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = LANG["delete"] || "Eliminar";
+            deleteBtn.onclick = () => delete_nft_policy(nftName, rule);
+
+            actionsTd.appendChild(editBtn);
+            actionsTd.appendChild(saveBtn);
+            actionsTd.appendChild(deleteBtn);
+            tr.appendChild(actionsTd);
+
+            // Rellenar columnas con inputs visuales
+            columns.forEach(key => {
+              const td = document.createElement("td");
+              const value = rule[key] !== undefined ? rule[key] : "";
+
+              if (formConfig.select?.[key]) {
+                const select = document.createElement("select");
+                select.disabled = true;
+                formConfig.select[key].forEach(opt => {
+                  const option = document.createElement("option");
+                  option.value = opt;
+                  option.textContent = opt;
+                  if (opt === value) option.selected = true;
+                  select.appendChild(option);
+                });
+                td.appendChild(select);
+              } else if (formConfig.checkbox?.[key]) {
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.disabled = true;
+                checkbox.checked = value === formConfig.checkbox[key].checked;
+                td.appendChild(checkbox);
+              } else {
+                td.textContent = value;
+              }
+
+              tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error("Error al cargar configuración visual:", err);
         });
-
-        tbody.appendChild(tr);
-      });
     })
     .catch(error => {
       const tbody = document.querySelector(`#${nftName}_table table tbody`);
@@ -133,4 +170,122 @@ function loadTableContentNftables(nftName, columns) {
       }
     });
 }
+
+
+
+function edit_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
+  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
+  const param = `table=${nftName}`;
+
+  fetch(`${endpoint}?${param}`)
+    .then(response => response.json())
+    .then(formConfig => {
+      editBtn.style.display = "none";
+      saveBtn.style.display = "inline-block";
+
+      const cells = targetRow.querySelectorAll("td");
+
+      columns.forEach((key, i) => {
+        const td = cells[i + 1];
+        td.innerHTML = "";
+
+        if (formConfig.not_editable.includes(key)) {
+          td.textContent = rule[key] || "";
+          return;
+        }
+
+        if (formConfig.select[key]) {
+          const select = document.createElement("select");
+          formConfig.select[key].forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.textContent = opt;
+            if (opt === rule[key]) option.selected = true;
+            select.appendChild(option);
+          });
+          td.appendChild(select);
+          return;
+        }
+
+        if (formConfig.checkbox[key]) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = rule[key] === formConfig.checkbox[key].checked;
+          td.appendChild(checkbox);
+          return;
+        }
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = rule[key] || "";
+        td.appendChild(input);
+      });
+    })
+    .catch(error => {
+      console.error("Error al cargar configuración de formulario:", error);
+    });
+}
+
+
+function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
+  const cells = targetRow.querySelectorAll("td");
+  const updatedRule = {};
+
+  columns.forEach((key, i) => {
+    const td = cells[i + 1];
+    const el = td.firstChild;
+
+    let value = rule[key];
+
+    if (el && el.tagName === "SELECT") {
+      el.disabled = false;
+      value = el.value;
+      td.innerHTML = value;
+    } else if (el && el.type === "checkbox") {
+      el.disabled = false;
+      value = el.checked ? "==" : "!=";
+      td.innerHTML = value;
+    } else if (el && el.tagName === "INPUT") {
+      el.disabled = false;
+      value = el.value;
+      td.innerHTML = value;
+    }
+
+    updatedRule[key] = value;
+  });
+
+  // 📦 Mostrar el JSON que se va a enviar
+  const payload = {
+    table: nftName,
+    rule: updatedRule
+  };
+  console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
+
+  // 📤 Enviar datos al backend
+  fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(result => {
+      if (result.error) {
+        console.error("Error al guardar en el backend:", result.error);
+      } else {
+        // ✅ Alternancia de botones solo si todo fue bien
+        saveBtn.style.display = "none";
+        editBtn.style.display = "inline-block";
+
+        // 🔄 Recargar tabla
+        loadTableContentNftables(nftName, columns);
+      }
+    })
+    .catch(error => {
+      console.error("Error de conexión al guardar:", error);
+    });
+}
+
+
 

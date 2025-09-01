@@ -1,0 +1,71 @@
+{
+  "select":
+    {
+      "action": [
+        "accept",
+        "drop",
+        "reject",
+        "queue",
+        "continue",
+        "jump",
+        "return"
+      ],
+      "meta.iifname": [
+        ""
+      ],
+      "meta.oifname": [
+        ""
+      ],
+      "ip.protocol": [
+        "",
+        "tcp",
+        "udp",
+        "icmp",
+        "icmpv6"
+      ],
+      "ct.state": [
+        "",
+        "new",
+        "related",
+        "established",
+        "established, related",
+        "new, related",
+        "new, established",
+        "new, related, established"
+      ]
+    },
+  "checkbox":
+      {
+        "ip.saddr.op": {
+          "checked":"==",
+          "unchecked":"!="
+        },
+        "ip.daddr.op": {
+          "checked":"==",
+          "unchecked":"!="
+        },
+        "sport.op": {
+          "checked":"==",
+          "unchecked":"!="
+        },
+        "dport.op": {
+          "checked":"==",
+          "unchecked":"!="
+        },
+        "log": {
+          "checked":"true",
+          "unchecked":"false"
+        },
+        "enable": {
+          "checked":"true",
+          "unchecked":"false"
+        }
+      },
+  "not_editable": [
+        "family",
+        "table",
+        "chain",
+        "handle"
+      ]
+}
+

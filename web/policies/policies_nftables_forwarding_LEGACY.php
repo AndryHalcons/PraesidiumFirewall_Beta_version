@@ -9,27 +9,22 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
-$currentAlias = "FORWARDING";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
+  <h1> LEGACYYYYYYYYYYYYYYYYYYYYYY </h1>
   <script>
     const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
+  <title><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></title>
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></h1>
-  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
-  <script>
-    renderTableFromNftables("<?= htmlspecialchars($currentAlias) ?>");
-  </script>
+  <h2><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></h2>
+  <div id="nftablesrules-forwarding"></div>
+
+  <script src="/policies/policies_nftables_forwarding/policies_nftables_forwarding.js"></script>
 </body>
 </html>
-
-
-

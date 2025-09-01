@@ -9,21 +9,26 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
+$currentAlias = "PREROUTING";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
     const LANG = <?= json_encode($L) ?>;
+    const USERNAME = <?= json_encode($username) ?>;
+    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
-  <title><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></title>
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h2><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></h2>
-  <div id="nftablesrules-output"></div>
-
-  <script src="/policies/policies_nftables_prerouting/policies_nftables_prerouting.js"></script>
+  <h1><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></h1>
+  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
+  <script>
+    renderTableFromNftables("<?= htmlspecialchars($currentAlias) ?>");
+  </script>
 </body>
 </html>
+
+
