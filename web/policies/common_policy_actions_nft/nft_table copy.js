@@ -232,84 +232,61 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
   const cells = targetRow.querySelectorAll("td");
   const updatedRule = {};
 
-  // Obtener configuración del formulario para aplicar lógica de checkbox
-  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
-  const param = `table=${nftName}`;
+  columns.forEach((key, i) => {
+    const td = cells[i + 1];
+    const el = td.firstChild;
 
-  fetch(`${endpoint}?${param}`)
+    let value = rule[key];
+
+    if (el && el.tagName === "SELECT") {
+      el.disabled = false;
+      value = el.value;
+      td.innerHTML = value;
+    } else if (el && el.type === "checkbox") {
+      el.disabled = false;
+      value = el.checked ? "==" : "!=";
+      td.innerHTML = value;
+    } else if (el && el.tagName === "INPUT") {
+      el.disabled = false;
+      value = el.value;
+      td.innerHTML = value;
+    }
+
+    updatedRule[key] = value;
+  });
+
+  // 📦 Mostrar el JSON que se va a enviar
+  const payload = {
+    table: nftName,
+    rule: updatedRule
+  };
+  console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
+
+  // 📤 Enviar datos al backend
+  fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
     .then(response => response.json())
-    .then(formConfig => {
-      columns.forEach((key, i) => {
-        const td = cells[i + 1];
-        const el = td.firstChild;
+    .then(result => {
+      if (result.error) {
+        console.error("Error al guardar en el backend:", result.error);
+      } else {
+        // ✅ Alternancia de botones solo si todo fue bien
+        saveBtn.style.display = "none";
+        editBtn.style.display = "inline-block";
 
-        let value = rule[key];
-
-        if (el && el.tagName === "SELECT") {
-          el.disabled = false;
-          value = el.value;
-          td.innerHTML = value;
-        } else if (el && el.type === "checkbox") {
-          el.disabled = false;
-          if (formConfig.checkbox?.[key]) {
-            value = el.checked
-              ? formConfig.checkbox[key].checked
-              : formConfig.checkbox[key].unchecked;
-          } else {
-            value = el.checked ? "==" : "!="; // fallback
-          }
-          td.innerHTML = value;
-        } else if (el && el.tagName === "INPUT") {
-          el.disabled = false;
-          value = el.value;
-          td.innerHTML = value;
-        }
-
-        updatedRule[key] = value;
-      });
-
-      //  Mostrar el JSON que se va a enviar
-      const payload = {
-        table: nftName,
-        rule: updatedRule
-      };
-      console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
-
-      // Enviar datos al backend
-      fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.text()) // ← leer como texto para ver la respuesta cruda
-        .then(text => {
-          console.log("🧾 Respuesta cruda del backend:", text);
-          try {
-            const result = JSON.parse(text); // ← intentar parsear manualmente
-            console.log("✅ JSON parseado:", result);
-            if (result.error) {
-              console.error("Error al guardar en el backend:", result.error);
-            } else {
-              saveBtn.style.display = "none";
-              editBtn.style.display = "inline-block";
-              loadTableContentNftables(nftName, columns);
-            }
-          } catch (e) {
-            console.error("❌ No se pudo parsear JSON:", e);
-          }
-        })
-        .catch(error => {
-          console.error("Error de conexión al guardar:", error);
-        });
+        // 🔄 Recargar tabla
+        loadTableContentNftables(nftName, columns);
+      }
     })
     .catch(error => {
-      console.error("Error al cargar configuración de formulario:", error);
+      console.error("Error de conexión al guardar:", error);
     });
 }
-
-
 
 
 

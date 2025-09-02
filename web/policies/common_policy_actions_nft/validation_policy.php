@@ -6,6 +6,10 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    Import Json to to consult  ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 // Importa el archivo de alias y lo devuelve como array
 // Imports the alias file and returns it as an array
 function import_alias_json() {
@@ -61,9 +65,102 @@ function import_forms_nft_json() {
 
     return $aliasJsonData;
 }
+
+
+//importa la lista de interfaces en array 
+//imports the list of interfaces into array
+function import_all_interfaces(): array {
+    $path = '/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json';
+    if (!file_exists($path)) return [];
+    $raw = file_get_contents($path);
+    $data = json_decode($raw, true);
+    return $data['all_interfaces'] ?? [];
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+//revisa los campos que contienen formularios
+//check the fields that contain forms
+function validation_form_field_review(array $rule): void {
+    
+    $formConfig = import_forms_nft_json();
+
+    if (!$formConfig) {
+        echo json_encode(["error" => "No se pudo cargar la configuración del formulario interfaces"]);
+        exit;
+    }
+
+    // Extiende los valores válidos de interfaces con los del sistema extraidos del archivo de interfaces
+    $interfaces = import_all_interfaces();
+    if (isset($formConfig['select']['meta.iifname'])) {
+        $formConfig['select']['meta.iifname'] = array_merge($formConfig['select']['meta.iifname'], $interfaces);
+    }
+    if (isset($formConfig['select']['meta.oifname'])) {
+        $formConfig['select']['meta.oifname'] = array_merge($formConfig['select']['meta.oifname'], $interfaces);
+    }
+
+    // Validar campos tipo "select"
+    if (isset($formConfig['select'])) {
+        foreach ($formConfig['select'] as $key => $validValues) {
+            if (isset($rule[$key])) {
+                $value = $rule[$key];
+                if (!in_array($value, $validValues, true)) {
+                    echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+
+    // Validar campos tipo "checkbox"
+    if (isset($formConfig['checkbox'])) {
+        foreach ($formConfig['checkbox'] as $key => $options) {
+            if (isset($rule[$key])) {
+                $value = $rule[$key];
+                if (!in_array($value, $options, true)) {
+                    echo json_encode(["error" => "alias port validation_form_field_review_checkbox '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+
+    // Validar campos "not_editable" (excepto 'id')
+    if (isset($formConfig['not_editable'])) {
+        foreach ($formConfig['not_editable'] as $key => $validValues) {
+            if ($key === 'id') {
+                continue;
+            }
+
+            if (isset($rule[$key])) {
+                $value = $rule[$key];
+                if (!in_array($value, $validValues, true)) {
+                    echo json_encode(["error" => "alias port validation_form_field_review_not_editable '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+    
+    // Si todo está bien, no se hace nada
+}
+//genera la entrada log compatible con nftables si es true, si es false borra "log" de la regla
+//Generates the nftables-compatible log entry if true, if false deletes "log" from the rule
+function log_format_nft(array $rule): array {
+    if (isset($rule['log'])) {
+        if ($rule['log'] === 'true') {
+            $id = $rule['id'] ?? '';
+            $chain = $rule['chain'] ?? '';
+            $action = $rule['action'] ?? '';
+            $rule['log'] = "nftables {$id} {$chain} {$action}";
+        } elseif ($rule['log'] === 'false') {
+            unset($rule['log']);
+        }
+    }
+    return $rule;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,10 +209,6 @@ function comment_convert_id_name(array $rule): array {
     // Construye el campo comment con ambas claves
     // Builds the 'comment' field with both keys
     $rule['comment'] = "id='{$id}',name='{$name}'";
-
-    // Elimina los campos originales
-    // Removes the original fields
-    unset($rule['id'], $rule['name']);
 
     return $rule;
 }
@@ -258,53 +351,52 @@ function convert_alias_port_to_network_port(string $value): string {
 
     // Si no se encuentra, se detiene el script y se devuelve error
     // If not found, stop the script and return error
-    echo json_encode(["error" => "alias port '{$value}' not found"]);
+    echo json_encode(["error" => "alias port no encontrado en ningun sitio '{$value}' not found"]);
     exit;
 }
 // Convierte una lista de puertos, alias y grupos en puertos reales
 // Converts a list of ports, aliases, and groups into real port numbers
 function convert_alias_port_group_to_network_port(string $value): string {
     // Importa el archivo JSON con los alias definidos
-    // Imports the JSON file containing defined aliases
     $aliasJsonData = import_alias_json();
 
+    // Si el valor está vacío, no se procesa
+    if (trim($value) === '') {
+        return '';
+    }
+
     // Si no se pudo cargar el archivo, se detiene el script
-    // If the file couldn't be loaded, stop the script
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    $finalPorts = []; // Lista final de puertos convertidos
-    $items = array_map('trim', explode(',', $value)); // Divide la cadena por comas y elimina espacios
+    $finalPorts = [];
+    $items = array_map('trim', explode(',', $value));
 
-    // Recorre cada elemento recibido (puerto, alias o grupo)
-    // Iterate over each received item (port, alias, or group)
     foreach ($items as $item) {
-        // Si el valor es numérico o un rango válido, se valida y se conserva
-        // If the value is numeric or a valid range, validate and keep it
+        if ($item === '') {
+            continue; // Ignora elementos vacíos individuales
+        }
+
         if (ctype_digit($item) || preg_match('/^\d+-\d+$/', $item)) {
-            validation_ports_range($item); // Valida el rango o puerto individual
+            validation_ports_range($item);
             $finalPorts[] = $item;
             continue;
         }
 
-        $foundGroup = false; // Bandera para saber si se encontró como grupo
+        $foundGroup = false;
 
-        // Verifica si el valor es un grupo de alias de servicio
-        // Check if the value is a service alias group
         if (isset($aliasJsonData['alias_service_group'])) {
             foreach ($aliasJsonData['alias_service_group'] as $group) {
                 if (isset($group['name']) && $group['name'] === $item) {
-                    // Si coincide, procesa cada elemento del grupo
-                    // If matched, process each item in the group
                     foreach ($group['content'] as $entry) {
                         if (ctype_digit($entry) || preg_match('/^\d+-\d+$/', $entry)) {
-                            validation_ports_range($entry); // Valida cada entrada del grupo
+                            validation_ports_range($entry);
                             $finalPorts[] = $entry;
                         } else {
                             $resolved = convert_alias_port_to_network_port($entry);
-                            validation_ports_range($resolved); // Valida el resultado del alias
+                            validation_ports_range($resolved);
                             $finalPorts[] = $resolved;
                         }
                     }
@@ -314,23 +406,17 @@ function convert_alias_port_group_to_network_port(string $value): string {
             }
         }
 
-        // Si no es grupo, se trata como alias individual
-        // If not a group, treat as individual alias
         if (!$foundGroup) {
             $resolved = convert_alias_port_to_network_port($item);
-            validation_ports_range($resolved); // Valida el resultado del alias
+            validation_ports_range($resolved);
             $finalPorts[] = $resolved;
         }
     }
 
-    // Limpia duplicados y solapamientos antes de devolver
-    // Clean duplicates and overlaps before returning
     $cleaned = validation_not_duplicate_ports(implode(',', $finalPorts));
-
-    // Devuelve la lista final como cadena optimizada
-    // Return the final optimized list as a comma-separated string
     return $cleaned;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -642,30 +728,357 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
     return $rule;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// Assign position if empty /////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Asigna la posición 1 si no viene definida o está vacía
+// Assigns position 1 if not defined or empty
+function assign_position(array $rule): array {
+    // Verifica si el campo 'position' está ausente o vacío
+    // Checks if the 'position' field is missing or empty
+    if (!isset($rule["position"]) || trim((string)$rule["position"]) === "") {
+        // Asigna la posición 1 por defecto
+        // Assigns default position 1
+        $rule["position"] = 1;
+    }
+
+    // Devuelve la regla modificada
+    // Returns the modified rule
+    return $rule;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// Saniticed to nftables json format  ///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Función para convertir la regla al formato de nftables
+// Function to convert the rule to nftables format
+// Genera la estructura base de una regla nftables
+// Generates the base structure of an nftables rule
+function saniticed_nftables_policy(array $rule): array {
+    return [
+        "rule" => [
+            "family"   => $rule["family"],
+            "table"    => $rule["table"],
+            "chain"    => $rule["chain"],
+            "position" => $rule["position"],
+            "id" => $rule["id"],
+            "name" => $rule["name"],
+            "expr"     => build_expr($rule, $rule["comment"]), //pasamos comment para personalizar los logs
+            "comment"  => $rule["comment"],
+        ]
+    ];
+    // 🧾 Registrar el resultado en los logs
+}
+
+
+//genera la estructura de expr en nftables
+//generate the structure of expr in nftables
+function build_expr(array $rule, string $comment): array {
+    $expr = [];
+    
+    // Limpieza de /32 o /128 en snat/dnat justo antes de insertar, incompatible con nftables
+    //Cleaning up /32 or /128 in snat/dnat just before inserting, incompatible with nftables
+    foreach (["snat.addr", "dnat.addr"] as $field) {
+        if (!empty($rule[$field])) {
+            $rule[$field] = preg_replace('/\/(32|128)$/', '', $rule[$field]);
+        }
+    }
+
+
+
+    // Protocolo IP
+    if (!empty($rule["ip.protocol"])) {
+        $expr[] = [
+            "match" => [
+                "op" => "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => "ip",
+                        "field" => "protocol"
+                    ]
+                ],
+                "right" => $rule["ip.protocol"]
+            ]
+        ];
+    }
+
+
+    // Dirección de origen
+    if (!empty($rule["ip.saddr"])) {
+        $set = array_map(function ($cidr) {
+            [$addr, $len] = explode("/", trim($cidr));
+            return ["prefix" => ["addr" => $addr, "len" => (int)$len]];
+        }, explode(",", $rule["ip.saddr"]));
+
+        $expr[] = [
+            "match" => [
+                "op" => $rule["ip.saddr.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => "ip",
+                        "field" => "saddr"
+                    ]
+                ],
+                "right" => ["set" => $set]
+            ]
+        ];
+    }
+
+    // Dirección de destino
+    if (!empty($rule["ip.daddr"])) {
+        $set = array_map(function ($cidr) {
+            [$addr, $len] = explode("/", trim($cidr));
+            return ["prefix" => ["addr" => $addr, "len" => (int)$len]];
+        }, explode(",", $rule["ip.daddr"]));
+
+        $expr[] = [
+            "match" => [
+                "op" => $rule["ip.daddr.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => "ip",
+                        "field" => "daddr"
+                    ]
+                ],
+                "right" => ["set" => $set]
+            ]
+        ];
+    }
+
+    // Puerto de origen
+    if (!empty($rule["sport"])) {
+        $expr[] = [
+            "match" => [
+                "op" => $rule["sport.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => $rule["ip.protocol"] ?? "tcp",
+                        "field" => "sport"
+                    ]
+                ],
+                "right" => (int)$rule["sport"]
+            ]
+        ];
+    }
+
+    // Puerto de destino
+    if (!empty($rule["dport"])) {
+        $expr[] = [
+            "match" => [
+                "op" => $rule["dport.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => $rule["ip.protocol"] ?? "tcp",
+                        "field" => "dport"
+                    ]
+                ],
+                "right" => (int)$rule["dport"]
+            ]
+        ];
+    }
+
+    // Interfaces
+    if (!empty($rule["meta.iifname"])) {
+        $expr[] = [
+            "match" => [
+                "op" => "==",
+                "left" => ["meta" => ["key" => "iifname"]],
+                "right" => $rule["meta.iifname"]
+            ]
+        ];
+    }
+
+    if (!empty($rule["meta.oifname"])) {
+        $expr[] = [
+            "match" => [
+                "op" => "==",
+                "left" => ["meta" => ["key" => "oifname"]],
+                "right" => $rule["meta.oifname"]
+            ]
+        ];
+    }
+
+    // Estado de conexión
+    if (!empty($rule["ct.state"])) {
+        $states = array_map("trim", explode(",", $rule["ct.state"]));
+        $expr[] = [
+            "match" => [
+                "op" => "==",
+                "left" => ["ct" => ["key" => "state"]],
+                "right" => ["set" => $states]
+            ]
+        ];
+    }
+
+
+
+
+    // Counter
+    if (isset($rule["packets"]) || isset($rule["bytes"])) {
+        $expr[] = [
+            "counter" => [
+                "packets" => (int)($rule["packets"] ?? 0),
+                "bytes" => (int)($rule["bytes"] ?? 0)
+            ]
+        ];
+    }
+
+    // Log
+    if (!empty($rule["log"])) {
+        $expr[] = [
+            "log" => [
+                "prefix" => $rule["log"],
+                "flags" => "all",
+                "level" => "info"
+            ]
+        ];
+    }
+     // SNAT
+    if (!empty($rule["snat.addr"])) {
+        $snat = ["addr" => $rule["snat.addr"]];
+        if (!empty($rule["snat.port"])) {
+            $snat["port"] = (int)$rule["snat.port"];
+        }
+        $expr[] = ["snat" => $snat];
+    }
+    // DNAT
+    if (!empty($rule["dnat.addr"])) {
+        $dnat = ["addr" => $rule["dnat.addr"]];
+        if (!empty($rule["dnat.port"])) {
+            $dnat["port"] = (int)$rule["dnat.port"];
+        }
+        $expr[] = ["dnat" => $dnat];
+    }
+    // Acción final
+    if (!empty($rule["action"])) {
+        $expr[] = [$rule["action"] => null];
+    }
+    return $expr;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////// write and order policy   ///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Reasigna la posición de una regla según su familia, tabla y cadena
+// Reassigns the position of a rule based on its family, table, and chain
+function reassign_position(array $reul): array {
+    // Carga el JSON que contiene todas las reglas actuales
+    // Loads the JSON containing all current rules
+    $jsonData = import_policy_nft_json();
+
+    // Si no se puede cargar o no contiene reglas, se devuelve la regla tal cual
+    // If loading fails or there are no rules, return the rule as-is
+    if (!$jsonData || !isset($jsonData["nftables"])) {
+        return $rule;
+    }
+
+    // Extrae los valores clave para identificar el grupo de reglas
+    // Extracts key values to identify the rule group
+    $family = $rule["family"];
+    $table = $rule["table"];
+    $chain = $rule["chain"];
+
+    // Verifica si la posición viene definida o está vacía
+    // Checks whether the position is defined or empty
+    $incomingPosition = isset($rule["position"]) && $rule["position"] !== "" ? (int)$rule["position"] : null;
+
+    // Si no viene posición, se asigna la posición 1
+    // If no position is provided, assign position 1
+    if ($incomingPosition === null) {
+        $rule["position"] = 1;
+        $incomingPosition = 1;
+
+        // Desplaza hacia adelante (+1) todas las reglas que coincidan en familia, tabla y cadena
+        // Shift forward (+1) all rules that match family, table, and chain
+        foreach ($jsonData["nftables"] as &$entry) {
+            if (isset($entry["rule"])) {
+                $r = &$entry["rule"];
+
+                if (
+                    isset($r["family"], $r["table"], $r["chain"], $r["position"]) &&
+                    $r["family"] === $family &&
+                    $r["table"] === $table &&
+                    $r["chain"] === $chain
+                ) {
+                    $r["position"] = (int)$r["position"] + 1;
+                }
+            }
+        }
+    } else {
+        // Si ya viene una posición, se respeta
+        // If a position is already provided, it is respected
+
+        // Desplaza hacia adelante (+1) todas las reglas con posición igual o superior
+        // Shift forward (+1) all rules with equal or higher position
+        foreach ($jsonData["nftables"] as &$entry) {
+            if (isset($entry["rule"])) {
+                $r = &$entry["rule"];
+
+                if (
+                    isset($r["family"], $r["table"], $r["chain"], $r["position"]) &&
+                    $r["family"] === $family &&
+                    $r["table"] === $table &&
+                    $r["chain"] === $chain &&
+                    (int)$r["position"] >= $incomingPosition
+                ) {
+                    $r["position"] = (int)$r["position"] + 1;
+                }
+            }
+        }
+    }
+
+    // Devuelve la regla con la posición ajustada
+    // Returns the rule with the adjusted position
+    return $rule;
+}
+
+
+function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
+    // Normaliza el ID de la nueva regla
+    $id = isset($rule['id']) ? (int)$rule['id'] : null;
+
+    if (!$id) return $rulesJson;
+
+    foreach ($rulesJson['nftables'] as $index => $entry) {
+        if (!isset($entry['rule'])) continue;
+
+        $existing = $entry['rule'];
+
+        // Normaliza el ID de la regla existente
+        $existingId = isset($existing['id']) ? (int)$existing['id'] : null;
+
+        // Compara los IDs como enteros
+        if ($existingId === $id) {
+            $rulesJson['nftables'][$index]['rule'] = $rule;
+            return $rulesJson;
+        }
+    }
+
+    // Si no se encontró coincidencia, se inserta como nueva
+    $rulesJson['nftables'][] = ['rule' => $rule];
+    return $rulesJson;
+}
 
 
 
 
 
-// Simulación de datos de entrada
-$fakeRule = [
-    'ip.daddr'=> '192.168.1.1',  
-    'ip.saddr'=> '10.10.10.10',  
-    'dnat.addr'=> 'Google_DNS', 
-    'snat.addr' => 'Private-networks,Google_DNS,7.7.7.7/26,10.0.0.1/24,10.50.100.1,cloudflare,3.3.3.3,1.1.1.2',
-    'ifname' => 'ens21',
-    'sport' => 'HTTPS',
-    'dport' => '22-50,77,45-80,100-200,98',
-    'dnat.port' => '50-155,SSH,22,443,Management,HTTPS,Management,90',
-];
 
-// Ejecuta la conversión
-$convertedRule = validate_nftables_policy($fakeRule);
 
-// Muestra el resultado
-echo "<pre>";
-print_r($convertedRule);
-echo "</pre>";
+
+
+
+
+
+
+
+
+
+
+
 
 
 

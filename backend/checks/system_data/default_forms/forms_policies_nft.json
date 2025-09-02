@@ -37,20 +37,20 @@
   "checkbox":
       {
         "ip.saddr.op": {
-          "checked":"==",
-          "unchecked":"!="
+          "checked":"!=",
+          "unchecked":"=="
         },
         "ip.daddr.op": {
-          "checked":"==",
-          "unchecked":"!="
+          "checked":"!=",
+          "unchecked":"=="
         },
         "sport.op": {
-          "checked":"==",
-          "unchecked":"!="
+          "checked":"!=",
+          "unchecked":"=="
         },
         "dport.op": {
-          "checked":"==",
-          "unchecked":"!="
+          "checked":"!=",
+          "unchecked":"=="
         },
         "log": {
           "checked":"true",
@@ -61,11 +61,11 @@
           "unchecked":"false"
         }
       },
-  "not_editable": [
-        "family",
-        "table",
-        "chain",
-        "id"
-      ]
+  "not_editable": {
+        "family": ["inet"],
+        "table": ["filter", "nat"],
+        "chain": ["FORWARDING", "PREROUTING", "POSTROUTING", "input", "output"],
+        "id": ["1-10000"]
+      }
 }
 
