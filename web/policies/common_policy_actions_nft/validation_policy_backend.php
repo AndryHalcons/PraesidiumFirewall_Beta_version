@@ -911,23 +911,8 @@ function build_expr(array $rule, string $comment): array {
         ];
     }
 
-    // DNAT
-    if (!empty($rule["dnat.addr"])) {
-        $dnat = ["addr" => $rule["dnat.addr"]];
-        if (!empty($rule["dnat.port"])) {
-            $dnat["port"] = (int)$rule["dnat.port"];
-        }
-        $expr[] = ["dnat" => $dnat];
-    }
 
-    // SNAT
-    if (!empty($rule["snat.addr"])) {
-        $snat = ["addr" => $rule["snat.addr"]];
-        if (!empty($rule["snat.port"])) {
-            $snat["port"] = (int)$rule["snat.port"];
-        }
-        $expr[] = ["snat" => $snat];
-    }
+
 
     // Counter
     if (isset($rule["packets"]) || isset($rule["bytes"])) {
@@ -949,7 +934,22 @@ function build_expr(array $rule, string $comment): array {
             ]
         ];
     }
-
+     // SNAT
+    if (!empty($rule["snat.addr"])) {
+        $snat = ["addr" => $rule["snat.addr"]];
+        if (!empty($rule["snat.port"])) {
+            $snat["port"] = (int)$rule["snat.port"];
+        }
+        $expr[] = ["snat" => $snat];
+    }
+    // DNAT
+    if (!empty($rule["dnat.addr"])) {
+        $dnat = ["addr" => $rule["dnat.addr"]];
+        if (!empty($rule["dnat.port"])) {
+            $dnat["port"] = (int)$rule["dnat.port"];
+        }
+        $expr[] = ["dnat" => $dnat];
+    }
     // Acción final
     if (!empty($rule["action"])) {
         $expr[] = [$rule["action"] => null];

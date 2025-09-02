@@ -37,8 +37,10 @@ function validate_nftables_policy(array $rule): array {
     $rule = comment_convert_id_name($rule);
     validation_form_field_review($rule);
     $rule = assign_position($rule);
+    $rule = log_format_nft($rule);
     return $rule;
 }
+
 
 // Ruta del archivo de configuración de reglas
 // Path to the nftables rules configuration file
@@ -63,27 +65,26 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
     exit;
 }
 
-
 // proceso de validacion
 // validation process
 $validated = validate_nftables_policy($data['rule']);
 //preceso de satinizacion
 //sanitization process
-$sanitized = saniticed_nftables_policy($validated, $data['table']);
+$sanitized = saniticed_nftables_policy($validated);
 //insert o update de la regla
 //insert or update of the police
-update_or_insert_nft_rule($sanitized['rule'], $rulesJson, $jsonPath);
+$rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
 
+// guardar el archivo actualizado
+$saved = file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
+if ($saved === false) {
+    echo json_encode(['error' => 'No se pudo guardar el archivo']);
+    exit;
+}
 
-
-
-
-
-
-
-
-
-
+// respuesta final al frontend
+echo json_encode(['success' => true]);
+exit;
 
 
