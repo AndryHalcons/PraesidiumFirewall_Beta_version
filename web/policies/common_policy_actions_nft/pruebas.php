@@ -60,14 +60,13 @@ $fakeRule = [
     'ip.saddr'=> '10.10.10.10',  
     'dnat.addr'=> 'Google_DNS', 
     'snat.addr' => 'Private-networks,Google_DNS,7.7.7.7/26,10.0.0.1/24,10.50.100.1,cloudflare,3.3.3.3,1.1.1.2',
-    'ifname' => 'ens21',
     'sport' => 'HTTPS',
     'dport' => '22-50,77,45-80,100-200,98',
     'dnat.port' => '50-155,SSH,22,443,Management,HTTPS,Management,90',
 ];
 
 // Ejecuta la conversión
-$convertedRule = validate_nftables_policy($fakeRule);
+$convertedRule = Main_convert_alias_object_to_network_object($fakeRule);
 
 // Muestra el resultado
 echo "<pre>";

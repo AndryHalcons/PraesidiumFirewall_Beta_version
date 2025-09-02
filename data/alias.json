@@ -7,26 +7,31 @@
     },
     {
       "id": 2,
+      "name": "Management",
+      "content": ["192.168.100.201"]
+    },
+    {
+      "id": 3,
       "name": "cloudflare",
       "content": ["1.1.1.1"]
     },
     {
-      "id": 3,
+      "id": 4,
       "name": "Google_DNS",
       "content": ["8.8.8.8"]
     },
     {
-      "id": 4,
+      "id": 5,
       "name": "private-networks-1",
       "content": ["10.0.0.0/8"]
     },
     {
-      "id": 5,
+      "id": 6,
       "name": "private-networks-2",
       "content": ["192.168.0.0/16"]
     },
     {
-      "id": 6,
+      "id": 7,
       "name": "private-networks-3",
       "content": ["172.16.0.0/12"]
     }

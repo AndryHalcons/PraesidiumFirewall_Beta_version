@@ -67,7 +67,6 @@ $L = require $langFile;
 
       <details>
         <summary>Nftables</summary>
-        <a href="#" data-page="policies/policies_nftables_forwarding_LEGACY.php"><?= "forwarding legacy" ?></a>
         <a href="#" data-page="policies/policies_nftables_forwarding.php"><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></a>
         <a href="#" data-page="policies/policies_nftables_prerouting.php"><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></a>
         <a href="#" data-page="policies/policies_nftables_postrouting.php"><?= htmlspecialchars($L['sidebar_nftables_postrouting']) ?></a>

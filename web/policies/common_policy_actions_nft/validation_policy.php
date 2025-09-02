@@ -411,6 +411,7 @@ function validate_ip_or_cidr(string $value): bool {
 }
 // Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
 // Returns the first IP or CIDR linked to a named alias in alias_address.
+/*
 function convert_alias_ip_to_ip(string $value): bool {
     $aliasJsonData = import_alias_json();
 
@@ -435,6 +436,34 @@ function convert_alias_ip_to_ip(string $value): bool {
     // If not found, return false  
     return false;
 }
+*/
+function convert_alias_ip_to_ip(string $value): bool {
+    $aliasJsonData = import_alias_json();
+
+    if (!$aliasJsonData) {
+        echo json_encode(["error" => "alias file not found or invalid"]);
+        exit;
+    }
+
+    // DEBUG: ver exactamente qué valor llega y qué hay en el JSON
+    /*
+    error_log("Valor recibido: >" . $value . "<");
+    foreach ($aliasJsonData['alias_address'] as $entry) {
+        error_log("Comparando con: >" . $entry['name'] . "<");
+    }
+    */
+    if (isset($aliasJsonData['alias_address'])) {
+        foreach ($aliasJsonData['alias_address'] as $entry) {
+            if (isset($entry['name']) && $entry['name'] === $value) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
 
 // Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
 // Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
@@ -673,7 +702,6 @@ function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
     $rulesJson['nftables'][] = ['rule' => $rule];
     return $rulesJson;
 }
-
 
 
 

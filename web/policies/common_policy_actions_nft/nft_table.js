@@ -313,3 +313,5 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
 
 
 
+
+
