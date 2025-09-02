@@ -28,7 +28,7 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data['table']) || !isset($d
 
 // Incluye las funciones de validación y sanitización
 // Include validation and sanitization functions
-require __DIR__ . '/validation_policy.php';
+require __DIR__ . '/convert_update_policy_to_backend.php';
 // Función para validar la regla recibida
 // Function to validate the received rule
 function validate_nftables_policy(array $rule): array {
@@ -65,6 +65,9 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
     exit;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////Archivo para el backend///////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 // proceso de validacion
 // validation process
 $validated = validate_nftables_policy($data['rule']);
@@ -74,7 +77,6 @@ $sanitized = saniticed_nftables_policy($validated);
 //insert o update de la regla
 //insert or update of the police
 $rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
-
 // guardar el archivo actualizado
 $saved = file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
@@ -82,6 +84,12 @@ if ($saved === false) {
     echo json_encode(['error' => 'No se pudo guardar el archivo']);
     exit;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////Archivo para el front///////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 // respuesta final al frontend
 echo json_encode(['success' => true]);

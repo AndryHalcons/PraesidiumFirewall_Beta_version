@@ -37,7 +37,7 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($structureData[$chain])) {
 
 $columns = $structureData[$chain];
 
-$jsonPath = '/var/www/config/rules_nftables.json';
+$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
 if (!file_exists($jsonPath)) {
     echo json_encode(['error' => 'Archivo de datos no encontrado']);
     exit;
@@ -50,158 +50,16 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data['nftables']) || !is_ar
     exit;
 }
 
-function extract_ip_set($value) {
-    if (is_string($value)) return $value;
-    if (!isset($value["set"])) return "";
-
-    $ips = [];
-    foreach ($value["set"] as $entry) {
-        if (isset($entry["prefix"])) {
-            $addr = $entry["prefix"]["addr"] ?? "";
-            $len = $entry["prefix"]["len"] ?? "";
-            $ips[] = "$addr/$len";
-        }
-    }
-    return implode(", ", $ips);
-}
-
-function satinize_rule($rule, $columns) {
+/**
+ * Devuelve solo los campos de la regla que están en $columns
+ */
+function satinize_rule(array $rule, array $columns): array {
     $flat = [];
-
-    // Campos generales excluyendo 'handle'
-    foreach (["family", "table", "chain", "position"] as $key) {
-        if (in_array($key, $columns)) {
-            $flat[$key] = $rule[$key] ?? "";
-        }
+    foreach ($columns as $col) {
+        $flat[$col] = $rule[$col] ?? "";
     }
-
-    // Extrae id y name del campo comment si está presente
-    if (in_array("id", $columns) || in_array("name", $columns)) {
-        $comment = $rule["comment"] ?? "";
-        if (preg_match("/id='([^']+)'/", $comment, $idMatch)) {
-            $flat["id"] = $idMatch[1];
-        }
-        if (preg_match("/name='([^']+)'/", $comment, $nameMatch)) {
-            $flat["name"] = $nameMatch[1];
-        }
-    }
-
-    if (in_array("enable", $columns)) {
-        $flat["enable"] = "true";
-    }
-
-    foreach ($rule["expr"] ?? [] as $expr) {
-        if (isset($expr["match"]["left"]["payload"]["field"])) {
-            $field = $expr["match"]["left"]["payload"]["field"];
-            $value = $expr["match"]["right"] ?? "";
-            $op = $expr["match"]["op"] ?? "==";
-
-            if ($field === "protocol" && in_array("ip.protocol", $columns)) {
-                $flat["ip.protocol"] = $value;
-            }
-
-            if ($field === "saddr") {
-                if (in_array("ip.saddr", $columns)) {
-                    $flat["ip.saddr"] = extract_ip_set($value);
-                }
-                $flat["ip.saddr.op"] = $op;
-            }
-
-            if ($field === "daddr") {
-                if (in_array("ip.daddr", $columns)) {
-                    $flat["ip.daddr"] = extract_ip_set($value);
-                }
-                $flat["ip.daddr.op"] = $op;
-            }
-
-            if ($field === "sport") {
-                if (in_array("sport", $columns)) {
-                    $flat["sport"] = is_string($value) ? $value : json_encode($value);
-                }
-                $flat["sport.op"] = $op;
-            }
-
-            if ($field === "dport") {
-                if (in_array("dport", $columns)) {
-                    $flat["dport"] = is_string($value) ? $value : json_encode($value);
-                }
-                $flat["dport.op"] = $op;
-            }
-        }
-
-        if (isset($expr["match"]["left"]["meta"]["key"])) {
-            $metaKey = $expr["match"]["left"]["meta"]["key"];
-            $metaValue = $expr["match"]["right"] ?? "";
-            if ($metaKey === "iifname" && in_array("meta.iifname", $columns)) {
-                $flat["meta.iifname"] = $metaValue;
-            }
-            if ($metaKey === "oifname" && in_array("meta.oifname", $columns)) {
-                $flat["meta.oifname"] = $metaValue;
-            }
-        }
-
-        if (
-            isset($expr["match"]["left"]["ct"]["key"]) &&
-            $expr["match"]["left"]["ct"]["key"] === "state" &&
-            in_array("ct.state", $columns)
-        ) {
-            $right = $expr["match"]["right"] ?? null;
-            if (isset($right["set"]) && is_array($right["set"])) {
-                $flat["ct.state"] = implode(", ", $right["set"]);
-            } elseif (is_array($right)) {
-                $flat["ct.state"] = implode(", ", $right);
-            } else {
-                $flat["ct.state"] = $right;
-            }
-        }
-
-        if (isset($expr["dnat"])) {
-            if (in_array("dnat.addr", $columns)) {
-                $flat["dnat.addr"] = $expr["dnat"]["addr"] ?? "";
-            }
-            if (in_array("dnat.port", $columns)) {
-                $flat["dnat.port"] = $expr["dnat"]["port"] ?? "";
-            }
-        }
-
-        if (isset($expr["snat"])) {
-            if (in_array("snat.addr", $columns)) {
-                $flat["snat.addr"] = $expr["snat"]["addr"] ?? "";
-            }
-        }
-
-        if (isset($expr["counter"])) {
-            if (in_array("packets", $columns)) {
-                $flat["packets"] = $expr["counter"]["packets"] ?? "";
-            }
-            if (in_array("bytes", $columns)) {
-                $flat["bytes"] = $expr["counter"]["bytes"] ?? "";
-            }
-        }
-
-        if (in_array("log", $columns)) {
-            $hasLogPrefix = false;
-            foreach ($rule["expr"] ?? [] as $expr) {
-                if (isset($expr["log"]) && isset($expr["log"]["prefix"]) && trim($expr["log"]["prefix"]) !== "") {
-                    $hasLogPrefix = true;
-                    break;
-                }
-            }
-            $flat["log"] = $hasLogPrefix ? "true" : "false";
-        }
-
-        foreach ($rule["expr"] ?? [] as $expr) {
-            foreach (["accept", "drop", "reject"] as $actionType) {
-                if (array_key_exists($actionType, $expr) && in_array("action", $columns)) {
-                    $flat["action"] = $actionType;
-                }
-            }
-        }
-    }
-
     return $flat;
 }
-
 
 $sanitized = [];
 foreach ($data['nftables'] as $item) {

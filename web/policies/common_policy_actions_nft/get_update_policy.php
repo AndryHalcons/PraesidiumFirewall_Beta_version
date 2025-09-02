@@ -37,14 +37,13 @@ function validate_nftables_policy(array $rule): array {
     $rule = comment_convert_id_name($rule);
     validation_form_field_review($rule);
     $rule = assign_position($rule);
-    $rule = log_format_nft($rule);
     return $rule;
 }
 
 
 // Ruta del archivo de configuración de reglas
 // Path to the nftables rules configuration file
-$jsonPath = '/var/www/config/rules_nftables.json';
+$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
 
 // Verifica que el archivo exista
 // Check that the file exists
@@ -88,14 +87,6 @@ if ($saved === false) {
 //////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////Archivo para el front///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-function validate_nftables_policy_front(array $rule): array {
-    $rule = validation_icmp_no_ports($rule);
-    $rule = comment_convert_id_name($rule);
-    validation_form_field_review($rule);
-    $rule = assign_position($rule);
-    $rule = log_format_nft($rule);
-    return $rule;
-}
 
 
 

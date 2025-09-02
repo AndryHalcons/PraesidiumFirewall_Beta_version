@@ -32,7 +32,7 @@ function import_alias_json() {
 // Importa el archivo de reglas actual para consultas
 // Imports the current rules file for queries
 function import_policy_nft_json() {
-    $jsonPath = '/var/www/config/rules_nftables.json';
+    $jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
 
     if (!file_exists($jsonPath)) {
         return false;
@@ -83,15 +83,13 @@ function import_all_interfaces(): array {
 //revisa los campos que contienen formularios
 //check the fields that contain forms
 function validation_form_field_review(array $rule): void {
-    
     $formConfig = import_forms_nft_json();
-
     if (!$formConfig) {
         echo json_encode(["error" => "No se pudo cargar la configuración del formulario interfaces"]);
         exit;
     }
 
-    // Extiende los valores válidos de interfaces con los del sistema extraidos del archivo de interfaces
+    // Añadir interfaces del sistema
     $interfaces = import_all_interfaces();
     if (isset($formConfig['select']['meta.iifname'])) {
         $formConfig['select']['meta.iifname'] = array_merge($formConfig['select']['meta.iifname'], $interfaces);
@@ -100,11 +98,15 @@ function validation_form_field_review(array $rule): void {
         $formConfig['select']['meta.oifname'] = array_merge($formConfig['select']['meta.oifname'], $interfaces);
     }
 
-    // Validar campos tipo "select"
+    // Validar select
     if (isset($formConfig['select'])) {
         foreach ($formConfig['select'] as $key => $validValues) {
             if (isset($rule[$key])) {
-                $value = $rule[$key];
+                $value = trim((string)$rule[$key]);
+                if ($value === '') { // vacío o solo espacios → válido
+                    $rule[$key] = "";
+                    continue;
+                }
                 if (!in_array($value, $validValues, true)) {
                     echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
                     exit;
@@ -113,11 +115,15 @@ function validation_form_field_review(array $rule): void {
         }
     }
 
-    // Validar campos tipo "checkbox"
+    // Validar checkbox
     if (isset($formConfig['checkbox'])) {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
-                $value = $rule[$key];
+                $value = trim((string)$rule[$key]);
+                if ($value === '') { // vacío o solo espacios → válido
+                    $rule[$key] = "";
+                    continue;
+                }
                 if (!in_array($value, $options, true)) {
                     echo json_encode(["error" => "alias port validation_form_field_review_checkbox '{$value}' not found"]);
                     exit;
@@ -126,13 +132,10 @@ function validation_form_field_review(array $rule): void {
         }
     }
 
-    // Validar campos "not_editable" (excepto 'id')
+    // Validar not_editable (excepto id)
     if (isset($formConfig['not_editable'])) {
         foreach ($formConfig['not_editable'] as $key => $validValues) {
-            if ($key === 'id') {
-                continue;
-            }
-
+            if ($key === 'id') continue;
             if (isset($rule[$key])) {
                 $value = $rule[$key];
                 if (!in_array($value, $validValues, true)) {
@@ -142,24 +145,9 @@ function validation_form_field_review(array $rule): void {
             }
         }
     }
-    
-    // Si todo está bien, no se hace nada
 }
-//genera la entrada log compatible con nftables si es true, si es false borra "log" de la regla
-//Generates the nftables-compatible log entry if true, if false deletes "log" from the rule
-function log_format_nft(array $rule): array {
-    if (isset($rule['log'])) {
-        if ($rule['log'] === 'true') {
-            $id = $rule['id'] ?? '';
-            $chain = $rule['chain'] ?? '';
-            $action = $rule['action'] ?? '';
-            $rule['log'] = "nftables {$id} {$chain} {$action}";
-        } elseif ($rule['log'] === 'false') {
-            unset($rule['log']);
-        }
-    }
-    return $rule;
-}
+
+
 
 
 
@@ -171,21 +159,17 @@ function log_format_nft(array $rule): array {
 function get_id_from_policy(): string {
     $data = import_policy_nft_json();
     if (!$data || !isset($data['nftables']) || !is_array($data['nftables'])) {
-        return "1"; // fallback si no se puede leer el archivo
+        return "1"; // fallback
     }
 
     $usedIds = [];
 
     foreach ($data['nftables'] as $entry) {
-        if (isset($entry['rule']) && isset($entry['rule']['comment'])) {
-            $comment = $entry['rule']['comment'];
-            if (preg_match("/id='(\d+)'/", $comment, $match)) {
-                $usedIds[] = (int)$match[1];
-            }
+        if (isset($entry['rule']['id']) && $entry['rule']['id'] !== '') {
+            $usedIds[] = (int)$entry['rule']['id']; // normalizamos a entero
         }
     }
 
-    // Busca el primer ID libre empezando desde 1
     $id = 1;
     while (in_array($id, $usedIds, true)) {
         $id++;
@@ -193,6 +177,7 @@ function get_id_from_policy(): string {
 
     return (string)$id;
 }
+
 //convierte el campo name y el campo id en partes del campo comment de nftables
 //si no hay id por que la regla por ejemplo es nueva, se llama a get_id_from_policy() que devuelve un id unico
 //makes the name field and id field parts of the nftables comment field
@@ -238,62 +223,7 @@ function validation_icmp_no_ports(array $rule): array {
 
     return $rule;
 }
-// Elimina duplicados y solapamientos en una lista de puertos y rangos
-// Removes duplicates and overlaps in a list of ports and ranges
-function validation_not_duplicate_ports(string $value): string {
-    $items = array_map('trim', explode(',', $value)); // Divide la cadena por comas
-    $allPorts = []; // Lista completa de puertos individuales
 
-    foreach ($items as $item) {
-        // Si es un rango (ej. 22-50)
-        // If it's a range (e.g. 22-50)
-        if (preg_match('/^(\d+)-(\d+)$/', $item, $matches)) {
-            $start = (int)$matches[1];
-            $end = (int)$matches[2];
-            if ($start > $end) {
-                [$start, $end] = [$end, $start]; // Corrige si el rango está invertido
-            }
-            for ($i = $start; $i <= $end; $i++) {
-                $allPorts[$i] = true;
-            }
-        }
-        // Si es un puerto individual
-        // If it's a single port
-        elseif (ctype_digit($item)) {
-            $allPorts[(int)$item] = true;
-        }
-    }
-
-    // Ordena los puertos únicos
-    // Sort unique ports
-    $sortedPorts = array_keys($allPorts);
-    sort($sortedPorts);
-
-    // Agrupa puertos contiguos en rangos
-    // Group contiguous ports into ranges
-    $result = [];
-    $start = $end = null;
-
-    foreach ($sortedPorts as $port) {
-        if ($start === null) {
-            $start = $end = $port;
-        } elseif ($port === $end + 1) {
-            $end = $port;
-        } else {
-            $result[] = ($start === $end) ? (string)$start : "{$start}-{$end}";
-            $start = $end = $port;
-        }
-    }
-
-    // Añade el último grupo
-    if ($start !== null) {
-        $result[] = ($start === $end) ? (string)$start : "{$start}-{$end}";
-    }
-
-    // Devuelve la lista final como cadena separada por comas
-    // Return the final list as a comma-separated string
-    return implode(',', $result);
-}
 // Valida que los puertos o rangos estén dentro del rango permitido
 // Validates that ports or ranges are within the allowed range
 function validation_ports_range(string $value): void {
@@ -329,244 +259,118 @@ function validation_ports_range(string $value): void {
 }
 // Convierte un alias de puerto en su valor numérico real
 // Converts a port alias into its actual numeric value
-function convert_alias_port_to_network_port(string $value): string {
+function convert_alias_port_to_network_port(string $value): bool {
     $aliasJsonData = import_alias_json();
 
-    // Verifica que se haya cargado correctamente el JSON
-    // Check that the JSON was loaded successfully
+    // Verifica que se haya cargado correctamente el JSON  
+    // Check that the JSON was loaded successfully  
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    // Busca el alias en alias_service
-    // Search for the alias in alias_service
+    // Busca el alias en alias_service  
+    // Search for the alias in alias_service  
     if (isset($aliasJsonData['alias_service'])) {
         foreach ($aliasJsonData['alias_service'] as $entry) {
             if (isset($entry['name']) && $entry['name'] === $value) {
-                return $entry['content'][0] ?? '';
+                return true;
             }
         }
     }
 
-    // Si no se encuentra, se detiene el script y se devuelve error
-    // If not found, stop the script and return error
-    echo json_encode(["error" => "alias port no encontrado en ningun sitio '{$value}' not found"]);
-    exit;
+    // Si no se encuentra, retorna false  
+    // If not found, return false  
+    return false;
 }
+
 // Convierte una lista de puertos, alias y grupos en puertos reales
 // Converts a list of ports, aliases, and groups into real port numbers
-function convert_alias_port_group_to_network_port(string $value): string {
-    // Importa el archivo JSON con los alias definidos
+function convert_alias_port_group_to_network_port(string $value): bool {
+    // Importa el archivo JSON con los alias definidos  
+    // Import the JSON file with defined aliases  
     $aliasJsonData = import_alias_json();
 
-    // Si el valor está vacío, no se procesa
+    // Si el valor está vacío, no se procesa  
+    // If the value is empty, do not process  
     if (trim($value) === '') {
-        return '';
+        return true;
     }
 
-    // Si no se pudo cargar el archivo, se detiene el script
+    // Si no se pudo cargar el archivo, se detiene el script  
+    // If the file couldn't be loaded, stop the script  
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    $finalPorts = [];
     $items = array_map('trim', explode(',', $value));
 
     foreach ($items as $item) {
+        // Ignora elementos vacíos individuales  
+        // Ignore individual empty elements  
         if ($item === '') {
-            continue; // Ignora elementos vacíos individuales
+            continue;
         }
 
+        // Si es un puerto o rango válido, se valida  
+        // If it's a valid port or range, validate it  
         if (ctype_digit($item) || preg_match('/^\d+-\d+$/', $item)) {
             validation_ports_range($item);
-            $finalPorts[] = $item;
             continue;
         }
 
         $foundGroup = false;
 
+        // Verifica si el elemento es un grupo de alias de servicio  
+        // Check if the item is a service alias group  
         if (isset($aliasJsonData['alias_service_group'])) {
             foreach ($aliasJsonData['alias_service_group'] as $group) {
                 if (isset($group['name']) && $group['name'] === $item) {
+                    $foundGroup = true;
+
+                    // Verifica cada entrada dentro del grupo  
+                    // Verify each entry inside the group  
                     foreach ($group['content'] as $entry) {
                         if (ctype_digit($entry) || preg_match('/^\d+-\d+$/', $entry)) {
                             validation_ports_range($entry);
-                            $finalPorts[] = $entry;
                         } else {
-                            $resolved = convert_alias_port_to_network_port($entry);
-                            validation_ports_range($resolved);
-                            $finalPorts[] = $resolved;
+                            if (!convert_alias_port_to_network_port($entry)) {
+                                // Si el alias no es válido, lanza error  
+                                // If the alias is invalid, throw error  
+                                echo json_encode(["error" => "alias port '{$entry}' in group '{$item}' is invalid"]);
+                                exit;
+                            }
                         }
                     }
-                    $foundGroup = true;
+
                     break;
                 }
             }
         }
 
+        // Si no es grupo, lo tratamos como alias individual  
+        // If it's not a group, treat it as an individual alias  
         if (!$foundGroup) {
-            $resolved = convert_alias_port_to_network_port($item);
-            validation_ports_range($resolved);
-            $finalPorts[] = $resolved;
+            if (!convert_alias_port_to_network_port($item)) {
+                // Si no se pudo resolver, se lanza error  
+                // If resolution fails, throw an error  
+                echo json_encode(["error" => "alias port or group '{$item}' not found or invalid"]);
+                exit;
+            }
         }
     }
 
-    $cleaned = validation_not_duplicate_ports(implode(',', $finalPorts));
-    return $cleaned;
+    // Si todo es válido, retorna true  
+    // If everything is valid, return true  
+    return true;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Verifica si una IP objetivo está contenida dentro de una red CIDR, compatible con IPv4 e IPv6.
-// Checks whether a target IP is contained within a CIDR network, supporting both IPv4 and IPv6.
-function cidr_contains(string $cidr, string $target): bool {
-    // Extrae la IP base y la máscara del CIDR
-    // Extracts the base IP and mask from the CIDR
-    [$base, $mask] = explode('/', $cidr);
-    [$check, $checkMask] = explode('/', $target);
-
-    // Verifica si la IP base es IPv4
-    // Checks if the base IP is IPv4
-    if (filter_var($base, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        // Convierte las IPs a formato numérico largo
-        // Converts IPs to long integer format
-        $baseLong = ip2long($base);
-        $checkLong = ip2long($check);
-
-        // Calcula la máscara de red en formato numérico
-        // Calculates the network mask in numeric format
-        $netmask = ~((1 << (32 - (int)$mask)) - 1);
-
-        // Compara las IPs aplicando la máscara
-        // Compares the IPs after applying the mask
-        return ($baseLong & $netmask) === ($checkLong & $netmask);
-    }
-
-    // Verifica si la IP base es IPv6
-    // Checks if the base IP is IPv6
-    if (filter_var($base, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        // Convierte las IPs a formato binario
-        // Converts IPs to binary format
-        $baseBin = inet_pton($base);
-        $checkBin = inet_pton($check);
-
-        // Calcula cuántos bytes y bits se deben comparar
-        // Calculates how many bytes and bits to compare
-        $bytes = (int)$mask >> 3;
-        $bits = (int)$mask % 8;
-
-        // Compara los bytes completos
-        // Compares the full bytes
-        if (substr($baseBin, 0, $bytes) !== substr($checkBin, 0, $bytes)) {
-            return false;
-        }
-
-        // Si no hay bits restantes, la IP está contenida
-        // If no remaining bits, the IP is contained
-        if ($bits === 0) {
-            return true;
-        }
-
-        // Compara los bits restantes del siguiente byte
-        // Compares the remaining bits of the next byte
-        $maskByte = 0xFF << (8 - $bits);
-        return (ord($baseBin[$bytes]) & $maskByte) === (ord($checkBin[$bytes]) & $maskByte);
-    }
-
-    // Si la IP no es válida, retorna falso
-    // If the IP is not valid, returns false
-    return false;
-}
-// Normaliza una lista de IPs y redes CIDR, valida su formato, elimina duplicados,
-// ordena por máscara ascendente y filtra redes contenidas para retornar solo las más específicas.
-// Normalizes a list of IPs and CIDR networks, validates format, removes duplicates,
-// sorts by ascending mask, and filters out contained networks to return only the most specific ones.
-function validation_ip_networks(string $value): string {
-    // Divide la cadena por comas y elimina espacios
-    // Splits the string by commas and trims whitespace
-    $items = array_map('trim', explode(',', $value));
-    $normalized = [];
-
-    foreach ($items as $item) {
-        // IP sin CIDR → se normaliza como /32 (IPv4) o /128 (IPv6)
-        // IP without CIDR → normalized as /32 (IPv4) or /128 (IPv6)
-        if (filter_var($item, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $normalized[] = "{$item}/32";
-        } elseif (filter_var($item, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            $normalized[] = "{$item}/128";
-        }
-        // IP con CIDR → se valida y se agrega si es válida
-        // IP with CIDR → validated and added if correct
-        elseif (preg_match('/^(.+)\/(\d{1,3})$/', $item, $matches)) {
-            $ip = $matches[1];
-            $cidr = (int)$matches[2];
-
-            // Verifica que la IP y la máscara sean válidas para IPv4
-            // Checks that IP and mask are valid for IPv4
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $cidr >= 0 && $cidr <= 32) {
-                $normalized[] = "{$ip}/{$cidr}";
-            }
-            // Verifica que la IP y la máscara sean válidas para IPv6
-            // Checks that IP and mask are valid for IPv6
-            elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && $cidr >= 0 && $cidr <= 128) {
-                $normalized[] = "{$ip}/{$cidr}";
-            }
-            // CIDR inválido → se muestra error y se detiene
-            // Invalid CIDR → shows error and exits
-            else {
-                echo json_encode(["error" => "invalid CIDR '{$item}'"]);
-                exit;
-            }
-        }
-        // Formato inválido → se muestra error y se detiene
-        // Invalid format → shows error and exits
-        else {
-            echo json_encode(["error" => "invalid IP format '{$item}'"]);
-            exit;
-        }
-    }
-
-    // Elimina duplicados exactos
-    // Removes exact duplicates
-    $normalized = array_unique($normalized);
-
-    // Ordena por máscara ascendente (más amplias primero)
-    // Sorts by ascending mask (broader networks first)
-    usort($normalized, function ($a, $b) {
-        [$ipA, $maskA] = explode('/', $a);
-        [$ipB, $maskB] = explode('/', $b);
-        return (int)$maskA <=> (int)$maskB;
-    });
-
-    $final = [];
-
-    foreach ($normalized as $candidate) {
-        $contained = false;
-
-        // Verifica si la red candidata ya está contenida en alguna existente
-        // Checks if the candidate network is already contained in an existing one
-        foreach ($final as $existing) {
-            if (cidr_contains($existing, $candidate)) {
-                $contained = true;
-                break;
-            }
-        }
-
-        // Si no está contenida, se agrega al resultado final
-        // If not contained, adds it to the final result
-        if (!$contained) {
-            $final[] = $candidate;
-        }
-    }
-
-    // Devuelve las redes normalizadas y filtradas como cadena
-    // Returns the normalized and filtered networks as a string
-    return implode(',', $final);
-}
 // Valida que las IPs o CIDRs tengan formato correcto
 // Validates that IPs or CIDRs have correct format
 function validate_ip_or_cidr(string $value): bool {
@@ -607,124 +411,120 @@ function validate_ip_or_cidr(string $value): bool {
 }
 // Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
 // Returns the first IP or CIDR linked to a named alias in alias_address.
-function convert_alias_ip_to_ip(string $value): string {
+function convert_alias_ip_to_ip(string $value): bool {
     $aliasJsonData = import_alias_json();
 
-    // Verifica que se haya cargado correctamente el JSON
-    // Check that the JSON was loaded successfully
+    // Verifica que se haya cargado correctamente el JSON  
+    // Check that the JSON was loaded successfully  
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    // Busca el alias en alias_address
-    // Search for the alias in alias_address
+    // Busca el alias en alias_address  
+    // Search for the alias in alias_address  
     if (isset($aliasJsonData['alias_address'])) {
         foreach ($aliasJsonData['alias_address'] as $entry) {
             if (isset($entry['name']) && $entry['name'] === $value) {
-                return $entry['content'][0] ?? '';
+                return true;
             }
         }
     }
 
-    // Si no se encuentra, se detiene el script y se devuelve error
-    // If not found, stop the script and return error
-    echo json_encode(["error" => "alias IP '{$value}' not found"]);
-    exit;
+    // Si no se encuentra, retorna false  
+    // If not found, return false  
+    return false;
 }
+
 // Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
 // Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
-function convert_alias_group_to_Network_ips(string $value): string {
+function convert_alias_group_to_Network_ips(string $value): bool {
     $aliasJsonData = import_alias_json();
 
-    // Verifica que se haya cargado correctamente el JSON
-    // Check that the JSON was loaded successfully
+    // Verifica que se haya cargado correctamente el JSON  
+    // Check that the JSON was loaded successfully  
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
     }
 
-    // Divide la cadena por comas y elimina espacios
-    // Split the input string by commas and trim whitespace
+    // Divide la cadena por comas y elimina espacios  
+    // Split the input string by commas and trim whitespace  
     $items = array_map('trim', explode(',', $value));
-    $resolvedIps = [];
 
     foreach ($items as $item) {
-        // Si es IP o CIDR válida, se conserva
-        // If it's a valid IP or CIDR, keep it as-is
+        // Si es IP o CIDR válida, se acepta  
+        // If it's a valid IP or CIDR, accept it  
         if (validate_ip_or_cidr($item)) {
-            $resolvedIps[] = $item;
             continue;
         }
 
         $foundGroup = false;
 
-        // Verifica si el elemento es un grupo de alias
-        // Check if the item is an alias group
+        // Verifica si el elemento es un grupo de alias  
+        // Check if the item is an alias group  
         if (isset($aliasJsonData['alias_addr_group'])) {
             foreach ($aliasJsonData['alias_addr_group'] as $group) {
                 if (isset($group['name']) && $group['name'] === $item) {
-                    // Recorre cada alias dentro del grupo
-                    // Iterate over each alias inside the group
+                    $foundGroup = true;
+
+                    // Verifica cada alias dentro del grupo  
+                    // Verify each alias inside the group  
                     foreach ($group['content'] as $aliasName) {
-                        $ip = convert_alias_ip_to_ip($aliasName);
-                        if ($ip !== '') {
-                            $resolvedIps[] = $ip;
+                        if (!convert_alias_ip_to_ip($aliasName)) {
+                            // Si algún alias no es válido, lanza error  
+                            // If any alias is invalid, throw error  
+                            echo json_encode(["error" => "alias '{$aliasName}' in group '{$item}' is invalid"]);
+                            exit;
                         }
                     }
-                    $foundGroup = true;
+
                     break;
                 }
             }
         }
 
-        // Si no es grupo, lo tratamos como alias individual
-        // If it's not a group, treat it as an individual alias
+        // Si no es grupo, lo tratamos como alias individual  
+        // If it's not a group, treat it as an individual alias  
         if (!$foundGroup) {
-            $ip = convert_alias_ip_to_ip($item);
-            if ($ip !== '') {
-                $resolvedIps[] = $ip;
-                continue;
+            if (!convert_alias_ip_to_ip($item)) {
+                // Si no se pudo resolver, se lanza error  
+                // If resolution fails, throw an error  
+                echo json_encode(["error" => "alias or group '{$item}' not found or invalid"]);
+                exit;
             }
-
-            // Si no se pudo resolver, se lanza error
-            // If resolution fails, throw an error
-            echo json_encode(["error" => "alias or group '{$item}' not found or invalid"]);
-            exit;
         }
     }
 
-    // Normaliza y elimina duplicados antes de devolver
-    // Normalize and remove duplicates before returning
-    return validation_ip_networks(implode(',', $resolvedIps));
+    // Si todo es válido, retorna true  
+    // If everything is valid, return true  
+    return true;
 }
-// Convierte alias en objetos de red reales usando funciones auxiliares
-// Converts aliases into real network objects using helper functions
+
+// checkea alias en objetos de red reales usando funciones auxiliares
+// check aliases into real network objects using helper functions
 function Main_convert_alias_object_to_network_object(array $rule): array {
     // Campos relacionados con puertos
-    // Port-related fields
     $portFields = ['sport', 'dport', 'dnat.port'];
 
     foreach ($portFields as $field) {
         if (isset($rule[$field])) {
-            // Llama a la función de conversión de puertos
-            // Call the port conversion function
-            $rule[$field] = convert_alias_port_group_to_network_port($rule[$field]);
+            // Llama a la función de conversión de puertos solo para validar
+            convert_alias_port_group_to_network_port($rule[$field]);
         }
     }
 
     // Campos relacionados con direcciones IP
-    // IP-related fields
     $ipFields = ['ip.daddr', 'ip.saddr', 'dnat.addr', 'snat.addr'];
 
     foreach ($ipFields as $field) {
         if (isset($rule[$field])) {
-            // Llama a la función de conversión de grupos IP
-            // Call the IP group conversion function
-            $rule[$field] = convert_alias_group_to_Network_ips($rule[$field]);
+            // Llama a la función de conversión de grupos IP solo para validar
+            convert_alias_group_to_Network_ips($rule[$field]);
         }
     }
 
+    // Devuelve la regla original sin modificar
     return $rule;
 }
 
@@ -758,204 +558,37 @@ function assign_position(array $rule): array {
 function saniticed_nftables_policy(array $rule): array {
     return [
         "rule" => [
-            "family"   => $rule["family"],
-            "table"    => $rule["table"],
-            "chain"    => $rule["chain"],
-            "position" => $rule["position"],
-            "id" => $rule["id"],
-            "name" => $rule["name"],
-            "expr"     => build_expr($rule, $rule["comment"]), //pasamos comment para personalizar los logs
-            "comment"  => $rule["comment"],
+            "family"        => $rule["family"]        ?? "",
+            "table"         => $rule["table"]         ?? "",
+            "chain"         => $rule["chain"]         ?? "",
+            "id"            => $rule["id"]            ?? "",
+            "position"      => $rule["position"]      ?? "",
+            "action"        => $rule["action"]        ?? "",
+            "enable"        => $rule["enable"]        ?? "",
+            "name"          => $rule["name"]          ?? "",
+            "ip.protocol"   => $rule["ip.protocol"]   ?? "",
+            "ip.saddr.op"   => $rule["ip.saddr.op"]   ?? "",
+            "ip.saddr"      => $rule["ip.saddr"]      ?? "",
+            "sport.op"      => $rule["sport.op"]      ?? "",
+            "sport"         => $rule["sport"]         ?? "",
+            "ip.daddr.op"   => $rule["ip.daddr.op"]   ?? "",
+            "ip.daddr"      => $rule["ip.daddr"]      ?? "",
+            "dport.op"      => $rule["dport.op"]      ?? "",
+            "dport"         => $rule["dport"]         ?? "",
+            "meta.iifname"  => $rule["meta.iifname"]  ?? "",
+            "meta.oifname"  => $rule["meta.oifname"]  ?? "",
+            "ct.state"      => $rule["ct.state"]      ?? "",
+            "packets"       => $rule["packets"]       ?? "",
+            "bytes"         => $rule["bytes"]         ?? "",
+            "log"           => $rule["log"]           ?? "",
+            "snat.addr"     => $rule["snat.addr"]     ?? "",
+            "snat.port"     => $rule["snat.port"]     ?? "",
+            "dnat.addr"     => $rule["dnat.addr"]     ?? "",
+            "dnat.port"     => $rule["dnat.port"]     ?? ""
         ]
     ];
-    // 🧾 Registrar el resultado en los logs
 }
 
-
-//genera la estructura de expr en nftables
-//generate the structure of expr in nftables
-function build_expr(array $rule, string $comment): array {
-    $expr = [];
-    
-    // Limpieza de /32 o /128 en snat/dnat justo antes de insertar, incompatible con nftables
-    //Cleaning up /32 or /128 in snat/dnat just before inserting, incompatible with nftables
-    foreach (["snat.addr", "dnat.addr"] as $field) {
-        if (!empty($rule[$field])) {
-            $rule[$field] = preg_replace('/\/(32|128)$/', '', $rule[$field]);
-        }
-    }
-
-
-
-    // Protocolo IP
-    if (!empty($rule["ip.protocol"])) {
-        $expr[] = [
-            "match" => [
-                "op" => "==",
-                "left" => [
-                    "payload" => [
-                        "protocol" => "ip",
-                        "field" => "protocol"
-                    ]
-                ],
-                "right" => $rule["ip.protocol"]
-            ]
-        ];
-    }
-
-
-    // Dirección de origen
-    if (!empty($rule["ip.saddr"])) {
-        $set = array_map(function ($cidr) {
-            [$addr, $len] = explode("/", trim($cidr));
-            return ["prefix" => ["addr" => $addr, "len" => (int)$len]];
-        }, explode(",", $rule["ip.saddr"]));
-
-        $expr[] = [
-            "match" => [
-                "op" => $rule["ip.saddr.op"] ?? "==",
-                "left" => [
-                    "payload" => [
-                        "protocol" => "ip",
-                        "field" => "saddr"
-                    ]
-                ],
-                "right" => ["set" => $set]
-            ]
-        ];
-    }
-
-    // Dirección de destino
-    if (!empty($rule["ip.daddr"])) {
-        $set = array_map(function ($cidr) {
-            [$addr, $len] = explode("/", trim($cidr));
-            return ["prefix" => ["addr" => $addr, "len" => (int)$len]];
-        }, explode(",", $rule["ip.daddr"]));
-
-        $expr[] = [
-            "match" => [
-                "op" => $rule["ip.daddr.op"] ?? "==",
-                "left" => [
-                    "payload" => [
-                        "protocol" => "ip",
-                        "field" => "daddr"
-                    ]
-                ],
-                "right" => ["set" => $set]
-            ]
-        ];
-    }
-
-    // Puerto de origen
-    if (!empty($rule["sport"])) {
-        $expr[] = [
-            "match" => [
-                "op" => $rule["sport.op"] ?? "==",
-                "left" => [
-                    "payload" => [
-                        "protocol" => $rule["ip.protocol"] ?? "tcp",
-                        "field" => "sport"
-                    ]
-                ],
-                "right" => (int)$rule["sport"]
-            ]
-        ];
-    }
-
-    // Puerto de destino
-    if (!empty($rule["dport"])) {
-        $expr[] = [
-            "match" => [
-                "op" => $rule["dport.op"] ?? "==",
-                "left" => [
-                    "payload" => [
-                        "protocol" => $rule["ip.protocol"] ?? "tcp",
-                        "field" => "dport"
-                    ]
-                ],
-                "right" => (int)$rule["dport"]
-            ]
-        ];
-    }
-
-    // Interfaces
-    if (!empty($rule["meta.iifname"])) {
-        $expr[] = [
-            "match" => [
-                "op" => "==",
-                "left" => ["meta" => ["key" => "iifname"]],
-                "right" => $rule["meta.iifname"]
-            ]
-        ];
-    }
-
-    if (!empty($rule["meta.oifname"])) {
-        $expr[] = [
-            "match" => [
-                "op" => "==",
-                "left" => ["meta" => ["key" => "oifname"]],
-                "right" => $rule["meta.oifname"]
-            ]
-        ];
-    }
-
-    // Estado de conexión
-    if (!empty($rule["ct.state"])) {
-        $states = array_map("trim", explode(",", $rule["ct.state"]));
-        $expr[] = [
-            "match" => [
-                "op" => "==",
-                "left" => ["ct" => ["key" => "state"]],
-                "right" => ["set" => $states]
-            ]
-        ];
-    }
-
-
-
-
-    // Counter
-    if (isset($rule["packets"]) || isset($rule["bytes"])) {
-        $expr[] = [
-            "counter" => [
-                "packets" => (int)($rule["packets"] ?? 0),
-                "bytes" => (int)($rule["bytes"] ?? 0)
-            ]
-        ];
-    }
-
-    // Log
-    if (!empty($rule["log"])) {
-        $expr[] = [
-            "log" => [
-                "prefix" => $rule["log"],
-                "flags" => "all",
-                "level" => "info"
-            ]
-        ];
-    }
-     // SNAT
-    if (!empty($rule["snat.addr"])) {
-        $snat = ["addr" => $rule["snat.addr"]];
-        if (!empty($rule["snat.port"])) {
-            $snat["port"] = (int)$rule["snat.port"];
-        }
-        $expr[] = ["snat" => $snat];
-    }
-    // DNAT
-    if (!empty($rule["dnat.addr"])) {
-        $dnat = ["addr" => $rule["dnat.addr"]];
-        if (!empty($rule["dnat.port"])) {
-            $dnat["port"] = (int)$rule["dnat.port"];
-        }
-        $expr[] = ["dnat" => $dnat];
-    }
-    // Acción final
-    if (!empty($rule["action"])) {
-        $expr[] = [$rule["action"] => null];
-    }
-    return $expr;
-}
 
 
 
@@ -964,76 +597,55 @@ function build_expr(array $rule, string $comment): array {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Reasigna la posición de una regla según su familia, tabla y cadena
 // Reassigns the position of a rule based on its family, table, and chain
-function reassign_position(array $reul): array {
-    // Carga el JSON que contiene todas las reglas actuales
-    // Loads the JSON containing all current rules
+function reassign_position(array $rule): array {
     $jsonData = import_policy_nft_json();
 
-    // Si no se puede cargar o no contiene reglas, se devuelve la regla tal cual
-    // If loading fails or there are no rules, return the rule as-is
-    if (!$jsonData || !isset($jsonData["nftables"])) {
+    if (!$jsonData || !isset($jsonData["nftables"]) || !is_array($jsonData["nftables"])) {
         return $rule;
     }
 
-    // Extrae los valores clave para identificar el grupo de reglas
-    // Extracts key values to identify the rule group
-    $family = $rule["family"];
-    $table = $rule["table"];
-    $chain = $rule["chain"];
+    $family = $rule["family"] ?? "";
+    $table  = $rule["table"]  ?? "";
+    $chain  = $rule["chain"]  ?? "";
 
-    // Verifica si la posición viene definida o está vacía
-    // Checks whether the position is defined or empty
-    $incomingPosition = isset($rule["position"]) && $rule["position"] !== "" ? (int)$rule["position"] : null;
+    // Normalizamos la posición entrante
+    $incomingPosition = isset($rule["position"]) && $rule["position"] !== ""
+        ? (int)$rule["position"]
+        : null;
 
-    // Si no viene posición, se asigna la posición 1
-    // If no position is provided, assign position 1
     if ($incomingPosition === null) {
         $rule["position"] = 1;
         $incomingPosition = 1;
 
-        // Desplaza hacia adelante (+1) todas las reglas que coincidan en familia, tabla y cadena
-        // Shift forward (+1) all rules that match family, table, and chain
         foreach ($jsonData["nftables"] as &$entry) {
-            if (isset($entry["rule"])) {
-                $r = &$entry["rule"];
-
+            if (isset($entry["rule"]["family"], $entry["rule"]["table"], $entry["rule"]["chain"], $entry["rule"]["position"])) {
                 if (
-                    isset($r["family"], $r["table"], $r["chain"], $r["position"]) &&
-                    $r["family"] === $family &&
-                    $r["table"] === $table &&
-                    $r["chain"] === $chain
+                    $entry["rule"]["family"] === $family &&
+                    $entry["rule"]["table"]  === $table &&
+                    $entry["rule"]["chain"]  === $chain
                 ) {
-                    $r["position"] = (int)$r["position"] + 1;
+                    $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
                 }
             }
         }
     } else {
-        // Si ya viene una posición, se respeta
-        // If a position is already provided, it is respected
-
-        // Desplaza hacia adelante (+1) todas las reglas con posición igual o superior
-        // Shift forward (+1) all rules with equal or higher position
         foreach ($jsonData["nftables"] as &$entry) {
-            if (isset($entry["rule"])) {
-                $r = &$entry["rule"];
-
+            if (isset($entry["rule"]["family"], $entry["rule"]["table"], $entry["rule"]["chain"], $entry["rule"]["position"])) {
                 if (
-                    isset($r["family"], $r["table"], $r["chain"], $r["position"]) &&
-                    $r["family"] === $family &&
-                    $r["table"] === $table &&
-                    $r["chain"] === $chain &&
-                    (int)$r["position"] >= $incomingPosition
+                    $entry["rule"]["family"] === $family &&
+                    $entry["rule"]["table"]  === $table &&
+                    $entry["rule"]["chain"]  === $chain &&
+                    (int)$entry["rule"]["position"] >= $incomingPosition
                 ) {
-                    $r["position"] = (int)$r["position"] + 1;
+                    $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
                 }
             }
         }
     }
 
-    // Devuelve la regla con la posición ajustada
-    // Returns the rule with the adjusted position
     return $rule;
 }
+
 
 
 function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
