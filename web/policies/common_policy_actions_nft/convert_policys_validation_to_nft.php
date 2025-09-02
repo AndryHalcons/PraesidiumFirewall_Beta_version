@@ -105,8 +105,16 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['select'] as $key => $validValues) {
             if (isset($rule[$key])) {
                 $value = $rule[$key];
+
+                // Si viene vacío o solo espacios, lo damos por válido
+                if (trim($value) === '') {
+                    continue;
+                }
+
                 if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
+                    echo json_encode([
+                        "error" => "value in validation_form_field_review_select '{$value}' not found"
+                    ]);
                     exit;
                 }
             }
@@ -118,13 +126,22 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
                 $value = $rule[$key];
+
+                // Si viene vacío o solo espacios, lo damos por válido
+                if (trim($value) === '') {
+                    continue;
+                }
+
                 if (!in_array($value, $options, true)) {
-                    echo json_encode(["error" => "alias port validation_form_field_review_checkbox '{$value}' not found"]);
+                    echo json_encode([
+                        "error" => "alias port validation_form_field_review_checkbox '{$value}' not found"
+                    ]);
                     exit;
                 }
             }
         }
     }
+
 
     // Validar campos "not_editable" (excepto 'id')
     if (isset($formConfig['not_editable'])) {
@@ -485,88 +502,85 @@ function cidr_contains(string $cidr, string $target): bool {
 // ordena por máscara ascendente y filtra redes contenidas para retornar solo las más específicas.
 // Normalizes a list of IPs and CIDR networks, validates format, removes duplicates,
 // sorts by ascending mask, and filters out contained networks to return only the most specific ones.
+
 function validation_ip_networks(string $value): string {
-    // Divide la cadena por comas y elimina espacios
-    // Splits the string by commas and trims whitespace
-    $items = array_map('trim', explode(',', $value));
+    // DEBUG: valor original recibido
+    error_log("DEBUG validation_ip_networks: valor recibido = >{$value}<");
+
+    // Divide la cadena por comas, elimina espacios y filtra vacíos
+    $items = array_filter(array_map('trim', explode(',', $value)), fn($v) => $v !== '');
+    //error_log("DEBUG items después de explode/trim/filter: " . json_encode($items));
+
     $normalized = [];
 
-    foreach ($items as $item) {
+    foreach ($items as $idx => $item) {
+        error_log("DEBUG iteración {$idx}: item = >{$item}<");
+
         // IP sin CIDR → se normaliza como /32 (IPv4) o /128 (IPv6)
-        // IP without CIDR → normalized as /32 (IPv4) or /128 (IPv6)
         if (filter_var($item, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            //error_log("DEBUG {$item} detectada como IPv4");
             $normalized[] = "{$item}/32";
         } elseif (filter_var($item, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            //error_log("DEBUG {$item} detectada como IPv6");
             $normalized[] = "{$item}/128";
         }
         // IP con CIDR → se valida y se agrega si es válida
-        // IP with CIDR → validated and added if correct
         elseif (preg_match('/^(.+)\/(\d{1,3})$/', $item, $matches)) {
             $ip = $matches[1];
             $cidr = (int)$matches[2];
+            //error_log("DEBUG {$item} detectada como CIDR: IP={$ip}, máscara={$cidr}");
 
-            // Verifica que la IP y la máscara sean válidas para IPv4
-            // Checks that IP and mask are valid for IPv4
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $cidr >= 0 && $cidr <= 32) {
                 $normalized[] = "{$ip}/{$cidr}";
-            }
-            // Verifica que la IP y la máscara sean válidas para IPv6
-            // Checks that IP and mask are valid for IPv6
-            elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && $cidr >= 0 && $cidr <= 128) {
+            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && $cidr >= 0 && $cidr <= 128) {
                 $normalized[] = "{$ip}/{$cidr}";
-            }
-            // CIDR inválido → se muestra error y se detiene
-            // Invalid CIDR → shows error and exits
-            else {
+            } else {
+                //error_log("ERROR CIDR inválido: {$item}");
                 echo json_encode(["error" => "invalid CIDR '{$item}'"]);
                 exit;
             }
         }
         // Formato inválido → se muestra error y se detiene
-        // Invalid format → shows error and exits
         else {
+            //error_log("ERROR formato inválido: >{$item}<");
             echo json_encode(["error" => "invalid IP format '{$item}'"]);
             exit;
         }
     }
 
     // Elimina duplicados exactos
-    // Removes exact duplicates
     $normalized = array_unique($normalized);
+    //error_log("DEBUG normalizados únicos: " . json_encode($normalized));
 
     // Ordena por máscara ascendente (más amplias primero)
-    // Sorts by ascending mask (broader networks first)
     usort($normalized, function ($a, $b) {
         [$ipA, $maskA] = explode('/', $a);
         [$ipB, $maskB] = explode('/', $b);
         return (int)$maskA <=> (int)$maskB;
     });
+    //error_log("DEBUG ordenados por máscara: " . json_encode($normalized));
 
     $final = [];
 
     foreach ($normalized as $candidate) {
         $contained = false;
-
-        // Verifica si la red candidata ya está contenida en alguna existente
-        // Checks if the candidate network is already contained in an existing one
         foreach ($final as $existing) {
             if (cidr_contains($existing, $candidate)) {
+                //error_log("DEBUG {$candidate} está contenido en {$existing}, se omite");
                 $contained = true;
                 break;
             }
         }
-
-        // Si no está contenida, se agrega al resultado final
-        // If not contained, adds it to the final result
         if (!$contained) {
             $final[] = $candidate;
         }
     }
 
-    // Devuelve las redes normalizadas y filtradas como cadena
-    // Returns the normalized and filtered networks as a string
+    //error_log("DEBUG resultado final: " . json_encode($final));
+
     return implode(',', $final);
 }
+
 // Valida que las IPs o CIDRs tengan formato correcto
 // Validates that IPs or CIDRs have correct format
 function validate_ip_or_cidr(string $value): bool {
@@ -609,12 +623,26 @@ function validate_ip_or_cidr(string $value): bool {
 // Returns the first IP or CIDR linked to a named alias in alias_address.
 function convert_alias_ip_to_ip(string $value): string {
     $aliasJsonData = import_alias_json();
+     // Si el valor está vacío o solo contiene espacios, lo ignoramos
+    if (trim($value) === '') {
+        error_log("DEBUG convert_alias_ip_to_ip: valor vacío, se ignora");
+        return '';
+    }
 
     // Verifica que se haya cargado correctamente el JSON
     // Check that the JSON was loaded successfully
     if (!$aliasJsonData) {
         echo json_encode(["error" => "alias file not found or invalid"]);
         exit;
+    }
+        // DEBUG: mostrar el valor recibido
+    error_log("DEBUG convert_alias_ip_to_ip: valor recibido = >{$value}<");
+
+    // DEBUG: listar todos los alias disponibles en alias_address
+    if (isset($aliasJsonData['alias_address'])) {
+        foreach ($aliasJsonData['alias_address'] as $entry) {
+            error_log("DEBUG alias en JSON: >{$entry['name']}<");
+        }
     }
 
     // Busca el alias en alias_address
@@ -650,6 +678,10 @@ function convert_alias_group_to_Network_ips(string $value): string {
     $resolvedIps = [];
 
     foreach ($items as $item) {
+        // Ignorar valores vacíos o solo espacios
+        if (trim($item) === '') {
+            continue;
+        }
         // Si es IP o CIDR válida, se conserva
         // If it's a valid IP or CIDR, keep it as-is
         if (validate_ip_or_cidr($item)) {
