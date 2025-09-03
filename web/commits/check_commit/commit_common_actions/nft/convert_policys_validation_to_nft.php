@@ -977,9 +977,10 @@ function build_expr(array $rule, string $comment): array {
         $is_tcp_udp = $proto_raw === 'tcp, udp';
         $has_snat = !empty(trim($rule["snat.addr"] ?? ''));
         $has_dnat = !empty(trim($rule["dnat.addr"] ?? ''));
+        $has_both_ports = !empty(trim($rule["sport"] ?? '')) && !empty(trim($rule["dport"] ?? ''));
 
         // Usar 'th' solo si protocolo es 'tcp, udp' y hay snat o dnat
-        $proto = ($is_tcp_udp && ($has_snat || $has_dnat)) ? 'th' : $proto_raw;
+        $proto = ($is_tcp_udp && ($has_snat || $has_dnat || $has_both_ports)) ? 'th' : $proto_raw;
 
         $expr[] = [
             "match" => [
@@ -1058,9 +1059,9 @@ function build_expr(array $rule, string $comment): array {
         $is_tcp_udp = $proto_raw === 'tcp, udp';
         $has_snat = !empty(trim($rule["snat.addr"] ?? ''));
         $has_dnat = !empty(trim($rule["dnat.addr"] ?? ''));
-
+        $has_both_ports = !empty(trim($rule["sport"] ?? '')) && !empty(trim($rule["dport"] ?? ''));
         // Usar 'th' solo si protocolo es 'tcp, udp' y hay snat o dnat
-        $proto = ($is_tcp_udp && ($has_snat || $has_dnat)) ? 'th' : $proto_raw;
+        $proto = ($is_tcp_udp && ($has_snat || $has_dnat || $has_both_ports )) ? 'th' : $proto_raw;
 
         $expr[] = [
             "match" => [
