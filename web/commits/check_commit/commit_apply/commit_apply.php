@@ -20,8 +20,8 @@ function starting_commit() {
     // Ruta al script Python
     $pythonScript = '/var/www/backend/commits/commit_apply.py';
 
-    // Ejecutar el script y pasarle el JSON como argumento
-    // IMPORTANTE: Escapar el JSON para evitar problemas con comillas
+    // Ejecutar el script y pasarle el JSON como argumento y evitar problemas con comillas
+    // Run the script and pass the JSON as an argument and avoid problems with quotes
     $escapedJson = escapeshellarg($json);
     $command = "sudo /usr/bin/python3 $pythonScript $escapedJson";
 

@@ -22,7 +22,7 @@ function renderTableFromNftables(nftName) {
       // Insertar el botón "Agregar política" antes del contenedor
       const addBtn = document.createElement("button");
       addBtn.textContent = LANG["add_policy"] || "Agregar política";
-      addBtn.onclick = () => Add_nft_policy(nftName);
+      addBtn.onclick = () => add_nft_policy(nftName, columns);
       container.insertAdjacentElement("beforebegin", addBtn);
 
       container.innerHTML = "";
@@ -232,7 +232,6 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
   const cells = targetRow.querySelectorAll("td");
   const updatedRule = {};
 
-  // Obtener configuración del formulario para aplicar lógica de checkbox
   const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
   const param = `table=${nftName}`;
 
@@ -256,7 +255,7 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
               ? formConfig.checkbox[key].checked
               : formConfig.checkbox[key].unchecked;
           } else {
-            value = el.checked ? "==" : "!="; // fallback
+            value = el.checked ? "==" : "!=";
           }
           td.innerHTML = value;
         } else if (el && el.tagName === "INPUT") {
@@ -268,41 +267,11 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
         updatedRule[key] = value;
       });
 
-      //  Mostrar el JSON que se va a enviar
-      const payload = {
-        table: nftName,
-        rule: updatedRule
-      };
-      console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
-
-      // Enviar datos al backend
-      fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.text()) // ← leer como texto para ver la respuesta cruda
-        .then(text => {
-          console.log("🧾 Respuesta cruda del backend:", text);
-          try {
-            const result = JSON.parse(text); // ← intentar parsear manualmente
-            console.log("✅ JSON parseado:", result);
-            if (result.error) {
-              console.error("Error al guardar en el backend:", result.error);
-            } else {
-              saveBtn.style.display = "none";
-              editBtn.style.display = "inline-block";
-              loadTableContentNftables(nftName, columns);
-            }
-          } catch (e) {
-            console.error("❌ No se pudo parsear JSON:", e);
-          }
-        })
-        .catch(error => {
-          console.error("Error de conexión al guardar:", error);
-        });
+      sendNftPolicy(nftName, updatedRule, columns, () => {
+        saveBtn.style.display = "none";
+        editBtn.style.display = "inline-block";
+        loadTableContentNftables(nftName, columns);
+      });
     })
     .catch(error => {
       console.error("Error al cargar configuración de formulario:", error);
@@ -312,6 +281,213 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
 
 
 
+
+function add_nft_policy(nftName, columns) {
+  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
+  const param = `table=${nftName}`;
+
+  fetch(`${endpoint}?${param}`)
+    .then(response => response.json())
+    .then(formConfig => {
+      const modal = document.createElement("div");
+      modal.className = "modal-overlay";
+
+      const modalContent = document.createElement("div");
+      modalContent.className = "modal-window";
+
+      const title = document.createElement("h3");
+      title.textContent = `Agregar política a ${nftName}`;
+      modalContent.appendChild(title);
+
+      const form = document.createElement("form");
+
+      columns.forEach(key => {
+        const fieldWrapper = document.createElement("div");
+        fieldWrapper.className = "modal-input-group";
+
+        const label = document.createElement("label");
+        label.textContent = typeof LANG !== "undefined" && LANG[key] ? LANG[key] : key;
+        label.className = "modal-prefix";
+        fieldWrapper.appendChild(label);
+
+        if (formConfig.not_editable && Object.keys(formConfig.not_editable).includes(key)) {
+          const span = document.createElement("span");
+          span.textContent = "Auto";
+          span.className = "modal-input";
+          fieldWrapper.appendChild(span);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
+        if (formConfig.select && Array.isArray(formConfig.select[key])) {
+          const select = document.createElement("select");
+          select.className = "modal-input";
+          formConfig.select[key].forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.textContent = opt === "" ? "(vacío)" : opt;
+            select.appendChild(option);
+          });
+          fieldWrapper.appendChild(select);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
+        if (formConfig.checkbox && typeof formConfig.checkbox[key] === "object") {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = false;
+          fieldWrapper.appendChild(checkbox);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = key;
+        input.value = "";
+        input.className = "modal-input";
+        fieldWrapper.appendChild(input);
+        form.appendChild(fieldWrapper);
+      });
+
+      const actions = document.createElement("div");
+      actions.className = "modal-actions";
+
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "button";
+      saveBtn.textContent = "Guardar";
+      saveBtn.className = "modal-button";
+      saveBtn.onclick = () => {
+        const updatedRule = {};
+
+        columns.forEach(key => {
+          const fieldWrapper = form.querySelectorAll(".modal-input-group")[columns.indexOf(key)];
+          const el = fieldWrapper.querySelector("select") || fieldWrapper.querySelector("input");
+
+          let value = "";
+
+          if (formConfig.not_editable && Object.keys(formConfig.not_editable).includes(key)) {
+            return;
+          }
+
+          if (el && el.tagName === "SELECT") {
+            value = el.value;
+          } else if (el && el.type === "checkbox") {
+            if (formConfig.checkbox?.[key]) {
+              value = el.checked
+                ? formConfig.checkbox[key].checked
+                : formConfig.checkbox[key].unchecked;
+            } else {
+              value = el.checked ? "==" : "!=";
+            }
+          } else if (el && el.tagName === "INPUT") {
+            value = el.value;
+          }
+
+          updatedRule[key] = value;
+        });
+
+        sendNftPolicy(nftName, updatedRule, columns, () => {
+          document.body.removeChild(modal);
+          loadTableContentNftables(nftName, columns);
+        });
+      };
+      actions.appendChild(saveBtn);
+
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.textContent = "Cancelar";
+      closeBtn.className = "modal-button cancel";
+      closeBtn.onclick = () => document.body.removeChild(modal);
+      actions.appendChild(closeBtn);
+
+      form.appendChild(actions);
+      modalContent.appendChild(form);
+      modal.appendChild(modalContent);
+      document.body.appendChild(modal);
+    })
+    .catch(error => {
+      console.error("Error al cargar configuración de formulario:", error);
+    });
+}
+
+
+
+
+
+
+function sendNftPolicy(nftName, updatedRule, columns, onSuccess) {
+  const payload = {
+    table: nftName,
+    rule: updatedRule
+  };
+
+  console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
+
+  fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.text())
+    .then(text => {
+      console.log("🧾 Respuesta cruda del backend:", text);
+      try {
+        const result = JSON.parse(text);
+        console.log("✅ JSON parseado:", result);
+        if (result.error) {
+          console.error("Error al guardar en el backend:", result.error);
+        } else {
+          if (typeof onSuccess === "function") {
+            onSuccess();
+          }
+        }
+      } catch (e) {
+        console.error("❌ No se pudo parsear JSON:", e);
+      }
+    })
+    .catch(error => {
+      console.error("Error de conexión al guardar:", error);
+    });
+}
+
+
+
+function delete_nft_policy(nftName, rule) {
+  if (!confirm("¿Estás seguro de que quieres eliminar esta política?")) {
+    return; // El usuario canceló
+  }
+
+  const endpoint = "/policies/common_policy_actions_nft/get_delete_policy.php";
+
+  const payload = {
+    table: nftName,
+    id: rule.id
+  };
+
+  fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        loadTableContentNftables(nftName, Object.keys(rule));
+      } else {
+        alert(result.error || "Error al eliminar la política");
+      }
+    })
+    .catch(error => {
+      console.error("Error al eliminar la política:", error);
+      alert("Error de conexión con el servidor");
+    });
+}
 
 
 

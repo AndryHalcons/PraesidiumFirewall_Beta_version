@@ -61,6 +61,32 @@ function validateSimply($data, $path, $keyJson) {
     return $data;
 }
 
+function validate_duplicate_names($data, $aliasData) {
+    // Se recorta el nombre del alias que se quiere validar
+    // Trim the name of the alias to be validated
+    $newName = trim($data['name']);
+
+    // Se recorren todas las secciones del JSON (direcciones, servicios, grupos, etc.)
+    // Iterate through all sections of the JSON (addresses, services, groups, etc.)
+    foreach ($aliasData as $section) {
+        // Se recorren todas las entradas dentro de cada sección
+        // Iterate through all entries within each section
+        foreach ($section as $item) {
+            // Se compara el nombre recortado con el nombre de cada entrada
+            // Compare the trimmed name with each entry's name
+            if (trim($item['name']) === $newName) {
+                // Si hay coincidencia, se devuelve error 409 por nombre duplicado
+                // If there's a match, return HTTP 409 error due to duplicate name
+                http_response_code(409);
+                echo json_encode(['error' => 'Alias name must be unique across all families']);
+                exit;
+            }
+        }
+    }
+}
+
+
+
 
 
 //si viene con id erroneo le generamos uno nuevo, util para crear nuevas entradas o verificar updates
@@ -212,16 +238,39 @@ function updateAliasServiceONgroups($data, &$aliasData) {
 }
 
 
-
+//valida que son puertos y rangos de puertos validos
+//validates that they are valid ports and port ranges
 function validatePort($port) {
-    // Verifica que sea numérico y esté en el rango válido de puertos
-    //Verify that it is numeric and in the valid range of ports
-    if (!is_numeric($port) || $port < 1 || $port > 65535) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid port number']);
-        exit;
+    // Verifica si es un rango (contiene guion)
+    // Check if it's a range (contains a dash)
+    if (strpos($port, '-') !== false) {
+        // Divide el rango en dos partes
+        // Split the range into two parts
+        list($start, $end) = explode('-', $port, 2);
+
+        // Convierte ambos extremos en enteros
+        // Convert both ends to integers
+        $start = (int)trim($start);
+        $end = (int)trim($end);
+
+        // Verifica que ambos extremos estén en el rango válido y que el inicio sea menor o igual al final
+        // Check that both ends are within valid port range and start is less than or equal to end
+        if ($start < 1 || $start > 65535 || $end < 1 || $end > 65535 || $start > $end) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid port range']);
+            exit;
+        }
+    } else {
+        // Verifica que sea un puerto único válido
+        // Check that it's a valid single port
+        if (!is_numeric($port) || $port < 1 || $port > 65535) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid port number']);
+            exit;
+        }
     }
 }
+
 
 // Verifica si el name de alias_address está en el content de alias_addr_group
 // Checks if alias_address name is inside alias_addr_group content

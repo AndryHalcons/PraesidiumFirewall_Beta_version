@@ -78,6 +78,48 @@ function import_all_interfaces(): array {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    family nftables field       //////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function validationFamiliy($data, $rule)
+    {
+        switch (strtoupper($data['table'])) {
+            case 'FORWARDING':
+                $rule['family'] = 'inet';
+                $rule['table'] = 'filter';
+                $rule['chain'] = 'FORWARDING';
+                break;
+            case 'PREROUTING':
+                $rule['family'] = 'inet';
+                $rule['table'] = 'nat';
+                $rule['chain'] = 'PREROUTING';
+                break;
+            case 'POSTROUTING':
+                $rule['family'] = 'inet';
+                $rule['table'] = 'nat';
+                $rule['chain'] = 'POSTROUTING';
+                break;
+            case 'INPUT':
+                $rule['family'] = 'inet';
+                $rule['table'] = 'filter';
+                $rule['chain'] = 'input';
+                break;
+            case 'OUTPUT':
+                $rule['family'] = 'inet';
+                $rule['table'] = 'filter';
+                $rule['chain'] = 'output';
+                break;
+        }
+
+        return $rule;
+    }
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //revisa los campos que contienen formularios
@@ -152,51 +194,100 @@ function validation_form_field_review(array $rule): void {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////ID and name section     /////////////////////////////////////////
+////////////////////////////////////ID section  //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-// Genera un ID único buscando el primer número no usado en los comentarios
-// Generates a unique ID by finding the first unused number in rule comments
-function get_id_from_policy(): string {
-    $data = import_policy_nft_json();
-    if (!$data || !isset($data['nftables']) || !is_array($data['nftables'])) {
-        return "1"; // fallback
-    }
+// Comprueba que tiene un ID correcto, si no tiene le asigna uno
+// Check that it has a correct ID, if it doesn't, assign one.
+// Verifica y asigna un ID válido a la regla
+function get_id_from_policy(array $rule): array {
+    // Verifica si el campo 'id' existe
+    if (isset($rule['id'])) {
+        $idCandidate = $rule['id'];
 
-    $usedIds = [];
-
-    foreach ($data['nftables'] as $entry) {
-        if (isset($entry['rule']['id']) && $entry['rule']['id'] !== '') {
-            $usedIds[] = (int)$entry['rule']['id']; // normalizamos a entero
+        // Si es string, eliminar espacios
+        if (is_string($idCandidate)) {
+            $idCandidate = trim($idCandidate);
         }
+
+        // Si está vacío, nulo o solo espacios → generar nuevo ID
+        if ($idCandidate === '' || $idCandidate === null) {
+            $rule['id'] = get_id(); // asigna nuevo ID
+            return $rule;
+        }
+
+        // Si es entero positivo o string numérico positivo → lo aceptamos
+        if ((is_int($idCandidate) && $idCandidate > 0) ||
+            (is_string($idCandidate) && ctype_digit($idCandidate) && (int)$idCandidate > 0)) {
+            $rule['id'] = (string)(int)$idCandidate; // normaliza a string
+            return $rule;
+        }
+
+        // Si está mal formado o es negativo → generar nuevo ID
+        $rule['id'] = get_id();
+        return $rule;
     }
 
+    // Si no existe el campo 'id' → generar nuevo ID
+    $rule['id'] = get_id();
+    return $rule;
+}
+
+//devuelve el proximo id disponbile
+//returns the next available id
+// Genera un ID único que no esté en uso en el archivo de reglas
+// Generates a unique ID not currently used in the rules file
+function get_id(): string {
+    // Carga el JSON de reglas
+    // Load the rules JSON
+    $data = import_policy_nft_json();
+
+    // Si el archivo no existe o está mal formado, se detiene el script
+    // If the file doesn't exist or is malformed, stop the script
+    if (!$data || !isset($data['nftables']) || !is_array($data['nftables'])) {
+        echo json_encode(['error' => 'Imposible obtener ID']);
+        exit;
+    }
+
+    // Comenzamos con el ID 1
+    // Start with ID 1
     $id = 1;
-    while (in_array($id, $usedIds, true)) {
+
+    // Bucle para encontrar un ID libre
+    // Loop to find a free ID
+    while (true) {
+        $found = false;
+
+        // Recorremos todas las reglas existentes
+        // Iterate through all existing rules
+        foreach ($data['nftables'] as $entry) {
+            // Comparamos el ID actual con los existentes
+            // Compare current ID with existing ones
+            if (isset($entry['rule']['id']) && (string)(int)$entry['rule']['id'] === (string)$id) {
+                $found = true;
+                break; // Si se encuentra, salimos del foreach
+                       // If found, break out of the foreach
+            }
+        }
+
+        // Si no se encontró el ID, lo devolvemos
+        // If the ID wasn't found, return it
+        if (!$found) {
+            return (string)$id;
+        }
+
+        // Si el ID está en uso, incrementamos y volvemos a intentar
+        // If the ID is in use, increment and try again
         $id++;
     }
-
-    return (string)$id;
 }
+
+
 
 //convierte el campo name y el campo id en partes del campo comment de nftables
 //si no hay id por que la regla por ejemplo es nueva, se llama a get_id_from_policy() que devuelve un id unico
 //makes the name field and id field parts of the nftables comment field
 //if there is no id because the rule is new, for example, get_id_from_policy() is called which returns a unique id
-function comment_convert_id_name(array $rule): array {
-    // Si no hay id, se genera automáticamente
-    // If 'id' is missing, generate it automatically
-    $id = isset($rule['id']) && trim($rule['id']) !== '' ? trim($rule['id']) : get_id_from_policy();
 
-    // El name puede estar vacío, pero debe incluirse
-    // 'name' can be empty, but must be included
-    $name = isset($rule['name']) ? trim($rule['name']) : '';
-
-    // Construye el campo comment con ambas claves
-    // Builds the 'comment' field with both keys
-    $rule['comment'] = "id='{$id}',name='{$name}'";
-
-    return $rule;
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////PORTS VALIDATION SECTION/////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -411,32 +502,7 @@ function validate_ip_or_cidr(string $value): bool {
 }
 // Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
 // Returns the first IP or CIDR linked to a named alias in alias_address.
-/*
-function convert_alias_ip_to_ip(string $value): bool {
-    $aliasJsonData = import_alias_json();
 
-    // Verifica que se haya cargado correctamente el JSON  
-    // Check that the JSON was loaded successfully  
-    if (!$aliasJsonData) {
-        echo json_encode(["error" => "alias file not found or invalid"]);
-        exit;
-    }
-
-    // Busca el alias en alias_address  
-    // Search for the alias in alias_address  
-    if (isset($aliasJsonData['alias_address'])) {
-        foreach ($aliasJsonData['alias_address'] as $entry) {
-            if (isset($entry['name']) && $entry['name'] === $value) {
-                return true;
-            }
-        }
-    }
-
-    // Si no se encuentra, retorna false  
-    // If not found, return false  
-    return false;
-}
-*/
 function convert_alias_ip_to_ip(string $value): bool {
     $aliasJsonData = import_alias_json();
 
@@ -462,7 +528,6 @@ function convert_alias_ip_to_ip(string $value): bool {
 
     return false;
 }
-
 
 
 // Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
@@ -570,12 +635,22 @@ function assign_position(array $rule): array {
         // Asigna la posición 1 por defecto
         // Assigns default position 1
         $rule["position"] = 1;
+        return $rule;
+    }
+    $posCandidate = is_string($rule["position"]) ? trim($rule["position"]) : $rule["position"];
+    // Si no es un entero positivo → asigna 1 por defecto
+    // If not a positive integer → assign default 1
+    if (!is_int($posCandidate) && (!is_string($posCandidate) || !ctype_digit($posCandidate))) {
+        $rule["position"] = 1;
+        return $rule;
     }
 
-    // Devuelve la regla modificada
-    // Returns the modified rule
+    // Normaliza a entero
+    // Normalize to integer
+    $rule["position"] = (int)$posCandidate;
     return $rule;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// Saniticed to nftables json format  ///////////////////////////////////////////////////////////////
@@ -617,8 +692,6 @@ function saniticed_nftables_policy(array $rule): array {
         ]
     ];
 }
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -675,8 +748,6 @@ function reassign_position(array $rule): array {
     return $rule;
 }
 
-
-
 function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
     // Normaliza el ID de la nueva regla
     $id = isset($rule['id']) ? (int)$rule['id'] : null;
@@ -703,25 +774,65 @@ function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
     return $rulesJson;
 }
 
+function reorderPosition($rulesJson, $id, $position, $family, $table, $chain) {
+    $targetPos = (int)$position;
 
+    // Separar reglas del bloque afectado y las demás
+    $block = [];
+    $others = [];
 
+    foreach ($rulesJson['nftables'] as $entry) {
+        $rule = $entry['rule'];
+        $rule['position'] = (int)$rule['position'];
 
+        if (
+            $rule['family'] === $family &&
+            $rule['table'] === $table &&
+            $rule['chain'] === $chain
+        ) {
+            $block[] = $entry;
+        } else {
+            $others[] = $entry;
+        }
+    }
 
+    // Buscar la regla objetivo por ID
+    $targetIndex = null;
+    foreach ($block as $i => $entry) {
+        if ((string)$entry['rule']['id'] === (string)$id) {
+            $targetIndex = $i;
+            break;
+        }
+    }
 
+    if ($targetIndex === null) {
+        return $rulesJson; // No se encontró la regla
+    }
 
+    // Aplicar lógica de desplazamiento
+    foreach ($block as $i => &$entry) {
+        if ($i === $targetIndex) {
+            $entry['rule']['position'] = $targetPos;
+            continue;
+        }
 
+        $pos = $entry['rule']['position'];
+        if ($pos >= $targetPos) {
+            $entry['rule']['position'] = $pos + 1;
+        }
+    }
 
+    // Reordenar y renumerar secuencialmente
+    usort($block, fn($a, $b) => $a['rule']['position'] <=> $b['rule']['position']);
+    $pos = 1;
+    foreach ($block as &$entry) {
+        $entry['rule']['position'] = $pos++;
+    }
 
-
-
-
-
-
-
-
-
-
-
+    // Reconstruir el JSON con orden físico correcto
+    $rulesJson['nftables'] = array_merge($others, $block);
+    return $rulesJson;
+}
 
 
 

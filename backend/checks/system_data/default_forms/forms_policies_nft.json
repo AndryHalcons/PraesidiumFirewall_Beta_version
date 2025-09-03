@@ -17,7 +17,6 @@
         ""
       ],
       "ip.protocol": [
-        "",
         "tcp",
         "udp",
         "icmp",

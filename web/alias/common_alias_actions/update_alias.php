@@ -75,6 +75,7 @@ function saveAliasData($path, $data) {
 function updateAliasAddress($data, &$aliasData, $path) {
     $keyJson = 'alias_address';
     $data = validateSimply($data, $path, $keyJson);
+    validate_duplicate_names($data, $aliasData);
     validateIPandCIDR($data['content']);
     updateAliasAddressONgroups($data, $aliasData);
     updateAliasEntry('alias_address', $data, $aliasData);
@@ -86,6 +87,7 @@ function updateAliasAddress($data, &$aliasData, $path) {
 function updateAliasAddrGroup($data, &$aliasData, $path) {
     $keyJson = 'alias_addr_group';
     $data = validateSimply($data, $path, $keyJson);
+    validate_duplicate_names($data, $aliasData);
     isAliasAddressNameIP_ORserviceAlias($data, $path);
     updateAliasEntry('alias_addr_group', $data, $aliasData);
 }
@@ -95,6 +97,7 @@ function updateAliasAddrGroup($data, &$aliasData, $path) {
 function updateAliasService($data, &$aliasData, $path) {
     $keyJson = 'alias_service';
     $data = validateSimply($data, $path, $keyJson);
+    validate_duplicate_names($data, $aliasData);
     validatePort($data['content']);
     updateAliasServiceONgroups($data, $aliasData);
     updateAliasEntry('alias_service', $data, $aliasData);
@@ -106,6 +109,7 @@ function updateAliasService($data, &$aliasData, $path) {
 function updateAliasServiceGroup($data, &$aliasData, $path) {
     $keyJson = 'alias_service_group';
     $data = validateSimply($data, $path, $keyJson);
+    validate_duplicate_names($data, $aliasData);
     isAliasServiceNamePort_ORserviceAlias($data,$path);
     updateAliasEntry('alias_service_group', $data, $aliasData);
 }

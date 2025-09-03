@@ -817,8 +817,6 @@ function build_expr(array $rule, string $comment): array {
         }
     }
 
-
-
     // Protocolo IP
     if (!empty($rule["ip.protocol"])) {
         $expr[] = [
@@ -879,7 +877,28 @@ function build_expr(array $rule, string $comment): array {
     }
 
     // Puerto de origen
+    // Puerto de origen
     if (!empty($rule["sport"])) {
+        $ports = array_map('trim', explode(',', $rule["sport"]));
+        $items = [];
+
+        foreach ($ports as $p) {
+            if (preg_match('/^(\d+)-(\d+)$/', $p, $m)) {
+                // Rango → objeto con clave "range"
+                $items[] = ["range" => [(int)$m[1], (int)$m[2]]];
+            } elseif (ctype_digit($p)) {
+                // Puerto único
+                $items[] = (int)$p;
+            }
+        }
+
+        // Determinar si es un único puerto, un único rango o una combinación
+        if (count($items) === 1) {
+            $right = $items[0]; // puede ser int o ["range" => [...]]
+        } else {
+            $right = ["set" => $items];
+        }
+
         $expr[] = [
             "match" => [
                 "op" => $rule["sport.op"] ?? "==",
@@ -889,13 +908,34 @@ function build_expr(array $rule, string $comment): array {
                         "field" => "sport"
                     ]
                 ],
-                "right" => (int)$rule["sport"]
+                "right" => $right
             ]
         ];
     }
 
+
     // Puerto de destino
     if (!empty($rule["dport"])) {
+        $ports = array_map('trim', explode(',', $rule["dport"]));
+        $items = [];
+
+        foreach ($ports as $p) {
+            if (preg_match('/^(\d+)-(\d+)$/', $p, $m)) {
+                // Rango → objeto con clave "range"
+                $items[] = ["range" => [(int)$m[1], (int)$m[2]]];
+            } elseif (ctype_digit($p)) {
+                // Puerto único
+                $items[] = (int)$p;
+            }
+        }
+
+        // Determinar si es un único puerto, un único rango o una combinación
+        if (count($items) === 1) {
+            $right = $items[0]; // puede ser int o ["range" => [...]]
+        } else {
+            $right = ["set" => $items];
+        }
+
         $expr[] = [
             "match" => [
                 "op" => $rule["dport.op"] ?? "==",
@@ -905,7 +945,7 @@ function build_expr(array $rule, string $comment): array {
                         "field" => "dport"
                     ]
                 ],
-                "right" => (int)$rule["dport"]
+                "right" => $right
             ]
         ];
     }

@@ -84,7 +84,7 @@ install_bpfilter() {
     # Ruta absoluta donde se clonará y compilará bpfilter
     local BPFILTER_DIR="/home/praesidium/bpfilter"
     local BUILD_DIR="/home/praesidium/bpfilter/build"
-    local REPO_URL="https://github.com/facebook/bpfilter.git"
+    local REPO_URL="https://github.com/AndryHalcons/bpfilter"
     local BFCLI_PATH="$BUILD_DIR/output/sbin/bfcli"
     local BPFILTER_PATH="$BUILD_DIR/output/sbin/bpfilter"
 
