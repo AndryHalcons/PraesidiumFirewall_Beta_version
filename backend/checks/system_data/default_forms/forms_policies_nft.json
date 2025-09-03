@@ -19,6 +19,7 @@
       "ip.protocol": [
         "tcp",
         "udp",
+        "tcp, udp",
         "icmp",
         "icmpv6"
       ],

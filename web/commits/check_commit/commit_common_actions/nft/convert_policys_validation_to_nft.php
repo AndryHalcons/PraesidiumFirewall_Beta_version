@@ -816,7 +816,7 @@ function build_expr(array $rule, string $comment): array {
             $rule[$field] = preg_replace('/\/(32|128)$/', '', $rule[$field]);
         }
     }
-
+    /*
     // Protocolo IP
     if (!empty($rule["ip.protocol"])) {
         $expr[] = [
@@ -831,6 +831,44 @@ function build_expr(array $rule, string $comment): array {
                 "right" => $rule["ip.protocol"]
             ]
         ];
+    }
+    */
+    // Protocolo IP
+    //añadida compatibilidad con tcp-udp
+    if (!empty($rule["ip.protocol"])) {
+        $protocols = array_map('trim', explode(',', $rule["ip.protocol"]));
+
+        if (count($protocols) === 1) {
+            // Solo un protocolo (ej. "tcp")
+            $expr[] = [
+                "match" => [
+                    "op" => "==",
+                    "left" => [
+                        "payload" => [
+                            "protocol" => "ip",
+                            "field" => "protocol"
+                        ]
+                    ],
+                    "right" => $protocols[0]
+                ]
+            ];
+        } else {
+            // Varios protocolos (ej. "tcp, udp")
+            $expr[] = [
+                "match" => [
+                    "op" => "==",
+                    "left" => [
+                        "payload" => [
+                            "protocol" => "ip",
+                            "field" => "protocol"
+                        ]
+                    ],
+                    "right" => [
+                        "set" => $protocols
+                    ]
+                ]
+            ];
+        }
     }
 
 
@@ -878,6 +916,7 @@ function build_expr(array $rule, string $comment): array {
 
     // Puerto de origen
     // Puerto de origen
+    /*
     if (!empty($rule["sport"])) {
         $ports = array_map('trim', explode(',', $rule["sport"]));
         $items = [];
@@ -912,8 +951,52 @@ function build_expr(array $rule, string $comment): array {
             ]
         ];
     }
+    */
+    //comptaiblidad con tcp udp juntos
+    // support for tcp udp together
+    //sport
+    if (!empty($rule["sport"])) {
+        $ports = array_map('trim', explode(',', $rule["sport"]));
+        $items = [];
+
+        foreach ($ports as $p) {
+            if (preg_match('/^(\d+)-(\d+)$/', $p, $m)) {
+                // Rango → objeto con clave "range"
+                $items[] = ["range" => [(int)$m[1], (int)$m[2]]];
+            } elseif (ctype_digit($p)) {
+                // Puerto único
+                $items[] = (int)$p;
+            }
+        }
+
+        // Determinar si es un único puerto, un único rango o una combinación
+        $right = count($items) === 1 ? $items[0] : ["set" => $items];
+
+        // Validación compuesta para decidir si usar "th"
+        $proto_raw = trim($rule["ip.protocol"]);
+        $is_tcp_udp = $proto_raw === 'tcp, udp';
+        $has_snat = !empty(trim($rule["snat.addr"] ?? ''));
+        $has_dnat = !empty(trim($rule["dnat.addr"] ?? ''));
+
+        // Usar 'th' solo si protocolo es 'tcp, udp' y hay snat o dnat
+        $proto = ($is_tcp_udp && ($has_snat || $has_dnat)) ? 'th' : $proto_raw;
+
+        $expr[] = [
+            "match" => [
+                "op" => $rule["sport.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => $proto,
+                        "field" => "sport"
+                    ]
+                ],
+                "right" => $right
+            ]
+        ];
+    }
 
 
+    /*
     // Puerto de destino
     if (!empty($rule["dport"])) {
         $ports = array_map('trim', explode(',', $rule["dport"]));
@@ -949,6 +1032,53 @@ function build_expr(array $rule, string $comment): array {
             ]
         ];
     }
+    */
+    //compatibilidad con tcp udp juntos
+    // support for tcp udp together
+    //dport
+    if (!empty($rule["dport"])) {
+        $ports = array_map('trim', explode(',', $rule["dport"]));
+        $items = [];
+
+        foreach ($ports as $p) {
+            if (preg_match('/^(\d+)-(\d+)$/', $p, $m)) {
+                // Rango → objeto con clave "range"
+                $items[] = ["range" => [(int)$m[1], (int)$m[2]]];
+            } elseif (ctype_digit($p)) {
+                // Puerto único
+                $items[] = (int)$p;
+            }
+        }
+
+        // Determinar si es un único puerto, un único rango o una combinación
+        $right = count($items) === 1 ? $items[0] : ["set" => $items];
+
+        // Validación compuesta para decidir si usar "th"
+        $proto_raw = trim($rule["ip.protocol"]);
+        $is_tcp_udp = $proto_raw === 'tcp, udp';
+        $has_snat = !empty(trim($rule["snat.addr"] ?? ''));
+        $has_dnat = !empty(trim($rule["dnat.addr"] ?? ''));
+
+        // Usar 'th' solo si protocolo es 'tcp, udp' y hay snat o dnat
+        $proto = ($is_tcp_udp && ($has_snat || $has_dnat)) ? 'th' : $proto_raw;
+
+        $expr[] = [
+            "match" => [
+                "op" => $rule["dport.op"] ?? "==",
+                "left" => [
+                    "payload" => [
+                        "protocol" => $proto,
+                        "field" => "dport"
+                    ]
+                ],
+                "right" => $right
+            ]
+        ];
+    }
+
+
+
+
 
     // Interfaces
     if (!empty($rule["meta.iifname"])) {
@@ -1015,6 +1145,7 @@ function build_expr(array $rule, string $comment): array {
         $expr[] = ["snat" => $snat];
     }
     // DNAT
+    
     if (!empty($rule["dnat.addr"])) {
         $dnat = ["addr" => $rule["dnat.addr"]];
         if (!empty($rule["dnat.port"])) {
@@ -1022,6 +1153,11 @@ function build_expr(array $rule, string $comment): array {
         }
         $expr[] = ["dnat" => $dnat];
     }
+    
+    //dnat añadida comptabilidad con tcp udp
+
+
+
     // Acción final
     if (!empty($rule["action"])) {
         $expr[] = [$rule["action"] => null];
