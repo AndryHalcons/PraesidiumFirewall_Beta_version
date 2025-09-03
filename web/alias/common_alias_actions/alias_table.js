@@ -238,10 +238,13 @@ function handleDelete(row, tr, aliasName, ) {
   // Obtener el valor del ID desde la celda (igual que en handleSave)
   const idCell = tr.querySelector('td:nth-child(2)');
   const idValue = idCell.textContent;
+  const nameCell = tr.querySelector('[data-field="name"]');
+  const nameValue = nameCell ? nameCell.textContent.trim() : "";
 
   const payload = {
     [aliasName]: {
-      id: idValue
+      id: idValue,
+      name: nameValue
     }
   };
   console.log("Payload a enviar:", JSON.stringify(payload, null, 2));

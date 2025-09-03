@@ -61,16 +61,10 @@ function validateSimply($data, $path, $keyJson) {
     return $data;
 }
 
-// Función para validar nombres duplicados en todas las familias de alias
-// Function to validate duplicate names across all alias families
 function validate_duplicate_names($data, $aliasData) {
     // Se recorta el nombre del alias que se quiere validar
     // Trim the name of the alias to be validated
     $newName = trim($data['name']);
-
-    // Se obtiene el ID actual si existe (para excluirlo en caso de actualización)
-    // Get the current ID if present (to exclude it in case of update)
-    $currentId = isset($data['id']) ? intval($data['id']) : null;
 
     // Se recorren todas las secciones del JSON (direcciones, servicios, grupos, etc.)
     // Iterate through all sections of the JSON (addresses, services, groups, etc.)
@@ -80,16 +74,9 @@ function validate_duplicate_names($data, $aliasData) {
         foreach ($section as $item) {
             // Se compara el nombre recortado con el nombre de cada entrada
             // Compare the trimmed name with each entry's name
-            // Se excluye el alias actual si el ID coincide
-            // Exclude the current alias if the ID matches
-            if (
-                isset($item['name']) &&
-                trim($item['name']) === $newName &&
-                isset($item['id']) &&
-                intval($item['id']) !== $currentId
-            ) {
-                // Si hay coincidencia con otro alias, se devuelve error 409
-                // If there's a match with another alias, return HTTP 409 error
+            if (trim($item['name']) === $newName) {
+                // Si hay coincidencia, se devuelve error 409 por nombre duplicado
+                // If there's a match, return HTTP 409 error due to duplicate name
                 http_response_code(409);
                 echo json_encode(['error' => 'Alias name must be unique across all families']);
                 exit;
@@ -97,7 +84,6 @@ function validate_duplicate_names($data, $aliasData) {
         }
     }
 }
-
 
 
 //si viene con id erroneo le generamos uno nuevo, util para crear nuevas entradas o verificar updates
@@ -529,16 +515,27 @@ function isAliasServiceNamePort_ORserviceAlias($data, $path) {
     return true;
 }
 
-//funciona pero el error que devuelve no sirve
-/*
+
 function is_object_in_policy($name) {
+    // Ruta del archivo de reglas
+    // Path to the rules file
     $rulesFile = '/var/www/config/rules_nftables_human_viewer.json';
+
+    // Si no existe el archivo, no hay políticas que revisar
+    // If the file doesn't exist, no policies to check
     if (!file_exists($rulesFile)) return;
 
+    // Carga y decodifica el JSON
+    // Load and decode the JSON
     $json = file_get_contents($rulesFile);
     $rulesData = json_decode($json, true);
+
+    // Verifica que la estructura sea válida
+    // Validate the structure
     if (!isset($rulesData['nftables']) || !is_array($rulesData['nftables'])) return;
 
+    // Campos donde buscar el nombre
+    // Fields to search for the name
     $fields = [
         'sport',
         'dport',
@@ -550,114 +547,33 @@ function is_object_in_policy($name) {
         'ip.saddr'
     ];
 
+    // Lista de nombres de reglas donde se encuentra el objeto
+    // List of rule names where the object is found
     $matchedRules = [];
-    $target = trim($name);
 
+    // Recorre todas las reglas
+    // Iterate through all rules
     foreach ($rulesData['nftables'] as $entry) {
         if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
 
-        $rule = $entry['rule'];
-
         foreach ($fields as $field) {
-            if (!isset($rule[$field]) || !is_string($rule[$field])) continue;
-
-            // Divide por comas y recorta cada valor
-            $values = array_map('trim', explode(',', $rule[$field]));
-
-            // Si el alias está en la lista, se añade el nombre de la regla
-            if (in_array($target, $values, true)) {
-                if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
-                    $matchedRules[] = $rule['name'];
+            if (isset($entry['rule'][$field]) && trim($entry['rule'][$field]) === trim($name)) {
+                if (isset($entry['rule']['name'])) {
+                    $matchedRules[] = $entry['rule']['name'];
                 }
-                break;
+                break; // No hace falta revisar más campos en esta regla
+                       // No need to check more fields in this rule
             }
         }
     }
 
+    // Si hay coincidencias, se devuelve el mensaje y se detiene el script
+    // If matches are found, return the message and stop the script
     if (!empty($matchedRules)) {
         http_response_code(409);
         echo json_encode(['error' => 'Object is used in policies NFTables "' . implode(', ', $matchedRules) . '"']);
         exit;
     }
-}
-*/
-
-
-function is_object_in_policy($name) {
-    error_log("DEBUG: Recibido name = '$name'");
-
-    $rulesFile = '/var/www/config/rules_nftables_human_viewer.json';
-    if (!file_exists($rulesFile)) return;
-
-    $target = trim($name);
-    if ($target === '') return; // No se compara alias vacío
-
-    $json = file_get_contents($rulesFile);
-    $rulesData = json_decode($json, true);
-    if (!isset($rulesData['nftables']) || !is_array($rulesData['nftables'])) return;
-
-    $fields = [
-        'sport',
-        'dport',
-        'dnat.port',
-        'snat.port',
-        'dnat.addr',
-        'snat.addr',
-        'ip.daddr',
-        'ip.saddr'
-    ];
-
-    $matchedRules = [];
-
-    foreach ($rulesData['nftables'] as $entry) {
-        if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
-
-        $rule = $entry['rule'];
-
-        foreach ($fields as $field) {
-            if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
-
-            $values = array_map('trim', explode(',', $rule[$field]));
-            error_log("DEBUG: Revisando campo '$field' con valor = '{$rule[$field]}'");
-
-            if (in_array($target, $values, true)) {
-                error_log("DEBUG: MATCH encontrado en regla '{$rule['name']}'");
-
-                if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
-                    $matchedRules[] = $rule['name'];
-                }
-                break;
-            }
-        }
-    }
-
-    if (!empty($matchedRules)) {
-        http_response_code(409);
-        echo json_encode(['error' => 'Object is used in policies NFTables "' . implode(', ', $matchedRules) . '"']);
-        exit;
-    }
-}
-
-//funcion que comprueba previamente a los borrados si nombre y id existen para evitar manipulaciones del front
-//function that checks before deletions if name and id exist to avoid front-end manipulations
-function match_name_id($data, $id, $name) {
-    foreach (['alias_address', 'alias_addr_group', 'alias_service', 'alias_service_group'] as $family) {
-        if (!isset($data[$family]) || !is_array($data[$family])) continue;
-
-        foreach ($data[$family] as $item) {
-            if (
-                isset($item['id'], $item['name']) &&
-                intval($item['id']) === intval($id) &&
-                trim($item['name']) === trim($name)
-            ) {
-                return; // Coincidencia válida encontrada
-            }
-        }
-    }
-
-    http_response_code(400);
-    echo json_encode(['error' => "Alias con id '$id' y nombre '$name' no existe"]);
-    exit;
 }
 
 

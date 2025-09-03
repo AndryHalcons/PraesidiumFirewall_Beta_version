@@ -47,9 +47,16 @@ if (!$aliasData || !is_array($aliasData)) {
     exit;
 }
 
+//revision global previa a las particulares
+
+
+
+
 // Función para eliminar una entrada de alias_address
 // Function to delete an entry from alias_address
-function deleteAliasAddress(&$data, $id) {
+function deleteAliasAddress(&$data, $id,$name) {
+    match_name_id($data, $id, $name);
+    is_object_in_policy($name);
     isAliasAddressNameInGroupContent($data, $id);
     $data['alias_address'] = array_values(array_filter(
         $data['alias_address'],
@@ -59,7 +66,9 @@ function deleteAliasAddress(&$data, $id) {
 
 // Función para eliminar una entrada de alias_addr_group
 // Function to delete an entry from alias_addr_group
-function deleteAliasAddrGroup(&$data, $id) {
+function deleteAliasAddrGroup(&$data, $id,$name) {
+    match_name_id($data, $id, $name);
+    is_object_in_policy($name);
     $data['alias_addr_group'] = array_values(array_filter(
         $data['alias_addr_group'],
         fn($item) => intval($item['id']) !== intval($id)
@@ -68,7 +77,9 @@ function deleteAliasAddrGroup(&$data, $id) {
 
 // Función para eliminar una entrada de alias_service
 // Function to delete an entry from alias_service
-function deleteAliasService(&$data, $id) {
+function deleteAliasService(&$data, $id,$name) {
+    match_name_id($data, $id, $name);
+    is_object_in_policy($name);
     isAliasServiceNameInGroupContent($data, $id);
     $data['alias_service'] = array_values(array_filter(
         $data['alias_service'],
@@ -79,7 +90,9 @@ function deleteAliasService(&$data, $id) {
 
 // Función para eliminar una entrada de alias_service_group
 // Function to delete an entry from alias_service_group
-function deleteAliasServiceGroup(&$data, $id) {
+function deleteAliasServiceGroup(&$data, $id,$name) {
+    match_name_id($data, $id, $name);
+    is_object_in_policy($name);
     $data['alias_service_group'] = array_values(array_filter(
         $data['alias_service_group'],
         fn($item) => intval($item['id']) !== intval($id)
@@ -89,13 +102,13 @@ function deleteAliasServiceGroup(&$data, $id) {
 // Determinar qué función ejecutar según el parámetro recibido
 // Determine which function to execute based on the received parameter
 if (isset($input['alias_address']['id'])) {
-    deleteAliasAddress($aliasData, $input['alias_address']['id']);
+    deleteAliasAddress($aliasData, $input['alias_address']['id'], $input['alias_address']['name']);
 } elseif (isset($input['alias_addr_group']['id'])) {
-    deleteAliasAddrGroup($aliasData, $input['alias_addr_group']['id']);
+    deleteAliasAddrGroup($aliasData, $input['alias_addr_group']['id'], $input['alias_addr_group']['name']);
 } elseif (isset($input['alias_service']['id'])) {
-    deleteAliasService($aliasData, $input['alias_service']['id']);
+    deleteAliasService($aliasData, $input['alias_service']['id'], $input['alias_service']['name']);
 } elseif (isset($input['alias_service_group']['id'])) {
-    deleteAliasServiceGroup($aliasData, $input['alias_service_group']['id']);
+    deleteAliasServiceGroup($aliasData, $input['alias_service_group']['id'], $input['alias_service_group']['name']);
 } else {
     http_response_code(400); // Parámetro no válido
     // Invalid parameter
