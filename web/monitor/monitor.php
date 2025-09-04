@@ -24,7 +24,7 @@ $L = require $langFile;
 <body>
   <h2><?= htmlspecialchars($L['menu_monitor']) ?></h2>
   <div id="tabla-monitorOptions"></div>
-  <div id="tabla-monitorRegistros"></div>
+  <div id="tabla-monitorLogs"></div>
   <script src="/monitor/logs_table/monitor.js"></script>
 </body>
 </html>

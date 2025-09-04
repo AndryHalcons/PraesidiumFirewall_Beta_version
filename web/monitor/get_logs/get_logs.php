@@ -15,16 +15,16 @@ if (!is_array($input)) {
     exit;
 }
 
-$firewall = $input['firewall'] ?? null;
+$firewall = $input['Firewall'] ?? null;
 $user = $input['user'] ?? null;
 
-// 🔧 Función para NFTABLES
+//  Función para NFTABLES
 function ejecutarNftables($input) {
     $script = '/usr/bin/python3 /var/www/backend/checks/check_monitor_log_extract/extract_monitor_log_nftables_for_get_user.py';
     $json = escapeshellarg(json_encode($input));
     shell_exec("sudo $script $json 2>&1");
 
-    // 📦 Leer el archivo generado solo si se ejecutó esta función
+    //  Leer el archivo generado solo si se ejecutó esta función
     $user = $input['user'] ?? null;
     if ($user) {
         $outputPath = "/var/www/backend/checks/system_data/data_monitor_logs/{$user}_log_view.json";
@@ -40,7 +40,7 @@ function ejecutarNftables($input) {
 
 // 🔧 Función para BPFILTER
 function ejecutarBpfilter($input) {
-    // Aquí pondrás la lógica cuando definas el script para BPFILTER
+    // lógica  BPFILTER
     return json_encode(["info" => "BPFILTER aún no implementado"]);
 }
 
@@ -49,7 +49,7 @@ function ejecutarSinFirewall($input) {
     return json_encode([]);
 }
 
-// 🔀 Enrutamiento según el tipo de firewall
+//  Enrutamiento según el tipo de firewall
 switch ($firewall) {
     case "NFTABLES":
         $respuesta = ejecutarNftables($input);
@@ -66,5 +66,5 @@ switch ($firewall) {
         break;
 }
 
-// 📨 Devolver la respuesta al frontend
+//  Devolver la respuesta al frontend
 echo $respuesta;

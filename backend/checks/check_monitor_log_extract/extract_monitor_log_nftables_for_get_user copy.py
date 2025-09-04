@@ -114,27 +114,8 @@ def extraer_logs_formateados(data):
                 continue
             if data['Protocol'] and f"PROTO={data['Protocol'].upper()}" not in line:
                 continue
-            #if data['Action'] and data['Action'].upper() not in line:
-            #    continue
-            # --- dentro del bucle que recorre cada línea ---
-            # Normalizar a minúsculas lo que llega en el JSON
-            if data['Action']:
-                action_filter = data['Action'].strip().lower()
-
-                # Detectar acción real en la línea (si no hay, asumir 'accept')
-                acciones_posibles = ["accept", "drop", "reject", "queue"]
-                accion_en_linea = None
-                for act in acciones_posibles:
-                    if f" {act} " in line.lower():
-                        accion_en_linea = act
-                        break
-                if accion_en_linea is None:
-                    accion_en_linea = "accept"
-
-                # Si no coincide con el filtro, saltar
-                if accion_en_linea != action_filter:
-                    continue
-
+            if data['Action'] and data['Action'].upper() not in line:
+                continue
 
             ts, parsed = parse_log_line(line)
             resultado[ts] = parsed

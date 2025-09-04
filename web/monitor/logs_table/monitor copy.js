@@ -63,6 +63,8 @@ function renderMonitorTableStructure() {
       console.error("Error al cargar estructura de tabla:", err);
     });
 }
+
+
 function renderMonitorTableContent(columns) {
   const container = document.getElementById("tabla-monitorOptions");
   if (!container) return;
@@ -139,7 +141,11 @@ function renderMonitorTableContent(columns) {
       console.error("Error al obtener hora del servidor:", err);
     });
 }
-function view_logs_table_Structure(dataLogs) {
+
+
+
+
+function view_logs_table_Structure() {
   const container = document.getElementById("tabla-monitorLogs");
   if (!container) return;
 
@@ -157,38 +163,78 @@ function view_logs_table_Structure(dataLogs) {
       // Cabecera
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
+
       columns.forEach(col => {
         const th = document.createElement("th");
         th.textContent = col;
         th.dataset.key = col;
         headerRow.appendChild(th);
       });
+
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
       // Cuerpo
       const tbody = document.createElement("tbody");
+      const inputRow = document.createElement("tr");
 
-      // Si recibimos datos, pintamos las filas aquí mismo
-      if (dataLogs && typeof dataLogs === "object") {
-        Object.values(dataLogs).forEach(row => {
-          const tr = document.createElement("tr");
-          columns.forEach(colName => {
-            const td = document.createElement("td");
-            td.textContent = row[colName] ?? "";
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-      }
+      // Celdas vacías para cada columna
+      columns.forEach(() => {
+        const td = document.createElement("td");
+        inputRow.appendChild(td);
+      });
 
+      tbody.appendChild(inputRow);
       table.appendChild(tbody);
+
       container.appendChild(table);
+
+      // Aquí podrías llamar a la función que rellena los inputs
+      // view_logs_table_Content(columns);
     })
     .catch(err => {
       console.error("Error al cargar estructura de tabla:", err);
     });
 }
+
+
+
+function view_logs_table_Content(data) {
+  const container = document.getElementById("tabla-monitorLogs");
+  if (!container) return;
+
+  const table = container.querySelector("table");
+  if (!table) return;
+
+  const tbody = table.querySelector("tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  // Siempre viene como objeto con timestamps como claves
+  if (typeof data === "object" && data !== null) {
+    Object.values(data).forEach(row => {
+      const tr = document.createElement("tr");
+
+      // Pintar los valores en el orden en que vengan en el objeto
+      Object.values(row).forEach(val => {
+        const td = document.createElement("td");
+        td.textContent = val;
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+  } else {
+    console.error("Formato de datos inesperado:", data);
+  }
+}
+
+
+
+
+
+
 function searchMonitorLogs() {
   const inputRow = document.querySelector("#tabla-monitorOptions table tbody tr");
   if (!inputRow) return;
@@ -217,7 +263,7 @@ function searchMonitorLogs() {
   })
     .then(res => res.json())
     .then(data => {
-      view_logs_table_Structure(data);
+      view_logs_table_Content(data);
     })
     .catch(err => {
       console.error("Error al buscar logs:", err);
@@ -227,5 +273,6 @@ function searchMonitorLogs() {
 
 
 renderMonitorTableStructure();
+view_logs_table_Structure();
 
 
