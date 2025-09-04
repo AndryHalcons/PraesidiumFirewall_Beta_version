@@ -14,6 +14,8 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 
+/*
+only if front send
 // Lee el cuerpo de la solicitud y decodifica el JSON
 // Read the request body and decode the JSON
 $input = file_get_contents('php://input');
@@ -25,10 +27,11 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data['table']) || !isset($d
     echo json_encode(['error' => 'Entrada JSON inválida']);
     exit;
 }
-
+*/
 // Incluye las funciones de validación y sanitización
 // Include validation and sanitization functions
-require __DIR__ . '/convert_update_policy_to_backend.php';
+require __DIR__ . '/convert_policys_validation_to_nft.php';
+
 // Función para validar la regla recibida
 // Function to validate the received rule
 function validate_nftables_policy(array $rule): array {
@@ -41,18 +44,15 @@ function validate_nftables_policy(array $rule): array {
     return $rule;
 }
 
-
 // Ruta del archivo de configuración de reglas
 // Path to the nftables rules configuration file
 $jsonPath = '/var/www/config/rules_nftables.json';
-
 // Verifica que el archivo exista
 // Check that the file exists
 if (!file_exists($jsonPath)) {
     echo json_encode(['error' => 'Archivo de reglas no encontrado']);
     exit;
 }
-
 // Carga y decodifica el contenido del archivo
 // Load and decode the file content
 $raw = file_get_contents($jsonPath);
@@ -66,19 +66,38 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////Archivo para el backend///////////////////////////////
+/////////////////////////////Archivo para el backend/////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-// proceso de validacion
-// validation process
-$validated = validate_nftables_policy($data['rule']);
-//preceso de satinizacion
-//sanitization process
-$sanitized = saniticed_nftables_policy($validated);
-//insert o update de la regla
-//insert or update of the police
-$rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
+
+//  leer el archivo human_viewer y procesar todas las reglas
+//read the human_viewer file and process all rules
+$humanPath = '/var/www/config/rules_nftables_human_viewer.json';
+if (!file_exists($humanPath)) {
+    echo json_encode(['error' => 'Archivo human_viewer no encontrado']);
+    exit;
+}
+
+$humanRaw = file_get_contents($humanPath);
+$humanJson = json_decode($humanRaw, true);
+if (json_last_error() !== JSON_ERROR_NONE || !isset($humanJson['nftables'])) {
+    echo json_encode(['error' => 'JSON human_viewer mal formado']);
+    exit;
+}
+
+foreach ($humanJson['nftables'] as $entry) {
+    if (!isset($entry['rule']) || !is_array($entry['rule'])) {
+        continue;
+    }
+    $validated = validate_nftables_policy($entry['rule']);
+    $sanitized = saniticed_nftables_policy($validated);
+    $rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
+}
+
 // guardar el archivo actualizado
-$saved = file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+$saved = file_put_contents(
+    $jsonPath,
+    json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+);
 
 if ($saved === false) {
     echo json_encode(['error' => 'No se pudo guardar el archivo']);
@@ -86,13 +105,8 @@ if ($saved === false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////Archivo para el front///////////////////////////////
+/////////////////////////////Archivo para el front///////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 // respuesta final al frontend
 echo json_encode(['success' => true]);
 exit;
-
-

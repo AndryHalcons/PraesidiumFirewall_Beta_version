@@ -1076,7 +1076,7 @@ function build_expr(array $rule, string $comment): array {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Reasigna la posición de una regla según su familia, tabla y cadena
 // Reassigns the position of a rule based on its family, table, and chain
-function reassign_position(array $reul): array {
+function reassign_position(array $rule): array {
     // Carga el JSON que contiene todas las reglas actuales
     // Loads the JSON containing all current rules
     $jsonData = import_policy_nft_json();
@@ -1147,7 +1147,7 @@ function reassign_position(array $reul): array {
     return $rule;
 }
 
-
+/*
 function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
     // Normaliza el ID de la nueva regla
     $id = isset($rule['id']) ? (int)$rule['id'] : null;
@@ -1173,6 +1173,56 @@ function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
     $rulesJson['nftables'][] = ['rule' => $rule];
     return $rulesJson;
 }
+*/
+function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
+    $id = isset($rule['id']) ? (int)$rule['id'] : null;
+    if (!$id) return $rulesJson;
+
+    foreach ($rulesJson['nftables'] as $index => $entry) {
+        if (!isset($entry['rule'])) continue;
+        $existingId = isset($entry['rule']['id']) ? (int)$entry['rule']['id'] : null;
+
+        if ($existingId === $id) {
+            $rulesJson['nftables'][$index]['rule'] = $rule;
+            // Reasigna el retorno de reorder_policies
+            $rulesJson = reorder_policies($rulesJson);
+            return $rulesJson;
+        }
+    }
+
+    // Inserta como nueva
+    $rulesJson['nftables'][] = ['rule' => $rule];
+    $rulesJson = reorder_policies($rulesJson);
+    return $rulesJson;
+}
+
+function reorder_policies(array $rulesJson): array {
+    // Extraer solo las reglas
+    $rules = [];
+    foreach ($rulesJson['nftables'] as $entry) {
+        if (isset($entry['rule'])) {
+            $rules[] = $entry;
+        }
+    }
+    // Ordenar solo las reglas por position
+    usort($rules, function ($a, $b) {
+        $pa = isset($a['rule']['position']) ? (int)$a['rule']['position'] : PHP_INT_MAX;
+        $pb = isset($b['rule']['position']) ? (int)$b['rule']['position'] : PHP_INT_MAX;
+        return $pa <=> $pb;
+    });
+    // Reconstruir el array original, reemplazando solo las reglas
+    $ruleIndex = 0;
+    foreach ($rulesJson['nftables'] as $i => $entry) {
+        if (isset($entry['rule'])) {
+            $rulesJson['nftables'][$i] = $rules[$ruleIndex++];
+        }
+    }
+
+    return $rulesJson;
+}
+
+
+
 
 
 
