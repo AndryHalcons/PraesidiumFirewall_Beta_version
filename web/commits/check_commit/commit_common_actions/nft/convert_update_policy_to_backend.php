@@ -90,6 +90,10 @@ function convert_update_policy_to_backend(): array {
         if (!isset($entry['rule']) || !is_array($entry['rule'])) {
             continue;
         }
+            // 🔹 Filtrar aquí antes de validar/sanitizar
+        if (!isset($entry['rule']['enable']) || $entry['rule']['enable'] !== "true") {
+            continue;
+        }
         $validated = validate_nftables_policy($entry['rule']);
         $sanitized = saniticed_nftables_policy($validated);
         $rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);

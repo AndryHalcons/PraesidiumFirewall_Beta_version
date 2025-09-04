@@ -1175,6 +1175,7 @@ function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
 }
 */
 function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
+
     $id = isset($rule['id']) ? (int)$rule['id'] : null;
     if (!$id) return $rulesJson;
 
