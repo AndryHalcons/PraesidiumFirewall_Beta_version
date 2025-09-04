@@ -1,6 +1,6 @@
-# PraesidiumFirewall
+## 1. Instalación
 
-
+```bash
 # 1. Clone the repository
 # 1. Clona el repositorio
 git clone https://github.com/AndryHalcons/PraesidiumFirewall.git
@@ -16,3 +16,4 @@ sudo chmod +x installer.sh
 # 4. Run the installer
 # 4. Ejecuta el instalador
 sudo ./installer.sh
+
