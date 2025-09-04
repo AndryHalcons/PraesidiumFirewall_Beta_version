@@ -16,4 +16,8 @@ sudo chmod +x installer.sh
 # 4. Run the installer
 # 4. Ejecuta el instalador
 sudo ./installer.sh
-
+```
+## 2. Login
+default user: praesidium  
+default pass: praesidium  
+![Login screen](PraesidiumFirewall/git_assets/praesidium_loogin.png)
