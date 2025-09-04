@@ -20,4 +20,4 @@ sudo ./installer.sh
 ## 2. Login
 default user: praesidium  
 default pass: praesidium  
-![Login screen](git_assets/praesidium_loogin.png)
+![Login screen](git_assets/praesidium_login.png)
