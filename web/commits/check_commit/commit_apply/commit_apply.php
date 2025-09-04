@@ -17,11 +17,12 @@ function getCommitJson() {
 function starting_commit() {
     $json = getCommitJson();
 
-    // 1️⃣ Ejecutar primero el script PHP de conversión de política
+    //  Ejecutar primero el script PHP de conversión de política a lenguaje backend
+    //este script debe ser reescrito en python y pasado al backend... fue creado por accidente xD
     require_once '/var/www/html/commits/check_commit/commit_common_actions/nft/convert_update_policy_to_backend.php';
     convert_update_policy_to_backend();
 
-    // 2️⃣ Ruta al script Python
+    // Ruta al script Python
     $pythonScript = '/var/www/backend/commits/commit_apply.py';
     // Ejecutar el script y pasarle el JSON como argumento y evitar problemas con comillas
     $escapedJson = escapeshellarg($json);
