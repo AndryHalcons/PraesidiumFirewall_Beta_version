@@ -14,7 +14,7 @@ unset($_SESSION['error']);
 </head>
 <body>
     <div class="login-container">
-        <h2>praesidium Firewall</h2>
+        <h2>Praesidium Firewall</h2>
         <form action="login.php" method="post">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
