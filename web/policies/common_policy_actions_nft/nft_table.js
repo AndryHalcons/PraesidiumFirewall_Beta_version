@@ -247,7 +247,6 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
         if (el && el.tagName === "SELECT") {
           el.disabled = false;
           value = el.value;
-          td.innerHTML = value;
         } else if (el && el.type === "checkbox") {
           el.disabled = false;
           if (formConfig.checkbox?.[key]) {
@@ -257,27 +256,29 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
           } else {
             value = el.checked ? "==" : "!=";
           }
-          td.innerHTML = value;
         } else if (el && el.tagName === "INPUT") {
           el.disabled = false;
           value = el.value;
-          td.innerHTML = value;
         }
 
         updatedRule[key] = value;
       });
 
+      // Esperamos al backend antes de modificar la UI
       sendNftPolicy(nftName, updatedRule, columns, () => {
+        columns.forEach((key, i) => {
+          const td = cells[i + 1];
+          td.innerHTML = updatedRule[key]; // Solo ahora convertimos a texto plano
+        });
+
         saveBtn.style.display = "none";
         editBtn.style.display = "inline-block";
-        loadTableContentNftables(nftName, columns);
       });
     })
     .catch(error => {
       console.error("Error al cargar configuración de formulario:", error);
     });
 }
-
 
 
 
@@ -414,9 +415,6 @@ function add_nft_policy(nftName, columns) {
 
 
 
-
-
-
 function sendNftPolicy(nftName, updatedRule, columns, onSuccess) {
   const payload = {
     table: nftName,
@@ -438,21 +436,28 @@ function sendNftPolicy(nftName, updatedRule, columns, onSuccess) {
       try {
         const result = JSON.parse(text);
         console.log("✅ JSON parseado:", result);
+
         if (result.error) {
-          console.error("Error al guardar en el backend:", result.error);
+          console.error("❌ Error al guardar en el backend:", result.error);
+          alert(JSON.stringify(result, null, 2)); // 👈 Aquí está el puto alert con el JSON completo
         } else {
           if (typeof onSuccess === "function") {
             onSuccess();
           }
+          loadTableContentNftables(nftName, columns);
         }
       } catch (e) {
         console.error("❌ No se pudo parsear JSON:", e);
+        alert("Error al parsear la respuesta del servidor:\n\n" + text); // 👈 También mostramos el texto crudo si no se puede parsear
       }
     })
     .catch(error => {
       console.error("Error de conexión al guardar:", error);
+      alert("Error de conexión al guardar:\n\n" + error); // 👈 Y si falla la conexión, también lo mostramos
     });
 }
+
+
 
 
 

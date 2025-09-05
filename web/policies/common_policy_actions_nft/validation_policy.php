@@ -292,6 +292,7 @@ function get_id(): string {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function validate_nft_rule_protocols(array $rule): void {
     $ipProtocol = strtolower(trim((string)($rule['ip.protocol'] ?? '')));
+    $table = trim((string)($rule['table'] ?? ''));
     $sport = trim((string)($rule['sport'] ?? ''));
     $sportOp = trim((string)($rule['sport.op'] ?? ''));
     $dport = trim((string)($rule['dport'] ?? ''));
@@ -377,10 +378,18 @@ function validate_nft_rule_protocols(array $rule): void {
             exit;
         }
     }
+    // 15. no se permite mezclar ipv4 e ipv6 en la misma regla
     if (!contains_mixed_ip_versions_nft($ipSaddr, $ipDaddr, $snatAddr, $dnatAddr)) {
         echo json_encode(['error' => "No se permite mezclar IPv4 e IPv6 en los campos IP"]);
         exit;
     }
+
+    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr debe tener valor
+    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '')) {
+        echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr debe tener valor"]);
+        exit;
+    }
+
 
 
 
@@ -782,6 +791,14 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
             // Llama a la función de conversión de grupos IP solo para validar
             convert_alias_group_to_Network_ips($rule[$field]);
         }
+    }
+    // si ip origen esta vacio su operador tambien debe estarlo
+     if (empty($rule['ip.saddr'])) {
+        $rule['ip.saddr.op'] = '';
+    }
+    // si ip destino sta vacio su operador tambien debe estarlo
+    if (empty($rule['ip.daddr'])) {
+        $rule['ip.daddr.op'] = '';
     }
 
     // Devuelve la regla original sin modificar

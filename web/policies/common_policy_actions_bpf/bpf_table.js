@@ -246,7 +246,6 @@ function save_bpf_policy(currentAlias, rule, columns, targetRow, editBtn, saveBt
         if (el && el.tagName === "SELECT") {
           el.disabled = false;
           value = el.value;
-          td.innerHTML = value;
         } else if (el && el.type === "checkbox") {
           el.disabled = false;
           if (formConfig.checkbox?.[key]) {
@@ -256,26 +255,30 @@ function save_bpf_policy(currentAlias, rule, columns, targetRow, editBtn, saveBt
           } else {
             value = el.checked ? "==" : "!=";
           }
-          td.innerHTML = value;
         } else if (el && el.tagName === "INPUT") {
           el.disabled = false;
           value = el.value;
-          td.innerHTML = value;
         }
 
         updatedRule[key] = value;
       });
 
       sendNftPolicy_bpf(currentAlias, updatedRule, columns, () => {
+        columns.forEach((key, i) => {
+          const td = cells[i + 1];
+          td.innerHTML = updatedRule[key]; // ✅ Solo si el backend responde bien
+        });
+
         saveBtn.style.display = "none";
         editBtn.style.display = "inline-block";
-        loadTableContentBpfilter(currentAlias, columns);
+        loadTableContentBpfilter(currentAlias, columns); // ✅ Solo si todo fue OK
       });
     })
     .catch(error => {
       console.error("Error al cargar configuración de formulario:", error);
     });
 }
+
 
 function add_bpf_policy(currentAlias, columns) {
   const endpoint = "/policies/common_policy_actions_bpf/get_forms_from_table.php";
@@ -430,8 +433,10 @@ function sendNftPolicy_bpf(currentAlias, updatedRule, columns, onSuccess) {
       try {
         const result = JSON.parse(text);
         console.log("✅ JSON parseado:", result);
+
         if (result.error) {
-          console.error("Error al guardar en el backend:", result.error);
+          console.error("❌ Error al guardar en el backend:", result.error);
+          alert(JSON.stringify(result, null, 2)); // ✅ Ventana emergente con el JSON completo
         } else {
           if (typeof onSuccess === "function") {
             onSuccess();
@@ -439,12 +444,15 @@ function sendNftPolicy_bpf(currentAlias, updatedRule, columns, onSuccess) {
         }
       } catch (e) {
         console.error("❌ No se pudo parsear JSON:", e);
+        alert("Error al parsear la respuesta del servidor:\n\n" + text); // ✅ Si no se puede parsear
       }
     })
     .catch(error => {
       console.error("Error de conexión al guardar:", error);
+      alert("Error de conexión al guardar:\n\n" + error); // ✅ Si falla la conexión
     });
 }
+
 
 
 

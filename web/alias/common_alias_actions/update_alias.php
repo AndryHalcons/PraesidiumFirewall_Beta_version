@@ -79,6 +79,7 @@ function updateAliasAddress($data, &$aliasData, $path) {
     validateIPandCIDR($data['content']);
     updateAliasAddressONgroups($data, $aliasData);
     updateAliasEntry('alias_address', $data, $aliasData);
+    update_name_on_rules($data['name'], $data['id'], $keyJson);
 }
 
 
@@ -90,6 +91,7 @@ function updateAliasAddrGroup($data, &$aliasData, $path) {
     validate_duplicate_names($data, $aliasData);
     isAliasAddressNameIP_ORserviceAlias($data, $path);
     updateAliasEntry('alias_addr_group', $data, $aliasData);
+    update_name_on_rules($data['name'], $data['id'], $keyJson);
 }
 
 // Actualiza una entrada del tipo alias_service
@@ -101,6 +103,7 @@ function updateAliasService($data, &$aliasData, $path) {
     validatePort($data['content']);
     updateAliasServiceONgroups($data, $aliasData);
     updateAliasEntry('alias_service', $data, $aliasData);
+    update_name_on_rules($data['name'], $data['id'], $keyJson);
 }
 
 
@@ -112,6 +115,7 @@ function updateAliasServiceGroup($data, &$aliasData, $path) {
     validate_duplicate_names($data, $aliasData);
     isAliasServiceNamePort_ORserviceAlias($data,$path);
     updateAliasEntry('alias_service_group', $data, $aliasData);
+    update_name_on_rules($data['name'], $data['id'], $keyJson);
 }
 
 // Función genérica para actualizar o insertar una entrada

@@ -14,7 +14,7 @@
                 "l4_protocol": "",
                 "source": "Private-networks",
                 "sport": "",
-                "destination": "Servidores-DNS",
+                "destination": "DNS-Servers",
                 "dport": "",
                 "tcp_flags": "",
                 "ipv6_next_header": "",

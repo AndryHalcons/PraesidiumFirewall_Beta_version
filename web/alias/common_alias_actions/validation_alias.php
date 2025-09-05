@@ -6,7 +6,52 @@ if (!isset($_SESSION['username'])) {
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// carga de json  /////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Importa el archivo de reglas Nftables actual para consultas
+// Imports the current rules file for queries
+function import_policy_nft_json() {
+    $jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
 
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $NFTJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $NFTJsonData;
+}
+
+
+// Importa el archivo de reglas BPFILTER actual para consultas
+// Imports the current rules file for queries
+function import_policy_bpf_json() {
+    $jsonPath = '/var/www/config/rules_bpfilter_human_viewer.json';
+
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $BPFJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $BPFJsonData;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////validate forms  /////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //valida que los datos recibiods son validos asigna id si es nuevo, y comprueba que no haya nombre repetidos
 //validates that the data received is valid assigns id if it is new, and checks that there are no duplicate names
 
@@ -61,6 +106,11 @@ function validateSimply($data, $path, $keyJson) {
     return $data;
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// validate duplicate names  //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Función para validar nombres duplicados en todas las familias de alias
 // Function to validate duplicate names across all alias families
 function validate_duplicate_names($data, $aliasData) {
@@ -148,7 +198,9 @@ function getNextID($data, $path, $keyJson) {
 
 
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// validate ip or cidr  ///////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //ipv4, ipv6, ipv4 con cidr, ipv6 con cidr,(comprobar que tanto ip como cidr son validos) (comprobar que tanto ip como cidr son validos)
 //ipv4, ipv6, ipv4 con cidr, ipv6 con cidr (verify that both ip and cidr are valid) (verify that both ip and cidr are valid)
 function validateIPandCIDR($content) {
@@ -220,6 +272,11 @@ function updateAliasAddressONgroups($data, &$aliasData) {
     }
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// validate ports  ////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Actualiza el nombre referenciado en alias_service_group si ha cambiado
 // Updates referenced name in alias_service_group if it has changed
 function updateAliasServiceONgroups($data, &$aliasData) {
@@ -325,10 +382,50 @@ function isAliasAddressNameInGroupContent($data, $id) {
     return;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// Funciones que evitan mezclar ipv4 e ipv6 en los alias /////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function contains_mixed_ip_versions_nft(string $ipList): bool {
+    $allVersions = [];
+
+    $entries = preg_split('/[\s,]+/', $ipList, -1, PREG_SPLIT_NO_EMPTY);
+
+    foreach ($entries as $entry) {
+        $version = detect_ip_version($entry);
+
+        if ($version === 'IPv4' || $version === 'IPv6') {
+            $allVersions[] = $version;
+        }
+    }
+
+    // Si no hay IPs válidas, no hay mezcla → se permite
+    if (count($allVersions) === 0) {
+        return true;
+    }
+
+    // Si hay más de un tipo de IP → mezcla → no se permite
+    return count(array_unique($allVersions)) === 1;
+}
+
+function detect_ip_version(string $input): string {
+    $ip = explode('/', $input)[0]; // Elimina la máscara si es CIDR
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        return 'IPv4';
+    }
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        return 'IPv6';
+    }
+
+    return 'Desconocido';
+}
 
 
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// check if alias or ips  /////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Verifica si el name de alias_service está en el content de alias_service_group
 // Checks if alias_service name is inside alias_service_group content
 function isAliasServiceNameInGroupContent($data, $id) {
@@ -423,23 +520,27 @@ function isAliasAddressNameIP_ORserviceAlias($data, $path) {
 
     // Buscar inválidos (permitiendo IPs y CIDR)
     $invalid = [];
+    $ipList = [];
+
     foreach ($data['content'] as $item) {
-        // Si está en alias_address → válido
+	// Si está en alias_address → válido
         if (in_array($item, $validNames, true)) {
             continue;
         }
-        // Si es una IP válida → válido
+		// Si es una IP válida → válido
         if (filter_var($item, FILTER_VALIDATE_IP)) {
+            $ipList[] = $item;
             continue;
         }
-        // Si es una red CIDR válida → válido
+		// Si es una red CIDR válida → válido
         if (strpos($item, '/') !== false) {
             [$ip, $mask] = explode('/', $item, 2);
             if (filter_var($ip, FILTER_VALIDATE_IP) && ctype_digit($mask) && (int)$mask >= 0 && (int)$mask <= 128) {
+                $ipList[] = $item;
                 continue;
             }
         }
-        // Si no cumple ninguna condición → inválido
+		// Si no cumple ninguna condición → inválido
         $invalid[] = $item;
     }
 
@@ -449,6 +550,14 @@ function isAliasAddressNameIP_ORserviceAlias($data, $path) {
         exit(json_encode([
             'error' => "Los siguientes valores no existen en '$keyJson' ni son IP/CIDR válidos: " . implode(', ', $invalid)
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    // Verificar mezcla de versiones IP
+    $ipString = implode(',', $ipList);
+    if (!contains_mixed_ip_versions_nft($ipString)) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        exit(json_encode(['error' => 'No se permite mezclar IPv4 e IPv6 en los campos IP'])); //linea 463
     }
 
     return true;
@@ -618,10 +727,10 @@ function is_object_in_policy($name) {
             if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
 
             $values = array_map('trim', explode(',', $rule[$field]));
-            error_log("DEBUG: Revisando campo '$field' con valor = '{$rule[$field]}'");
+            //error_log("DEBUG: Revisando campo '$field' con valor = '{$rule[$field]}'");
 
             if (in_array($target, $values, true)) {
-                error_log("DEBUG: MATCH encontrado en regla '{$rule['name']}'");
+                //error_log("DEBUG: MATCH encontrado en regla '{$rule['name']}'");
 
                 if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
                     $matchedRules[] = $rule['name'];
@@ -638,6 +747,12 @@ function is_object_in_policy($name) {
     }
 }
 
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// update nftables and policy alias names  ////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //funcion que comprueba previamente a los borrados si nombre y id existen para evitar manipulaciones del front
 //function that checks before deletions if name and id exist to avoid front-end manipulations
 function match_name_id($data, $id, $name) {
@@ -660,4 +775,87 @@ function match_name_id($data, $id, $name) {
     exit;
 }
 
+
+//obtiene el "name" que tenia antiguamente si fuese un update, util para actualizar otros archivos con el mismo name.
+//gets the "name" it had before if it was an update, useful for updating other files with the same name.
+function getAliasOldNameById(array $aliasData, string $sectionKey, int $id): ?string {
+    if (!isset($aliasData[$sectionKey]) || !is_array($aliasData[$sectionKey])) {
+        return null;
+    }
+
+    foreach ($aliasData[$sectionKey] as $entry) {
+        if (isset($entry['id']) && (int)$entry['id'] === $id) {
+            return $entry['name'] ?? null;
+        }
+    }
+
+    return null;
+}
+
+
+
+function update_name_on_rules(string $newName, int $id, string $sectionKey): void {
+    $aliasPath = '/var/www/config/alias.json';
+    $nftPath = '/var/www/config/rules_nftables_human_viewer.json';
+    $bpfPath = '/var/www/config/rules_bpfilter_human_viewer.json';
+
+    $aliasData = loadAliasData($aliasPath);
+    $oldName = getAliasOldNameById($aliasData, $sectionKey, $id);
+
+    if ($oldName === null || $oldName === $newName) {
+        return; // No hay cambio de nombre
+    }
+
+    // NFTables
+    $nftData = import_policy_nft_json();
+    if (is_array($nftData) && isset($nftData['nftables'])) {
+        foreach ($nftData['nftables'] as &$entry) {
+            if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+            $fields = [
+                'ip.saddr', 'sport', 'ip.daddr', 'dport',
+                'dnat.addr', 'snat.addr', 'snat.port', 'dnat.port'
+            ];
+
+            foreach ($fields as $field) {
+                if (isset($entry['rule'][$field]) && is_string($entry['rule'][$field])) {
+                    $entry['rule'][$field] = replaceAliasInField($entry['rule'][$field], $oldName, $newName);
+                }
+            }
+        }
+
+        // Guardar cambios en NFTables
+        file_put_contents($nftPath, json_encode($nftData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    // BPFILTER
+    $bpfData = import_policy_bpf_json();
+    if (is_array($bpfData) && isset($bpfData['bpfilter'])) {
+        foreach ($bpfData['bpfilter'] as &$entry) {
+            if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+            $fields = ['source', 'sport', 'destination', 'dport'];
+
+            foreach ($fields as $field) {
+                if (isset($entry['rule'][$field]) && is_string($entry['rule'][$field])) {
+                    $entry['rule'][$field] = replaceAliasInField($entry['rule'][$field], $oldName, $newName);
+                }
+            }
+        }
+
+        // Guardar cambios en BPFILTER
+        file_put_contents($bpfPath, json_encode($bpfData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+}
+
+
+function replaceAliasInField(string $fieldValue, string $oldAlias, string $newAlias): string {
+    $parts = array_map('trim', explode(',', $fieldValue));
+    foreach ($parts as &$part) {
+        if ($part === $oldAlias) {
+            $part = $newAlias;
+        }
+    }
+    return implode(',', $parts);
+}
 
