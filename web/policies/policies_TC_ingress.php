@@ -9,20 +9,23 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
+$currentAlias = "BF_HOOK_TC_INGRESS";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
     const LANG = <?= json_encode($L) ?>;
+    const USERNAME = <?= json_encode($username) ?>;
   </script>
   <meta charset="UTF-8">
-  <title><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></title>
+  <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h2><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></h2>
-  <div id="rules-output"></div>
-
-  <script src="/policies/policies_TC_ingress/policies_TC_ingress.js"></script>
+  <h1><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></h1>
+  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
+  <script>
+    renderTableFromBpfilter("<?= htmlspecialchars($currentAlias) ?>");
+  </script>
 </body>
 </html>

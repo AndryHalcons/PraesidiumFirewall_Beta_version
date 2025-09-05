@@ -1,0 +1,79 @@
+{
+    "bpfilter": [
+        {
+            "rule": {
+                "id": "1",
+                "hook": "BF_HOOK_XDP",
+                "chain": "XDP_chain_group_1",
+                "position": "1",
+                "action": "accept",
+                "enable": "true",
+                "name": "XDPname1",
+                "interface": "",
+                "l3_protocol": "IPv4",
+                "l4_protocol": "",
+                "source": "Private-networks",
+                "sport": "",
+                "destination": "Servidores-DNS",
+                "dport": "",
+                "tcp_flags": "",
+                "ipv6_next_header": "",
+                "icmp_type": "",
+                "icmp_code": "",
+                "icmpv6_type": "",
+                "icmpv6_code": "",
+                "probability": ""
+            }
+        },
+        {
+            "rule": {
+                "id": "2",
+                "hook": "BF_HOOK_TC_INGRESS",
+                "chain": "TcI_chain_group_1",
+                "position": "1",
+                "action": "accept",
+                "enable": "true",
+                "name": "TC_INGRESSName1",
+                "interface": "ens21",
+                "l3_protocol": "IPv4",
+                "l4_protocol": "TCP",
+                "source": "",
+                "sport": "",
+                "destination": "8.8.8.8",
+                "dport": "",
+                "tcp_flags": "",
+                "ipv6_next_header": "",
+                "icmp_type": "",
+                "icmp_code": "",
+                "icmpv6_type": "",
+                "icmpv6_code": "",
+                "probability": ""
+            }
+        },
+                {
+            "rule": {
+                "id": "3",
+                "hook": "BF_HOOK_TC_EGRESS",
+                "chain": "TcE_chain_group_1",
+                "position": "1",
+                "action": "accept",
+                "enable": "true",
+                "name": "TC_EGRESSName1",
+                "interface": "ens21",
+                "l3_protocol": "IPv4",
+                "l4_protocol": "TCP",
+                "source": "",
+                "sport": "",
+                "destination": "8.8.8.8",
+                "dport": "",
+                "tcp_flags": "",
+                "ipv6_next_header": "",
+                "icmp_type": "",
+                "icmp_code": "",
+                "icmpv6_type": "",
+                "icmpv6_code": "",
+                "probability": ""
+            }
+        }
+    ]
+}

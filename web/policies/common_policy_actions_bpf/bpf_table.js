@@ -1,11 +1,11 @@
-function renderTableFromNftables(nftName) {
-  const endpoint = "/policies/common_policy_actions_nft/get_table_structure.php";
-  const param = `table=${nftName}`;
+function renderTableFromBpfilter(currentAlias) {
+  const endpoint = "/policies/common_policy_actions_bpf/get_table_structure.php";
+  const param = `table=${currentAlias}`;
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
-      const container = document.getElementById(`${nftName}_table`);
+      const container = document.getElementById(`${currentAlias}_table`);
 
       if (data.error) {
         if (container) {
@@ -14,7 +14,7 @@ function renderTableFromNftables(nftName) {
         return;
       }
 
-      const columns = data[nftName];
+      const columns = data[currentAlias];
       if (!container || !Array.isArray(columns)) {
         return;
       }
@@ -22,7 +22,7 @@ function renderTableFromNftables(nftName) {
       // Insertar el botón "Agregar política" antes del contenedor
       const addBtn = document.createElement("button");
       addBtn.textContent = LANG["add_policy"] || "Agregar política";
-      addBtn.onclick = () => add_nft_policy(nftName, columns);
+      addBtn.onclick = () => add_bpf_policy(currentAlias, columns);
       container.insertAdjacentElement("beforebegin", addBtn);
 
       container.innerHTML = "";
@@ -54,10 +54,10 @@ function renderTableFromNftables(nftName) {
       container.appendChild(table);
 
       // Cargar contenido de la tabla
-      loadTableContentNftables(nftName, columns);
+      loadTableContentBpfilter(currentAlias, columns);
     })
     .catch(error => {
-      const container = document.getElementById(`${nftName}_table`);
+      const container = document.getElementById(`${currentAlias}_table`);
       if (container) {
         container.innerHTML = `<div class="error">Error de conexión con el servidor</div>`;
       }
@@ -65,13 +65,13 @@ function renderTableFromNftables(nftName) {
 }
 
 
-function loadTableContentNftables(nftName, columns) {
-  const endpoint = "/policies/common_policy_actions_nft/get_table_content.php"; 
-  const param = `table=${nftName}`;
+function loadTableContentBpfilter(currentAlias, columns) {
+  const endpoint = "/policies/common_policy_actions_bpf/get_table_content.php"; 
+  const param = `table=${currentAlias}`;
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
-      const tbody = document.querySelector(`#${nftName}_table table tbody`);
+      const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
       if (!tbody) return;
 
       tbody.innerHTML = "";
@@ -87,7 +87,7 @@ function loadTableContentNftables(nftName, columns) {
         return;
       }
 
-      const rules = data[nftName];
+      const rules = data[currentAlias];
       if (!Array.isArray(rules) || rules.length === 0) {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
@@ -98,8 +98,8 @@ function loadTableContentNftables(nftName, columns) {
         return;
       }
 
-      const formEndpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
-      fetch(`${formEndpoint}?table=${nftName}`)
+      const formEndpoint = "/policies/common_policy_actions_bpf/get_forms_from_table.php";
+      fetch(`${formEndpoint}?table=${currentAlias}`)
         .then(res => res.json())
         .then(formConfig => {
           rules.forEach(rule => {
@@ -115,12 +115,12 @@ function loadTableContentNftables(nftName, columns) {
             saveBtn.textContent = LANG["save"] || "Guardar";
             saveBtn.style.display = "none";
 
-            editBtn.onclick = () => edit_nft_policy(nftName, rule, columns, tr, editBtn, saveBtn);
-            saveBtn.onclick = () => save_nft_policy(nftName, rule, columns, tr, editBtn, saveBtn);
+            editBtn.onclick = () => edit_bpf_policy(currentAlias, rule, columns, tr, editBtn, saveBtn);
+            saveBtn.onclick = () => save_bpf_policy(currentAlias, rule, columns, tr, editBtn, saveBtn);
 
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = LANG["delete"] || "Eliminar";
-            deleteBtn.onclick = () => delete_nft_policy(nftName, rule);
+            deleteBtn.onclick = () => delete_bpf_policy(currentAlias, rule);
 
             actionsTd.appendChild(editBtn);
             actionsTd.appendChild(saveBtn);
@@ -164,7 +164,7 @@ function loadTableContentNftables(nftName, columns) {
         });
     })
     .catch(error => {
-      const tbody = document.querySelector(`#${nftName}_table table tbody`);
+      const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
       if (tbody) {
         tbody.innerHTML = `<tr><td colspan="${columns.length + 1}" class="error">Error de conexión con el servidor</td></tr>`;
       }
@@ -173,9 +173,9 @@ function loadTableContentNftables(nftName, columns) {
 
 
 
-function edit_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
-  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
-  const param = `table=${nftName}`;
+function edit_bpf_policy(currentAlias, rule, columns, targetRow, editBtn, saveBtn) {
+  const endpoint = "/policies/common_policy_actions_bpf/get_forms_from_table.php";
+  const param = `table=${currentAlias}`;
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
@@ -227,13 +227,12 @@ function edit_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
     });
 }
 
-
-function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
+function save_bpf_policy(currentAlias, rule, columns, targetRow, editBtn, saveBtn) {
   const cells = targetRow.querySelectorAll("td");
   const updatedRule = {};
 
-  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
-  const param = `table=${nftName}`;
+  const endpoint = "/policies/common_policy_actions_bpf/get_forms_from_table.php";
+  const param = `table=${currentAlias}`;
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
@@ -267,10 +266,10 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
         updatedRule[key] = value;
       });
 
-      sendNftPolicy(nftName, updatedRule, columns, () => {
+      sendNftPolicy_bpf(currentAlias, updatedRule, columns, () => {
         saveBtn.style.display = "none";
         editBtn.style.display = "inline-block";
-        loadTableContentNftables(nftName, columns);
+        loadTableContentBpfilter(currentAlias, columns);
       });
     })
     .catch(error => {
@@ -278,13 +277,9 @@ function save_nft_policy(nftName, rule, columns, targetRow, editBtn, saveBtn) {
     });
 }
 
-
-
-
-
-function add_nft_policy(nftName, columns) {
-  const endpoint = "/policies/common_policy_actions_nft/get_forms_from_table.php";
-  const param = `table=${nftName}`;
+function add_bpf_policy(currentAlias, columns) {
+  const endpoint = "/policies/common_policy_actions_bpf/get_forms_from_table.php";
+  const param = `table=${currentAlias}`;
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
@@ -296,7 +291,7 @@ function add_nft_policy(nftName, columns) {
       modalContent.className = "modal-window";
 
       const title = document.createElement("h3");
-      title.textContent = `Agregar política a ${nftName}`;
+      title.textContent = `Agregar política a ${currentAlias}`;
       modalContent.appendChild(title);
 
       const form = document.createElement("form");
@@ -388,9 +383,9 @@ function add_nft_policy(nftName, columns) {
           updatedRule[key] = value;
         });
 
-        sendNftPolicy(nftName, updatedRule, columns, () => {
+        sendNftPolicy_bpf(currentAlias, updatedRule, columns, () => {
           document.body.removeChild(modal);
-          loadTableContentNftables(nftName, columns);
+          loadTableContentBpfilter(currentAlias, columns);
         });
       };
       actions.appendChild(saveBtn);
@@ -414,18 +409,15 @@ function add_nft_policy(nftName, columns) {
 
 
 
-
-
-
-function sendNftPolicy(nftName, updatedRule, columns, onSuccess) {
+function sendNftPolicy_bpf(currentAlias, updatedRule, columns, onSuccess) {
   const payload = {
-    table: nftName,
+    table: currentAlias,
     rule: updatedRule
   };
 
   console.log("Enviando al backend:", JSON.stringify(payload, null, 2));
 
-  fetch("/policies/common_policy_actions_nft/get_update_policy.php", {
+  fetch("/policies/common_policy_actions_bpf/get_update_policy.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -456,15 +448,15 @@ function sendNftPolicy(nftName, updatedRule, columns, onSuccess) {
 
 
 
-function delete_nft_policy(nftName, rule) {
+function delete_bpf_policy(currentAlias, rule) {
   if (!confirm("¿Estás seguro de que quieres eliminar esta política?")) {
     return; // El usuario canceló
   }
 
-  const endpoint = "/policies/common_policy_actions_nft/get_delete_policy.php";
+  const endpoint = "/policies/common_policy_actions_bpf/get_delete_policy.php";
 
   const payload = {
-    table: nftName,
+    table: currentAlias,
     id: rule.id
   };
 
@@ -478,7 +470,7 @@ function delete_nft_policy(nftName, rule) {
     .then(response => response.json())
     .then(result => {
       if (result.success) {
-        loadTableContentNftables(nftName, Object.keys(rule));
+        loadTableContentBpfilter(currentAlias, Object.keys(rule));
       } else {
         alert(result.error || "Error al eliminar la política");
       }
@@ -489,5 +481,4 @@ function delete_nft_policy(nftName, rule) {
     });
 }
 
-
-
+renderTableFromBpfilter(currentAlias)

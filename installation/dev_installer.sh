@@ -18,12 +18,12 @@ chmod +x configure_logs.sh
 
 # Ejecutar system_requirements.sh / Run system_requirements.sh
 echo "desinstalando  dependencias innecesarias... / Installing system dependencies..."
-./uninstall_unnecessary.sh
+#./uninstall_unnecessary.sh
 echo "✅ Desinstalando uninstall_unnecessary.shcompletada / uninstall uninstall_unnecessary.sh completed"
 
 # Ejecutar system_requirements.sh / Run system_requirements.sh
 echo "Instalando dependencias del sistema... / Installing system dependencies..."
-./system_requirements.sh
+#./system_requirements.sh
 echo "✅ Instalación system_requirements.sh completada / Installation system_requirements.sh completed"
 
 # Ejecutar web_installation.sh / Run web_installation.sh
@@ -56,17 +56,17 @@ echo "✅ Instalación permissions.sh completada / Installation permissions.sh c
 
 # Ejecutar install_bpfilter.sh / Run install_bpfilter.sh
 echo "instlaando bpfilter / Installing bpfilter"
-./install_bpfilter.sh
+#./install_bpfilter.sh
 echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"
 
 
 # Ejecutar configure_bpfilter.sh / Run configure_bpfilter.sh
 echo "Configurando bpfilter / Configuring bpfilter"
-./configure_bpfilter.sh
+#./configure_bpfilter.sh
 echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpfilter.sh completed"
 
 
 # Ejecutar configure_bpfilter.sh / Run configure_bpfilter.sh
 echo "Configurando configure_logs.sh / Configuring configure_logs.sh"
-./configure_logs.sh
+#./configure_logs.sh
 echo "✅ Instalación configure_logs.sh completada / Installation configure_logs.sh completed"

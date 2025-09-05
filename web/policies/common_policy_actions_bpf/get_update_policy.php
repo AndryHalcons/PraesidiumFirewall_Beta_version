@@ -20,7 +20,11 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data['table']) || !isset($d
     exit;
 }
 
-$allowedTables = [ 'FORWARDING', 'PREROUTING', 'POSTROUTING', 'input', 'output' ];
+$allowedTables = [
+    'BF_HOOK_XDP',
+    'BF_HOOK_TC_INGRESS',
+    'BF_HOOK_TC_EGRESS',
+];
 
 if (!in_array($data['table'], $allowedTables)) {
     echo json_encode(['error' => 'Tabla no permitida: ' . $data['table']]);
@@ -32,8 +36,8 @@ if (!in_array($data['table'], $allowedTables)) {
 require __DIR__ . '/validation_policy.php';
 
 // Ruta del archivo de configuración de reglas
-// Path to the nftables rules configuration file
-$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
+// Path to the bpfilter rules configuration file
+$jsonPath = '/var/www/config/rules_bpfilter_human_viewer.json';
 
 // Verifica que el archivo exista
 // Check that the file exists
@@ -47,9 +51,9 @@ if (!file_exists($jsonPath)) {
 $raw = file_get_contents($jsonPath);
 $rulesJson = json_decode($raw, true);
 
-// Verifica que el JSON sea válido y tenga la clave 'nftables'
-// Validate that the JSON is correct and contains the 'nftables' key
-if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
+// Verifica que el JSON sea válido y tenga la clave 'bpfilter'
+// Validate that the JSON is correct and contains the 'bpfilter' key
+if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['bpfilter'])) {
     echo json_encode(['error' => 'JSON de reglas mal formado']);
     exit;
 }
@@ -58,39 +62,42 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
 //////////////////////////////////////////////////////////////////////////////////////////
 // Función para validar la regla recibida
 // Function to validate the received rule
-function validate_nftables_policy(array $data, array $rule): array {
+function validate_bpfilter_policy(array $data, array $rule): array {
     $rule = validationFamiliy($data,$rule);
     $rule = validation_icmp_no_ports($rule);
     $rule = Main_convert_alias_object_to_network_object($rule);
     $rule = get_id_from_policy($rule);
     validation_form_field_review($rule);
-    validate_nft_rule_protocols($rule);
     $rule = assign_position($rule);
     return $rule;
 }
 // proceso de validacion
 // validation process
-$validated = validate_nftables_policy($data, $data['rule']);
+
+$validated = validate_bpfilter_policy($data, $data['rule']);
+
 //preceso de satinizacion
-
-
-
 //sanitization process
-$sanitized = saniticed_nftables_policy($validated);
+
+$sanitized = saniticed_bpfilter_policy($validated);
+
+
+// Validación de compatibilidad entre protocolos de BPfilter
+validate_bpfilter_protocols($sanitized['rule']);
+
+
 //insert o update de la regla
 //insert or update of the police
-$rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
+$rulesJson = update_or_insert_bpf_rule($sanitized['rule'], $rulesJson);
+
 //ordenamos las reglas por el campo posicion
 //We order the rules by the position field
-
-
 
 $rulesJson = reorderPosition(
     $rulesJson,
     $sanitized['rule']['id'],
     $sanitized['rule']['position'],
-    $sanitized['rule']['family'],
-    $sanitized['rule']['table'],
+    $sanitized['rule']['hook'],
     $sanitized['rule']['chain']
 );
 
@@ -110,5 +117,4 @@ if ($saved === false) {
 // respuesta final al frontend
 echo json_encode(['success' => true]);
 exit;
-
 

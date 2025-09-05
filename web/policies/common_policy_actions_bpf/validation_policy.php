@@ -31,8 +31,8 @@ function import_alias_json() {
 
 // Importa el archivo de reglas actual para consultas
 // Imports the current rules file for queries
-function import_policy_nft_json() {
-    $jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
+function import_policy_bpf_json() {
+    $jsonPath = '/var/www/config/rules_bpfilter_human_viewer.json';
 
     if (!file_exists($jsonPath)) {
         return false;
@@ -49,8 +49,26 @@ function import_policy_nft_json() {
 }
 //importa el archivo de formulario para validar los datos del resto de campos
 //import the form file to validate the data in the remaining fields
-function import_forms_nft_json() {
-    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_policies_nft.json';
+function import_forms_bpf_json() {
+    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_policies_bpf.json';
+
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $aliasJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $aliasJsonData;
+}
+
+
+function import_forms_bpf_chain_json() {
+    $jsonPath = '/var/www/config/rules_bpfilter_chain.json';
 
     if (!file_exists($jsonPath)) {
         return false;
@@ -70,44 +88,44 @@ function import_forms_nft_json() {
 //importa la lista de interfaces en array 
 //imports the list of interfaces into array
 function import_all_interfaces(): array {
-    $path = '/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json';
+    $path = '/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json';
     if (!file_exists($path)) return [];
+
     $raw = file_get_contents($path);
     $data = json_decode($raw, true);
-    return $data['all_interfaces'] ?? [];
+
+    if (!isset($data['physical_interfaces']) || !is_array($data['physical_interfaces'])) {
+        return [];
+    }
+
+    // Extraer solo los nombres
+    // only extract names
+    $names = [];
+    foreach ($data['physical_interfaces'] as $iface) {
+        if (isset($iface['name']) && is_string($iface['name'])) {
+            $names[] = $iface['name'];
+        }
+    }
+
+    return $names;
 }
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    family nftables field       //////////////////////////////////
+////////////////////////////////////    family bpfilter field       //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function validationFamiliy($data, $rule)
     {
         switch (strtoupper($data['table'])) {
-            case 'FORWARDING':
-                $rule['family'] = 'inet';
-                $rule['table'] = 'filter';
-                $rule['chain'] = 'FORWARDING';
+            case 'BF_HOOK_XDP':
+                $rule['hook'] = 'BF_HOOK_XDP';
                 break;
-            case 'PREROUTING':
-                $rule['family'] = 'inet';
-                $rule['table'] = 'nat';
-                $rule['chain'] = 'PREROUTING';
+            case 'BF_HOOK_TC_INGRESS':
+                $rule['hook'] = 'BF_HOOK_TC_INGRESS';
                 break;
-            case 'POSTROUTING':
-                $rule['family'] = 'inet';
-                $rule['table'] = 'nat';
-                $rule['chain'] = 'POSTROUTING';
-                break;
-            case 'INPUT':
-                $rule['family'] = 'inet';
-                $rule['table'] = 'filter';
-                $rule['chain'] = 'input';
-                break;
-            case 'OUTPUT':
-                $rule['family'] = 'inet';
-                $rule['table'] = 'filter';
-                $rule['chain'] = 'output';
+            case 'BF_HOOK_TC_EGRESS':
+                $rule['hook'] = 'BF_HOOK_TC_EGRESS';
                 break;
         }
 
@@ -125,7 +143,7 @@ function validationFamiliy($data, $rule)
 //revisa los campos que contienen formularios
 //check the fields that contain forms
 function validation_form_field_review(array $rule): void {
-    $formConfig = import_forms_nft_json();
+    $formConfig = import_forms_bpf_json();
     if (!$formConfig) {
         echo json_encode(["error" => "No se pudo cargar la configuración del formulario interfaces"]);
         exit;
@@ -133,12 +151,21 @@ function validation_form_field_review(array $rule): void {
 
     // Añadir interfaces del sistema
     $interfaces = import_all_interfaces();
-    if (isset($formConfig['select']['meta.iifname'])) {
-        $formConfig['select']['meta.iifname'] = array_merge($formConfig['select']['meta.iifname'], $interfaces);
+    if (isset($formConfig['select']['interface'])) {
+        $formConfig['select']['interface'] = array_merge($formConfig['select']['interface'], $interfaces);
     }
-    if (isset($formConfig['select']['meta.oifname'])) {
-        $formConfig['select']['meta.oifname'] = array_merge($formConfig['select']['meta.oifname'], $interfaces);
+
+    // Añadir cadenas disponibles según el hook
+    $chainConfig = import_forms_bpf_chain_json();
+    if ($chainConfig && isset($rule['hook']) && isset($chainConfig['chain'][$rule['hook']])) {
+        $chains = $chainConfig['chain'][$rule['hook']];
+
+        if (isset($formConfig['select']['chain'])) {
+            // Reemplaza completamente el campo "chain" con las cadenas del hook, sin el valor vacío
+            $formConfig['select']['chain'] = $chains;
+        }
     }
+
 
     // Validar select
     if (isset($formConfig['select'])) {
@@ -150,7 +177,7 @@ function validation_form_field_review(array $rule): void {
                     continue;
                 }
                 if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
+                    echo json_encode(["error" => "validation_form_field_review_select '{$value}' not found"]);
                     exit;
                 }
             }
@@ -167,7 +194,7 @@ function validation_form_field_review(array $rule): void {
                     continue;
                 }
                 if (!in_array($value, $options, true)) {
-                    echo json_encode(["error" => "alias port validation_form_field_review_checkbox '{$value}' not found"]);
+                    echo json_encode(["error" => "validation_form_field_review_checkbox '{$value}' not found"]);
                     exit;
                 }
             }
@@ -181,7 +208,7 @@ function validation_form_field_review(array $rule): void {
             if (isset($rule[$key])) {
                 $value = $rule[$key];
                 if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "alias port validation_form_field_review_not_editable '{$value}' not found"]);
+                    echo json_encode(["error" => "validation_form_field_review_not_editable '{$value}' not found"]);
                     exit;
                 }
             }
@@ -239,11 +266,11 @@ function get_id_from_policy(array $rule): array {
 function get_id(): string {
     // Carga el JSON de reglas
     // Load the rules JSON
-    $data = import_policy_nft_json();
+    $data = import_policy_bpf_json();
 
     // Si el archivo no existe o está mal formado, se detiene el script
     // If the file doesn't exist or is malformed, stop the script
-    if (!$data || !isset($data['nftables']) || !is_array($data['nftables'])) {
+    if (!$data || !isset($data['bpfilter']) || !is_array($data['bpfilter'])) {
         echo json_encode(['error' => 'Imposible obtener ID']);
         exit;
     }
@@ -259,7 +286,7 @@ function get_id(): string {
 
         // Recorremos todas las reglas existentes
         // Iterate through all existing rules
-        foreach ($data['nftables'] as $entry) {
+        foreach ($data['bpfilter'] as $entry) {
             // Comparamos el ID actual con los existentes
             // Compare current ID with existing ones
             if (isset($entry['rule']['id']) && (string)(int)$entry['rule']['id'] === (string)$id) {
@@ -283,175 +310,23 @@ function get_id(): string {
 
 
 
-//convierte el campo name y el campo id en partes del campo comment de nftables
+//convierte el campo name y el campo id en partes del campo comment de bpfilter
 //si no hay id por que la regla por ejemplo es nueva, se llama a get_id_from_policy() que devuelve un id unico
-//makes the name field and id field parts of the nftables comment field
+//makes the name field and id field parts of the bpfilter comment field
 //if there is no id because the rule is new, for example, get_id_from_policy() is called which returns a unique id
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////// validate NFT syntax protocols  /////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function validate_nft_rule_protocols(array $rule): void {
-    $ipProtocol = strtolower(trim((string)($rule['ip.protocol'] ?? '')));
-    $sport = trim((string)($rule['sport'] ?? ''));
-    $sportOp = trim((string)($rule['sport.op'] ?? ''));
-    $dport = trim((string)($rule['dport'] ?? ''));
-    $dportOp = trim((string)($rule['dport.op'] ?? ''));
-    $snatAddr = trim((string)($rule['snat.addr'] ?? ''));
-    $dnatAddr = trim((string)($rule['dnat.addr'] ?? ''));
-    $dnatPort = trim((string)($rule['dnat.port'] ?? ''));
-    $ipSaddr = trim((string)($rule['ip.saddr'] ?? ''));
-    $ipSaddrOp = trim((string)($rule['ip.saddr.op'] ?? ''));
-    $ipDaddr = trim((string)($rule['ip.daddr'] ?? ''));
-    $ipDaddrOp = trim((string)($rule['ip.daddr.op'] ?? ''));
-    $ctState = trim((string)($rule['ct.state'] ?? ''));
 
-    // 1. sport vacío → sport.op debe estar vacío
-    if ($sport === '' && $sportOp !== '') {
-        echo json_encode(['error' => "Si sport está vacío, sport.op también debe estarlo"]);
-        exit;
-    }
-
-    // 2. dport vacío → dport.op debe estar vacío
-    if ($dport === '' && $dportOp !== '') {
-        echo json_encode(['error' => "Si dport está vacío, dport.op también debe estarlo"]);
-        exit;
-    }
-
-    // 3. snat.addr y dnat.addr no pueden tener valor al mismo tiempo
-    if ($snatAddr !== '' && $dnatAddr !== '') {
-        echo json_encode(['error' => "snat.addr y dnat.addr no pueden tener valor al mismo tiempo"]);
-        exit;
-    }
-
-    // 4. ip.saddr vacío → ip.saddr.op también debe estarlo
-    if ($ipSaddr === '' && $ipSaddrOp !== '') {
-        echo json_encode(['error' => "Si ip.saddr está vacío, ip.saddr.op también debe estarlo"]);
-        exit;
-    }
-
-    // 5. ip.daddr vacío → ip.daddr.op también debe estarlo
-    if ($ipDaddr === '' && $ipDaddrOp !== '') {
-        echo json_encode(['error' => "Si ip.daddr está vacío, ip.daddr.op también debe estarlo"]);
-        exit;
-    }
-
-    // 6. ip.protocol contiene UDP → ct.state debe estar vacío
-    if (str_contains($ipProtocol, 'udp') && $ctState !== '') {
-        echo json_encode(['error' => "No se permite ct.state si ip.protocol contiene UDP"]);
-        exit;
-    }
-
-    // 7. ip.protocol = "tcp, udp" → ct.state debe estar vacío
-    if ($ipProtocol === 'tcp, udp' && $ctState !== '') {
-        echo json_encode(['error' => "No se permite ct.state si ip.protocol es 'tcp, udp'"]);
-        exit;
-    }
-
-    // 8. ip.protocol = icmp → no debe tener dnat.port ni sport/dport
-    if ($ipProtocol === 'icmp') {
-        if ($dnatPort !== '' || $sport !== '' || $dport !== '') {
-            echo json_encode(['error' => "icmp no debe tener dnat.port ni sport/dport"]);
-            exit;
-        }
-    }
-
-    // 9. ip.protocol = icmpv6 → igual que icmp
-    if ($ipProtocol === 'icmpv6') {
-        if ($dnatPort !== '' || $sport !== '' || $dport !== '') {
-            echo json_encode(['error' => "icmpv6 no debe tener dnat.port ni sport/dport"]);
-            exit;
-        }
-    }
-    // 13. Si ip.protocol contiene "icmp" → campos de puertos deben estar vacíos
-    if (str_contains($ipProtocol, 'icmp') && !str_contains($ipProtocol, 'icmpv6')) {
-        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '') {
-            echo json_encode(['error' => "ip.protocol = 'icmp' no permite campos de puertos"]);
-            exit;
-        }
-    }
-
-    // 14. Si ip.protocol contiene "icmpv6" → campos de puertos deben estar vacíos
-    if (str_contains($ipProtocol, 'icmpv6')) {
-        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '') {
-            echo json_encode(['error' => "ip.protocol = 'icmpv6' no permite campos de puertos"]);
-            exit;
-        }
-    }
-    if (!contains_mixed_ip_versions_nft($ipSaddr, $ipDaddr, $snatAddr, $dnatAddr)) {
-        echo json_encode(['error' => "No se permite mezclar IPv4 e IPv6 en los campos IP"]);
-        exit;
-    }
-
-
-
-}
-
-
-
-// Verificación de mezcla de IPv4 e IPv6 en source y destination
-function contains_mixed_ip_versions_nft(string $ipSaddr = '', string $ipDaddr = '', string $snatAddr = '', string $dnatAddr = ''): bool {
-    $allVersions = [];
-
-    $fields = [$ipSaddr, $ipDaddr, $snatAddr, $dnatAddr];
-
-    foreach ($fields as $field) {
-        if (!is_string($field) || trim($field) === '') {
-            continue;
-        }
-
-        $entries = preg_split('/[\s,]+/', $field, -1, PREG_SPLIT_NO_EMPTY);
-
-        foreach ($entries as $entry) {
-            $version = detect_ip_version($entry);
-
-            if ($version === 'IPv4' || $version === 'IPv6') {
-                $allVersions[] = $version;
-            }
-        }
-    }
-
-    // Si no hay IPs válidas, no hay mezcla → se permite
-    if (count($allVersions) === 0) {
-        return true;
-    }
-
-    // Si hay más de un tipo de IP → mezcla → no se permite
-    return count(array_unique($allVersions)) === 1;
-}
-
-
-
-
-function detect_ip_version(string $input): string {
-    // Elimina la máscara si es una red (ej. 192.168.0.0/24)
-    $ip = explode('/', $input)[0];
-
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        return 'IPv4';
-    }
-
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        return 'IPv6';
-    }
-
-    return 'Desconocido';
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////PORTS VALIDATION SECTION/////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-//elimina puertos de los campos puerto si el protocolo de la regla es icmp, tambien borra los puertos sportOP si sport esta vacio y dportOP si dport está vacio
-//Remove ports from the port fields if the rule protocol is icmp, also delete the sportOP ports if sport is empty and dportOP if dport is empty
+//elimina puertos de los campos puerto si el protocolo de la regla es icmp
+//Remove ports from the port fields if the rule protocol is icmp
 function validation_icmp_no_ports(array $rule): array {
     $protocol = strtolower($rule['ip.protocol'] ?? '');
 
-    // Si el protocolo es ICMP o ICMPv6, limpiamos todos los campos de puertos
-    if ($protocol === 'icmp' || $protocol === 'icmpv6') {
+    if ($protocol === 'ICMP' || $protocol === 'ICMPv6') {
         $fieldsToClear = [
-            'sport.op',
             'sport',
-            'dport.op',
-            'dport',
-            'dnat.port'
+            'dport'
         ];
 
         foreach ($fieldsToClear as $field) {
@@ -461,19 +336,8 @@ function validation_icmp_no_ports(array $rule): array {
         }
     }
 
-    // Si sport está vacío, también vaciamos sport.op
-    if (empty($rule['sport'])) {
-        $rule['sport.op'] = '';
-    }
-
-    // Si dport está vacío, también vaciamos dport.op
-    if (empty($rule['dport'])) {
-        $rule['dport.op'] = '';
-    }
-
     return $rule;
 }
-
 
 // Valida que los puertos o rangos estén dentro del rango permitido
 // Validates that ports or ranges are within the allowed range
@@ -667,6 +531,7 @@ function validate_ip_or_cidr(string $value): bool {
 // Returns the first IP or CIDR linked to a named alias in alias_address.
 
 function convert_alias_ip_to_ip(string $value): bool {
+    // ignorar vacios
     if (trim($value) === '') {
         return true; 
     }
@@ -765,7 +630,7 @@ function convert_alias_group_to_Network_ips(string $value): bool {
 // check aliases into real network objects using helper functions
 function Main_convert_alias_object_to_network_object(array $rule): array {
     // Campos relacionados con puertos
-    $portFields = ['sport', 'dport', 'dnat.port'];
+    $portFields = ['sport', 'dport'];
 
     foreach ($portFields as $field) {
         if (isset($rule[$field])) {
@@ -775,7 +640,7 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
     }
 
     // Campos relacionados con direcciones IP
-    $ipFields = ['ip.daddr', 'ip.saddr', 'dnat.addr', 'snat.addr'];
+    $ipFields = ['source', 'destination'];
 
     foreach ($ipFields as $field) {
         if (isset($rule[$field])) {
@@ -817,44 +682,237 @@ function assign_position(array $rule): array {
     return $rule;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////// validate  bp filter protocols  /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function validate_bpfilter_protocols(array $rule): bool {
+    $l3 = $rule['l3_protocol'] ?? '';
+    $l4 = $rule['l4_protocol'] ?? '';
+    $ip6 = $rule['ipv6_next_header'] ?? '';
+    $tcpFlags = $rule['tcp_flags'] ?? '';
+    $icmpType = $rule['icmp_type'] ?? '';
+    $icmpCode = $rule['icmp_code'] ?? '';
+    $icmpv6Type = $rule['icmpv6_type'] ?? '';
+    $icmpv6Code = $rule['icmpv6_code'] ?? '';
+    $source = $rule['source'] ?? '';
+    $destination = $rule['destination'] ?? '';
+    if (!contains_mixed_ip_versions($source, $destination)) {
+        echo json_encode(['error' => "No se permite mezclar IPv4 e IPv6 entre source y destination"]);
+        exit;
+    }
+
+    // l3 nunca vacio, no se permite por formulario, pero por si acaso contra modificaciones de front
+    if ($l3 === '') {
+        echo json_encode(['error' => "El campo l3_protocol es obligatorio"]);
+        exit;
+    }
+    // L3: protocolos no compatibles con campos adicionales
+    if (in_array($l3, ['MPLS', 'IPX', 'ARP'])) {
+        if ($l4 !== '' || $ip6 !== '' || $tcpFlags !== '' || $icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
+            echo json_encode(['error' => "L3 protocol '{$l3}' no permite campos adicionales"]);
+            exit;
+        }
+    }
+
+    // L3: IPv4 no debe tener campos ICMPv6 ni ipv6_next_header
+    if ($l3 === 'IPv4') {
+        if ($ip6 !== '') {
+            echo json_encode(['error' => "ipv6_next_header no es compatible con IPv4"]);
+            exit;
+        }
+        if ($icmpv6Type !== '' || $icmpv6Code !== '') {
+            echo json_encode(['error' => "icmpv6_type/code no son válidos con IPv4"]);
+            exit;
+        }
+    }
+
+    // L3: IPv6 no debe tener campos ICMP
+    if ($l3 === 'IPv6') {
+        if ($icmpType !== '' || $icmpCode !== '' ) {
+            echo json_encode(['error' => "icmp_type/code no son válidos con IPv6"]);
+            exit;
+        }
+    }
+        // ipv6_next_header solo valido con IPv6
+    if ($l3 !== 'IPv6' && $ip6 !== '') {
+        echo json_encode(['error' => "ipv6_next_header solo es válido con IPv6"]);
+        exit;
+    }
+
+
+    // L4: TCP permite tcp_flags, pero no ICMP ni ICMPv6
+    if ($l4 === 'TCP') {
+        if ($icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
+            echo json_encode(['error' => "TCP no debe tener campos ICMP ni ICMPv6"]);
+            exit;
+        }
+    }
+
+    // L4: UDP no permite ICMP, ICMPv6 ni tcp_flags
+    if ($l4 === 'UDP') {
+        if ($icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
+            echo json_encode(['error' => "UDP no debe tener campos ICMP ni ICMPv6"]);
+            exit;
+        }
+        if ($tcpFlags !== '') {
+            echo json_encode(['error' => "tcp_flags no es válido con UDP"]);
+            exit;
+        }
+    }
+
+    // L4: ICMP no permite ICMPv6 ni tcp_flags
+    if ($l4 === 'ICMP') {
+        if ($icmpv6Type !== '' || $icmpv6Code !== '') {
+            echo json_encode(['error' => "ICMP no debe tener campos ICMPv6"]);
+            exit;
+        }
+        if ($tcpFlags !== '') {
+            echo json_encode(['error' => "tcp_flags no es válido con ICMP"]);
+            exit;
+        }
+    }
+
+    // L4: ICMPv6 no permite ICMP ni tcp_flags
+    if ($l4 === 'ICMPv6') {
+        if ($icmpType !== '' || $icmpCode !== '') {
+            echo json_encode(['error' => "ICMPv6 no debe tener campos ICMP"]);
+            exit;
+        }
+        if ($tcpFlags !== '') {
+            echo json_encode(['error' => "tcp_flags no es válido con ICMPv6"]);
+            exit;
+        }
+    }
+
+    // tcp_flags solo válido con TCP
+    if ($tcpFlags !== '' && $l4 !== 'TCP') {
+        echo json_encode(['error' => "tcp_flags solo es válido con TCP"]);
+        exit;
+    }
+    //compatibilidad campo next header
+    if ($ip6 !== '') {
+        // Si ipv6_next_header indica TCP, no debe haber ICMP ni ICMPv6
+        if ($ip6 === 'TCP') {
+            if ($icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
+                echo json_encode(['error' => "ipv6_next_header = TCP no debe tener campos ICMP ni ICMPv6"]);
+                exit;
+            }
+        }
+
+        // Si ipv6_next_header indica UDP, no debe haber ICMP ni ICMPv6 ni tcp_flags
+        if ($ip6 === 'UDP') {
+            if ($icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '' || $tcpFlags !== '') {
+                echo json_encode(['error' => "ipv6_next_header = UDP no debe tener ICMP, ICMPv6 ni tcp_flags"]);
+                exit;
+            }
+        }
+
+        // Si ipv6_next_header indica ICMP, no debe haber ICMPv6 ni tcp_flags
+        if ($ip6 === 'ICMP') {
+            if ($icmpv6Type !== '' || $icmpv6Code !== '' || $tcpFlags !== '') {
+                echo json_encode(['error' => "ipv6_next_header = ICMP no debe tener campos ICMPv6 ni tcp_flags"]);
+                exit;
+            }
+        }
+
+        // Si ipv6_next_header indica ICMPv6, no debe haber ICMP ni tcp_flags
+        if ($ip6 === 'ICMPv6') {
+            if ($icmpType !== '' || $icmpCode !== '' || $tcpFlags !== '') {
+                echo json_encode(['error' => "ipv6_next_header = ICMPv6 no debe tener campos ICMP ni tcp_flags"]);
+                exit;
+            }
+        }
+
+        // Si ipv6_next_header indica Hop-by-Hop, Routing, Fragment, AH, ESP, Destination → no debe haber ningún campo adicional
+        if (in_array($ip6, ['Hop-by-Hop', 'Routing', 'Fragment', 'AH', 'ESP', 'Destination'])) {
+            if ($l4 !== '' || $tcpFlags !== '' || $icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
+                echo json_encode(['error' => "ipv6_next_header = '{$ip6}' no permite campos adicionales"]);
+                exit;
+            }
+        }
+    }
+
+
+    return true;
+}
+
+
+// Verificación de mezcla de IPv4 e IPv6 en source y destination
+function contains_mixed_ip_versions(string $source, string $destination): bool {
+    $allVersions = [];
+
+    // Combina source y destination en una sola lista
+    $combined = array_merge(
+        preg_split('/[\s,]+/', $source, -1, PREG_SPLIT_NO_EMPTY),
+        preg_split('/[\s,]+/', $destination, -1, PREG_SPLIT_NO_EMPTY)
+    );
+
+    foreach ($combined as $entry) {
+        $version = detect_ip_version($entry);
+
+        // Ignorar vacíos, alias y entradas desconocidas
+        if ($version === 'IPv4' || $version === 'IPv6') {
+            $allVersions[] = $version;
+        }
+    }
+
+    // Si no hay IPs válidas, no hay mezcla
+    if (count($allVersions) === 0) {
+        return true;
+    }
+
+    // Si hay más de un tipo de IP, hay mezcla
+    return count(array_unique($allVersions)) === 1;
+}
+
+
+function detect_ip_version(string $input): string {
+    // Elimina la máscara si es una red (ej. 192.168.0.0/24)
+    $ip = explode('/', $input)[0];
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        return 'IPv4';
+    }
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        return 'IPv6';
+    }
+
+    return 'Desconocido';
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// Saniticed to nftables json format  ///////////////////////////////////////////////////////////////
+///////////////////////////////////// Saniticed to bpfilter json format  ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Función para convertir la regla al formato de nftables
-// Function to convert the rule to nftables format
-// Genera la estructura base de una regla nftables
-// Generates the base structure of an nftables rule
-function saniticed_nftables_policy(array $rule): array {
+// Función para convertir la regla al formato de bpfilter
+// Function to convert the rule to bpfilter format
+// Genera la estructura base de una regla bpfilter
+// Generates the base structure of an bpfilter rule
+function saniticed_bpfilter_policy(array $rule): array {
     return [
         "rule" => [
-            "family"        => $rule["family"]        ?? "",
-            "table"         => $rule["table"]         ?? "",
-            "chain"         => $rule["chain"]         ?? "",
-            "id"            => $rule["id"]            ?? "",
-            "position"      => $rule["position"]      ?? "",
-            "action"        => $rule["action"]        ?? "",
-            "enable"        => $rule["enable"]        ?? "",
-            "name"          => $rule["name"]          ?? "",
-            "ip.protocol"   => $rule["ip.protocol"]   ?? "",
-            "ip.saddr.op"   => $rule["ip.saddr.op"]   ?? "",
-            "ip.saddr"      => $rule["ip.saddr"]      ?? "",
-            "sport.op"      => $rule["sport.op"]      ?? "",
-            "sport"         => $rule["sport"]         ?? "",
-            "ip.daddr.op"   => $rule["ip.daddr.op"]   ?? "",
-            "ip.daddr"      => $rule["ip.daddr"]      ?? "",
-            "dport.op"      => $rule["dport.op"]      ?? "",
-            "dport"         => $rule["dport"]         ?? "",
-            "meta.iifname"  => $rule["meta.iifname"]  ?? "",
-            "meta.oifname"  => $rule["meta.oifname"]  ?? "",
-            "ct.state"      => $rule["ct.state"]      ?? "",
-            "packets"       => $rule["packets"]       ?? "",
-            "bytes"         => $rule["bytes"]         ?? "",
-            "log"           => $rule["log"]           ?? "",
-            "snat.addr"     => $rule["snat.addr"]     ?? "",
-            "snat.port"     => $rule["snat.port"]     ?? "",
-            "dnat.addr"     => $rule["dnat.addr"]     ?? "",
-            "dnat.port"     => $rule["dnat.port"]     ?? ""
+            "id"               => $rule["id"]               ?? "",
+            "hook"             => $rule["hook"]             ?? "",
+            "chain"            => $rule["chain"]            ?? "",
+            "position"         => $rule["position"]         ?? "",
+            "action"           => $rule["action"]           ?? "",
+            "enable"           => $rule["enable"]           ?? "",
+            "name"             => $rule["name"]             ?? "",
+            "interface"        => $rule["interface"]        ?? "",
+            "l3_protocol"      => $rule["l3_protocol"]      ?? "",
+            "l4_protocol"      => $rule["l4_protocol"]      ?? "",
+            "source"           => $rule["source"]           ?? "",
+            "sport"            => $rule["sport"]            ?? "",
+            "destination"      => $rule["destination"]      ?? "",
+            "dport"            => $rule["dport"]            ?? "",
+            "tcp_flags"        => $rule["tcp_flags"]        ?? "",
+            "ipv6_next_header" => $rule["ipv6_next_header"] ?? "",
+            "icmp_type"        => $rule["icmp_type"]        ?? "",
+            "icmp_code"        => $rule["icmp_code"]        ?? "",
+            "icmpv6_type"      => $rule["icmpv6_type"]      ?? "",
+            "icmpv6_code"      => $rule["icmpv6_code"]      ?? "",
+            "probability"      => $rule["probability"]      ?? ""
         ]
     ];
 }
@@ -863,18 +921,16 @@ function saniticed_nftables_policy(array $rule): array {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////// write and order policy   ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Reasigna la posición de una regla según su familia, tabla y cadena
-// Reassigns the position of a rule based on its family, table, and chain
+// Reasigna la posición de una regla según su familia
+// Reassigns the position of a rule based on its family
 function reassign_position(array $rule): array {
-    $jsonData = import_policy_nft_json();
+    $jsonData = import_policy_bpf_json();
 
-    if (!$jsonData || !isset($jsonData["nftables"]) || !is_array($jsonData["nftables"])) {
+    if (!$jsonData || !isset($jsonData["bpfilter"]) || !is_array($jsonData["bpfilter"])) {
         return $rule;
     }
 
-    $family = $rule["family"] ?? "";
-    $table  = $rule["table"]  ?? "";
-    $chain  = $rule["chain"]  ?? "";
+    $family = $rule["hook"] ?? "";
 
     // Normalizamos la posición entrante
     $incomingPosition = isset($rule["position"]) && $rule["position"] !== ""
@@ -885,24 +941,20 @@ function reassign_position(array $rule): array {
         $rule["position"] = 1;
         $incomingPosition = 1;
 
-        foreach ($jsonData["nftables"] as &$entry) {
-            if (isset($entry["rule"]["family"], $entry["rule"]["table"], $entry["rule"]["chain"], $entry["rule"]["position"])) {
+        foreach ($jsonData["bpfilter"] as &$entry) {
+            if (isset($entry["rule"]["hook"], $entry["rule"]["position"])) {
                 if (
-                    $entry["rule"]["family"] === $family &&
-                    $entry["rule"]["table"]  === $table &&
-                    $entry["rule"]["chain"]  === $chain
+                    $entry["rule"]["hook"] === $family
                 ) {
                     $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
                 }
             }
         }
     } else {
-        foreach ($jsonData["nftables"] as &$entry) {
-            if (isset($entry["rule"]["family"], $entry["rule"]["table"], $entry["rule"]["chain"], $entry["rule"]["position"])) {
+        foreach ($jsonData["bpfilter"] as &$entry) {
+            if (isset($entry["rule"]["hook"], $entry["rule"]["position"])) {
                 if (
-                    $entry["rule"]["family"] === $family &&
-                    $entry["rule"]["table"]  === $table &&
-                    $entry["rule"]["chain"]  === $chain &&
+                    $entry["rule"]["hook"] === $family &&
                     (int)$entry["rule"]["position"] >= $incomingPosition
                 ) {
                     $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
@@ -914,13 +966,13 @@ function reassign_position(array $rule): array {
     return $rule;
 }
 
-function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
+function update_or_insert_bpf_rule(array $rule, array $rulesJson): array {
     // Normaliza el ID de la nueva regla
     $id = isset($rule['id']) ? (int)$rule['id'] : null;
 
     if (!$id) return $rulesJson;
 
-    foreach ($rulesJson['nftables'] as $index => $entry) {
+    foreach ($rulesJson['bpfilter'] as $index => $entry) {
         if (!isset($entry['rule'])) continue;
 
         $existing = $entry['rule'];
@@ -930,17 +982,17 @@ function update_or_insert_nft_rule(array $rule, array $rulesJson): array {
 
         // Compara los IDs como enteros
         if ($existingId === $id) {
-            $rulesJson['nftables'][$index]['rule'] = $rule;
+            $rulesJson['bpfilter'][$index]['rule'] = $rule;
             return $rulesJson;
         }
     }
 
     // Si no se encontró coincidencia, se inserta como nueva
-    $rulesJson['nftables'][] = ['rule' => $rule];
+    $rulesJson['bpfilter'][] = ['rule' => $rule];
     return $rulesJson;
 }
 
-function reorderPosition($rulesJson, $id, $position, $family, $table, $chain) {
+function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     $targetPos = (int)$position;
 
     // Separar reglas del bloque afectado y las demás
@@ -952,7 +1004,7 @@ function reorderPosition($rulesJson, $id, $position, $family, $table, $chain) {
         $rule['position'] = (int)$rule['position'];
 
         if (
-            $rule['family'] === $family &&
+            $rule['family'] === $hook &&
             $rule['table'] === $table &&
             $rule['chain'] === $chain
         ) {
@@ -999,6 +1051,8 @@ function reorderPosition($rulesJson, $id, $position, $family, $table, $chain) {
     $rulesJson['nftables'] = array_merge($others, $block);
     return $rulesJson;
 }
+
+
 
 
 

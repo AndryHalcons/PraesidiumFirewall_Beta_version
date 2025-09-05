@@ -12,12 +12,12 @@
     },
     {
       "id": 3,
-      "name": "cloudflare",
+      "name": "Server_cloudflare_1",
       "content": ["1.1.1.1"]
     },
     {
       "id": 4,
-      "name": "Google_DNS",
+      "name": "Server_Google_DNS_1",
       "content": ["8.8.8.8"]
     },
     {
@@ -48,45 +48,63 @@
     },
     {
       "id": 2,
-      "name": "Servidores-DNS",
+      "name": "DNS-Servers",
       "content": [
-        "cloudflare",
-        "Google_DNS"
+        "Server_cloudflare_1",
+        "Server_Google_DNS_1"
       ]
     }
   ],
   "alias_service": [
     {
       "id": 1,
-      "name": "SSH",
+      "name": "port-22",
       "content": ["22"]
     },
     {
       "id": 2,
-      "name": "HTTP",
+      "name": "port-80",
       "content": ["80"]
     },
     {
       "id": 3,
-      "name": "HTTPS",
+      "name": "port-443",
       "content": ["443"]
+    },
+    {
+      "id": 4,
+      "name": "port-53",
+      "content": ["53"]
+    },
+        {
+      "id": 4,
+      "name": "port-5353",
+      "content": ["5353"]
     }
   ],
   "alias_service_group": [
     {
       "id": 1,
-      "name": "Management",
+      "name": "group_ports_Management",
       "content": [
-        "HTTP",
-        "HTTPS",
-        "SSH"
+        "port-80",
+        "port-443",
+        "port-22"
       ]
     },
     {
       "id": 2,
-      "name": "Administración Remota",
+      "name": "group_ports_remote_administration",
       "content": [
-        "SSH"
+        "port-22"
+      ]
+    },
+        {
+      "id": 3,
+      "name": "group_ports_DNS",
+      "content": [
+        "port-53",
+        "port-5353"
       ]
     }
   ]
