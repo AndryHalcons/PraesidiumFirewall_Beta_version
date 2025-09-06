@@ -5,10 +5,7 @@
         "accept",
         "drop",
         "reject",
-        "queue",
-        "continue",
-        "jump",
-        "return"
+        "queue"
       ],
       "meta.iifname": [
         ""

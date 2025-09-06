@@ -235,3 +235,4 @@ def gen_bpfilter_policies(user, date):
     process_rules(user, date, json_path, output_path, iface_system_path)
     apply_bpfilter_policies(output_path, user, date)
 
+gen_bpfilter_policies("praesidium", "20250824142408")
