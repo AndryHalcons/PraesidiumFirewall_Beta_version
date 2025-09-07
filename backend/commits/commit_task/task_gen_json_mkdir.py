@@ -23,6 +23,8 @@ def copy_to_running(date):
             'interfaces.yml',
             'rules.json',
             'rules_nftables.json',
+            'rules_nftables_human_viewer.json',
+            'rules_bpfilter_human_viewer.json',
             'users.json',
             'alias.json',
         ]
