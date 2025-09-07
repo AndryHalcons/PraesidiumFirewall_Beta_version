@@ -1,0 +1,42 @@
+chain chain_bf_hook_tc_ingress BF_HOOK_TC_INGRESS ACCEPT
+    counters policy 0 packets 0 bytes; error 0 packets 0 bytes
+    rule
+        meta.l3_proto eq ipv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        DROP
+    rule
+        meta.l3_proto eq ipv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        ACCEPT
+chain chain_bf_hook_tc_egress BF_HOOK_TC_EGRESS ACCEPT
+    counters policy 0 packets 0 bytes; error 0 packets 0 bytes
+    rule
+        meta.l3_proto eq ipv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        DROP
+    rule
+        meta.l3_proto eq ipv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        ACCEPT
+chain chain_bf_hook_xdp BF_HOOK_XDP ACCEPT
+    counters policy 0 packets 0 bytes; error 0 packets 0 bytes
+    rule
+        meta.l3_proto eq ipv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        DROP
+    rule
+        meta.l3_proto eq ipv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counters 0 packets 0 bytes
+        ACCEPT

@@ -1,0 +1,39 @@
+chain chain_bf_hook_tc_ingress BF_HOOK_TC_INGRESS{} ACCEPT
+    rule
+        meta.l3_proto eq IPv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counter
+        DROP
+    rule
+        meta.l3_proto eq IPv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counter
+        ACCEPT
+chain chain_bf_hook_tc_egress BF_HOOK_TC_EGRESS{} ACCEPT
+    rule
+        meta.l3_proto eq IPv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counter
+        DROP
+    rule
+        meta.l3_proto eq IPv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counter
+        ACCEPT
+chain chain_bf_hook_xdp BF_HOOK_XDP{} ACCEPT
+    rule
+        meta.l3_proto eq IPv4
+        ip4.daddr eq 8.8.8.8
+        meta.probability eq 100%
+        counter
+        DROP
+    rule
+        meta.l3_proto eq IPv4
+        ip4.snet eq 10.0.0.0/8
+        meta.probability eq 100%
+        counter
+        ACCEPT

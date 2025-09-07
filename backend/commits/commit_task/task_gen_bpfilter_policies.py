@@ -229,7 +229,7 @@ def apply_bpfilter_policies(output_path, user, date):
 
 
 def gen_bpfilter_policies(user, date):
-    json_path = "/var/www/config_running/rules.json"
+    json_path = "/var/www/config/rules.json"
     output_path = "/var/www/config_running/rules_formatted.txt"
     iface_system_path = "/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json"
     process_rules(user, date, json_path, output_path, iface_system_path)
