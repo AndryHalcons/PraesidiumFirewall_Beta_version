@@ -86,57 +86,49 @@ def import_all_interfaces():
 
 # revisa los campos que contienen formularios
 # check the fields that contain forms
-def validation_form_field_review(rule: dict, date: str) -> None:
+def validation_form_field_review(rule):
     form_config = import_forms_nft_json()
-
     if not form_config:
-        task_update_json(date, "nftables_convert", "fail")
+        #print(json.dumps({"error": "No se pudo cargar la configuración del formulario interfaces"}))
         exit()
 
-    # Extiende los valores válidos de interfaces con los del sistema extraídos del archivo de interfaces
     interfaces = import_all_interfaces()
     if 'meta.iifname' in form_config.get('select', {}):
         form_config['select']['meta.iifname'] += interfaces
     if 'meta.oifname' in form_config.get('select', {}):
         form_config['select']['meta.oifname'] += interfaces
 
-    # Validar campos tipo "select"
     if 'select' in form_config:
         for key, valid_values in form_config['select'].items():
             if key in rule:
-                value = str(rule[key]).strip()
-                if value == '':
+                value = rule[key]
+                if str(value).strip() == '':
                     continue
                 if value not in valid_values:
-                    task_update_json(date, "nftables_convert", "fail")
+                    #print(json.dumps({"error": f"value in validation_form_field_review_select '{value}' not found"}))
                     exit()
 
-    # Validar campos tipo "checkbox"
     if 'checkbox' in form_config:
         for key, options in form_config['checkbox'].items():
             if key in rule:
-                value = str(rule[key]).strip()
-                if value == '':
+                value = rule[key]
+                if str(value).strip() == '':
                     continue
-                if value not in options.values():
-                    task_update_json(date, "nftables_convert", "fail")
+                if value != options.get("checked") and value != options.get("unchecked"):
+                    #print(json.dumps({"error": f"alias port validation_form_field_review_checkbox '{value}' not found"}))
                     exit()
 
-    # Validar campos "not_editable" (excepto 'id')
     if 'not_editable' in form_config:
         for key, valid_values in form_config['not_editable'].items():
             if key == 'id':
                 continue
             if key in rule:
-                value = str(rule[key]).strip()
-                if value == '':
+                value = rule[key]
+                if str(value).strip() == '':
                     continue
                 if value not in valid_values:
-                    task_update_json(date, "nftables_convert", "fail")
+                    #print(json.dumps({"error": f"alias port validation_form_field_review_not_editable '{value}' not found"}))
                     exit()
-
-    # Si todo está bien, no se hace nada
-    return
 
 # genera la entrada log compatible con nftables si es true, si es false borra "log" de la regla
 # Generates the nftables-compatible log entry if true, if false deletes "log" from the rule
@@ -289,7 +281,7 @@ def validation_ports_range(value: str) -> None:
         if item.isdigit():
             port = int(item)
             if port < min_port or port > max_port:
-                print(json.dumps({"error": f"port '{port}' out of range"}))
+                #print(json.dumps({"error": f"port '{port}' out of range"}))
                 exit()
             continue
 
@@ -300,7 +292,7 @@ def validation_ports_range(value: str) -> None:
             start = int(match.group(1))
             end = int(match.group(2))
             if start < min_port or start > max_port or end < min_port or end > max_port:
-                print(json.dumps({"error": f"port range '{item}' out of range"}))
+                #print(json.dumps({"error": f"port range '{item}' out of range"}))
                 exit()
             continue
 
@@ -312,7 +304,7 @@ def convert_alias_port_to_network_port(value: str) -> str:
     # Verifica que se haya cargado correctamente el JSON
     # Check that the JSON was loaded successfully
     if not alias_json_data:
-        print(json.dumps({"error": "alias file not found or invalid"}))
+        #print(json.dumps({"error": "alias file not found or invalid"}))
         exit()
 
     # Busca el alias en alias_service
@@ -323,7 +315,7 @@ def convert_alias_port_to_network_port(value: str) -> str:
 
     # Si no se encuentra, se detiene el script y se devuelve error
     # If not found, stop the script and return error
-    print(json.dumps({"error": f"alias port no encontrado en ningun sitio '{value}' not found"}))
+    #print(json.dumps({"error": f"alias port no encontrado en ningun sitio '{value}' not found"}))
     exit()
 
 # Convierte una lista de puertos, alias y grupos en puertos reales
@@ -339,7 +331,7 @@ def convert_alias_port_group_to_network_port(value: str) -> str:
     # Si no se pudo cargar el archivo, se detiene el script
     # If the file couldn't be loaded, stop the script
     if not alias_json_data:
-        print(json.dumps({"error": "alias file not found or invalid"}))
+        #print(json.dumps({"error": "alias file not found or invalid"}))
         exit()
 
     final_ports = []
@@ -404,7 +396,7 @@ def cidr_contains(cidr: str, target: str) -> bool:
 # Normalizes a list of IPs and CIDR networks, validates format, removes duplicates,
 # sorts by ascending mask, and filters out contained networks to return only the most specific ones.
 def validation_ip_networks(value: str) -> str:
-    print(f"DEBUG validation_ip_networks: valor recibido =>{value}<")
+    #print(f"DEBUG validation_ip_networks: valor recibido =>{value}<")
 
     # Divide la cadena por comas, elimina espacios y filtra vacíos
     # Split the string by commas, trim spaces, and filter out empty entries
@@ -412,7 +404,7 @@ def validation_ip_networks(value: str) -> str:
     normalized = []
 
     for idx, item in enumerate(items):
-        print(f"DEBUG iteración {idx}: item =>{item}<")
+        #print(f"DEBUG iteración {idx}: item =>{item}<")
 
         try:
             # IP sin CIDR → se normaliza como /32 (IPv4) o /128 (IPv6)
@@ -428,12 +420,12 @@ def validation_ip_networks(value: str) -> str:
                     ip_net = ipaddress.ip_network(item, strict=False)
                     normalized.append(str(ip_net))
                 except ValueError:
-                    print(json.dumps({"error": f"invalid CIDR '{item}'"}))
+                    #print(json.dumps({"error": f"invalid CIDR '{item}'"}))
                     exit()
             else:
                 # Formato inválido → se muestra error y se detiene
                 # Invalid format → show error and stop
-                print(json.dumps({"error": f"invalid IP format '{item}'"}))
+                #print(json.dumps({"error": f"invalid IP format '{item}'"}))
                 exit()
 
     # Elimina duplicados exactos
@@ -454,13 +446,13 @@ def validation_ip_networks(value: str) -> str:
         contained = False
         for existing in final:
             if cidr_contains(existing, candidate):
-                print(f"DEBUG {candidate} está contenido en {existing}, se omite")
+                #print(f"DEBUG {candidate} está contenido en {existing}, se omite")
                 contained = True
                 break
         if not contained:
             final.append(candidate)
 
-    print(f"DEBUG resultado final: {json.dumps(final)}")
+    #print(f"DEBUG resultado final: {json.dumps(final)}")
     return ','.join(final)
 
 
@@ -513,22 +505,22 @@ def convert_alias_ip_to_ip(value: str) -> str:
     # Si el valor está vacío o solo contiene espacios, lo ignoramos
     # If the value is empty or just spaces, ignore it
     if value.strip() == '':
-        print(f"DEBUG convert_alias_ip_to_ip: valor vacío, se ignora")
+        #print(f"DEBUG convert_alias_ip_to_ip: valor vacío, se ignora")
         return ''
 
     # Verifica que se haya cargado correctamente el JSON
     # Check that the JSON was loaded successfully
     if not alias_json_data:
-        print(json.dumps({"error": "alias file not found or invalid"}))
+        #print(json.dumps({"error": "alias file not found or invalid"}))
         exit()
 
     # DEBUG: mostrar el valor recibido
-    print(f"DEBUG convert_alias_ip_to_ip: valor recibido = >{value}<")
+    #print(f"DEBUG convert_alias_ip_to_ip: valor recibido = >{value}<")
 
     # DEBUG: listar todos los alias disponibles en alias_address
-    if 'alias_address' in alias_json_data:
-        for entry in alias_json_data['alias_address']:
-            print(f"DEBUG alias en JSON: >{entry.get('name', '')}<")
+    #if 'alias_address' in alias_json_data:
+    #    for entry in alias_json_data['alias_address']:
+    #        print(f"DEBUG alias en JSON: >{entry.get('name', '')}<")
 
     # Busca el alias en alias_address
     # Search for the alias in alias_address
@@ -538,7 +530,7 @@ def convert_alias_ip_to_ip(value: str) -> str:
 
     # Si no se encuentra, se detiene el script y se devuelve error
     # If not found, stop the script and return error
-    print(json.dumps({"error": f"alias IP '{value}' not found"}))
+    #print(json.dumps({"error": f"alias IP '{value}' not found"}))
     exit()
 
 # Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
@@ -549,7 +541,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
     # Verifica que se haya cargado correctamente el JSON
     # Check that the JSON was loaded successfully
     if not alias_json_data:
-        print(json.dumps({"error": "alias file not found or invalid"}))
+        #print(json.dumps({"error": "alias file not found or invalid"}))
         exit()
 
     # Divide la cadena por comas y elimina espacios
@@ -594,7 +586,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
 
             # Si no se pudo resolver, se lanza error
             # If resolution fails, throw an error
-            print(json.dumps({"error": f"alias or group '{item}' not found or invalid"}))
+            #print(json.dumps({"error": f"alias or group '{item}' not found or invalid"}))
             exit()
 
     # Normaliza y elimina duplicados antes de devolver
@@ -655,128 +647,101 @@ def assign_position(rule: dict) -> dict:
 # Function to convert the rule to nftables format
 # Genera la estructura base de una regla nftables
 # Generates the base structure of an nftables rule
-def saniticed_nftables_policy(rule: dict) -> dict:
+def saniticed_nftables_policy(rule):
+    #print(rule)
     return {
         "rule": {
-            "family": rule["family"],
-            "table": rule["table"],
-            "chain": rule["chain"],
-            "position": rule["position"],
-            "id": rule["id"],
-            "name": rule["name"],
-            "expr": build_expr(rule, rule["comment"]),  # pasamos comment para personalizar los logs
-            "comment": rule["comment"]
+            "family": rule.get("family", ""),
+            "table": rule.get("table", ""),
+            "chain": rule.get("chain", ""),
+            "position": rule.get("position", ""),
+            "id": rule.get("id", ""),
+            "name": rule.get("name", ""),
+            "expr": build_expr(rule, rule.get("comment", "")),
+            "comment": rule.get("comment", "")
         }
     }
-    # 🧾 Registrar el resultado en los logs
+    
 
 
 # genera la estructura de expr en nftables
 # generate the structure of expr in nftables
-def build_expr(rule: dict, comment: str) -> list:
+def build_expr(rule, comment):
     expr = []
 
-    # Limpieza de /32 o /128 en snat/dnat justo antes de insertar, incompatible con nftables
-    # Cleaning up /32 or /128 in snat/dnat just before inserting, incompatible with nftables
     for field in ["snat.addr", "dnat.addr"]:
         if rule.get(field):
-            rule[field] = re.sub(r"/(32|128)$", "", rule[field])
+            rule[field] = re.sub(r"/(32|128)$", "", str(rule[field]))
 
-    # Protocolo IP
-    # añadida compatibilidad con tcp-udp
     if rule.get("ip.protocol"):
-        protocols = [p.strip() for p in rule["ip.protocol"].split(",")]
-        match_expr = {
+        protocols = [str(p).strip() for p in str(rule["ip.protocol"]).split(",")]
+        expr.append({
             "match": {
                 "op": "==",
-                "left": {
-                    "payload": {
-                        "protocol": "ip",
-                        "field": "protocol"
-                    }
-                },
+                "left": {"payload": {"protocol": "ip", "field": "protocol"}},
                 "right": protocols[0] if len(protocols) == 1 else {"set": protocols}
             }
-        }
-        expr.append(match_expr)
+        })
 
-    # Dirección de origen
     if rule.get("ip.saddr"):
         set_ = []
-        for cidr in rule["ip.saddr"].split(","):
-            addr, length = cidr.strip().split("/")
-            set_.append({"prefix": {"addr": addr, "len": int(length)}})
-
-        expr.append({
-            "match": {
-                "op": rule.get("ip.saddr.op", "=="),
-                "left": {
-                    "payload": {
-                        "protocol": "ip",
-                        "field": "saddr"
-                    }
-                },
-                "right": {"set": set_}
-            }
-        })
-
-    # Dirección de destino
-    if rule.get("ip.daddr"):
-        set_ = []
-        for cidr in rule["ip.daddr"].split(","):
-            addr, length = cidr.strip().split("/")
-            set_.append({"prefix": {"addr": addr, "len": int(length)}})
-
-        expr.append({
-            "match": {
-                "op": rule.get("ip.daddr.op", "=="),
-                "left": {
-                    "payload": {
-                        "protocol": "ip",
-                        "field": "daddr"
-                    }
-                },
-                "right": {"set": set_}
-            }
-        })
-
-    # compatibilidad con tcp udp juntos
-    # support for tcp udp together
-    for port_type in ["sport", "dport"]:
-        if rule.get(port_type):
-            ports = [p.strip() for p in rule[port_type].split(",")]
-            items = []
-            for p in ports:
-                if re.match(r"^\d+-\d+$", p):
-                    start, end = map(int, p.split("-"))
-                    items.append({"range": [start, end]})
-                elif p.isdigit():
-                    items.append(int(p))
-
-            right = items[0] if len(items) == 1 else {"set": items}
-
-            proto_raw = rule.get("ip.protocol", "").strip()
-            is_tcp_udp = proto_raw == "tcp, udp"
-            has_snat = bool(rule.get("snat.addr", "").strip())
-            has_dnat = bool(rule.get("dnat.addr", "").strip())
-            has_both_ports = bool(rule.get("sport", "").strip()) and bool(rule.get("dport", "").strip())
-
-            proto = "th" if is_tcp_udp and (has_snat or has_dnat or has_both_ports) else proto_raw
-
+        for cidr in str(rule["ip.saddr"]).split(","):
+            if "/" in cidr:
+                addr, length = cidr.strip().split("/")
+                if str(length).isdigit():
+                    set_.append({"prefix": {"addr": addr, "len": int(length)}})
+        if set_:
             expr.append({
                 "match": {
-                    "op": rule.get(f"{port_type}.op", "=="),
-                    "left": {
-                        "payload": {
-                            "protocol": proto,
-                            "field": port_type
-                        }
-                    },
-                    "right": right
+                    "op": rule.get("ip.saddr.op", "=="),
+                    "left": {"payload": {"protocol": "ip", "field": "saddr"}},
+                    "right": {"set": set_}
                 }
             })
 
-    # Interfaces in
+    if rule.get("ip.daddr"):
+        set_ = []
+        for cidr in str(rule["ip.daddr"]).split(","):
+            if "/" in cidr:
+                addr, length = cidr.strip().split("/")
+                if str(length).isdigit():
+                    set_.append({"prefix": {"addr": addr, "len": int(length)}})
+        if set_:
+            expr.append({
+                "match": {
+                    "op": rule.get("ip.daddr.op", "=="),
+                    "left": {"payload": {"protocol": "ip", "field": "daddr"}},
+                    "right": {"set": set_}
+                }
+            })
+
+    for port_type in ["sport", "dport"]:
+        if rule.get(port_type):
+            ports = [str(p).strip() for p in str(rule[port_type]).split(",")]
+            items = []
+            for p in ports:
+                if re.match(r"^\d+-\d+$", p):
+                    start, end = p.split("-")
+                    if str(start).isdigit() and str(end).isdigit():
+                        items.append({"range": [int(start), int(end)]})
+                elif str(p).isdigit():
+                    items.append(int(p))
+            if items:
+                right = items[0] if len(items) == 1 else {"set": items}
+                proto_raw = str(rule.get("ip.protocol", "")).strip()
+                is_tcp_udp = proto_raw == "tcp, udp"
+                has_snat = bool(str(rule.get("snat.addr", "")).strip())
+                has_dnat = bool(str(rule.get("dnat.addr", "")).strip())
+                has_both_ports = bool(str(rule.get("sport", "")).strip()) and bool(str(rule.get("dport", "")).strip())
+                proto = "th" if is_tcp_udp and (has_snat or has_dnat or has_both_ports) else proto_raw
+                expr.append({
+                    "match": {
+                        "op": rule.get(f"{port_type}.op", "=="),
+                        "left": {"payload": {"protocol": proto, "field": port_type}},
+                        "right": right
+                    }
+                })
+
     if rule.get("meta.iifname"):
         expr.append({
             "match": {
@@ -786,7 +751,6 @@ def build_expr(rule: dict, comment: str) -> list:
             }
         })
 
-    # Interfaces out
     if rule.get("meta.oifname"):
         expr.append({
             "match": {
@@ -796,51 +760,50 @@ def build_expr(rule: dict, comment: str) -> list:
             }
         })
 
-    # Estado de conexión
     if rule.get("ct.state"):
-        states = [s.strip() for s in rule["ct.state"].split(",")]
-        expr.append({
-            "match": {
-                "op": "==",
-                "left": {"ct": {"key": "state"}},
-                "right": {"set": states}
-            }
-        })
+        states = [str(s).strip() for s in str(rule["ct.state"]).split(",") if str(s).strip()]
+        if states:
+            expr.append({
+                "match": {
+                    "op": "==",
+                    "left": {"ct": {"key": "state"}},
+                    "right": {"set": states}
+                }
+            })
 
-    # Counter
     if "packets" in rule or "bytes" in rule:
+        packets = str(rule.get("packets", "0")).strip()
+        bytes_ = str(rule.get("bytes", "0")).strip()
         expr.append({
             "counter": {
-                "packets": int(rule.get("packets", 0)),
-                "bytes": int(rule.get("bytes", 0))
+                "packets": int(packets) if packets.isdigit() else 0,
+                "bytes": int(bytes_) if bytes_.isdigit() else 0
             }
         })
 
-    # Log
     if rule.get("log"):
         expr.append({
             "log": {
-                "prefix": rule["log"] + " ",
+                "prefix": str(rule["log"]) + " ",
                 "flags": "all",
                 "level": "info"
             }
         })
 
-    # SNAT
     if rule.get("snat.addr"):
         snat = {"addr": rule["snat.addr"]}
-        if rule.get("snat.port"):
-            snat["port"] = int(rule["snat.port"])
+        port = str(rule.get("snat.port", "")).strip()
+        if port.isdigit():
+            snat["port"] = int(port)
         expr.append({"snat": snat})
 
-    # DNAT
     if rule.get("dnat.addr"):
         dnat = {"addr": rule["dnat.addr"]}
-        if rule.get("dnat.port"):
-            dnat["port"] = int(rule["dnat.port"])
+        port = str(rule.get("dnat.port", "")).strip()
+        if port.isdigit():
+            dnat["port"] = int(port)
         expr.append({"dnat": dnat})
 
-    # Acción final
     if rule.get("action"):
         expr.append({rule["action"]: None})
 

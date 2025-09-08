@@ -171,26 +171,6 @@ def gen_bpf_txt_formt(user, date, allRules,outputPath):
 
 
 
-
-def loadPolicyBpfilter(user, date, loadPolicyPath):
-    try:
-        # Ejecutar el comando bfcli con el archivo de políticas cargado
-        result = subprocess.run(
-            ["/usr/local/bin/bfcli", "ruleset", "set", "--from-file", loadPolicyPath],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-
-        if result.returncode == 0:
-            task_update_json(date, "load_bpfilter_policy", "success")
-        else:
-            task_update_json(date, "load_bpfilter_policy", "fail")
-
-    except Exception as e:
-        task_update_json(date, "load_bpfilter_policy", "fail")
-
-
 # Carga las reglas desde el archivo JSON en formato humano, las transforma al formato interno bpfilter
 # mediante la función saniticed_bpfilter_format(), y luego genera el archivo de texto final con gen_bpf_txt_formt().
 #
@@ -200,7 +180,6 @@ def loadPolicyBpfilter(user, date, loadPolicyPath):
 def gen_bpfilter_policies(user, date):
     inputPath = "/var/www/config_running/rules_bpfilter_human_viewer.json"
     outputPath = "/var/www/config_running/bpfilter_machine_format.txt"
-    loadPolicyPath = "/var/www/config_running/bpfilter_machine_format.txt"
 
     try:
         with open(inputPath, "r") as f:
@@ -223,10 +202,4 @@ def gen_bpfilter_policies(user, date):
     except Exception as e:
         task_update_json(date, "convert_bpfilter_json", "fail")
         return
-
-    try:
-        loadPolicyBpfilter(user, date, loadPolicyPath)
-        task_update_json(date, "load_bpfilter_policy", "success")
-    except Exception as e:
-        task_update_json(date, "load_bpfilter_policy", "fail")
 

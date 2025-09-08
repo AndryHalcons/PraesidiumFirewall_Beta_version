@@ -8,18 +8,26 @@ if (!isset($_SESSION['username'])) {
 
 // Función para obtener el JSON del commit
 function getCommitJson() {
-    ob_start();
-    include __DIR__ . '/../commit_common_actions/get_user.php';
-    return ob_get_clean();
+    if (!isset($_SESSION['username'])) {
+        return json_encode(["error" => "No autorizado"]);
+    }
+
+    $dateStr = date('YmdHis');
+    $commit = [
+        'commit' => [
+            'date' => $dateStr,
+            'user' => $_SESSION['username']
+        ]
+    ];
+
+    return json_encode($commit);
 }
+
 
 // Función para iniciar el commit llamando al script Python
 function starting_commit() {
+    
     $json = getCommitJson();
-
-    // Ejecutar primero el script PHP de conversión de política a lenguaje backend
-    require_once '/var/www/html/commits/check_commit/commit_common_actions/nft/convert_update_policy_to_backend.php';
-    convert_update_policy_to_backend();
 
     // Ruta al script Python
     $pythonScript = '/var/www/backend/commits/commit_apply.py';
@@ -28,7 +36,7 @@ function starting_commit() {
 
     // Ejecutar el comando
     $output = shell_exec($command);
-
+    error_log("DEBUG commitRaw: " . $output);
     return $output;
 }
 

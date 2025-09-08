@@ -1,42 +1,103 @@
+import json
 import subprocess
+import os
+import convert_nftables
+from collections import defaultdict
 from task_update_json import task_update_json
 
-def apply_nftables_json(date, json_path):
-    #Applies a nftables rules file in JSON format using the nft command.
-    #Aplica un archivo de reglas nftables en formato JSON usando el comando nft.
-    try:
-        subprocess.run(["sudo", "nft", "-j", "-f", json_path], check=True)
-        task_update_json(date, "apply_nftables_json", "success")
-    except subprocess.CalledProcessError as e:
-        task_update_json(date, "apply_nftables_json", "fail")
-        exit()
+from convert_nftables import (
+    validation_icmp_no_ports,
+    Main_convert_alias_object_to_network_object,
+    comment_convert_id_name,
+    validation_form_field_review,
+    assign_position,
+    log_format_nft,
+    saniticed_nftables_policy,
+    update_or_insert_nft_rule
+)
 
+# Aplica todas las validaciones necesarias a una regla nftables
+# Applies all required validations to an nftables rule
+def validate_nftables_policy(rule: dict) -> dict:
+    rule = validation_icmp_no_ports(rule)
+    rule = Main_convert_alias_object_to_network_object(rule)
+    rule = comment_convert_id_name(rule)
+    validation_form_field_review(rule)
+    rule = assign_position(rule)
+    rule = log_format_nft(rule)
+    return rule
 
-
-def verify_nftables_json(date,json_path):
-    #verifies that the nftables file has no errors, contains properly formed rules, and is syntactically correct
-    #verifica que el archivo nftables no tiene errores, tiene reglas correctamente formadas y está correcto sintacticamente
-    try:
-        subprocess.run(["sudo", "nft", "-j", "-f", json_path, "--check"], check=True)
-        task_update_json(date, "verify_nftables_json", "success")
-    except subprocess.CalledProcessError as e:
-        task_update_json(date, "verify_nftables_json", "fail")
-        exit()
-
-def flush_nftables_policies(date):
-
-    #clears/removes the currently running rules so the new rules file can be applied cleanly
-    #borra/limpia las reglas actuales que están en ejecucion para poder ejecutar el nuevo archivo de reglas de forma limpia
-    try:
-        subprocess.run(["sudo", "nft", "flush", "ruleset"], check=True)
-        task_update_json(date, "flush_nftables_json", "success")
-    except subprocess.CalledProcessError as e:
-        task_update_json(date, "flush_nftables_json", "fail")
-
+# Convierte las reglas del archivo human_viewer y actualiza el archivo backend
+# Converts rules from human_viewer file and updates the backend rules file
 def gen_nftables_policies(user, date):
-    json_path="/var/www/config_running/rules_nftables.json"
-    verify_nftables_json(date,json_path)
-    flush_nftables_policies(date)
-    apply_nftables_json(date, json_path)
-    
+    #print(date)
+    try:
+        json_path = "/var/www/config/rules_nftables.json"
 
+        # Verifica si el archivo de reglas existe
+        if not os.path.exists(json_path):
+            task_update_json(date, "nftables_convert_json_exist", "fail")
+            return
+
+        # Carga el archivo de reglas actuales
+        with open(json_path, "r", encoding="utf-8") as f:
+            rules_json = json.load(f)
+
+        # Verifica que el JSON tenga la clave 'nftables'
+        if "nftables" not in rules_json:
+            #print(json.dumps({"error": "'nftables' no presente en rules_nftables.json"}))
+            task_update_json(date, "nftables_convert_json_format", "fail")
+            return
+
+        # Elimina todas las entradas que contienen la clave 'rule'
+        rules_json["nftables"] = [
+            entry for entry in rules_json["nftables"] if "rule" not in entry
+        ]
+
+        human_path = "/var/www/config/rules_nftables_human_viewer.json"
+
+        # Verifica si el archivo human_viewer existe
+        if not os.path.exists(human_path):
+            task_update_json(date, "nftables_convert_human_viewer", "fail")
+            return
+
+        # Carga el archivo human_viewer
+        with open(human_path, "r", encoding="utf-8") as f:
+            human_json = json.load(f)
+
+        # Verifica que el JSON tenga la clave 'nftables'
+        if "nftables" not in human_json:
+            #print(json.dumps({"error": "'nftables' no presente en rules_nftables_human_viewer.json"}))
+            task_update_json(date, "nftables_convert_nftablesKey", "fail")
+            return
+
+        # Itera sobre cada regla habilitada en human_viewer
+        for entry in human_json["nftables"]:
+            rule = entry.get("rule")
+            if not isinstance(rule, dict):
+                continue
+            if rule.get("enable") != "true":
+                continue
+
+            # Valida y sanitiza la regla
+            validated = validate_nftables_policy(rule)
+            #print("validado")
+            sanitized = saniticed_nftables_policy(validated)
+            #print("Satinizado")
+            # Inserta o actualiza la regla en el archivo backend
+            rules_json = update_or_insert_nft_rule(sanitized["rule"], rules_json)
+            #print("insertado")
+        # Guarda el archivo actualizado de reglas
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(rules_json, f, indent=2, ensure_ascii=False)
+
+        task_update_json(date, "nftables_convert", "success")
+        #print("complete convert")
+
+    except Exception as e:
+        #print(json.dumps({"error": "nftables_convert: fail", "algo a fallado details": str(e)}))
+        task_update_json(date, "nftables_convert", "fail")
+
+
+
+#gen_nftables_policies("20250907163352")
