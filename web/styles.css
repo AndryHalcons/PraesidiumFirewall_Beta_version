@@ -481,3 +481,41 @@ table.interfaz button:hover {
 
 
 
+/* 
+#############################################################################
+#############################################################################
+#############################################################################
+   Estilos para la seccion commit
+   Styles for the commit section 
+#############################################################################
+#############################################################################
+#############################################################################
+*/
+
+.commit-controls {
+  display: flex;
+  gap: 10px;
+}
+
+#commit-spinner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.spinner-icon {
+  font-size: 32px; /* flechas más grandes */
+  animation: commit-spinner-rotate 1s linear infinite;
+}
+
+.spinner-text {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+@keyframes commit-spinner-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

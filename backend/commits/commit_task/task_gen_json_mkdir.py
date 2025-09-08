@@ -21,7 +21,6 @@ def copy_to_running(date):
 
         files_to_copy = [
             'interfaces.yml',
-            'rules.json',
             'rules_nftables.json',
             'rules_nftables_human_viewer.json',
             'rules_bpfilter_human_viewer.json',

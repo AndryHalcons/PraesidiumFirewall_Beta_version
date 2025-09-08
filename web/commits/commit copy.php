@@ -9,24 +9,24 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
-$currentAlias = "table_users";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
     const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
+  <title><?= htmlspecialchars($L['menu_commit']) ?></title>
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['menu_users']) ?></h1>
-  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
-  <script>
-    renderTableFromPuser("<?= htmlspecialchars($currentAlias) ?>");
-  </script>
+  <h2><?= htmlspecialchars($L['menu_commit']) ?></h2>
+  <div id="commit-table"></div>
+  <script src="/commits/commit.js"></script>
+
+</div>
+
+
 </body>
 </html>

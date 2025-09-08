@@ -26,6 +26,7 @@ $L = require $langFile;
     <script src="/alias/common_alias_actions/alias_table.js"></script>
     <script src="/policies/common_policy_actions_nft/nft_table.js"></script>
     <script src="/policies/common_policy_actions_bpf/bpf_table.js"></script>
+    <script src="/users/users_table/users_table.js"></script>
 
 </head>
 <body>

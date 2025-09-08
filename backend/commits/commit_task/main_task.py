@@ -1,7 +1,8 @@
 from task_gen_json_entry import gen_json_entry
 from task_gen_json_mkdir import gen_json_mkdir
 from task_gen_interface_config import gen_interface_config
-from task_gen_nftables_policies import gen_nftables_policies
+#from task_gen_nftables_policies import gen_nftables_policies
+from prueba_task_gen_nftables_policies import convert_update_policy_to_backend
 from task_gen_bpfilter_policies import gen_bpfilter_policies
 
 def start_commit_process(user, date):
@@ -22,7 +23,8 @@ def start_commit_process(user, date):
 
     # Aplica las reglas de nftables, verifica, limpia y aplica.
     # Applies the nftables rules: verifies, flushes, and then applies.
-    gen_nftables_policies(user, date)
+    #gen_nftables_policies(user, date)
+    convert_update_policy_to_backend(date)
 
     # Aplica las reglas de bpfilter, verifica, limpia y aplica.
     # Applies the bpfilter rules: verifies, flushes, and then applies.
@@ -31,6 +33,6 @@ def start_commit_process(user, date):
 
 
 #only devops
-#start_commit_process("praesidium", "20250907163352")
+start_commit_process("praesidium", "20250907163352")
 
 #{"commit":{"date":"20250824142408","user":"praesidium"}}

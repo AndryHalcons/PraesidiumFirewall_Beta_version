@@ -1,61 +1,69 @@
 
 
-function renderCommitControls() {
+function renderCommitTable() {
   const container = document.getElementById("commit-table");
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "commit-controls";
+  const table = document.createElement("table");
+  table.border = "1";
 
-  const buttons = [
-    { id: "btn-compare-commit", text: LANG.compare_commit, handler: handleCompareCommit },
-    { id: "btn-apply-commit", text: LANG.apply_commit, handler: buttonApplyCommit },
-    { id: "btn-audit-commit", text: LANG.config_audit, handler: () => console.log("Config Audit clicked") }
-  ];
+  for (let i = 0; i < 3; i++) {
+    const row = document.createElement("tr");
 
-  buttons.forEach(({ id, text, handler }) => {
-    const btn = document.createElement("button");
-    btn.id = id;
-    btn.className = "save-btn";
-    btn.textContent = text;
-    btn.addEventListener("click", handler);
-    wrapper.appendChild(btn);
-  });
+    for (let j = 0; j < 2; j++) {
+      const cell = document.createElement("td");
 
-  container.appendChild(wrapper);
+      if (i === 0 && j === 0) {
+        const compareBtn = document.createElement("button");
+        compareBtn.id = "compare-btn";
+        compareBtn.className = "save-btn";
+        compareBtn.textContent = LANG.compare_commit;
+
+        const applyBtn = document.createElement("button");
+        applyBtn.id = "apply-btn";
+        applyBtn.className = "save-btn";
+        applyBtn.textContent = LANG.apply_commit;
+
+        const auditBtn = document.createElement("button");
+        auditBtn.id = "audit-btn";
+        auditBtn.className = "save-btn";
+        auditBtn.textContent = LANG.config_audit;
+
+        cell.appendChild(compareBtn);
+        cell.appendChild(applyBtn);
+        cell.appendChild(auditBtn);
+
+        compareBtn.addEventListener("click", handleCompareCommit);
+
+
+        auditBtn.addEventListener("click", () => {
+          console.log("Config Audit clicked");
+        });
+
+        applyBtn.addEventListener("click", buttonApplyCommit);
+      }
+
+      row.appendChild(cell);
+    }
+
+    table.appendChild(row);
+  }
+
+  container.appendChild(table);
 }
-
 
 
 function buttonApplyCommit() {
-  const container = document.getElementById("commit-table");
-
-  // Crear spinner con flechas grandes y texto
-  const spinner = document.createElement("div");
-  spinner.id = "commit-spinner";
-  spinner.innerHTML = `
-    <span class="spinner-icon">🔄</span>
-    <span class="spinner-text">Aplicando commit</span>
-  `;
-  container.appendChild(spinner);
-
   fetch("/commits/check_commit/commit_apply/commit_apply.php")
+  //fetch("/commits/check_commit/commit_common_actions/get_user.php")
     .then(res => res.json())
     .then(data => {
-      // quitar spinner
-      spinner.remove(); 
-
-      const pre = document.createElement("pre");
-      pre.textContent = JSON.stringify(data, null, 2);
-      container.appendChild(pre);
+      console.log("Commit generado:");
+      console.log(JSON.stringify(data, null, 2));
     })
     .catch(err => {
-      spinner.remove();
       console.error("Error al obtener el commit:", err);
     });
 }
-
-
-
 
 function handleCompareCommit() {
   // Abrir ventana emergente
@@ -95,4 +103,4 @@ function handleCompareCommit() {
 
 
 
-renderCommitControls();
+renderCommitTable();

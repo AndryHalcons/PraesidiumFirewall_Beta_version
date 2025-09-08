@@ -1,0 +1,9 @@
+{
+  "table_users": [
+    "id",
+    "user_name",
+    "user_pass",
+    "user_role",
+    "user_language"
+  ]
+}
