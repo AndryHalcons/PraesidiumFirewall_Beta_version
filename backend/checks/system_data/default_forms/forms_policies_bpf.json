@@ -2,11 +2,7 @@
   "select":
     {
         "action": [
-          "ACCEPT",
           "DROP"
-        ],
-        "chain": [
-          ""
         ],
         "l3_protocol": [
           "",
@@ -107,7 +103,8 @@
       },
   "not_editable": {
         "id": ["1-10000"],
-        "hook":["BF_HOOK_XDP", "BF_HOOK_TC_INGRESS", "BF_HOOK_TC_EGRESS"]
+        "hook":["BF_HOOK_XDP", "BF_HOOK_TC_INGRESS", "BF_HOOK_TC_EGRESS"],
+        "chain":[]
       }
 }
 

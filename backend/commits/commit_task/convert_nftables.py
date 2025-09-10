@@ -2,7 +2,7 @@ import os
 import ipaddress
 import json
 import re
-
+from task_update_json import task_update_json
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////
 # ////////////////////////////////    Import Json to to consult  ///////////////////////////////////////
@@ -11,7 +11,7 @@ import re
 # Importa el archivo de alias y lo devuelve como array
 # Imports the alias file and returns it as an array
 def import_alias_json():
-    json_path = '/var/www/config/alias.json'
+    json_path = '/var/www/config_running/alias.json'
 
     if not os.path.exists(json_path):
         return False
@@ -29,7 +29,7 @@ def import_alias_json():
 # Importa el archivo de reglas actual para consultas
 # Imports the current rules file for queries
 def import_policy_nft_json():
-    json_path = '/var/www/config/rules_nftables.json'
+    json_path = "/var/www/config_running/rules_nftables_human_viewer.json"
 
     if not os.path.exists(json_path):
         return False
@@ -64,10 +64,11 @@ def import_forms_nft_json():
 
 # importa la lista de interfaces en array 
 # imports the list of interfaces into array
-def import_all_interfaces():
+def import_all_interfaces(date):
     path = '/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json'
 
     if not os.path.exists(path):
+        task_update_json(date, "nftables_convert_interfaces_file_invalid", "fail")
         return []
 
     with open(path, 'r', encoding='utf-8') as f:
@@ -76,6 +77,7 @@ def import_all_interfaces():
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
+        task_update_json(date, "nftables_convert_interfaces_file_invalid", "fail")
         return []
 
     return data.get('all_interfaces', [])
@@ -86,13 +88,14 @@ def import_all_interfaces():
 
 # revisa los campos que contienen formularios
 # check the fields that contain forms
-def validation_form_field_review(rule):
+def validation_form_field_review(rule, date):
     form_config = import_forms_nft_json()
     if not form_config:
         #print(json.dumps({"error": "No se pudo cargar la configuración del formulario interfaces"}))
+        task_update_json(date, "nftables_convert_load_interfaces_json", "fail")
         exit()
 
-    interfaces = import_all_interfaces()
+    interfaces = import_all_interfaces(date)
     if 'meta.iifname' in form_config.get('select', {}):
         form_config['select']['meta.iifname'] += interfaces
     if 'meta.oifname' in form_config.get('select', {}):
@@ -106,6 +109,7 @@ def validation_form_field_review(rule):
                     continue
                 if value not in valid_values:
                     #print(json.dumps({"error": f"value in validation_form_field_review_select '{value}' not found"}))
+                    task_update_json(date, "nftables_convert_select_field", "fail")
                     exit()
 
     if 'checkbox' in form_config:
@@ -116,6 +120,7 @@ def validation_form_field_review(rule):
                     continue
                 if value != options.get("checked") and value != options.get("unchecked"):
                     #print(json.dumps({"error": f"alias port validation_form_field_review_checkbox '{value}' not found"}))
+                    task_update_json(date, "nftables_convert_checkbox", "fail")
                     exit()
 
     if 'not_editable' in form_config:
@@ -128,6 +133,7 @@ def validation_form_field_review(rule):
                     continue
                 if value not in valid_values:
                     #print(json.dumps({"error": f"alias port validation_form_field_review_not_editable '{value}' not found"}))
+                    task_update_json(date, "nftables_convert_not_editable", "fail")
                     exit()
 
 # genera la entrada log compatible con nftables si es true, si es false borra "log" de la regla
@@ -154,25 +160,24 @@ def get_id_from_policy() -> str:
     data = import_policy_nft_json()
     if not data or 'nftables' not in data or not isinstance(data['nftables'], list):
         return "1"  # fallback si no se puede leer el archivo
-                   # fallback if the file can't be read
 
     used_ids = []
 
     for entry in data['nftables']:
-        if 'rule' in entry and 'comment' in entry['rule']:
-            comment = entry['rule']['comment']
-            import re
-            match = re.search(r"id='(\d+)'", comment)
-            if match:
-                used_ids.append(int(match.group(1)))
+        if 'rule' in entry and 'id' in entry['rule']:
+            try:
+                used_ids.append(int(entry['rule']['id']))
+            except ValueError:
+                # Si el id no es numérico, lo ignoramos
+                continue
 
     # Busca el primer ID libre empezando desde 1
-    # Find the first free ID starting from 1
     id_ = 1
     while id_ in used_ids:
         id_ += 1
 
     return str(id_)
+
 
 # convierte el campo name y el campo id en partes del campo comment de nftables
 # si no hay id por que la regla por ejemplo es nueva, se llama a get_id_from_policy() que devuelve un id único
@@ -270,7 +275,7 @@ def validation_not_duplicate_ports(value: str) -> str:
 
 # Valida que los puertos o rangos estén dentro del rango permitido
 # Validates that ports or ranges are within the allowed range
-def validation_ports_range(value: str) -> None:
+def validation_ports_range(value: str, date):
     items = [item.strip() for item in value.split(',')]
     min_port = 0
     max_port = 65535
@@ -282,6 +287,7 @@ def validation_ports_range(value: str) -> None:
             port = int(item)
             if port < min_port or port > max_port:
                 #print(json.dumps({"error": f"port '{port}' out of range"}))
+                task_update_json(date, "nftables_convert_port_out_of_range", "fail")
                 exit()
             continue
 
@@ -293,18 +299,21 @@ def validation_ports_range(value: str) -> None:
             end = int(match.group(2))
             if start < min_port or start > max_port or end < min_port or end > max_port:
                 #print(json.dumps({"error": f"port range '{item}' out of range"}))
+                task_update_json(date, "nftables_convert_port_range_out", "fail")
+
                 exit()
             continue
 
 # Convierte un alias de puerto en su valor numérico real
 # Converts a port alias into its actual numeric value
-def convert_alias_port_to_network_port(value: str) -> str:
+def convert_alias_port_to_network_port(value: str, date):
     alias_json_data = import_alias_json()
 
     # Verifica que se haya cargado correctamente el JSON
     # Check that the JSON was loaded successfully
     if not alias_json_data:
         #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "nftables_convert_alias_file_invalid", "fail")
         exit()
 
     # Busca el alias en alias_service
@@ -316,11 +325,12 @@ def convert_alias_port_to_network_port(value: str) -> str:
     # Si no se encuentra, se detiene el script y se devuelve error
     # If not found, stop the script and return error
     #print(json.dumps({"error": f"alias port no encontrado en ningun sitio '{value}' not found"}))
+    task_update_json(date, "nftables_convert_alias_port_not_exist", "fail")
     exit()
 
 # Convierte una lista de puertos, alias y grupos en puertos reales
 # Converts a list of ports, aliases, and groups into real port numbers
-def convert_alias_port_group_to_network_port(value: str) -> str:
+def convert_alias_port_group_to_network_port(value: str, date):
     alias_json_data = import_alias_json()
 
     # Si el valor está vacío, no se procesa
@@ -332,6 +342,7 @@ def convert_alias_port_group_to_network_port(value: str) -> str:
     # If the file couldn't be loaded, stop the script
     if not alias_json_data:
         #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "nftables_convert_alias_file_invalid", "fail")
         exit()
 
     final_ports = []
@@ -343,7 +354,7 @@ def convert_alias_port_group_to_network_port(value: str) -> str:
                      # Ignore individual empty elements
 
         if item.isdigit() or re.match(r'^\d+-\d+$', item):
-            validation_ports_range(item)
+            validation_ports_range(item, date)
             final_ports.append(item)
             continue
 
@@ -353,18 +364,18 @@ def convert_alias_port_group_to_network_port(value: str) -> str:
             if group.get('name') == item:
                 for entry in group.get('content', []):
                     if entry.isdigit() or re.match(r'^\d+-\d+$', entry):
-                        validation_ports_range(entry)
+                        validation_ports_range(entry, date)
                         final_ports.append(entry)
                     else:
-                        resolved = convert_alias_port_to_network_port(entry)
-                        validation_ports_range(resolved)
+                        resolved = convert_alias_port_to_network_port(entry, date)
+                        validation_ports_range(resolved, date)
                         final_ports.append(resolved)
                 found_group = True
                 break
 
         if not found_group:
-            resolved = convert_alias_port_to_network_port(item)
-            validation_ports_range(resolved)
+            resolved = convert_alias_port_to_network_port(item, date)
+            validation_ports_range(resolved, date)
             final_ports.append(resolved)
 
     cleaned = validation_not_duplicate_ports(','.join(final_ports))
@@ -499,7 +510,7 @@ def validate_ip_or_cidr(value: str) -> bool:
 
 # Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
 # Returns the first IP or CIDR linked to a named alias in alias_address.
-def convert_alias_ip_to_ip(value: str) -> str:
+def convert_alias_ip_to_ip(value: str, date):
     alias_json_data = import_alias_json()
 
     # Si el valor está vacío o solo contiene espacios, lo ignoramos
@@ -531,17 +542,19 @@ def convert_alias_ip_to_ip(value: str) -> str:
     # Si no se encuentra, se detiene el script y se devuelve error
     # If not found, stop the script and return error
     #print(json.dumps({"error": f"alias IP '{value}' not found"}))
+    task_update_json(date, f"nftables_convert_alias_IP_'{value}'_not_found", "fail")
     exit()
 
 # Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
 # Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
-def convert_alias_group_to_Network_ips(value: str) -> str:
+def convert_alias_group_to_Network_ips(value: str, date):
     alias_json_data = import_alias_json()
 
     # Verifica que se haya cargado correctamente el JSON
     # Check that the JSON was loaded successfully
     if not alias_json_data:
         #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "nftables_convert_alias_file_invalid", "fail")
         exit()
 
     # Divide la cadena por comas y elimina espacios
@@ -570,7 +583,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
                 # Recorre cada alias dentro del grupo
                 # Iterate over each alias inside the group
                 for alias_name in group.get('content', []):
-                    ip = convert_alias_ip_to_ip(alias_name)
+                    ip = convert_alias_ip_to_ip(alias_name, date)
                     if ip != '':
                         resolved_ips.append(ip)
                 found_group = True
@@ -579,7 +592,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
         # Si no es grupo, lo tratamos como alias individual
         # If it's not a group, treat it as an individual alias
         if not found_group:
-            ip = convert_alias_ip_to_ip(item)
+            ip = convert_alias_ip_to_ip(item, date)
             if ip != '':
                 resolved_ips.append(ip)
                 continue
@@ -587,6 +600,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
             # Si no se pudo resolver, se lanza error
             # If resolution fails, throw an error
             #print(json.dumps({"error": f"alias or group '{item}' not found or invalid"}))
+            task_update_json(date, "nftables_convert_alias_or_group_invalid", "fail")
             exit()
 
     # Normaliza y elimina duplicados antes de devolver
@@ -595,7 +609,7 @@ def convert_alias_group_to_Network_ips(value: str) -> str:
 
 # Convierte alias en objetos de red reales usando funciones auxiliares
 # Converts aliases into real network objects using helper functions
-def Main_convert_alias_object_to_network_object(rule: dict) -> dict:
+def Main_convert_alias_object_to_network_object(rule: dict, date):
     # Campos relacionados con puertos
     # Port-related fields
     port_fields = ['sport', 'dport', 'dnat.port']
@@ -604,7 +618,7 @@ def Main_convert_alias_object_to_network_object(rule: dict) -> dict:
         if field in rule:
             # Llama a la función de conversión de puertos
             # Call the port conversion function
-            rule[field] = convert_alias_port_group_to_network_port(rule[field])
+            rule[field] = convert_alias_port_group_to_network_port(rule[field], date)
 
     # Campos relacionados con direcciones IP
     # IP-related fields
@@ -614,7 +628,7 @@ def Main_convert_alias_object_to_network_object(rule: dict) -> dict:
         if field in rule:
             # Llama a la función de conversión de grupos IP
             # Call the IP group conversion function
-            rule[field] = convert_alias_group_to_Network_ips(rule[field])
+            rule[field] = convert_alias_group_to_Network_ips(rule[field], date)
 
     return rule
 

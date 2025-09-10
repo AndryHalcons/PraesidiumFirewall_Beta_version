@@ -918,67 +918,45 @@ function saniticed_bpfilter_policy(array $rule): array {
 function reassign_position(array $rule): array {
     $jsonData = import_policy_bpf_json();
 
-    // Si no hay datos válidos, devolvemos la regla tal cual
-    // If no valid data, return the rule unchanged
     if (!$jsonData || !isset($jsonData["bpfilter"]) || !is_array($jsonData["bpfilter"])) {
         return $rule;
     }
 
-    // Normalizamos los campos hook y chain
-    // Normalize hook and chain fields
-    $hook = trim((string)($rule["hook"] ?? ""));
-    $chain = trim((string)($rule["chain"] ?? ""));
-
-    // Definimos la familia: hook + chain si chain tiene valor, solo hook si está vacío
-    // Define the family: hook + chain if chain has value, only hook if empty
-    $family = $chain !== "" ? "{$hook}_{$chain}" : $hook;
+    $family = $rule["hook"] ?? "";
 
     // Normalizamos la posición entrante
-    // Normalize incoming position
     $incomingPosition = isset($rule["position"]) && $rule["position"] !== ""
         ? (int)$rule["position"]
         : null;
 
     if ($incomingPosition === null) {
-        // Si no hay posición, asignamos la primera (1)
-        // If no position, assign first (1)
         $rule["position"] = 1;
         $incomingPosition = 1;
 
-        // Recorremos las reglas existentes y aumentamos posición si pertenecen a la misma familia
-        // Iterate existing rules and increment position if they belong to the same family
         foreach ($jsonData["bpfilter"] as &$entry) {
-            $entryHook = trim((string)($entry["rule"]["hook"] ?? ""));
-            $entryChain = trim((string)($entry["rule"]["chain"] ?? ""));
-            $entryFamily = $entryChain !== "" ? "{$entryHook}_{$entryChain}" : $entryHook;
-
-            if (isset($entry["rule"]["position"]) && $entryFamily === $family) {
-                $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
+            if (isset($entry["rule"]["hook"], $entry["rule"]["position"])) {
+                if (
+                    $entry["rule"]["hook"] === $family
+                ) {
+                    $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
+                }
             }
         }
     } else {
-        // Si ya hay posición, ajustamos las reglas con posición igual o mayor en la misma familia
-        // If position exists, adjust rules with equal or higher position in the same family
         foreach ($jsonData["bpfilter"] as &$entry) {
-            $entryHook = trim((string)($entry["rule"]["hook"] ?? ""));
-            $entryChain = trim((string)($entry["rule"]["chain"] ?? ""));
-            $entryFamily = $entryChain !== "" ? "{$entryHook}_{$entryChain}" : $entryHook;
-
-            if (
-                isset($entry["rule"]["position"]) &&
-                $entryFamily === $family &&
-                (int)$entry["rule"]["position"] >= $incomingPosition
-            ) {
-                $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
+            if (isset($entry["rule"]["hook"], $entry["rule"]["position"])) {
+                if (
+                    $entry["rule"]["hook"] === $family &&
+                    (int)$entry["rule"]["position"] >= $incomingPosition
+                ) {
+                    $entry["rule"]["position"] = (int)$entry["rule"]["position"] + 1;
+                }
             }
         }
     }
 
-    // Devolvemos la regla actualizada
-    // Return the updated rule
     return $rule;
 }
-
 
 function update_or_insert_bpf_rule(array $rule, array $rulesJson): array {
     // Normaliza el ID de la nueva regla
@@ -1009,25 +987,19 @@ function update_or_insert_bpf_rule(array $rule, array $rulesJson): array {
 function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     $targetPos = (int)$position;
 
-    // Normalizar la familia objetivo
-    // Normalize target family
-    $chain = trim((string)$chain);
-    $targetFamily = $chain !== "" ? "{$hook}_{$chain}" : $hook;
-
+    // Separar reglas del bloque afectado y las demás
     $block = [];
     $others = [];
 
-    // Separar reglas del bloque afectado y las demás
-    // Separate affected block rules and others
     foreach ($rulesJson['bpfilter'] as $entry) {
         $rule = $entry['rule'];
         $rule['position'] = (int)$rule['position'];
 
-        $entryChain = trim((string)($rule['chain'] ?? ""));
-        $entryHook = $rule['hook'] ?? "";
-        $entryFamily = $entryChain !== "" ? "{$entryHook}_{$entryChain}" : $entryHook;
-
-        if ($entryFamily === $targetFamily) {
+        if (
+            $rule['family'] === $hook &&
+            $rule['table'] === $table &&
+            $rule['chain'] === $chain
+        ) {
             $block[] = $entry;
         } else {
             $others[] = $entry;
@@ -1035,7 +1007,6 @@ function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     }
 
     // Buscar la regla objetivo por ID
-    // Find target rule by ID
     $targetIndex = null;
     foreach ($block as $i => $entry) {
         if ((string)$entry['rule']['id'] === (string)$id) {
@@ -1045,13 +1016,10 @@ function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     }
 
     if ($targetIndex === null) {
-        return $rulesJson; 
-        // No se encontró la regla
-        // Rule not found
+        return $rulesJson; // No se encontró la regla
     }
 
     // Aplicar lógica de desplazamiento
-    // Apply position shifting logic
     foreach ($block as $i => &$entry) {
         if ($i === $targetIndex) {
             $entry['rule']['position'] = $targetPos;
@@ -1065,7 +1033,6 @@ function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     }
 
     // Reordenar y renumerar secuencialmente
-    // Reorder and renumber sequentially
     usort($block, fn($a, $b) => $a['rule']['position'] <=> $b['rule']['position']);
     $pos = 1;
     foreach ($block as &$entry) {
@@ -1073,11 +1040,9 @@ function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     }
 
     // Reconstruir el JSON con orden físico correcto
-    // Rebuild JSON with correct physical order
-    $rulesJson['bpfilter'] = array_merge($others, $block);
+    $rulesJson['nftables'] = array_merge($others, $block);
     return $rulesJson;
 }
-
 
 
 

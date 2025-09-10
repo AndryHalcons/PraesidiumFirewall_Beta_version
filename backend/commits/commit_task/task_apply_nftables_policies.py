@@ -34,7 +34,7 @@ def flush_nftables_policies(date):
         task_update_json(date, "flush_nftables_json", "fail")
 
 def apply_nftables_policies(user, date):
-    json_path="/var/www/config_running/rules_nftables.json"
+    json_path="/var/www/config_running/nftables_format.json"
     verify_nftables_json(date,json_path)
     flush_nftables_policies(date)
     apply_nftables_json(date, json_path)

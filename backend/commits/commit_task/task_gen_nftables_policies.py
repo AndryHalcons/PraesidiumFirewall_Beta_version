@@ -18,22 +18,25 @@ from convert_nftables import (
 
 # Aplica todas las validaciones necesarias a una regla nftables
 # Applies all required validations to an nftables rule
-def validate_nftables_policy(rule: dict) -> dict:
+def validate_nftables_policy(rule: dict, date):
     rule = validation_icmp_no_ports(rule)
-    rule = Main_convert_alias_object_to_network_object(rule)
+    rule = Main_convert_alias_object_to_network_object(rule, date)
     rule = comment_convert_id_name(rule)
-    validation_form_field_review(rule)
+    validation_form_field_review(rule, date)
     rule = assign_position(rule)
     rule = log_format_nft(rule)
     return rule
+
+
 
 # Convierte las reglas del archivo human_viewer y actualiza el archivo backend
 # Converts rules from human_viewer file and updates the backend rules file
 def gen_nftables_policies(user, date):
     #print(date)
     try:
-        json_path = "/var/www/config/rules_nftables.json"
-
+        #template json
+        json_path = "/var/www/backend/checks/system_data/templates/nftables_convert_format.json"
+        output_path = "/var/www/config_running/nftables_format.json"
         # Verifica si el archivo de reglas existe
         if not os.path.exists(json_path):
             task_update_json(date, "nftables_convert_json_exist", "fail")
@@ -45,7 +48,7 @@ def gen_nftables_policies(user, date):
 
         # Verifica que el JSON tenga la clave 'nftables'
         if "nftables" not in rules_json:
-            #print(json.dumps({"error": "'nftables' no presente en rules_nftables.json"}))
+            #print(json.dumps({"error": "'nftables' no presente en rules_nftables_formatn"}))
             task_update_json(date, "nftables_convert_json_format", "fail")
             return
 
@@ -53,8 +56,8 @@ def gen_nftables_policies(user, date):
         rules_json["nftables"] = [
             entry for entry in rules_json["nftables"] if "rule" not in entry
         ]
-
-        human_path = "/var/www/config/rules_nftables_human_viewer.json"
+        #archivo del cual extraeremos las reglas a aplicar
+        human_path = "/var/www/config_running/rules_nftables_human_viewer.json"
 
         # Verifica si el archivo human_viewer existe
         if not os.path.exists(human_path):
@@ -79,23 +82,17 @@ def gen_nftables_policies(user, date):
             if rule.get("enable") != "true":
                 continue
 
-            # Valida y sanitiza la regla
-            validated = validate_nftables_policy(rule)
-            #print("validado")
+            validated = validate_nftables_policy(rule, date)
             sanitized = saniticed_nftables_policy(validated)
-            #print("Satinizado")
             # Inserta o actualiza la regla en el archivo backend
             rules_json = update_or_insert_nft_rule(sanitized["rule"], rules_json)
-            #print("insertado")
         # Guarda el archivo actualizado de reglas
-        with open(json_path, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(rules_json, f, indent=2, ensure_ascii=False)
 
         task_update_json(date, "nftables_convert", "success")
-        #print("complete convert")
 
     except Exception as e:
-        #print(json.dumps({"error": "nftables_convert: fail", "algo a fallado details": str(e)}))
         task_update_json(date, "nftables_convert", "fail")
 
 

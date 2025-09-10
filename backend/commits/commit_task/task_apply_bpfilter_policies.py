@@ -5,18 +5,18 @@ from collections import defaultdict
 def apply_bpfilter_policies(user, date):
     loadPolicyPath = "/var/www/config_running/bpfilter_machine_format.txt"
     try:
-        # Ejecutar el comando bfcli con el archivo de políticas cargado
         result = subprocess.run(
-            ["/usr/local/bin/bfcli", "ruleset", "set", "--from-file", loadPolicyPath],
+            ["sudo", "/usr/local/bin/bfcli", "ruleset", "set", "--from-file", loadPolicyPath],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
         )
 
-        if result.returncode == 0:
-            task_update_json(date, "apply_bpfilter_policy", "success")
-        else:
+        # Si hay cualquier salida en stderr, es un fail
+        if result.stderr.strip():
             task_update_json(date, "apply_bpfilter_policy", "fail")
+        else:
+            task_update_json(date, "apply_bpfilter_policy", "success")
 
-    except Exception as e:
+    except Exception:
         task_update_json(date, "apply_bpfilter_policy", "fail")

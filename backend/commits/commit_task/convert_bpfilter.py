@@ -1,6 +1,30 @@
+import os
 import ipaddress
 import json
+import re
+from task_update_json import task_update_json
 
+###########################################################################
+###################   Import Json to to consult  #########################
+###########################################################################
+
+# Importa el archivo de alias y lo devuelve como array
+# Imports the alias file and returns it as an array
+def import_alias_json():
+    json_path = '/var/www/config_running/alias.json'
+
+    if not os.path.exists(json_path):
+        return False
+
+    with open(json_path, 'r', encoding='utf-8') as f:
+        raw = f.read()
+
+    try:
+        alias_json_data = json.loads(raw)
+    except json.JSONDecodeError:
+        return False
+
+    return alias_json_data
 
 ###########################################################################
 ############################# hook & chain SECTION ########################
@@ -23,31 +47,28 @@ def verify_hook(hook):
 
 
 # Verifica si el nombre de cadena (chain) recibido es válido para el hook especificado.
-# Para ello, consulta el archivo de configuración '/var/www/config/rules_bpfilter_chain.json',
-# que contiene las asociaciones permitidas entre hooks y sus respectivas cadenas.
 # Si la cadena es válida para el hook, se devuelve tal cual; en caso contrario, se devuelve una cadena vacía.
 
 # Verifies whether the provided chain name is valid for the specified hook.
-# It checks the configuration file '/var/www/config/rules_bpfilter_chain.json',
-# which defines the allowed associations between hooks and their corresponding chains.
 # If the chain is valid for the given hook, it returns the chain name; otherwise, it returns an empty string.
 
-def verify_chain(hook, chain_name):
-    if not hook or not chain_name:
-        return ""
+def verify_chain(hook, chain_name, interface):
+    if not hook or not chain_name or not interface:
+        result = ""
+        return result
 
-    path = "/var/www/config/rules_bpfilter_chain.json"
+    hook_clean = hook.strip().lower()
+    chain_clean = chain_name.strip()
+    expected_chain = f"{interface}_{hook_clean}"
 
-    try:
-        with open(path, "r") as f:
-            data = json.load(f)
-        valid_chains = data.get("chain", {}).get(hook.strip(), [])
-        if chain_name.strip() in valid_chains:
-            return chain_name.strip()
-    except Exception:
-        pass  # Silencia errores de lectura
+    if chain_clean != expected_chain:
+        result = ""
+        return result
 
-    return ""
+    result = chain_clean
+    return result
+
+
 
 
 
@@ -124,7 +145,7 @@ def transform_iface(iface_name):
 # If a list or comma-separated string is provided, each IP is validated.
 # Returns bpfilter format: 'eq' for a single IP or 'in {…}' for multiple.
 # Returns an empty string if no valid IPs are found.
-
+"""
 def transform_ip4(locate, source):
 
     # Si no hay fuente, devolvemos cadena vacía
@@ -153,7 +174,9 @@ def transform_ip4(locate, source):
         # Si hay IPs válidas, devolvemos formato bpfilter con 'in'
         # If valid IPs exist, return bpfilter format with 'in'
         if valid_ips:
-            return f"{locate} in {{{','.join(valid_ips)}}}"
+            return f"({locate}) in {{ {'; '.join(valid_ips)} }}"
+            #return f"{locate} in {{{','.join(valid_ips)}}}" old
+            
         else:
             return ""
 
@@ -164,7 +187,52 @@ def transform_ip4(locate, source):
         return f"{locate} eq {ip_obj}"
     except ValueError:
         return ""
+"""
+def transform_ip4(locate, source):
 
+    # Si no hay fuente, devolvemos cadena vacía
+    # If no source is provided, return empty string
+    if not source:
+        return ""
+
+    # Si es una cadena con varias IPs separadas por coma, la convertimos en lista
+    # If it's a comma-separated string of IPs, convert it to a list
+    if isinstance(source, str) and "," in source:
+        source = [ip.strip() for ip in source.split(",")]
+
+    # Si es una lista de IPs, procesamos cada una
+    # If it's a list of IPs, process each one
+    if isinstance(source, list):
+        valid_ips = []
+        for ip in source:
+            # Si viene con /32, lo tratamos como IP individual
+            # If it comes with /32, treat it as an individual IP
+            if isinstance(ip, str) and "/32" in ip:
+                ip = ip.split("/")[0]
+            # Validamos que cada IP sea IPv4 válida
+            # Validate that each IP is a valid IPv4 address
+            try:
+                ip_obj = ipaddress.IPv4Address(ip)
+                valid_ips.append(str(ip_obj))
+            except ValueError:
+                continue
+
+        # Si hay IPs válidas, devolvemos formato bpfilter con 'in'
+        # If valid IPs exist, return bpfilter format with 'in'
+        if valid_ips:
+            return f"({locate}) in {{ {'; '.join(valid_ips)} }}"
+        else:
+            return ""
+
+    # Si es una sola IP, validamos y devolvemos formato 'eq'
+    # If it's a single IP, validate and return 'eq' format
+    try:
+        if isinstance(source, str) and "/32" in source:
+            source = source.split("/")[0]
+        ip_obj = ipaddress.IPv4Address(source)
+        return f"{locate} eq {ip_obj}"
+    except ValueError:
+        return ""
 
 # Procesa una entrada de redes IPv4 con máscara.
 # Ignora redes /32 (equivalentes a direcciones individuales).
@@ -206,7 +274,8 @@ def transform_ip4_net(locate, source):
         # Si hay redes válidas, devolvemos formato bpfilter con 'in'
         # If valid networks exist, return bpfilter format with 'in'
         if valid_nets:
-            return f"{locate} in {{{','.join(valid_nets)}}}"
+            return f"({locate}) in {{ {'; '.join(valid_nets)} }}"
+            #return f"{locate} in {{{','.join(valid_nets)}}}" old
         else:
             return ""
 
@@ -232,7 +301,7 @@ def transform_ip4_net(locate, source):
 # Skips entries containing a mask (/).
 # Returns 'eq' for a single valid IP or 'in {…}' for multiple.
 # Returns an empty string if no valid addresses are found.
-
+"""
 def transform_ip6(locate, source):
     # Si no hay fuente, devolvemos cadena vacía
     # If no source is provided, return empty string
@@ -265,7 +334,50 @@ def transform_ip6(locate, source):
     elif len(valid_ips) == 1:
         return f"{locate} eq {valid_ips[0]}"
     else:
-        return f"{locate} in {{{','.join(valid_ips)}}}"
+        return f"({locate}) in {{ {'; '.join(valid_ips)} }}"
+        #return f"{locate} in {{{','.join(valid_ips)}}}" old
+"""
+
+def transform_ip6(locate, source):
+    # Si no hay fuente, devolvemos cadena vacía
+    # If no source is provided, return empty string
+    if not source:
+        return ""
+
+    # Convertimos en lista si es una cadena separada por comas
+    # Convert to list if it's a comma-separated string
+    if isinstance(source, str):
+        source = [ip.strip() for ip in source.split(",")]
+
+    # Procesamos cada entrada y filtramos solo direcciones IPv6 válidas (sin máscara o /128)
+    # Process each entry and keep only valid IPv6 addresses (no mask or /128)
+    valid_ips = []
+    for ip in source:
+        # Si contiene máscara, solo aceptamos /128 → es una IP individual
+        # If it contains a mask, only accept /128 → it's an individual IP
+        if "/" in ip:
+            try:
+                net_obj = ipaddress.IPv6Network(ip, strict=False)
+                if net_obj.prefixlen == 128:
+                    valid_ips.append(str(net_obj.network_address))
+            except ValueError:
+                continue
+        else:
+            try:
+                ip_obj = ipaddress.IPv6Address(ip)
+                valid_ips.append(str(ip_obj))
+            except ValueError:
+                continue
+
+    # Devolvemos el formato adecuado según cantidad
+    # Return appropriate format based on count
+    if not valid_ips:
+        return ""
+    elif len(valid_ips) == 1:
+        return f"{locate} eq {valid_ips[0]}"
+    else:
+        return f"({locate}) in {{ {'; '.join(valid_ips)} }}"
+        #return f"{locate} in {{{','.join(valid_ips)}}}" old
 
 # Procesa redes IPv6 con máscara.
 # Ignora redes /128 (equivalentes a direcciones individuales).
@@ -307,7 +419,8 @@ def transform_ip6_net(locate, source):
         # Si hay redes válidas, devolvemos formato bpfilter con 'in'
         # If valid networks exist, return bpfilter format with 'in'
         if valid_nets:
-            return f"{locate} in {{{','.join(valid_nets)}}}"
+            return f"({locate}) in {{ {'; '.join(valid_nets)} }}"
+            #return f"{locate} in {{{','.join(valid_nets)}}}" old
         else:
             return ""
 
@@ -689,3 +802,489 @@ def transform_action(action):
         return "DROP"
 
     return "ACCEPT"
+
+
+
+
+
+
+
+##########################################################################################################
+############################################## Alias Translate ###########################################
+##########################################################################################################
+# //////////////////////////////////////////////////////////////////////////////////////////////////////
+# //////////////////////////////// PORTS VALIDATION SECTION ///////////////////////////////////////////
+# //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# elimina puertos de los campos puerto si el protocolo de la regla es icmp
+# Remove ports from the port fields if the rule protocol is icmp
+def validation_icmp_no_ports(rule: dict) -> dict:
+    protocol = rule.get('l4_protocol', '').lower()
+
+    if protocol in ['icmp', 'icmpv6']:
+        fields_to_clear = [
+            'sport',
+            'dport',
+        ]
+
+        for field in fields_to_clear:
+            if field in rule:
+                rule[field] = ''
+
+    return rule
+
+# Elimina duplicados y solapamientos en una lista de puertos y rangos
+# Removes duplicates and overlaps in a list of ports and ranges
+def validation_not_duplicate_ports(value: str) -> str:
+    items = [item.strip() for item in value.split(',')]
+    all_ports = {}
+
+    for item in items:
+        # Si es un rango (ej. 22-50)
+        # If it's a range (e.g. 22-50)
+        match = re.match(r'^(\d+)-(\d+)$', item)
+        if match:
+            start = int(match.group(1))
+            end = int(match.group(2))
+            if start > end:
+                start, end = end, start  # Corrige si el rango está invertido
+            for i in range(start, end + 1):
+                all_ports[i] = True
+        # Si es un puerto individual
+        # If it's a single port
+        elif item.isdigit():
+            all_ports[int(item)] = True
+
+    # Ordena los puertos únicos
+    # Sort unique ports
+    sorted_ports = sorted(all_ports.keys())
+
+    # Agrupa puertos contiguos en rangos
+    # Group contiguous ports into ranges
+    result = []
+    start = end = None
+
+    for port in sorted_ports:
+        if start is None:
+            start = end = port
+        elif port == end + 1:
+            end = port
+        else:
+            result.append(str(start) if start == end else f"{start}-{end}")
+            start = end = port
+
+    # Añade el último grupo
+    if start is not None:
+        result.append(str(start) if start == end else f"{start}-{end}")
+
+    # Devuelve la lista final como cadena separada por comas
+    # Return the final list as a comma-separated string
+    return ','.join(result)
+
+# Valida que los puertos o rangos estén dentro del rango permitido
+# Validates that ports or ranges are within the allowed range
+def validation_ports_range(value: str, date):
+    items = [item.strip() for item in value.split(',')]
+    min_port = 0
+    max_port = 65535
+
+    for item in items:
+        # Si es un puerto individual
+        # If it's a single port
+        if item.isdigit():
+            port = int(item)
+            if port < min_port or port > max_port:
+                #print(json.dumps({"error": f"port '{port}' out of range"}))
+                task_update_json(date, "bpfilter_convert_port_out_of_range", "fail")
+                exit()
+            continue
+
+        # Si es un rango de puertos (ej. 1000-2000)
+        # If it's a port range (e.g. 1000-2000)
+        match = re.match(r'^(\d+)-(\d+)$', item)
+        if match:
+            start = int(match.group(1))
+            end = int(match.group(2))
+            if start < min_port or start > max_port or end < min_port or end > max_port:
+                #print(json.dumps({"error": f"port range '{item}' out of range"}))
+                task_update_json(date, "bpfilter_convert_port_range_out", "fail")
+
+                exit()
+            continue
+
+# Convierte un alias de puerto en su valor numérico real
+# Converts a port alias into its actual numeric value
+def convert_alias_port_to_network_port(value: str, date):
+    alias_json_data = import_alias_json()
+
+    # Verifica que se haya cargado correctamente el JSON
+    # Check that the JSON was loaded successfully
+    if not alias_json_data:
+        #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "bpfilter_convert_alias_file_invalid", "fail")
+        exit()
+
+    # Busca el alias en alias_service
+    # Search for the alias in alias_service
+    for entry in alias_json_data.get('alias_service', []):
+        if entry.get('name') == value:
+            return entry.get('content', [''])[0]
+
+    # Si no se encuentra, se detiene el script y se devuelve error
+    # If not found, stop the script and return error
+    #print(json.dumps({"error": f"alias port no encontrado en ningun sitio '{value}' not found"}))
+    task_update_json(date, "bpfilter_convert_alias_port_not_exist", "fail")
+    exit()
+
+# Convierte una lista de puertos, alias y grupos en puertos reales
+# Converts a list of ports, aliases, and groups into real port numbers
+def convert_alias_port_group_to_network_port(value: str, date):
+    alias_json_data = import_alias_json()
+
+    # Si el valor está vacío, no se procesa
+    # If the value is empty, skip processing
+    if value.strip() == '':
+        return ''
+
+    # Si no se pudo cargar el archivo, se detiene el script
+    # If the file couldn't be loaded, stop the script
+    if not alias_json_data:
+        #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "bpfilter_convert_alias_file_invalid", "fail")
+        exit()
+
+    final_ports = []
+    items = [item.strip() for item in value.split(',')]
+
+    for item in items:
+        if item == '':
+            continue  # Ignora elementos vacíos individuales
+                     # Ignore individual empty elements
+
+        if item.isdigit() or re.match(r'^\d+-\d+$', item):
+            validation_ports_range(item, date)
+            final_ports.append(item)
+            continue
+
+        found_group = False
+
+        for group in alias_json_data.get('alias_service_group', []):
+            if group.get('name') == item:
+                for entry in group.get('content', []):
+                    if entry.isdigit() or re.match(r'^\d+-\d+$', entry):
+                        validation_ports_range(entry, date)
+                        final_ports.append(entry)
+                    else:
+                        resolved = convert_alias_port_to_network_port(entry, date)
+                        validation_ports_range(resolved, date)
+                        final_ports.append(resolved)
+                found_group = True
+                break
+
+        if not found_group:
+            resolved = convert_alias_port_to_network_port(item, date)
+            validation_ports_range(resolved, date)
+            final_ports.append(resolved)
+
+    cleaned = validation_not_duplicate_ports(','.join(final_ports))
+    return cleaned
+
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# ///////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ///////////////////////////////////////////////////////////////////////
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# Verifica si una IP objetivo está contenida dentro de una red CIDR, compatible con IPv4 e IPv6.
+# Checks whether a target IP is contained within a CIDR network, supporting both IPv4 and IPv6.
+def cidr_contains(cidr: str, target: str) -> bool:
+    # Extrae la IP base y la máscara del CIDR
+    # Extracts the base IP and mask from the CIDR
+    try:
+        base_net = ipaddress.ip_network(cidr, strict=False)
+        target_ip = ipaddress.ip_interface(target).ip
+        return target_ip in base_net
+    except ValueError:
+        # Si la IP no es válida, retorna falso
+        # If the IP is not valid, returns false
+        return False
+
+# Normaliza una lista de IPs y redes CIDR, valida su formato, elimina duplicados,
+# ordena por máscara ascendente y filtra redes contenidas para retornar solo las más específicas.
+# Normalizes a list of IPs and CIDR networks, validates format, removes duplicates,
+# sorts by ascending mask, and filters out contained networks to return only the most specific ones.
+def validation_ip_networks(value: str) -> str:
+    #print(f"DEBUG validation_ip_networks: valor recibido =>{value}<")
+
+    # Divide la cadena por comas, elimina espacios y filtra vacíos
+    # Split the string by commas, trim spaces, and filter out empty entries
+    items = [v.strip() for v in value.split(',') if v.strip()]
+    normalized = []
+
+    for idx, item in enumerate(items):
+        #print(f"DEBUG iteración {idx}: item =>{item}<")
+
+        try:
+            # IP sin CIDR → se normaliza como /32 (IPv4) o /128 (IPv6)
+            # IP without CIDR → normalize as /32 (IPv4) or /128 (IPv6)
+            ip_obj = ipaddress.ip_address(item)
+            suffix = '/32' if ip_obj.version == 4 else '/128'
+            normalized.append(f"{item}{suffix}")
+        except ValueError:
+            # IP con CIDR → se valida y se agrega si es válida
+            # IP with CIDR → validate and add if valid
+            if re.match(r'^(.+)/(\d{1,3})$', item):
+                try:
+                    ip_net = ipaddress.ip_network(item, strict=False)
+                    normalized.append(str(ip_net))
+                except ValueError:
+                    #print(json.dumps({"error": f"invalid CIDR '{item}'"}))
+                    exit()
+            else:
+                # Formato inválido → se muestra error y se detiene
+                # Invalid format → show error and stop
+                #print(json.dumps({"error": f"invalid IP format '{item}'"}))
+                exit()
+
+    # Elimina duplicados exactos
+    # Remove exact duplicates
+    normalized = list(set(normalized))
+
+    # Ordena por máscara ascendente (más amplias primero)
+    # Sort by ascending mask (broader networks first)
+    def mask_sort_key(entry):
+        ip, mask = entry.split('/')
+        return int(mask)
+
+    normalized.sort(key=mask_sort_key)
+
+    final = []
+
+    for candidate in normalized:
+        contained = False
+        for existing in final:
+            if cidr_contains(existing, candidate):
+                #print(f"DEBUG {candidate} está contenido en {existing}, se omite")
+                contained = True
+                break
+        if not contained:
+            final.append(candidate)
+
+    #print(f"DEBUG resultado final: {json.dumps(final)}")
+    return ','.join(final)
+
+
+# Valida que las IPs o CIDRs tengan formato correcto
+# Validates that IPs or CIDRs have correct format
+def validate_ip_or_cidr(value: str) -> bool:
+    items = [item.strip() for item in value.split(',')]
+
+    for item in items:
+        # Si es una IP válida (sin CIDR)
+        # If it's a valid IP (without CIDR)
+        try:
+            ipaddress.ip_address(item)
+            continue
+        except ValueError:
+            pass
+
+        # Si es una IP con CIDR
+        # If it's an IP with CIDR
+        match = re.match(r'^(.+)/(\d{1,3})$', item)
+        if match:
+            ip = match.group(1)
+            cidr = int(match.group(2))
+
+            try:
+                ip_obj = ipaddress.ip_address(ip)
+            except ValueError:
+                return False
+
+            if (ip_obj.version == 4 and 0 <= cidr <= 32) or (ip_obj.version == 6 and 0 <= cidr <= 128):
+                continue
+
+            return False
+
+        # No es IP ni CIDR válido
+        # Not a valid IP or CIDR
+        return False
+
+    return True
+
+# Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
+# Returns the first IP or CIDR linked to a named alias in alias_address.
+def convert_alias_ip_to_ip(value: str, date):
+    alias_json_data = import_alias_json()
+
+    # Si el valor está vacío o solo contiene espacios, lo ignoramos
+    # If the value is empty or just spaces, ignore it
+    if value.strip() == '':
+        #print(f"DEBUG convert_alias_ip_to_ip: valor vacío, se ignora")
+        return ''
+
+    # Verifica que se haya cargado correctamente el JSON
+    # Check that the JSON was loaded successfully
+    if not alias_json_data:
+        #print(json.dumps({"error": "alias file not found or invalid"}))
+        exit()
+
+    # DEBUG: mostrar el valor recibido
+    #print(f"DEBUG convert_alias_ip_to_ip: valor recibido = >{value}<")
+
+    # DEBUG: listar todos los alias disponibles en alias_address
+    #if 'alias_address' in alias_json_data:
+    #    for entry in alias_json_data['alias_address']:
+    #        print(f"DEBUG alias en JSON: >{entry.get('name', '')}<")
+
+    # Busca el alias en alias_address
+    # Search for the alias in alias_address
+    for entry in alias_json_data.get('alias_address', []):
+        if entry.get('name') == value:
+            return entry.get('content', [''])[0]
+
+    # Si no se encuentra, se detiene el script y se devuelve error
+    # If not found, stop the script and return error
+    #print(json.dumps({"error": f"alias IP '{value}' not found"}))
+    task_update_json(date, f"bpfilter_convert_alias_IP_'{value}'_not_found", "fail")
+    exit()
+
+# Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
+# Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
+def convert_alias_group_to_Network_ips(value: str, date):
+    alias_json_data = import_alias_json()
+
+    # Verifica que se haya cargado correctamente el JSON
+    # Check that the JSON was loaded successfully
+    if not alias_json_data:
+        #print(json.dumps({"error": "alias file not found or invalid"}))
+        task_update_json(date, "bpfilter_convert_alias_file_invalid", "fail")
+        exit()
+
+    # Divide la cadena por comas y elimina espacios
+    # Split the input string by commas and trim whitespace
+    items = [item.strip() for item in value.split(',')]
+    resolved_ips = []
+
+    for item in items:
+        # Ignorar valores vacíos o solo espacios
+        # Ignore empty or whitespace-only values
+        if item == '':
+            continue
+
+        # Si es IP o CIDR válida, se conserva
+        # If it's a valid IP or CIDR, keep it as-is
+        if validate_ip_or_cidr(item):
+            resolved_ips.append(item)
+            continue
+
+        found_group = False
+
+        # Verifica si el elemento es un grupo de alias
+        # Check if the item is an alias group
+        for group in alias_json_data.get('alias_addr_group', []):
+            if group.get('name') == item:
+                # Recorre cada alias dentro del grupo
+                # Iterate over each alias inside the group
+                for alias_name in group.get('content', []):
+                    ip = convert_alias_ip_to_ip(alias_name, date)
+                    if ip != '':
+                        resolved_ips.append(ip)
+                found_group = True
+                break
+
+        # Si no es grupo, lo tratamos como alias individual
+        # If it's not a group, treat it as an individual alias
+        if not found_group:
+            ip = convert_alias_ip_to_ip(item, date)
+            if ip != '':
+                resolved_ips.append(ip)
+                continue
+
+            # Si no se pudo resolver, se lanza error
+            # If resolution fails, throw an error
+            #print(json.dumps({"error": f"alias or group '{item}' not found or invalid"}))
+            task_update_json(date, "bpfilter_convert_alias_or_group_invalid", "fail")
+            exit()
+
+    # Normaliza y elimina duplicados antes de devolver
+    # Normalize and remove duplicates before returning
+    return validation_ip_networks(','.join(resolved_ips))
+
+# Convierte alias en objetos de red reales usando funciones auxiliares
+# Converts aliases into real network objects using helper functions
+def Main_convert_alias_object_to_network_object(rule: dict, date):
+    # Campos relacionados con puertos
+    # Port-related fields
+    port_fields = ['sport', 'dport']
+
+    for field in port_fields:
+        if field in rule:
+            # Llama a la función de conversión de puertos
+            # Call the port conversion function
+            rule[field] = convert_alias_port_group_to_network_port(rule[field], date)
+
+    # Campos relacionados con direcciones IP
+    # IP-related fields
+    ip_fields = ['source', 'destination']
+
+    for field in ip_fields:
+        if field in rule:
+            # Llama a la función de conversión de grupos IP
+            # Call the IP group conversion function
+            rule[field] = convert_alias_group_to_Network_ips(rule[field], date)
+
+    return rule
+
+
+
+def separate_rules(rule):
+    # Extraemos los campos relevantes de la regla original
+    # Extract relevant fields from the original rule
+    ip4_saddr = rule.get("ip4_saddr")  # IP origen individual
+    ip4_snet = rule.get("ip4_snet")    # Red origen
+    ip4_daddr = rule.get("ip4_daddr")  # IP destino individual
+    ip4_dnet = rule.get("ip4_dnet")    # Red destino
+
+    # Si no hay mezcla de IPs y redes en origen o destino, no hay conflicto
+    # If there's no mix of IPs and networks in source or destination, no conflict
+    if not (ip4_saddr and ip4_snet) and not (ip4_daddr and ip4_dnet):
+        return [rule]  # Se devuelve la regla tal cual
+                      # Return the rule as-is
+
+    subrules = []  # Lista para almacenar las subreglas generadas
+                   # List to store generated subrules
+
+    # Combinación 1: IP origen + IP destino
+    # Combination 1: Source IP + Destination IP
+    if ip4_saddr and ip4_daddr:
+        r1 = rule.copy()
+        r1["ip4_snet"] = ""  # Se elimina la red origen
+        r1["ip4_dnet"] = ""  # Se elimina la red destino
+        subrules.append(r1)
+
+    # Combinación 2: IP origen + Red destino
+    # Combination 2: Source IP + Destination Network
+    if ip4_saddr and ip4_dnet:
+        r2 = rule.copy()
+        r2["ip4_snet"] = ""  # Se elimina la red origen
+        r2["ip4_daddr"] = ""  # Se elimina la IP destino
+        subrules.append(r2)
+
+    # Combinación 3: Red origen + IP destino
+    # Combination 3: Source Network + Destination IP
+    if ip4_snet and ip4_daddr:
+        r3 = rule.copy()
+        r3["ip4_saddr"] = ""  # Se elimina la IP origen
+        r3["ip4_dnet"] = ""   # Se elimina la red destino
+        subrules.append(r3)
+
+    # Combinación 4: Red origen + Red destino
+    # Combination 4: Source Network + Destination Network
+    if ip4_snet and ip4_dnet:
+        r4 = rule.copy()
+        r4["ip4_saddr"] = ""  # Se elimina la IP origen
+        r4["ip4_daddr"] = ""  # Se elimina la IP destino
+        subrules.append(r4)
+
+    # Se devuelve la lista de subreglas compatibles con bpfilter
+    # Return the list of bpfilter-compatible subrules
+    return subrules

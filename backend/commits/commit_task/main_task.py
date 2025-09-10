@@ -7,6 +7,11 @@ from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 
 def start_commit_process(user, date):
+
+
+    ################################################################################################################################
+    ###################################### Section Generate Config #################################################################
+    ################################################################################################################################
     # genera la entrada en /var/www/config/commit_history/commit_history.json
     # generates the entry in /var/www/config/commit_history/commit_history.json
     gen_json_entry(user, date)

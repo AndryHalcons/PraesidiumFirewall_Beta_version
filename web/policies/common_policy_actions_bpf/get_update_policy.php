@@ -64,6 +64,7 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['bpfilter'])) {
 // Function to validate the received rule
 function validate_bpfilter_policy(array $data, array $rule): array {
     $rule = validationFamiliy($data,$rule);
+    $rule = gen_chain_name($rule);
     $rule = validation_icmp_no_ports($rule);
     $rule = Main_convert_alias_object_to_network_object($rule);
     $rule = get_id_from_policy($rule);

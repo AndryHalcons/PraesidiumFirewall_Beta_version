@@ -21,11 +21,12 @@ def copy_to_running(date):
 
         files_to_copy = [
             'interfaces.yml',
-            'rules_nftables.json',
+            'routes.json',
             'rules_nftables_human_viewer.json',
             'rules_bpfilter_human_viewer.json',
             'users.json',
             'alias.json',
+            'system_config.json',
         ]
 
         for filename in files_to_copy:
@@ -56,9 +57,12 @@ def gen_json_mkdir(user, date):
         files_to_copy = [
             'interfaces.yml',
             'routes.json',
-            'rules.json',
-            'rules_nftables.json',
-            'users.json'
+            'rules_nftables_human_viewer.json',
+            'rules_bpfilter_human_viewer.json',
+            'users.json',
+            'alias.json',
+            'system_config.json',
+            
         ]
 
         for filename in files_to_copy:
