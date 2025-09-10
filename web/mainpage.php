@@ -27,6 +27,7 @@ $L = require $langFile;
     <script src="/policies/common_policy_actions_nft/nft_table.js"></script>
     <script src="/policies/common_policy_actions_bpf/bpf_table.js"></script>
     <script src="/users/users_table/users_table.js"></script>
+    <script src="/interfaces/interfaces_table/interfaces.js"></script>
 
 </head>
 <body>
@@ -45,6 +46,7 @@ $L = require $langFile;
     <div class="top-menu">
         <a href="#" data-page="home.php"><?= htmlspecialchars($L['menu_home']) ?></a>
         <a href="#" data-page="interfaces/interfaces.php"><?= htmlspecialchars($L['menu_interfaces']) ?></a>
+        <a href="#" data-page="interfaces/interfaces_legacy.php">interfaces_legacy</a>
         <a href="#" data-page="monitor/monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
         <a href="#" data-page="users/users.php"><?= htmlspecialchars($L['menu_users']) ?></a>
         <a href="#" data-page="commits/commit.php"><?= htmlspecialchars($L['menu_commit']) ?></a>
