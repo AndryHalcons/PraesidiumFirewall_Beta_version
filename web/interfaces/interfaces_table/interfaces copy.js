@@ -173,7 +173,6 @@ function loadTableContent_iface(currentAlias, columns) {
 
 
 
-
 function edit_iface(currentAlias, rule, columns, targetRow, editBtn, saveBtn) {
   const endpoint = "/interfaces/interfaces_table/get_forms_from_table.php";
   const param = `table=${currentAlias}`;

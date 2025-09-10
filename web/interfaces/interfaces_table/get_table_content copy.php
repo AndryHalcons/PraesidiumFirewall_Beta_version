@@ -33,13 +33,42 @@ switch ($chain) {
 
 
 function get_ethernets() {
-    $structure = @json_decode(@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_interfaces.json'), true);
-    $columns = $structure['ethernets'] ?? [];
+    $structurePath = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_interfaces.json';
+    $dataPath = '/var/www/config/interfaces.json';
 
-    $data = @json_decode(@file_get_contents('/var/www/config/interfaces.json'), true);
-    $block = $data['network']['ethernets'] ?? [];
+    // Leer archivos
+    $structureRaw = file_get_contents($structurePath);
+    if ($structureRaw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo de estructura']);
+        return;
+    }
+    $dataRaw = file_get_contents($dataPath);
+    if ($dataRaw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo de datos']);
+        return;
+    }
+    // Interpretar JSON
+    $structure = json_decode($structureRaw, true);
+    $data = json_decode($dataRaw, true);
 
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(['error' => 'Error al interpretar los archivos JSON']);
+        return;
+    }
+    if (!isset($structure['ethernets'])) {
+        echo json_encode(['error' => 'Estructura no definida para ethernets']);
+        return;
+    }
+    if (!isset($data['network']['ethernets'])) {
+        echo json_encode(['error' => 'Datos no definidos para ethernets']);
+        return;
+    }
+
+    // Procesar datos
+    $columns = $structure['ethernets'];
+    $block = $data['network']['ethernets'];
     $result = [];
+
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
         $flat = [];
@@ -51,9 +80,6 @@ function get_ethernets() {
 
     echo json_encode(['ethernets' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-
-
 
 
 function get_bridges() {

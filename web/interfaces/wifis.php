@@ -9,7 +9,10 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
-$currentAlias = "interface";
+$currentAlias = "wifis";
+// check interfaces scripts add/quit new/old physical interfaces
+$script5 = '/usr/bin/python3 /var/www/backend/checks/check_interfaces/main_interfaces_check.py';
+shell_exec("sudo $script5 2>&1");
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
@@ -22,7 +25,7 @@ $currentAlias = "interface";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['menu_interfaces']) ?></h1>
+  <h1><?= htmlspecialchars($L['sidebar_wifis']) ?></h1>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableInterface("<?= htmlspecialchars($currentAlias) ?>");

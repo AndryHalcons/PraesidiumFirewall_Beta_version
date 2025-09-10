@@ -1,174 +1,190 @@
 function renderTableInterface(currentAlias) {
-  const endpoint = "/interfaces/interfaces_table/get_table_structure.php";
-  const param = `table=${currentAlias}`;
+    const endpoint = "/interfaces/interfaces_table/get_table_structure.php";
+    const param = `table=${currentAlias}`;
 
-  fetch(`${endpoint}?${param}`)
-    .then(response => response.json())
-    .then(data => {
-      const container = document.getElementById(`${currentAlias}_table`);
+    fetch(`${endpoint}?${param}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById(`${currentAlias}_table`);
 
-      if (data.error) {
-        if (container) {
-          container.innerHTML = `<div class="error">${data.error}</div>`;
-        }
-        return;
-      }
+            if (data.error) {
+                if (container) {
+                    container.innerHTML = `<div class="error">${data.error}</div>`;
+                }
+                return;
+            }
 
-      const columns = data[currentAlias];
-      if (!container || !Array.isArray(columns)) {
-        return;
-      }
+            const rawColumns = data[currentAlias];
+            if (!container || !Array.isArray(rawColumns)) {
+                return;
+            }
 
-      // Insertar el botón "Agregar política" antes del contenedor
-      const addBtn = document.createElement("button");
-      addBtn.textContent = LANG["add_policy"] || "Agregar política";
-      addBtn.onclick = () => add_iface(currentAlias, columns);
-      container.insertAdjacentElement("beforebegin", addBtn);
+            // Aplanar columnas
+            const columns = [];
+            rawColumns.forEach(col => {
+                const key = Object.keys(col)[0];
+                const subfields = col[key];
+                if (subfields && typeof subfields === "object" && Object.keys(subfields).length > 0) {
+                    Object.keys(subfields).forEach(sub => {
+                        columns.push(`${key}.${sub}`);
+                    });
+                } else {
+                    columns.push(key);
+                }
+            });
 
-      container.innerHTML = "";
+            const addBtn = document.createElement("button");
+            addBtn.textContent = LANG["add_policy"] || "Agregar política";
+            addBtn.onclick = () => add_iface(currentAlias, columns);
+            container.insertAdjacentElement("beforebegin", addBtn);
 
-      const table = document.createElement("table");
-      table.className = "interfaz";
+            container.innerHTML = "";
 
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
+            const table = document.createElement("table");
+            table.className = "interfaz";
 
-      // Columna de acciones
-      const actionsTh = document.createElement("th");
-      actionsTh.textContent = typeof LANG !== "undefined" && LANG["actions"] ? LANG["actions"] : "Acciones";
-      headerRow.appendChild(actionsTh);
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
 
-      // Columnas normales
-      columns.forEach(col => {
-        const th = document.createElement("th");
-        th.textContent = typeof LANG !== "undefined" && LANG[col] ? LANG[col] : col;
-        headerRow.appendChild(th);
-      });
+            const actionsTh = document.createElement("th");
+            actionsTh.textContent = typeof LANG !== "undefined" && LANG["actions"] ? LANG["actions"] : "Acciones";
+            headerRow.appendChild(actionsTh);
 
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
+            columns.forEach(key => {
+                const th = document.createElement("th");
+                th.textContent = typeof LANG !== "undefined" && LANG[key] ? LANG[key] : key;
+                headerRow.appendChild(th);
+            });
 
-      const tbody = document.createElement("tbody");
-      table.appendChild(tbody);
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
 
-      container.appendChild(table);
+            const tbody = document.createElement("tbody");
+            table.appendChild(tbody);
 
-      // Cargar contenido de la tabla
-      loadTableContent_iface(currentAlias, columns);
-    })
-    .catch(error => {
-      const container = document.getElementById(`${currentAlias}_table`);
-      if (container) {
-        container.innerHTML = `<div class="error">Error de conexión con el servidor</div>`;
-      }
-    });
+            container.appendChild(table);
+
+            loadTableContent_iface(currentAlias, columns);
+        })
+        .catch(error => {
+            const container = document.getElementById(`${currentAlias}_table`);
+            if (container) {
+                container.innerHTML = `<div class="error">Error de conexión con el servidor</div>`;
+            }
+        });
 }
 
 
+
 function loadTableContent_iface(currentAlias, columns) {
-  const endpoint = "/interfaces/interfaces_table/get_table_content.php"; 
-  const param = `table=${currentAlias}`;
-  fetch(`${endpoint}?${param}`)
-    .then(response => response.json())
-    .then(data => {
-      const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
-      if (!tbody) return;
+    const endpoint = "/interfaces/interfaces_table/get_table_content.php";
+    const param = `table=${currentAlias}`;
+    fetch(`${endpoint}?${param}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
+            if (!tbody) return;
 
-      tbody.innerHTML = "";
+            tbody.innerHTML = "";
 
-      if (data.error) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = columns.length + 1;
-        td.className = "error";
-        td.textContent = data.error;
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
+            if (data.error) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = columns.length + 1;
+                td.className = "error";
+                td.textContent = data.error;
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
 
-      const rules = data[currentAlias];
-      if (!Array.isArray(rules) || rules.length === 0) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = columns.length + 1;
-        td.textContent = LANG["no_data"] || "No hay datos";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
+            const rules = data[currentAlias];
+            if (!Array.isArray(rules) || rules.length === 0) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = columns.length + 1;
+                td.textContent = LANG["no_data"] || "No hay datos";
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
 
-      const formEndpoint = "/interfaces/interfaces_table/get_forms_from_table.php";
-      fetch(`${formEndpoint}?table=${currentAlias}`)
-        .then(res => res.json())
-        .then(formConfig => {
-          rules.forEach(rule => {
-            const tr = document.createElement("tr");
+            const formEndpoint = "/interfaces/interfaces_table/get_forms_from_table.php";
+            fetch(`${formEndpoint}?table=${currentAlias}`)
+                .then(res => res.json())
+                .then(formConfig => {
+                    rules.forEach(rule => {
+                        const tr = document.createElement("tr");
 
-            // Columna de acciones
-            const actionsTd = document.createElement("td");
+                        const actionsTd = document.createElement("td");
 
-            const editBtn = document.createElement("button");
-            editBtn.textContent = LANG["edit"] || "Editar";
+                        const editBtn = document.createElement("button");
+                        editBtn.textContent = LANG["edit"] || "Editar";
 
-            const saveBtn = document.createElement("button");
-            saveBtn.textContent = LANG["save"] || "Guardar";
-            saveBtn.style.display = "none";
+                        const saveBtn = document.createElement("button");
+                        saveBtn.textContent = LANG["save"] || "Guardar";
+                        saveBtn.style.display = "none";
 
-            editBtn.onclick = () => edit_iface(currentAlias, rule, columns, tr, editBtn, saveBtn);
-            saveBtn.onclick = () => save_iface(currentAlias, rule, columns, tr, editBtn, saveBtn);
+                        editBtn.onclick = () => edit_iface(currentAlias, rule, columns, tr, editBtn, saveBtn);
+                        saveBtn.onclick = () => save_iface(currentAlias, rule, columns, tr, editBtn, saveBtn);
 
-            const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = LANG["delete"] || "Eliminar";
-            deleteBtn.onclick = () => delete_iface(currentAlias, rule);
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.textContent = LANG["delete"] || "Eliminar";
+                        deleteBtn.onclick = () => delete_iface(currentAlias, rule);
 
-            actionsTd.appendChild(editBtn);
-            actionsTd.appendChild(saveBtn);
-            actionsTd.appendChild(deleteBtn);
-            tr.appendChild(actionsTd);
+                        actionsTd.appendChild(editBtn);
+                        actionsTd.appendChild(saveBtn);
+                        actionsTd.appendChild(deleteBtn);
+                        tr.appendChild(actionsTd);
 
-            // Rellenar columnas con inputs visuales
-            columns.forEach(key => {
-              const td = document.createElement("td");
-              const value = rule[key] !== undefined ? rule[key] : "";
+                        columns.forEach(key => {
+                            const td = document.createElement("td");
 
-              if (formConfig.select?.[key]) {
-                const select = document.createElement("select");
-                select.disabled = true;
-                formConfig.select[key].forEach(opt => {
-                  const option = document.createElement("option");
-                  option.value = opt;
-                  option.textContent = opt;
-                  if (opt === value) option.selected = true;
-                  select.appendChild(option);
+                            let value = "";
+                            if (key.includes(".")) {
+                                const [parent, child] = key.split(".");
+                                value = rule[parent]?.[child] ?? "";
+                            } else {
+                                value = rule[key] !== undefined ? rule[key] : "";
+                            }
+
+                            if (formConfig.select?.[key]) {
+                                const select = document.createElement("select");
+                                select.disabled = true;
+                                formConfig.select[key].forEach(opt => {
+                                    const option = document.createElement("option");
+                                    option.value = opt;
+                                    option.textContent = opt;
+                                    if (opt === value) option.selected = true;
+                                    select.appendChild(option);
+                                });
+                                td.appendChild(select);
+                            } else if (formConfig.checkbox?.[key]) {
+                                const checkbox = document.createElement("input");
+                                checkbox.type = "checkbox";
+                                checkbox.disabled = true;
+                                checkbox.checked = value === formConfig.checkbox[key].checked;
+                                td.appendChild(checkbox);
+                            } else {
+                                td.textContent = value;
+                            }
+
+                            tr.appendChild(td);
+                        });
+
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error("Error al cargar configuración visual:", err);
                 });
-                td.appendChild(select);
-              } else if (formConfig.checkbox?.[key]) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.disabled = true;
-                checkbox.checked = value === formConfig.checkbox[key].checked;
-                td.appendChild(checkbox);
-              } else {
-                td.textContent = value;
-              }
-
-              tr.appendChild(td);
-            });
-
-            tbody.appendChild(tr);
-          });
         })
-        .catch(err => {
-          console.error("Error al cargar configuración visual:", err);
+        .catch(error => {
+            const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="${columns.length + 1}" class="error">Error de conexión con el servidor</td></tr>`;
+            }
         });
-    })
-    .catch(error => {
-      const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
-      if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="${columns.length + 1}" class="error">Error de conexión con el servidor</td></tr>`;
-      }
-    });
 }
 
 

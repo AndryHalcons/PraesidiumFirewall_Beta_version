@@ -1,0 +1,66 @@
+{
+  "network": {
+    "bonds": {
+      "bond0": {
+        "dhcp4": "true",
+        "interfaces": ["ens19"],
+        "macaddress": "00:11:22:33:44:55",
+        "mtu": "1500",
+        "parameters.mii-monitor-interval": "100",
+        "parameters.mode": "active-backup",
+        "parameters.primary": "ens19"
+      }
+    },
+    "bridges": {
+      "br0": {
+        "interfaces": []
+      },
+      "br1": {
+        "interfaces": []
+      }
+    },
+    "ethernets": {
+      "ens18": {
+        "dhcp4": "true"
+      },
+      "ens19": {
+        "dhcp4": "false"
+      },
+      "ens20": {
+        "dhcp4": "false"
+      },
+      "ens21": {
+        "dhcp4": "false",
+        "addresses": ["10.0.50.254/24"]
+      }
+    },
+    "tunnels": {
+      "tun0": {
+        "mode": "gre",
+        "local": "192.168.1.1"
+      }
+    },
+    "wireguard": {
+      "wg0": {
+        "addresses": ["10.10.0.1/24"],
+        "port": 51820
+      }
+    },
+    "wifis": {
+      "wlan0": {
+        "dhcp4": "true",
+        "access-points": {
+          "MySSID": {
+            "password": "secret123"
+          }
+        }
+      }
+    },
+    "vlans": {
+      "vlan10": {
+        "id": 10,
+        "link": "ens20"
+      }
+    }
+  }
+}

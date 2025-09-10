@@ -45,8 +45,6 @@ $L = require $langFile;
 
     <div class="top-menu">
         <a href="#" data-page="home.php"><?= htmlspecialchars($L['menu_home']) ?></a>
-        <a href="#" data-page="interfaces/interfaces.php"><?= htmlspecialchars($L['menu_interfaces']) ?></a>
-        <a href="#" data-page="interfaces/interfaces_legacy.php">interfaces_legacy</a>
         <a href="#" data-page="monitor/monitor.php"><?= htmlspecialchars($L['menu_monitor']) ?></a>
         <a href="#" data-page="users/users.php"><?= htmlspecialchars($L['menu_users']) ?></a>
         <a href="#" data-page="commits/commit.php"><?= htmlspecialchars($L['menu_commit']) ?></a>
@@ -59,7 +57,16 @@ $L = require $langFile;
         <summary><?= htmlspecialchars($L['sidebar_dashboard']) ?></summary>
         <a href="#" data-page="dashboard/dashboard.php"><?= htmlspecialchars($L['sidebar_dashboard']) ?></a>
       </details>
-
+      <details>
+        <summary><?= htmlspecialchars($L['sidebar_interfaces']) ?></summary>
+        <a href="#" data-page="interfaces/ethernets.php"><?= htmlspecialchars($L['sidebar_ethernets']) ?></a>
+        <a href="#" data-page="interfaces/bridges.php"><?= htmlspecialchars($L['sidebar_bridges']) ?></a>
+        <a href="#" data-page="interfaces/vlans.php"><?= htmlspecialchars($L['sidebar_vlans']) ?></a>
+        <a href="#" data-page="interfaces/bonds.php"><?= htmlspecialchars($L['sidebar_bonds']) ?></a>
+        <a href="#" data-page="interfaces/tunnels.php"><?= htmlspecialchars($L['sidebar_tunnels']) ?></a>
+        <a href="#" data-page="interfaces/wireguard.php"><?= htmlspecialchars($L['sidebar_wireguard']) ?></a>
+        <a href="#" data-page="interfaces/wifis.php"><?= htmlspecialchars($L['sidebar_wifis']) ?></a>
+      </details>
       <details>
         <summary>BPfilter</summary>
         <a href="#" data-page="policies/policies_xdp.php"><?= htmlspecialchars($L['sidebar_XDP_policies']) ?></a>
