@@ -14,21 +14,37 @@ def get_all_interfaces():
     interfaces = []
 
     for line in lines:
-        # El formato de salida es: <index>: <interface_name>: <flags> ...
         parts = line.split(": ")
         if len(parts) >= 2:
             name = parts[1].split("@")[0].strip()
-            interfaces.append(name)
+            if name != "lo":  # Excluir loopback
+                interfaces.append(name)
     return interfaces
 
-def save_interfaces_to_json(path, interfaces):
+
+def classify_interfaces(interfaces):
+    return {
+        "ethernets": [i for i in interfaces if i.startswith(("eth", "enp", "en"))],
+        "bridge":    [i for i in interfaces if i.startswith("br")],
+        "vlans":     [i for i in interfaces if i.startswith("vlan")],
+        "bonds":     [i for i in interfaces if i.startswith("bond")],
+        "wireguard": [i for i in interfaces if i.startswith("wg")],
+        "wifis":     [i for i in interfaces if i.startswith(("wl", "ath"))],
+        "tunnels":   [i for i in interfaces if i.startswith(("tun", "tap"))],
+    }
+
+def save_interfaces_to_json(path, interfaces, categories):
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    data = {"all_interfaces": interfaces}
+    data.update(categories)
     with open(path, "w") as f:
-        json.dump({"all_interfaces": interfaces}, f, indent=2)
+        json.dump(data, f, indent=2)
 
 def check_generate_all_interfaces_list():
     output_path = "/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json"
     interfaces = get_all_interfaces()
-    save_interfaces_to_json(output_path, interfaces)
+    categories = classify_interfaces(interfaces)
+    save_interfaces_to_json(output_path, interfaces, categories)
 
 check_generate_all_interfaces_list()
+

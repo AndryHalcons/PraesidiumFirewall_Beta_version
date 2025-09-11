@@ -1,88 +1,175 @@
 {
   "ethernets": {
-    "select": {
-      "type": ["","1","2"],
-      "ipv6-privacy":["disabled", "enabled", "preferred"]
-    },
-    "checkbox": {
-        "dhcp4": {
-          "checked":"true",
-          "unchecked":"false"
-        },
-        "dhcp6": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "optional": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "accept-ra": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "wakeonlan": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp4-overrides.use-dns": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp4-overrides.use-routes": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp4-overrides.send-hostname": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp4-overrides.use-hostname": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp6-overrides.use-dns": {
-          "checked": "true",
-          "unchecked": "false"
-        },
-        "dhcp6-overrides.use-routes": {
-          "checked": "true",
-          "unchecked": "false"
-        }
-    },
-    "not_editable": {
-        "name": ["name"]
-    }
-  },
+      "select": {
+        "ipv6-privacy":["disabled", "enabled", "preferred"]
+      },
+      "checkbox": {
+          "dhcp4": {
+            "checked":"true",
+            "unchecked":"false"
+          },
+          "dhcp6": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "optional": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "accept-ra": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "wakeonlan": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp4-overrides.use-dns": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp4-overrides.use-routes": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp4-overrides.send-hostname": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp4-overrides.use-hostname": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp6-overrides.use-dns": {
+            "checked": "true",
+            "unchecked": "false"
+          },
+          "dhcp6-overrides.use-routes": {
+            "checked": "true",
+            "unchecked": "false"
+          }
+      },
+      "not_editable": {
+          "name": []
+      }
+      },
     "bridges": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    },
-    "vlans": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    },
-    "bonds": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    },
-
-    "wireguard": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    },
-    "wifis": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    },
-    "tunnels": {
-      "select": {},
-      "checkbox": {},
-      "not_editable": {}
-    }
+        "select": {
+            "interfaces": [""]
+        },
+        "checkbox": {
+            "dhcp4": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp6": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "optional": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "accept-ra": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "wakeonlan": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "ipv6-privacy": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp4-overrides.use-dns": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp4-overrides.use-routes": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp4-overrides.send-hostname": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp4-overrides.use-hostname": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp6-overrides.use-dns": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "dhcp6-overrides.use-routes": {
+              "checked": "true",
+              "unchecked": "false"
+            },
+            "parameters.stp": {
+              "checked": "true",
+              "unchecked": "false"
+            }
+        },
+        "not_editable": {
+              "name": []
+        }
+      },  
+      "vlans": {
+          "select": {
+              "link":[""]
+          },
+          "checkbox": {
+            "dhcp4": {
+              "checked":"true",
+              "unchecked":"false"
+            },
+            "dhcp6": {
+              "checked": "true",
+              "unchecked": "false"
+            }
+          },
+          "not_editable": {
+                "name": []
+          }
+      },
+      "bonds": {
+          "select": {
+              "interfaces":[""]
+          },
+          "checkbox": {
+            "dhcp4": {
+              "checked":"true",
+              "unchecked":"false"
+            },
+            "dhcp6": {
+              "checked": "true",
+              "unchecked": "false"
+            }
+          },
+          "not_editable": {
+              "name": []
+          }
+      },
+      "wireguard": {
+          "select": {},
+          "checkbox": {},
+          "not_editable": {
+              "name": []
+          }
+      },
+      "wifis": {
+          "select": {},
+          "checkbox": {},
+          "not_editable": {
+              "name": []
+          }
+      },
+      "tunnels": {
+          "select": {},
+          "checkbox": {},
+          "not_editable": {
+              "name": []
+          }
+      }
 } 

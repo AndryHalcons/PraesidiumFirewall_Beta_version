@@ -455,7 +455,7 @@ function send_iface(currentAlias, updatedRule, columns, onSuccess) {
 
 
 function delete_iface(currentAlias, rule) {
-  if (!confirm("¿Estás seguro de que quieres eliminar esta política?")) {
+  if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) {
     return; // El usuario canceló
   }
 
@@ -463,7 +463,8 @@ function delete_iface(currentAlias, rule) {
 
   const payload = {
     table: currentAlias,
-    id: rule.id
+    id: rule.id,
+    name: rule.name
   };
 
   fetch(endpoint, {

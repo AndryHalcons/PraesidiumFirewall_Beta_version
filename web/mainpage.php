@@ -60,9 +60,9 @@ $L = require $langFile;
       <details>
         <summary><?= htmlspecialchars($L['sidebar_interfaces']) ?></summary>
         <a href="#" data-page="interfaces/ethernets.php"><?= htmlspecialchars($L['sidebar_ethernets']) ?></a>
+        <a href="#" data-page="interfaces/bonds.php"><?= htmlspecialchars($L['sidebar_bonds']) ?></a>
         <a href="#" data-page="interfaces/bridges.php"><?= htmlspecialchars($L['sidebar_bridges']) ?></a>
         <a href="#" data-page="interfaces/vlans.php"><?= htmlspecialchars($L['sidebar_vlans']) ?></a>
-        <a href="#" data-page="interfaces/bonds.php"><?= htmlspecialchars($L['sidebar_bonds']) ?></a>
         <a href="#" data-page="interfaces/tunnels.php"><?= htmlspecialchars($L['sidebar_tunnels']) ?></a>
         <a href="#" data-page="interfaces/wireguard.php"><?= htmlspecialchars($L['sidebar_wireguard']) ?></a>
         <a href="#" data-page="interfaces/wifis.php"><?= htmlspecialchars($L['sidebar_wifis']) ?></a>
