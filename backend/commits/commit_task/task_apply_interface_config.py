@@ -10,8 +10,8 @@ def get_existing_netplan_file():
         if len(files) == 1:
             return files[0]
         elif len(files) > 1:
-            # Si hay más de uno, elige el primero (puedes ajustar esto si quieres lógica más precisa)  
-            # If more than one, pick the first (you can adjust this if needed)
+            # Si hay más de uno, elige el primero 
+            # If more than one, pick the first 
             return files[0]
         else:
             return None
@@ -52,9 +52,7 @@ def apply_netplan_config(source_path):
         print(f"❌ Fallo inesperado / Unexpected failure:\n{str(e)}")
         return False
 
-def main():
+def apply_interface_config(user, date):
     source_path = "/var/www/config_running/interfaces2.yml"
     apply_netplan_config(source_path)
 
-
-main()

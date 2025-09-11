@@ -5,7 +5,7 @@ from task_gen_nftables_policies import gen_nftables_policies
 from task_gen_bpfilter_policies import gen_bpfilter_policies
 from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
-
+from task_apply_interface_config import apply_interface_config
 def start_commit_process(user, date):
 
 
@@ -44,12 +44,14 @@ def start_commit_process(user, date):
     #ensuring that changes are applied only when the full setup is correct.
 
     #aplica las reglas de nftables,
-    #applies the rules of nftables,
+    #apply the rules of nftables,
     apply_nftables_policies(user, date)
     #aplica las reglas de bpfilter,
-    #applies the rules of bpfilter,
+    #apply the rules of bpfilter,
     apply_bpfilter_policies(user,date)
-
+    #aplica la configuracion de red
+    #apply network settings
+    apply_interface_config(user,date)
 
 
 
