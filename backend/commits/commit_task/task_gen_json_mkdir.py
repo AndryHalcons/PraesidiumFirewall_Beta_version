@@ -20,7 +20,6 @@ def copy_to_running(date):
         os.makedirs(running_dir, exist_ok=True)
 
         files_to_copy = [
-            'interfaces.yml',
             'interfaces.json',
             'routes.json',
             'rules_nftables_human_viewer.json',
@@ -56,7 +55,6 @@ def gen_json_mkdir(user, date):
         os.makedirs(target_dir, exist_ok=True)
 
         files_to_copy = [
-            'interfaces.yml',
             'interfaces.json',
             'routes.json',
             'rules_nftables_human_viewer.json',

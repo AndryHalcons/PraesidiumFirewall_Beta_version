@@ -1,8 +1,9 @@
 import shutil
 import subprocess
 import os
+from task_update_json import task_update_json
 
-def get_existing_netplan_file():
+def get_existing_netplan_file(user, date):
     # Busca el archivo YAML existente en /etc/netplan  
     # Finds the existing YAML file in /etc/netplan
     try:
@@ -16,16 +17,18 @@ def get_existing_netplan_file():
         else:
             return None
     except Exception:
-        return None
+        task_update_json(date, "apply_interfaz_config", "fail")
+        exit()
 
-def apply_netplan_config(source_path):
+
+def apply_netplan_config(user, date, source_path):
     # Aplica el archivo YAML especificado como configuración de red  
     # Applies the specified YAML file as network configuration
     try:
-        existing_file = get_existing_netplan_file()
+        existing_file = get_existing_netplan_file(user, date)
         if not existing_file:
-            print("❌ No se encontró ningún archivo YAML en /etc/netplan / No YAML file found in /etc/netplan")
-            return False
+            task_update_json(date, "apply_interfaz_config", "fail")
+            exit()
 
         destination_path = os.path.join("/etc/netplan", existing_file)
 
@@ -42,17 +45,18 @@ def apply_netplan_config(source_path):
         )
 
         if result.returncode != 0:
-            print(f"❌ Error al aplicar Netplan / Netplan apply failed:\n{result.stderr.strip()}")
-            return False
+            task_update_json(date, "apply_interfaz_config", "fail")
+            exit()
 
-        print("✅ Configuración aplicada correctamente / Configuration applied successfully")
-        return True
+        task_update_json(date, "apply_interfaz_config", "success")
 
     except Exception as e:
-        print(f"❌ Fallo inesperado / Unexpected failure:\n{str(e)}")
-        return False
+        task_update_json(date, "apply_interfaz_config", "fail")
+        exit()
+
+
 
 def apply_interface_config(user, date):
     source_path = "/var/www/config_running/interfaces.yml"
-    apply_netplan_config(source_path)
+    apply_netplan_config(user, date, source_path)
 

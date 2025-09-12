@@ -43,19 +43,23 @@ def start_commit_process(user, date):
     #This configuration applies changes only if the entire configuration generation process has completed successfully, 
     #ensuring that changes are applied only when the full setup is correct.
 
-    #aplica las reglas de nftables,
-    #apply the rules of nftables,
-    apply_nftables_policies(user, date)
-    #aplica las reglas de bpfilter,
-    #apply the rules of bpfilter,
-    apply_bpfilter_policies(user,date)
     #aplica la configuracion de red
     #apply network settings
     apply_interface_config(user,date)
 
+    #aplica las reglas de nftables,
+    #apply the rules of nftables,
+    apply_nftables_policies(user, date)
+
+    #aplica las reglas de bpfilter,
+    #apply the rules of bpfilter,
+    apply_bpfilter_policies(user,date)
+
+    
+
 
 
 #only devops
-#start_commit_process("praesidium", "20250907163352")
+start_commit_process("praesidium", "20250907163352")
 
 #{"commit":{"date":"20250824142408","user":"praesidium"}}

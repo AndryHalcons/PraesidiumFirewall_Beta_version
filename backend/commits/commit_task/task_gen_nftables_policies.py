@@ -110,7 +110,7 @@ def gen_nftables_policies(user, date):
 
     except Exception as e:
         task_update_json(date, "nftables_convert", "fail")
-    apply_nftables_json(date, output_path)
+    verify_nftables_json(date, output_path)
 
 
 

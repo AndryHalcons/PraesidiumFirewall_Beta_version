@@ -21,6 +21,8 @@ def get_ifindex(interface):
 #  Extrae las interfaces físicas del sistema usando 'ip link show'
 #  Extracts physical interfaces from the system using 'ip link show'
 def get_physical_interfaces():
+    #  Extrae las interfaces físicas del sistema usando 'ip link show'
+    #  Extracts physical interfaces from the system using 'ip link show'
     result = subprocess.run(["ip", "link", "show"], capture_output=True, text=True)
     lines = result.stdout.splitlines()
     interfaces = []
@@ -30,12 +32,9 @@ def get_physical_interfaces():
             # Extrae el nombre de la interfaz
             # Extracts the interface name
             name = line.split(": ")[1].split("@")[0].strip()
-            # Filtra interfaces virtuales y de sistema
-            # Filters out virtual and system interfaces
-            if (
-                name != "lo"
-                and not name.startswith(("br", "bond", "docker", "veth", "vir", "tun"))
-            ):
+            # Filtra solo interfaces físicas válidas
+            # Filters only valid physical interfaces
+            if name.startswith(("en", "eth", "wl")):
                 # Añade la interfaz con su ifindex
                 # Adds the interface with its ifindex
                 ifindex = get_ifindex(name)
@@ -44,6 +43,7 @@ def get_physical_interfaces():
                     "ifindex": ifindex
                 })
     return interfaces
+
 
 #  Guarda el listado de interfaces en formato JSON
 #  Saves the list of interfaces in JSON format

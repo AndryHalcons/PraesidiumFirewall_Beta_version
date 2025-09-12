@@ -950,7 +950,7 @@ def convert(json_data):
 ################################## CHECK YAML ###########################################################
 #########################################################################################################
 
-def check_yml_syntax(path):
+def check_yml_syntax(user, date, path):
     # Verifica si el archivo YAML tiene estructura compatible con Netplan  
     # Checks if the YAML file has a structure compatible with Netplan
     try:
@@ -964,34 +964,9 @@ def check_yml_syntax(path):
             config["network"].get("version") == 2
         )
     except Exception:
-        return False
+        task_update_json(date, "gen_interfaz_syntax", "fail")
+        exit()
 
-
-"""
-def validate_netplan_file(path):
-    # Valida si un archivo YAML es aceptado por Netplan sin aplicarlo  
-    # Validates whether a YAML file is accepted by Netplan without applying it
-    try:
-        temp_path = "/etc/netplan/temp_interfaces.yml"
-        shutil.copy2(path, temp_path)
-
-        result = subprocess.run(
-            ["netplan", "--debug", "generate"],
-            capture_output=True,
-            text=True
-        )
-
-        os.remove(temp_path)
-
-        if result.returncode != 0:
-            return False, result.stderr.strip()
-
-        return True, None
-
-    except Exception as e:
-        return False, str(e)
-
-"""
 
 def validate_netplan_file(path):
     # Valida si un archivo YAML es aceptado por Netplan sin aplicarlo  
@@ -1054,33 +1029,21 @@ def validate_netplan_file(path):
         # Return error if an exception occurs
         return False, str(e)
 
-
-
-
-
-
-
-def verify_yaml(path):
+def verify_yaml(user, date, path):
     # Verifica sintaxis y compatibilidad con Netplan sin aplicar  
     # Verifies syntax and Netplan compatibility without applying
-    syntax_ok = check_yml_syntax(path)
+    syntax_ok = check_yml_syntax(user, date, path)
     is_valid, error_msg = validate_netplan_file(path)
 
     if not syntax_ok:
-        print("❌ Error de sintaxis YAML / YAML syntax error")
-        return False
+        task_update_json(date, "gen_interfaz_sintax", "fail")
+        exit()
 
     if not is_valid:
-        print(f"❌ Netplan no acepta el archivo / Netplan rejected the file:\n{error_msg}")
-        return False
+        task_update_json(date, "gen_interfaz_sintax_netplan", "fail")
+        exit()
 
-    print("✅ YAML válido y compatible con Netplan / YAML is valid and Netplan-compatible")
-    return True
-
-
-
-
-
+    task_update_json(date, "gen_interfaz_config", "success")
 
 
 #########################################################################################################
@@ -1089,14 +1052,14 @@ def verify_yaml(path):
 
 # Punto de entrada principal del script
 # Main entry point of the script
-def gen_interface_config():
+def gen_interface_config(user, date):
     json_path = "/var/www/config_running/interfaces.json"
     yaml_output = "/var/www/config_running/interfaces.yml"
 
     # Verifica si el archivo JSON existe
     # Check if the JSON file exists
     if not os.path.exists(json_path):
-        print(f"❌ No se encontró el archivo: {json_path}")  # File not found
+        task_update_json(date, "gen_interfaz_config", "fail")
         return
 
     # Carga el contenido del archivo JSON
@@ -1113,12 +1076,7 @@ def gen_interface_config():
     with open(yaml_output, "w") as f:
         yaml.dump(netplan_data, f, default_flow_style=False, sort_keys=False)
 
-    print(f"✅ Netplan generado en: {yaml_output}")  # Netplan generated
+    task_update_json(date, "gen_interfaz_config", "success")
 
     #CHECK yml
-    verify_yaml(yaml_output)
-
-
-
-
-gen_interface_config()
+    verify_yaml(user, date, yaml_output)
