@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 import subprocess
-import yaml
+import json
 import os
 
 #Este script añade las interfaces FISICAS nuevas detectadas por el sistema al archivo interfaces
 #This script adds newly detected physical interfaces from the system to the interfaces file.
 
-# Ejecutar 'ip link show' y obtener nombres de interfaces físicas (excluyendo loopback)
+# Ejecutar 'ip link show' y obtener nombres de interfaces físicas
 # Run 'ip link show' and get physical interface names (excluding loopback)
 def get_system_interfaces():
     result = subprocess.run(["ip", "link", "show"], capture_output=True, text=True)
@@ -17,62 +17,87 @@ def get_system_interfaces():
     for line in lines:
         if ": " in line:
             name = line.split(": ")[1].split("@")[0].strip()
-            if (
-                name != "lo"
-                and not name.startswith(("br", "bond", "docker", "veth", "vir", "tun"))
-            ):
+            if name.startswith(("en", "eth", "wl")):
                 interfaces.append(name)
     return interfaces
 
-
-# Leer el archivo YAML existente
-# Read the existing YAML file
-def load_netplan_file(path):
+#carga el json de interfaces de  /var/www/config
+#loads the interfaces json from /var/www/config
+def load_iface_json_file(path):
     if not os.path.exists(path):
         return {}
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
 
-# Obtener las interfaces ya configuradas en el archivo Netplan
-# Get the interfaces already configured in the Netplan file
-def get_configured_interfaces(netplan_data):
-    return netplan_data.get("network", {}).get("ethernets", {}) if netplan_data else {}
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        return data
+    except json.JSONDecodeError:
+        return {}
 
-# Añadir nuevas interfaces al archivo Netplan con dhcp4: false
-# Add new interfaces to the Netplan file with dhcp4: false
-def add_new_interfaces(netplan_data, new_interfaces):
-    if "network" not in netplan_data:
-        netplan_data["network"] = {}
-    if "ethernets" not in netplan_data["network"]:
-        netplan_data["network"]["ethernets"] = {}
+# Añade las interfaces que no existan al JSON de interfaces de /var/www/config
+# Add non-existent interfaces to the interfaces JSON in /var/www/config
+def iface_compare_and_write(system_ifaces, iface_json):
+    # Aseguramos que la sección 'network' exista en el JSON
+    # Ensure the 'network' section exists in the JSON
+    if "network" not in iface_json:
+        iface_json["network"] = {}
 
-    for iface in new_interfaces:
-        netplan_data["network"]["ethernets"][iface] = {"dhcp4": False}
-    return netplan_data
+    # Lista de todas las subsecciones que deben existir
+    # List of all required subsections
+    required_sections = ["ethernets", "wifis", "bonds", "bridges", "vlans", "tunnels", "wireguard"]
 
-# Guardar el archivo YAML actualizado
-# Save the updated YAML file
-def save_netplan_file(path, netplan_data):
-    with open(path, "w") as f:
-        yaml.dump(netplan_data, f, default_flow_style=False)
+    # Creamos cualquier subsección que falte
+    # Create any missing subsection
+    for section in required_sections:
+        if section not in iface_json["network"]:
+            iface_json["network"][section] = {}
+
+    # Referencias directas a secciones relevantes
+    # Direct references to relevant sections
+    ethernets = iface_json["network"]["ethernets"]
+    wifis = iface_json["network"]["wifis"]
+
+    # Recorremos las interfaces físicas detectadas en el sistema
+    # Iterate over physical interfaces detected on the system
+    for iface in system_ifaces:
+        # Si es una interfaz Ethernet y no está en el JSON, la añadimos vacía
+        # If it's an Ethernet interface and not in the JSON, add it as empty
+        if iface.startswith(("en", "eth")) and iface not in ethernets:
+            ethernets[iface] = {}
+
+        # Si es una interfaz Wi-Fi y no está en el JSON, la añadimos vacía
+        # If it's a Wi-Fi interface and not in the JSON, add it as empty
+        elif iface.startswith("wl") and iface not in wifis:
+            wifis[iface] = {}
+
+    # Devolvemos el JSON actualizado con las nuevas interfaces añadidas
+    # Return the updated JSON with newly added interfaces
+    return iface_json
+
+
+# Guarda el JSON actualizado en el archivo especificado
+# Save the updated JSON to the specified file
+def save_iface_json_file(path, data):
+    try:
+        with open(path, "w") as f:
+            json.dump(data, f, indent=4)
+        return True  # Éxito / Success
+    except Exception as e:
+        print(f"Error al guardar el archivo: {e}")  # Error message
+        return False  # Fallo / Failure
+
 
 # Ejecutar el proceso completo directamente
 # Execute the full process directly
 def run_check_new_interfaces():
-    netplan_path = "/var/www/config/interfaces.yml"
-
+    #json path
+    iface_json_path = "/var/www/config/interfaces.json"
+    #get physical interfaces
     system_ifaces = get_system_interfaces()
-    netplan_data = load_netplan_file(netplan_path)
-    configured_ifaces = get_configured_interfaces(netplan_data)
-    configured_names = list(configured_ifaces.keys())
+    #load json
+    iface_json = load_iface_json_file(iface_json_path)
+    #write add ifaces on json
+    json_output = iface_compare_and_write(system_ifaces,iface_json)
+    #save json
+    save_iface_json_file(iface_json_path, json_output)
 
-    # Filtrar interfaces nuevas / Filter out new interfaces
-    new_ifaces = [iface for iface in system_ifaces if iface not in configured_names]
-
-    # Si hay nuevas interfaces, actualizar el archivo
-    # If there are new interfaces, update the file
-    if new_ifaces:
-        updated_data = add_new_interfaces(netplan_data, new_ifaces)
-        save_netplan_file(netplan_path, updated_data)
-
-run_check_new_interfaces()

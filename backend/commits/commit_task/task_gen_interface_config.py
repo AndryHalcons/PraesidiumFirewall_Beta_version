@@ -29,37 +29,37 @@ def initial_yaml_format():
         }
     }
 
-# Procesa las interfaces tipo bond y las añade al objeto Netplan
-# Processes bond-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo bond y las añade al objeto Netplan  
+# Processes bond-type interfaces and adds them to the Netplan object  
 def parser_bonds(data, netplan):
     for name, config in data.items():
         bond = {}
 
-        # Interfaces esclavas del bond
+        # Interfaces esclavas del bond  
         # Bond slave interfaces
         if config.get("interfaces"):
             bond["interfaces"] = [i.strip() for i in config["interfaces"].split(",") if i.strip()]
 
-        # Configuración de DHCP
+        # Configuración de DHCP  
         # DHCP configuration
-        if config.get("dhcp4", "false") == "true":
+        if config.get("dhcp4", "false").lower() == "true":
             bond["dhcp4"] = True
-        if config.get("dhcp6", "false") == "true":
+        if config.get("dhcp6", "false").lower() == "true":
             bond["dhcp6"] = True
 
-        # Direcciones IP estáticas
+        # Direcciones IP estáticas  
         # Static IP addresses
         if config.get("addresses"):
             bond["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace
+        # Puertas de enlace  
         # Gateways
         if config.get("gateway4"):
             bond["gateway4"] = config["gateway4"]
         if config.get("gateway6"):
             bond["gateway6"] = config["gateway6"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -67,12 +67,12 @@ def parser_bonds(data, netplan):
             except ValueError:
                 pass
 
-        # Dirección MAC
+        # Dirección MAC  
         # MAC address
         if config.get("macaddress"):
             bond["macaddress"] = config["macaddress"]
 
-        # Servidores DNS
+        # Servidores DNS  
         # DNS servers
         nameservers = {}
         if config.get("nameservers.addresses"):
@@ -86,7 +86,7 @@ def parser_bonds(data, netplan):
         if nameservers:
             bond["nameservers"] = nameservers
 
-        # Parámetros específicos del bond
+        # Parámetros específicos del bond  
         # Bond-specific parameters
         parameters = {}
         for key, value in config.items():
@@ -96,42 +96,101 @@ def parser_bonds(data, netplan):
         if parameters:
             bond["parameters"] = parameters
 
-        # Añade la interfaz bond al bloque Netplan
+        # Campos adicionales  
+        # Additional fields
+        if config.get("optional", "false").lower() == "true":
+            bond["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            bond["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            bond["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            bond["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Rutas  
+        # Routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            bond["routes"] = [route]
+
+        # Overrides DHCPv4  
+        # DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            bond["dhcp4-overrides"] = dhcp4_overrides
+
+        # Overrides DHCPv6  
+        # DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            bond["dhcp6-overrides"] = dhcp6_overrides
+
+        # Bloque match  
+        # Match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            bond["match"] = match
+
+        # set-name  
+        # Set-name
+        if config.get("set-name"):
+            bond["set-name"] = config["set-name"]
+
+        # Añade la interfaz bond al bloque Netplan  
         # Add the bond interface to the Netplan block
         netplan["network"]["bonds"][name] = bond
 
 
-# Procesa las interfaces tipo bridge y las añade al objeto Netplan
-# Processes bridge-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo bridge y las añade al objeto Netplan  
+# Processes bridge-type interfaces and adds them to the Netplan object  
 def parser_bridges(data, netplan):
     for name, config in data.items():
         bridge = {}
 
-        # Asigna las interfaces esclavas
+        # Asigna las interfaces esclavas  
         # Assign slave interfaces
         if config.get("interfaces"):
             bridge["interfaces"] = [i.strip() for i in config["interfaces"].split(",") if i.strip()]
 
-        # Configura DHCP
+        # Configura DHCP  
         # Configure DHCP
-        if config.get("dhcp4", "false") == "true":
+        if config.get("dhcp4", "false").lower() == "true":
             bridge["dhcp4"] = True
-        if config.get("dhcp6", "false") == "true":
+        if config.get("dhcp6", "false").lower() == "true":
             bridge["dhcp6"] = True
 
-        # Direcciones estáticas
+        # Direcciones estáticas  
         # Static addresses
         if config.get("addresses"):
             bridge["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace
+        # Puertas de enlace  
         # Gateways
         if config.get("gateway4"):
             bridge["gateway4"] = config["gateway4"]
         if config.get("gateway6"):
             bridge["gateway6"] = config["gateway6"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -139,12 +198,12 @@ def parser_bridges(data, netplan):
             except ValueError:
                 pass
 
-        # Dirección MAC
+        # Dirección MAC  
         # MAC address
         if config.get("macaddress"):
             bridge["macaddress"] = config["macaddress"]
 
-        # Servidores DNS
+        # Servidores DNS  
         # DNS servers
         nameservers = {}
         if config.get("nameservers.addresses"):
@@ -158,7 +217,7 @@ def parser_bridges(data, netplan):
         if nameservers:
             bridge["nameservers"] = nameservers
 
-        # Parámetros específicos del bridge
+        # Parámetros específicos del bridge  
         # Bridge-specific parameters
         parameters = {}
         for key, value in config.items():
@@ -168,36 +227,95 @@ def parser_bridges(data, netplan):
         if parameters:
             bridge["parameters"] = parameters
 
-        # Añade la interfaz bridge al bloque Netplan
+        # Configura campos adicionales  
+        # Configure additional fields
+        if config.get("optional", "false").lower() == "true":
+            bridge["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            bridge["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            bridge["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            bridge["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Configura rutas  
+        # Configure routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            bridge["routes"] = [route]
+
+        # Configura overrides DHCPv4  
+        # Configure DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            bridge["dhcp4-overrides"] = dhcp4_overrides
+
+        # Configura overrides DHCPv6  
+        # Configure DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            bridge["dhcp6-overrides"] = dhcp6_overrides
+
+        # Configura bloque match  
+        # Configure match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            bridge["match"] = match
+
+        # Configura set-name  
+        # Configure set-name
+        if config.get("set-name"):
+            bridge["set-name"] = config["set-name"]
+
+        # Añade la interfaz bridge al bloque Netplan  
         # Add the bridge interface to the Netplan block
         netplan["network"]["bridges"][name] = bridge
 
-# Procesa las interfaces tipo ethernet y las añade al objeto Netplan
-# Processes ethernet-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo ethernet y las añade al objeto Netplan  
+# Processes ethernet-type interfaces and adds them to the Netplan object  
 def parser_ethernets(data, netplan):
     for name, config in data.items():
         ethernet = {}
 
-        # Configura DHCP
+        # Configura DHCP  
         # Configure DHCP
-        if config.get("dhcp4", "false") == "true":
+        if config.get("dhcp4", "false").lower() == "true":
             ethernet["dhcp4"] = True
-        if config.get("dhcp6", "false") == "true":
+        if config.get("dhcp6", "false").lower() == "true":
             ethernet["dhcp6"] = True
 
-        # Direcciones estáticas
+        # Direcciones estáticas  
         # Static addresses
         if config.get("addresses"):
             ethernet["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace
+        # Puertas de enlace  
         # Gateways
         if config.get("gateway4"):
             ethernet["gateway4"] = config["gateway4"]
         if config.get("gateway6"):
             ethernet["gateway6"] = config["gateway6"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -205,12 +323,12 @@ def parser_ethernets(data, netplan):
             except ValueError:
                 pass
 
-        # Dirección MAC
+        # Dirección MAC  
         # MAC address
         if config.get("macaddress"):
             ethernet["macaddress"] = config["macaddress"]
 
-        # Servidores DNS
+        # Servidores DNS  
         # DNS servers
         nameservers = {}
         if config.get("nameservers.addresses"):
@@ -224,44 +342,103 @@ def parser_ethernets(data, netplan):
         if nameservers:
             ethernet["nameservers"] = nameservers
 
-        # Añade la interfaz ethernet al bloque Netplan
+        # Configura campos adicionales  
+        # Configure additional fields
+        if config.get("optional", "false").lower() == "true":
+            ethernet["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            ethernet["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            ethernet["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            ethernet["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Configura rutas  
+        # Configure routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            ethernet["routes"] = [route]
+
+        # Configura overrides DHCPv4  
+        # Configure DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            ethernet["dhcp4-overrides"] = dhcp4_overrides
+
+        # Configura overrides DHCPv6  
+        # Configure DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            ethernet["dhcp6-overrides"] = dhcp6_overrides
+
+        # Configura bloque match  
+        # Configure match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            ethernet["match"] = match
+
+        # Configura set-name  
+        # Configure set-name
+        if config.get("set-name"):
+            ethernet["set-name"] = config["set-name"]
+
+        # Añade la interfaz ethernet al bloque Netplan  
         # Add the ethernet interface to the Netplan block
         netplan["network"]["ethernets"][name] = ethernet
 
-# Procesa las interfaces tipo túnel y las añade al objeto Netplan
-# Processes tunnel-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo túnel y las añade al objeto Netplan  
+# Processes tunnel-type interfaces and adds them to the Netplan object  
 def parser_tunnels(data, netplan):
     for name, config in data.items():
         tunnel = {}
 
-        # Modo del túnel (por ejemplo, gre, ipip, sit)
+        # Modo del túnel (por ejemplo, gre, ipip, sit)  
         # Tunnel mode (e.g., gre, ipip, sit)
         if config.get("mode"):
             tunnel["mode"] = config["mode"]
 
-        # Dirección local del extremo del túnel
+        # Dirección local del extremo del túnel  
         # Local address of the tunnel endpoint
         if config.get("local"):
             tunnel["local"] = config["local"]
 
-        # Dirección remota del extremo del túnel
+        # Dirección remota del extremo del túnel  
         # Remote address of the tunnel endpoint
         if config.get("remote"):
             tunnel["remote"] = config["remote"]
 
-        # Direcciones IP asignadas
+        # Direcciones IP asignadas  
         # Assigned IP addresses
         if config.get("addresses"):
             tunnel["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace
+        # Puertas de enlace  
         # Gateways
         if config.get("gateway4"):
             tunnel["gateway4"] = config["gateway4"]
         if config.get("gateway6"):
             tunnel["gateway6"] = config["gateway6"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -269,12 +446,12 @@ def parser_tunnels(data, netplan):
             except ValueError:
                 pass
 
-        # Dirección MAC (aunque no suele aplicarse en túneles)
+        # Dirección MAC (aunque no suele aplicarse en túneles)  
         # MAC address (rarely used in tunnels)
         if config.get("macaddress"):
             tunnel["macaddress"] = config["macaddress"]
 
-        # Servidores DNS
+        # Servidores DNS  
         # DNS servers
         nameservers = {}
         if config.get("nameservers.addresses"):
@@ -288,22 +465,81 @@ def parser_tunnels(data, netplan):
         if nameservers:
             tunnel["nameservers"] = nameservers
 
-        # Añade la interfaz túnel al bloque Netplan
+        # Campos adicionales  
+        # Additional fields
+        if config.get("optional", "false").lower() == "true":
+            tunnel["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            tunnel["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            tunnel["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            tunnel["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Rutas  
+        # Routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            tunnel["routes"] = [route]
+
+        # Overrides DHCPv4  
+        # DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            tunnel["dhcp4-overrides"] = dhcp4_overrides
+
+        # Overrides DHCPv6  
+        # DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            tunnel["dhcp6-overrides"] = dhcp6_overrides
+
+        # Bloque match  
+        # Match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            tunnel["match"] = match
+
+        # set-name  
+        # Set-name
+        if config.get("set-name"):
+            tunnel["set-name"] = config["set-name"]
+
+        # Añade la interfaz túnel al bloque Netplan  
         # Add the tunnel interface to the Netplan block
         netplan["network"]["tunnels"][name] = tunnel
 
-# Procesa las interfaces tipo wireguard y las añade al objeto Netplan
-# Processes wireguard-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo wireguard y las añade al objeto Netplan  
+# Processes wireguard-type interfaces and adds them to the Netplan object  
 def parser_wireguard(data, netplan):
     for name, config in data.items():
         wg = {}
 
-        # Direcciones IP asignadas
+        # Direcciones IP asignadas  
         # Assigned IP addresses
         if config.get("addresses"):
             wg["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puerto de escucha
+        # Puerto de escucha  
         # Listening port
         if config.get("port"):
             try:
@@ -311,12 +547,12 @@ def parser_wireguard(data, netplan):
             except ValueError:
                 pass
 
-        # Clave privada
+        # Clave privada  
         # Private key
         if config.get("key.private"):
             wg["private-key"] = config["key.private"]
 
-        # Configuración de peers
+        # Configuración de peers  
         # Peer configuration
         peers = {}
         if config.get("peers.keys.public"):
@@ -333,7 +569,7 @@ def parser_wireguard(data, netplan):
         if peers:
             wg["peers"] = [peers]
 
-        # Rutas asociadas
+        # Rutas asociadas  
         # Associated routes
         routes = {}
         if config.get("routes.to"):
@@ -345,7 +581,7 @@ def parser_wireguard(data, netplan):
         if routes:
             wg["routes"] = [routes]
 
-        # Política de enrutamiento
+        # Política de enrutamiento  
         # Routing policy
         policy = {}
         if config.get("routing-policy.from"):
@@ -355,12 +591,12 @@ def parser_wireguard(data, netplan):
         if policy:
             wg["routing-policy"] = policy
 
-        # Marca de tráfico
+        # Marca de tráfico  
         # Traffic mark
         if config.get("mark"):
             wg["mark"] = config["mark"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -368,17 +604,22 @@ def parser_wireguard(data, netplan):
             except ValueError:
                 pass
 
-        # Añade la interfaz wireguard al bloque Netplan
+        # set-name  
+        # Set-name
+        if config.get("set-name"):
+            wg["set-name"] = config["set-name"]
+
+        # Añade la interfaz wireguard al bloque Netplan  
         # Add the wireguard interface to the Netplan block
         netplan["network"]["wireguard"][name] = wg
 
-# Procesa las interfaces tipo VLAN y las añade al objeto Netplan
-# Processes VLAN-type interfaces and adds them to the Netplan object
+# Procesa las interfaces tipo VLAN y las añade al objeto Netplan  
+# Processes VLAN-type interfaces and adds them to the Netplan object  
 def parser_vlans(data, netplan):
     for name, config in data.items():
         vlan = {}
 
-        # ID de la VLAN
+        # ID de la VLAN  
         # VLAN ID
         if config.get("id"):
             try:
@@ -386,31 +627,31 @@ def parser_vlans(data, netplan):
             except ValueError:
                 pass
 
-        # Enlace físico al que se asocia la VLAN
+        # Enlace físico al que se asocia la VLAN  
         # Physical link associated with the VLAN
         if config.get("link"):
             vlan["link"] = config["link"]
 
-        # Configura DHCP
+        # Configura DHCP  
         # Configure DHCP
-        if config.get("dhcp4", "false") == "true":
+        if config.get("dhcp4", "false").lower() == "true":
             vlan["dhcp4"] = True
-        if config.get("dhcp6", "false") == "true":
+        if config.get("dhcp6", "false").lower() == "true":
             vlan["dhcp6"] = True
 
-        # Direcciones IP estáticas
+        # Direcciones IP estáticas  
         # Static IP addresses
         if config.get("addresses"):
             vlan["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace
+        # Puertas de enlace  
         # Gateways
         if config.get("gateway4"):
             vlan["gateway4"] = config["gateway4"]
         if config.get("gateway6"):
             vlan["gateway6"] = config["gateway6"]
 
-        # MTU
+        # MTU  
         # MTU
         if config.get("mtu"):
             try:
@@ -418,12 +659,12 @@ def parser_vlans(data, netplan):
             except ValueError:
                 pass
 
-        # Dirección MAC
+        # Dirección MAC  
         # MAC address
         if config.get("macaddress"):
             vlan["macaddress"] = config["macaddress"]
 
-        # Servidores DNS
+        # Servidores DNS  
         # DNS servers
         nameservers = {}
         if config.get("nameservers.addresses"):
@@ -437,7 +678,66 @@ def parser_vlans(data, netplan):
         if nameservers:
             vlan["nameservers"] = nameservers
 
-        # Añade la interfaz VLAN al bloque Netplan
+        # Campos adicionales  
+        # Additional fields
+        if config.get("optional", "false").lower() == "true":
+            vlan["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            vlan["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            vlan["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            vlan["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Rutas  
+        # Routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            vlan["routes"] = [route]
+
+        # Overrides DHCPv4  
+        # DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            vlan["dhcp4-overrides"] = dhcp4_overrides
+
+        # Overrides DHCPv6  
+        # DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            vlan["dhcp6-overrides"] = dhcp6_overrides
+
+        # Bloque match  
+        # Match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            vlan["match"] = match
+
+        # set-name  
+        # Set-name
+        if config.get("set-name"):
+            vlan["set-name"] = config["set-name"]
+
+        # Añade la interfaz VLAN al bloque Netplan  
         # Add the VLAN interface to the Netplan block
         netplan["network"]["vlans"][name] = vlan
 
@@ -449,9 +749,9 @@ def parser_wifis(data, netplan):
 
         # Configura DHCP  
         # Configure DHCP  
-        if config.get("dhcp4", "false") == "true":
+        if config.get("dhcp4", "false").lower() == "true":
             wifi["dhcp4"] = True
-        if config.get("dhcp6", "false") == "true":
+        if config.get("dhcp6", "false").lower() == "true":
             wifi["dhcp6"] = True
 
         # Direcciones IP estáticas  
@@ -493,6 +793,65 @@ def parser_wifis(data, netplan):
         if nameservers:
             wifi["nameservers"] = nameservers
 
+        # Campos adicionales  
+        # Additional fields
+        if config.get("optional", "false").lower() == "true":
+            wifi["optional"] = True
+        if config.get("accept-ra", "false").lower() == "true":
+            wifi["accept-ra"] = True
+        if config.get("wakeonlan", "false").lower() == "true":
+            wifi["wakeonlan"] = True
+        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
+            wifi["ipv6-privacy"] = config["ipv6-privacy"]
+
+        # Rutas  
+        # Routes
+        if config.get("routes.to") and config.get("routes.via"):
+            route = {"to": config["routes.to"], "via": config["routes.via"]}
+            if config.get("routes.metric"):
+                try:
+                    route["metric"] = int(config["routes.metric"])
+                except ValueError:
+                    pass
+            wifi["routes"] = [route]
+
+        # Overrides DHCPv4  
+        # DHCPv4 overrides
+        dhcp4_overrides = {}
+        for key in ["use-dns", "use-routes", "send-hostname", "use-hostname"]:
+            full_key = f"dhcp4-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp4_overrides[key] = True
+        if config.get("dhcp4-overrides.hostname"):
+            dhcp4_overrides["hostname"] = config["dhcp4-overrides.hostname"]
+        if dhcp4_overrides:
+            wifi["dhcp4-overrides"] = dhcp4_overrides
+
+        # Overrides DHCPv6  
+        # DHCPv6 overrides
+        dhcp6_overrides = {}
+        for key in ["use-dns", "use-routes"]:
+            full_key = f"dhcp6-overrides.{key}"
+            if config.get(full_key, "false").lower() == "true":
+                dhcp6_overrides[key] = True
+        if dhcp6_overrides:
+            wifi["dhcp6-overrides"] = dhcp6_overrides
+
+        # Bloque match  
+        # Match block
+        match = {}
+        for key in ["name", "macaddress", "driver"]:
+            full_key = f"match.{key}"
+            if config.get(full_key):
+                match[key] = config[full_key]
+        if match:
+            wifi["match"] = match
+
+        # set-name  
+        # Set-name
+        if config.get("set-name"):
+            wifi["set-name"] = config["set-name"]
+
         # Puntos de acceso WiFi  
         # WiFi access points  
         access_points = {}
@@ -511,21 +870,78 @@ def parser_wifis(data, netplan):
         # Add the wifi interface to the Netplan block  
         netplan["network"]["wifis"][name] = wifi
 
+
+
+#Elimina las secciones vacías dentro del bloque 'network' del diccionario Netplan.
+#Esto evita que Netplan rechace el archivo por definiciones incompletas.
+#Useful for cleaning up empty blocks like 'wifis: {}' before saving the YAML file.
+#This prevents Netplan from rejecting the file due to incomplete definitions.
+def remove_empty_sections(netplan):
+    # Recorre todas las claves dentro de 'network'
+    # Iterate over all keys inside 'network'
+    for section in list(netplan.get("network", {})):
+        # Si la sección es un diccionario vacío, se elimina
+        # If the section is an empty dictionary, delete it
+        if isinstance(netplan["network"][section], dict) and not netplan["network"][section]:
+            del netplan["network"][section]
+    return netplan
+
+
+
 # Convierte el JSON completo en estructura Netplan llamando a cada parser
 # Converts the full JSON into Netplan structure by calling each parser
 def convert(json_data):
+    # Inicializa la estructura base de Netplan
+    # Initialize Netplan base structure
     netplan = initial_yaml_format()
 
-    # Llamadas a cada parser con su sección correspondiente
-    # Calls each parser with its corresponding section
-    parser_bonds(json_data.get("network", {}).get("bonds", {}), netplan)
-    parser_bridges(json_data.get("network", {}).get("bridges", {}), netplan)
-    parser_ethernets(json_data.get("network", {}).get("ethernets", {}), netplan)
-    parser_tunnels(json_data.get("network", {}).get("tunnels", {}), netplan)
-    parser_wireguard(json_data.get("network", {}).get("wireguard", {}), netplan)
-    parser_wifis(json_data.get("network", {}).get("wifis", {}), netplan)
-    parser_vlans(json_data.get("network", {}).get("vlans", {}), netplan)
+    # Procesa interfaces tipo bond si están bien formadas
+    # Process bond interfaces if properly structured
+    bonds_data = json_data.get("network", {}).get("bonds", {})
+    if isinstance(bonds_data, dict):
+        parser_bonds(bonds_data, netplan)
 
+    # Procesa bridges si es un diccionario válido
+    # Process bridges if it's a valid dictionary
+    bridges_data = json_data.get("network", {}).get("bridges", {})
+    if isinstance(bridges_data, dict):
+        parser_bridges(bridges_data, netplan)
+
+    # Procesa ethernets si están bien definidas
+    # Process ethernets if properly defined
+    ethernets_data = json_data.get("network", {}).get("ethernets", {})
+    if isinstance(ethernets_data, dict):
+        parser_ethernets(ethernets_data, netplan)
+
+    # Procesa túneles si el bloque es correcto
+    # Process tunnels if the block is correct
+    tunnels_data = json_data.get("network", {}).get("tunnels", {})
+    if isinstance(tunnels_data, dict):
+        parser_tunnels(tunnels_data, netplan)
+
+    # Procesa wireguard si hay configuración válida
+    # Process wireguard if there's valid config
+    wireguard_data = json_data.get("network", {}).get("wireguard", {})
+    if isinstance(wireguard_data, dict):
+        parser_wireguard(wireguard_data, netplan)
+
+    # Procesa wifis solo si es un diccionario (evita errores con "None")
+    # Process wifis only if it's a dictionary (avoids "None" errors)
+    wifis_data = json_data.get("network", {}).get("wifis", {})
+    if isinstance(wifis_data, dict):
+        parser_wifis(wifis_data, netplan)
+
+    # Procesa vlans si están bien formadas
+    # Process vlans if properly structured
+    vlans_data = json_data.get("network", {}).get("vlans", {})
+    if isinstance(vlans_data, dict):
+        parser_vlans(vlans_data, netplan)
+
+    # limpiamos los diccionarios vacios
+    # we clean the empty dictionaries
+    netplan = remove_empty_sections(netplan)
+    # Devuelve el objeto Netplan final
+    # Return final Netplan object
     return netplan
 
 
@@ -550,6 +966,8 @@ def check_yml_syntax(path):
     except Exception:
         return False
 
+
+"""
 def validate_netplan_file(path):
     # Valida si un archivo YAML es aceptado por Netplan sin aplicarlo  
     # Validates whether a YAML file is accepted by Netplan without applying it
@@ -573,6 +991,75 @@ def validate_netplan_file(path):
     except Exception as e:
         return False, str(e)
 
+"""
+
+def validate_netplan_file(path):
+    # Valida si un archivo YAML es aceptado por Netplan sin aplicarlo  
+    # Validates whether a YAML file is accepted by Netplan without applying it
+    try:
+        netplan_dir = "/etc/netplan"
+        backup_dir = "/etc/netplan_backup"
+        os.makedirs(backup_dir, exist_ok=True)
+
+        # Respaldamos todos los archivos .yaml actuales  
+        # Backup all current .yaml files
+        original_files = []
+        for file in os.listdir(netplan_dir):
+            if file.endswith(".yaml") or file.endswith(".yml"):
+                src = os.path.join(netplan_dir, file)
+                dst = os.path.join(backup_dir, file)
+                shutil.copy2(src, dst)
+                os.remove(src)
+                original_files.append(file)
+
+        # Copiamos el nuevo archivo temporalmente  
+        # Copy the new file temporarily
+        temp_path = os.path.join(netplan_dir, "temp_interfaces.yml")
+        shutil.copy2(path, temp_path)
+
+        # Ejecutamos netplan generate  
+        # Run netplan generate
+        result = subprocess.run(
+            ["netplan", "--debug", "generate"],
+            capture_output=True,
+            text=True
+        )
+
+        # Eliminamos el archivo temporal  
+        # Remove the temporary file
+        os.remove(temp_path)
+
+        # Restauramos los archivos originales SIEMPRE  
+        # Always restore the original files
+        for file in original_files:
+            src = os.path.join(backup_dir, file)
+            dst = os.path.join(netplan_dir, file)
+            shutil.copy2(src, dst)
+
+        # Eliminamos el directorio de respaldo  
+        # Remove the backup directory
+        shutil.rmtree(backup_dir)
+
+        # Si hubo error, lo devolvemos  
+        # Return error if validation failed
+        if result.returncode != 0:
+            return False, result.stderr.strip()
+
+        # Si todo fue bien, devolvemos éxito  
+        # Return success if validation passed
+        return True, None
+
+    except Exception as e:
+        # En caso de excepción, devolvemos el error  
+        # Return error if an exception occurs
+        return False, str(e)
+
+
+
+
+
+
+
 def verify_yaml(path):
     # Verifica sintaxis y compatibilidad con Netplan sin aplicar  
     # Verifies syntax and Netplan compatibility without applying
@@ -593,6 +1080,9 @@ def verify_yaml(path):
 
 
 
+
+
+
 #########################################################################################################
 ################################## main #################################################################
 #########################################################################################################
@@ -601,7 +1091,7 @@ def verify_yaml(path):
 # Main entry point of the script
 def gen_interface_config():
     json_path = "/var/www/config_running/interfaces.json"
-    yaml_output = "/var/www/config_running/interfaces2.yml"
+    yaml_output = "/var/www/config_running/interfaces.yml"
 
     # Verifica si el archivo JSON existe
     # Check if the JSON file exists
@@ -631,3 +1121,4 @@ def gen_interface_config():
 
 
 
+gen_interface_config()

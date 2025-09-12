@@ -29,12 +29,28 @@ def validate_nftables_policy(rule: dict, date):
 
 
 
+
+def verify_nftables_json(date,json_path):
+    #verifies that the nftables file has no errors, contains properly formed rules, and is syntactically correct
+    #verifica que el archivo nftables no tiene errores, tiene reglas correctamente formadas y está correcto sintacticamente
+    try:
+        subprocess.run(["sudo", "nft", "-j", "-f", json_path, "--check"], check=True)
+        task_update_json(date, "verify_nftables_json", "success")
+    except subprocess.CalledProcessError as e:
+        task_update_json(date, "verify_nftables_json", "fail")
+        exit()
+
+
+
+
+
 # Convierte las reglas del archivo human_viewer y actualiza el archivo backend
 # Converts rules from human_viewer file and updates the backend rules file
 def gen_nftables_policies(user, date):
     #print(date)
     try:
         #template json
+        
         json_path = "/var/www/backend/checks/system_data/templates/nftables_convert_format.json"
         output_path = "/var/www/config_running/nftables_format.json"
         # Verifica si el archivo de reglas existe
@@ -94,6 +110,7 @@ def gen_nftables_policies(user, date):
 
     except Exception as e:
         task_update_json(date, "nftables_convert", "fail")
+    apply_nftables_json(date, output_path)
 
 
 

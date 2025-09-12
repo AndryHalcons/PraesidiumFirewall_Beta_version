@@ -53,6 +53,6 @@ def apply_netplan_config(source_path):
         return False
 
 def apply_interface_config(user, date):
-    source_path = "/var/www/config_running/interfaces2.yml"
+    source_path = "/var/www/config_running/interfaces.yml"
     apply_netplan_config(source_path)
 

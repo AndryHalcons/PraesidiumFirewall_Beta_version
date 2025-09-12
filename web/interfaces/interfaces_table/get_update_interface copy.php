@@ -20,25 +20,21 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 
 // Dispatcher: solo ejecuta la función
 switch ($chain) {
-    case 'bonds': get_bonds($chain); break;
-    case 'bridges': get_bridges($chain); break;
-    case 'ethernets': get_ethernets($chain); break;
-    case 'wireguard': get_wireguard($chain); break;
-    case 'vlans': get_vlans($chain); break;
-    case 'wifis': get_wifis($chain); break;
-    case 'tunnels': get_tunnels($chain); break;
+    case 'bonds': get_bonds(); break;
+    case 'bridges': get_bridges(); break;
+    case 'ethernets': get_ethernets(); break;
+    case 'wireguard': get_wireguard(); break;
+    case 'vlans': get_vlans(); break;
+    case 'wifis': get_wifis(); break;
+    case 'tunnels': get_tunnels(); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
 }
 
+// Funciones autónomas por tipo
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// Funciones autónomas por tipo de interfaz ////////////////
-//////////////////////////////  Autonomous functions by interface type ///////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-function get_ethernets($chain) {
+function get_ethernets() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -69,13 +65,6 @@ function get_ethernets($chain) {
         return;
     }
 
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-
     // Extraer el nombre de la interfaz y eliminarlo del array
     // Extract the interface name and remove it from the array
     $name = $rule['name'];
@@ -98,7 +87,8 @@ function get_ethernets($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_bridges($chain) {
+
+function get_bridges() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -122,22 +112,12 @@ function get_bridges($chain) {
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
 
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-    $rule = check_create_Name($rule, $chain);
-
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
     if (!is_array($rule) || empty($rule['name'])) {
         echo json_encode(['error' => 'Datos inválidos']); // Invalid data
         return;
     }
-
 
     // Extraer el nombre de la interfaz y eliminarlo del array
     // Extract the interface name and remove it from the array
@@ -161,7 +141,10 @@ function get_bridges($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_bonds($chain) {
+
+
+
+function get_bonds() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -184,15 +167,6 @@ function get_bonds($chain) {
     // Read the data sent via POST
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-    $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
@@ -223,7 +197,11 @@ function get_bonds($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_vlans($chain) {
+
+
+
+
+function get_vlans() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -246,15 +224,6 @@ function get_vlans($chain) {
     // Read the data sent via POST
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-    $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
@@ -285,7 +254,8 @@ function get_vlans($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_wireguard($chain) {
+
+function get_wireguard() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -309,25 +279,12 @@ function get_wireguard($chain) {
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
 
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-    $rule = check_create_Name($rule, $chain);
-
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
     if (!is_array($rule) || empty($rule['name'])) {
         echo json_encode(['error' => 'Datos inválidos']); // Invalid data
         return;
     }
-
-
-
 
     // Extraer el nombre de la interfaz y eliminarlo del array
     // Extract the interface name and remove it from the array
@@ -351,7 +308,8 @@ function get_wireguard($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_wifis($chain) {
+
+function get_wifis() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -374,14 +332,6 @@ function get_wifis($chain) {
     // Read the data sent via POST
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
@@ -412,7 +362,8 @@ function get_wifis($chain) {
     echo json_encode(['success' => true, 'updated' => $name]);
 }
 
-function get_tunnels($chain) {
+
+function get_tunnels() {
     $path = '/var/www/config/interfaces.json';
 
     // Leer el archivo JSON actual
@@ -435,15 +386,6 @@ function get_tunnels($chain) {
     // Read the data sent via POST
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
-    $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
