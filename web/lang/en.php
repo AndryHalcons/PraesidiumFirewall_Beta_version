@@ -144,8 +144,6 @@ return [
 
 
 
-
-
     //basura a revisar
     'name' => 'Name',
     'trigger' => 'Trigger',
@@ -161,20 +159,24 @@ return [
     "invalid_interface_name" => "Only logical interfaces (br* or bond*) can be deleted.",
     "interface_deleted" => "Interface successfully deleted.",
     "delete_failed" => "Failed to delete interface.",
+
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   users.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
-    "username" => "Username",
-    "password" => "Password",
-    "role" => "Role",
-    "language" => "Language",
-    "actions" => "Actions",
+    //butons
     "edit" => "✏️ Edit",
     "save" => "💾 Save",
     "delete" => "🗑️ Delete",
     "add_user" => "➕ Add User",
     "cancel" => "Cancel",
+
+    //aux
+    "username" => "Username",
+    "password" => "Password",
+    "role" => "Role",
+    "language" => "Language",
+    "actions" => "Actions",
     "confirm_delete" => "Are you sure you want to delete the user",
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
@@ -241,6 +243,9 @@ return [
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   routing.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
+    //buttons
+    'reload_routes' => 'Reload system routes running',
+    //aux
     'routing_title' => 'System Routing Table',
     'loading_routes' => 'Loading routes...',
     'table' => 'Table',
@@ -256,20 +261,26 @@ return [
     'rules_title' => 'Routing Rules',
     'rule_from' => 'From',
     'rule_table' => 'Table',
-    'reload_routes' => 'Reload system routes running',
+    
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   commit.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
+    //butons
     'compare_commit' => 'Compare commit',
     'apply_commit'   => 'Apply commit',
     'config_audit' => 'Config Audit',
+    //aux
+
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   monitor.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
-    'menu_monitor' => 'Traffic Monitor',
+    //butons
     'search' => 'Search',
+
+    //table log
+    'menu_monitor' => 'Traffic Monitor',
     'init_date' => 'Start Date',
     'init_time' => 'Start Time',
     'end_date' => 'End Date',
@@ -289,8 +300,11 @@ return [
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   alias         //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
+    //buttons
+    "add_alias" => "➕ Add",
+    //table alias
     'id' => 'ID',
     'name' => 'Name',
     'content' => 'Content',
-    "add_alias" => "➕ Add"
+    
 ];
