@@ -1,3 +1,6 @@
+Requeriments:
+- ubuntu server 24.04.3
+
 ## 1. Instalación
 
 ```bash
