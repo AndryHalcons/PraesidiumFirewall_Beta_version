@@ -95,6 +95,7 @@ $L = require $langFile;
         <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>
         <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
         <a href="#" data-page="settings.php"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
+        <a href="#" data-page="services/services.php"><?= htmlspecialchars($L['sidebar_services']) ?></a>
       </details>
     </div>
 

@@ -1,0 +1,21 @@
+{
+  "system": {
+        "system_list": {
+            "services_list": [
+              "nftables",
+              "netplan",
+              "rsyslog"
+            ]
+        },
+        "system_special_list": {
+            "services_especial_list": [
+              "bpfilter"
+            ]
+        },
+        "system_status": {
+            "services_status": {
+                "nftables": "active"
+            }
+        }
+  }
+}
