@@ -56,6 +56,10 @@
         "enable": {
           "checked":"true",
           "unchecked":"false"
+        },
+        "masquerade": {
+          "checked":"true",
+          "unchecked":"false"
         }
       },
   "not_editable": {

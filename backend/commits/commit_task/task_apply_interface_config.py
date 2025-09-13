@@ -17,7 +17,7 @@ def get_existing_netplan_file(user, date):
         else:
             return None
     except Exception:
-        task_update_json(date, "apply_interfaz_config", "fail")
+        task_update_json(date, "apply_interfaz_get_netplan_file", "fail")
         exit()
 
 

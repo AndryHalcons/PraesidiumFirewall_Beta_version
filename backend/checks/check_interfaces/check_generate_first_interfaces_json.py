@@ -3,6 +3,8 @@ import shutil
 import glob
 import json
 import yaml
+import pwd
+import grp
 
 
 
@@ -49,6 +51,10 @@ def create_convert_interfaces_json(source_path, destination_path):
     # Save the flattened JSON
     with open(destination_path, "w") as f:
         json.dump(flat_json, f, indent=4)
+    # Cambiar grupo a www-data y establecer permisos rw-rw-r--
+    gid = grp.getgrnam("www-data").gr_gid
+    os.chown(destination_path, os.getuid(), gid)
+    os.chmod(destination_path, 0o664)
 
 
 

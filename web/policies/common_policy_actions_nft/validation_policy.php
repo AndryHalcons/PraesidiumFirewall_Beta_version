@@ -384,15 +384,11 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr debe tener valor
-    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '')) {
-        echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr debe tener valor"]);
-        exit;
+    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade debe tener valor
+    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true')) {
+    echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr o masquerade debe tener valor"]);
+    exit;
     }
-
-
-
-
 }
 
 
@@ -773,6 +769,11 @@ function convert_alias_group_to_Network_ips(string $value): bool {
 // checkea alias en objetos de red reales usando funciones auxiliares
 // check aliases into real network objects using helper functions
 function Main_convert_alias_object_to_network_object(array $rule): array {
+    // si masquerade está activado borramos el campo snat antes de procesar
+     // If masquerade is enabled, clear snat.addr to avoid conflict with dynamic NAT
+    if (isset($rule['masquerade']) && strtolower($rule['masquerade']) === 'true') {
+        $rule['snat.addr'] = '';
+    }
     // Campos relacionados con puertos
     $portFields = ['sport', 'dport', 'dnat.port'];
 
@@ -869,6 +870,7 @@ function saniticed_nftables_policy(array $rule): array {
             "bytes"         => $rule["bytes"]         ?? "",
             "log"           => $rule["log"]           ?? "",
             "snat.addr"     => $rule["snat.addr"]     ?? "",
+            "masquerade"    => $rule["masquerade"]    ?? "",
             "snat.port"     => $rule["snat.port"]     ?? "",
             "dnat.addr"     => $rule["dnat.addr"]     ?? "",
             "dnat.port"     => $rule["dnat.port"]     ?? ""

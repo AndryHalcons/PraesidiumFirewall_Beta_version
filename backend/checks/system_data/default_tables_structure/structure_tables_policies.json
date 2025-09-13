@@ -68,6 +68,7 @@
     "dport",
     "meta.oifname",
     "snat.addr",
+    "masquerade",
     "ct.state",
     "packets",
     "bytes",

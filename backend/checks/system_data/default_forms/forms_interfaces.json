@@ -5,48 +5,48 @@
       },
       "checkbox": {
           "dhcp4": {
-            "checked":"true",
-            "unchecked":"false"
+            "checked":"True",
+            "unchecked":"False"
           },
           "dhcp6": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "optional": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "accept-ra": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "wakeonlan": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp4-overrides.use-dns": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp4-overrides.use-routes": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp4-overrides.send-hostname": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp4-overrides.use-hostname": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp6-overrides.use-dns": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           },
           "dhcp6-overrides.use-routes": {
-            "checked": "true",
-            "unchecked": "false"
+            "checked": "True",
+            "unchecked": "False"
           }
       },
       "not_editable": {
@@ -59,56 +59,56 @@
         },
         "checkbox": {
             "dhcp4": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp6": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "optional": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "accept-ra": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "wakeonlan": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "ipv6-privacy": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp4-overrides.use-dns": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp4-overrides.use-routes": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp4-overrides.send-hostname": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp4-overrides.use-hostname": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp6-overrides.use-dns": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "dhcp6-overrides.use-routes": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             },
             "parameters.stp": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             }
         },
         "not_editable": {
@@ -121,12 +121,12 @@
           },
           "checkbox": {
             "dhcp4": {
-              "checked":"true",
-              "unchecked":"false"
+              "checked":"True",
+              "unchecked":"False"
             },
             "dhcp6": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             }
           },
           "not_editable": {
@@ -139,12 +139,12 @@
           },
           "checkbox": {
             "dhcp4": {
-              "checked":"true",
-              "unchecked":"false"
+              "checked":"True",
+              "unchecked":"False"
             },
             "dhcp6": {
-              "checked": "true",
-              "unchecked": "false"
+              "checked": "True",
+              "unchecked": "False"
             }
           },
           "not_editable": {

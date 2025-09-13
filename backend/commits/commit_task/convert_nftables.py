@@ -610,6 +610,10 @@ def convert_alias_group_to_Network_ips(value: str, date):
 # Convierte alias en objetos de red reales usando funciones auxiliares
 # Converts aliases into real network objects using helper functions
 def Main_convert_alias_object_to_network_object(rule: dict, date):
+    # si masquerade está activado borramos la configuracion del campo snat para que no se procese
+    # If masquerade is enabled, clear snat.addr to avoid conflict with dynamic NAT
+    if str(rule.get('masquerade', '')).lower() == 'true':
+        rule['snat.addr'] = ''
     # Campos relacionados con puertos
     # Port-related fields
     port_fields = ['sport', 'dport', 'dnat.port']
@@ -803,6 +807,11 @@ def build_expr(rule, comment):
                 "level": "info"
             }
         })
+    
+    # If masquerade is enabled, add masquerade action
+    if str(rule.get("masquerade", "")).lower() == "true":
+        expr.append({"masquerade": None})
+
 
     if rule.get("snat.addr"):
         snat = {"addr": rule["snat.addr"]}

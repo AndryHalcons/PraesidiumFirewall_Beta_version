@@ -964,7 +964,7 @@ def check_yml_syntax(user, date, path):
             config["network"].get("version") == 2
         )
     except Exception:
-        task_update_json(date, "gen_interfaz_syntax", "fail")
+        task_update_json(date, "gen_interfaz_yml_syntax", "fail")
         exit()
 
 
@@ -1036,14 +1036,14 @@ def verify_yaml(user, date, path):
     is_valid, error_msg = validate_netplan_file(path)
 
     if not syntax_ok:
-        task_update_json(date, "gen_interfaz_sintax", "fail")
+        task_update_json(date, "gen_interfaz_verify_yml", "fail")
         exit()
 
     if not is_valid:
-        task_update_json(date, "gen_interfaz_sintax_netplan", "fail")
+        task_update_json(date, "gen_interfaz_verify_yml", "fail")
         exit()
 
-    task_update_json(date, "gen_interfaz_config", "success")
+    task_update_json(date, "gen_interfaz_verify_yml", "success")
 
 
 #########################################################################################################
@@ -1059,7 +1059,7 @@ def gen_interface_config(user, date):
     # Verifica si el archivo JSON existe
     # Check if the JSON file exists
     if not os.path.exists(json_path):
-        task_update_json(date, "gen_interfaz_config", "fail")
+        task_update_json(date, "gen_interfaz_config_locate", "fail")
         return
 
     # Carga el contenido del archivo JSON
