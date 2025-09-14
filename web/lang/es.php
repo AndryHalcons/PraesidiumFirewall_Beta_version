@@ -42,6 +42,8 @@ return [
     'sidebar_address_group_alias'      => 'Grupos de direcciones',
     'sidebar_services_objects'      => 'Servicios',
     'sidebar_services_group_objects'      => 'Grupos de servicios',
+    'sidebar_url_filtering'  => 'Filtros URL',
+    'sidebar_url_list'  => 'Listas URL',
     // Content
     'main_content'          => 'Contenido aquí...',
     ///////////////////////////////////////////////////////////////////////
@@ -74,8 +76,7 @@ return [
     'enter_interface_name' => 'Introduce el nombre de la interfaz',
     'unauthorized' => 'No autorizado',
     
-    //campos configuracion de interfaces
-    // Campos de configuración de red
+    // Campos de configuración de interfaces
     'name'                              => 'Nombre',
     'dhcp4'                             => 'DHCPv4',
     'dhcp6'                             => 'DHCPv6',

@@ -44,6 +44,8 @@ return [
     'sidebar_address_group_alias'     => 'Address Groups',
     'sidebar_services_objects'        => 'Service Aliases',
     'sidebar_services_group_objects'  => 'Service Groups',
+    'sidebar_url_filtering'  => 'URL filter',
+    'sidebar_url_list'  => 'URL List',
 
     // Content
     'main_content'          => 'Content here...',
@@ -77,7 +79,6 @@ return [
     'unauthorized' => 'Unauthorized',
     'enter_interface_name' => 'Enter the interface name',
 
-    //interfaces fields
     // Network configuration fields
     'name'                              => 'Name',
     'dhcp4'                             => 'DHCPv4',

@@ -81,6 +81,25 @@
 }
 
 
+.logo_login {
+    width: 204px;
+    height: 204px;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.logo_log {
+    width: 40px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+
+
+
+
+
 /* 
 #############################################################################
 #############################################################################

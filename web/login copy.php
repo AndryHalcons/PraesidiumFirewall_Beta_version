@@ -1,6 +1,6 @@
 <?php
 session_start();
-// realiza el proceso de login //perform the login process
+// Realiza el proceso de login // Perform the login process
 $jsonPath = '/var/www/config_running/users.json';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -9,19 +9,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = hash('sha512', $password);
 
     if (file_exists($jsonPath)) {
-        $users = json_decode(file_get_contents($jsonPath), true);
+        $data = json_decode(file_get_contents($jsonPath), true);
 
-        foreach ($users as $user) {
-            if ($user['user_name'] === $username && $user['user_pass'] === $hashedPassword) {
-                $_SESSION['username'] = $user['user_name'];
-                $_SESSION['role'] = $user['user_rol'];
-                $_SESSION['language'] = $user['user_languaje'];
-                header('Location: mainpage.php');
-                exit;
+        // Verifica que el JSON tenga la clave 'table_users' y sea un array
+        // Check that the JSON has the 'table_users' key and it's an array
+        if (isset($data['table_users']) && is_array($data['table_users'])) {
+            foreach ($data['table_users'] as $user) {
+                if ($user['user_name'] === $username && $user['user_pass'] === $hashedPassword) {
+                    // Asigna los datos de sesión usando los nombres correctos
+                    // Assign session data using correct key names
+                    $_SESSION['username'] = $user['user_name'];
+                    $_SESSION['role'] = $user['user_role'];
+                    $_SESSION['language'] = $user['user_language'];
+                    header('Location: mainpage.php');
+                    exit;
+                }
             }
         }
     }
 
+    // Si no se encuentra el usuario, redirige con error
+    // If user not found, redirect with error
     $_SESSION['error'] = 'Incorrect username or password.';
     header('Location: index.php');
     exit;
