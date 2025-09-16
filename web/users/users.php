@@ -10,6 +10,12 @@ if (!file_exists($langFile)) {
 }
 $L = require $langFile;
 $currentAlias = "table_users";
+$path_get_table_structure = "/users/users_table/get_table_structure.php";
+$path_get_table_content = "/users/users_table/get_table_content.php";
+$path_get_forms_from_table = "/users/users_table/get_forms_from_table.php";
+$path_get_update = "/users/users_table/get_update_user.php";
+$path_get_delete = "/users/users_table/get_delete_user.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
@@ -26,7 +32,14 @@ $currentAlias = "table_users";
   <h1><?= htmlspecialchars($L['menu_users']) ?></h1>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
-    renderTableFromPuser("<?= htmlspecialchars($currentAlias) ?>");
+    renderTableGeneric(
+      "<?= htmlspecialchars($currentAlias) ?>",
+      "<?= htmlspecialchars($path_get_table_structure) ?>",
+      "<?= htmlspecialchars($path_get_table_content) ?>",
+      "<?= htmlspecialchars($path_get_forms_from_table) ?>",
+      "<?= htmlspecialchars($path_get_update) ?>",
+      "<?= htmlspecialchars($path_get_delete) ?>"
+    );
   </script>
 </body>
 </html>
