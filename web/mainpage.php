@@ -21,10 +21,9 @@ $L = require $langFile;
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($L['title']) ?></title>
-    <script src="/my_js/generic_table.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
-    <script src="/alias/common_alias_actions/alias_table.js"></script>
     <script src="/users/users_table/users_table.js"></script>
 
 </head>

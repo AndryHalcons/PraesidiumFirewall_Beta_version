@@ -5,12 +5,6 @@ if (!isset($_SESSION['username'])) {
 }
 header('Content-Type: application/json');
 
-// Si quieres protegerlo con sesión:
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
-
 // Tablas permitidas
 $allowedTables = [
     'alias_address',
@@ -20,12 +14,13 @@ $allowedTables = [
 ];
 
 
-$table = $_SERVER['QUERY_STRING'] ?? ''; 
+$table = $_GET['table'] ?? ''; 
 
 if (!in_array($table, $allowedTables, true)) {
     echo json_encode(['error' => 'Parámetro inválido']);
     exit;
 }
+
 
 $jsonPath = '/var/www/config/alias.json';
 

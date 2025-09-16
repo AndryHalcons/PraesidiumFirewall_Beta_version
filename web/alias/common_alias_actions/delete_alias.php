@@ -17,14 +17,31 @@ require_once __DIR__ . '/validation_alias.php';
 // Read the request body as JSON
 $input = json_decode(file_get_contents('php://input'), true);
 
+
+
+$input = json_decode(file_get_contents('php://input'), true);
+
+// 🔧 Transformar si viene en formato genérico y la clave es válida
+if (
+    isset($input['table'], $input['id'], $input['name']) &&
+    in_array($input['table'], ['alias_address', 'alias_addr_group', 'alias_service', 'alias_service_group'], true)
+) {
+    $tableKey = $input['table'];
+    $input = [
+        $tableKey => [
+            'id' => $input['id'],
+            'name' => $input['name']
+        ]
+    ];
+}
+
 // Validar que la entrada sea un array válido
-// Validate that the input is a valid array
 if (!$input || !is_array($input)) {
-    http_response_code(400); // Error de cliente
-    // Client error
+    http_response_code(400);
     echo json_encode(['error' => 'Entrada inválida']);
     exit;
 }
+
 
 // Verificar que el archivo de alias existe
 // Check that the alias file exists
@@ -98,6 +115,8 @@ function deleteAliasServiceGroup(&$data, $id,$name) {
         fn($item) => intval($item['id']) !== intval($id)
     ));
 }
+
+
 
 // Determinar qué función ejecutar según el parámetro recibido
 // Determine which function to execute based on the received parameter

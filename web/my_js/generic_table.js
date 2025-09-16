@@ -68,6 +68,7 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
 function loadTableContentGeneric(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
+  console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
@@ -120,7 +121,7 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure,path_get
 
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = LANG["delete"] || "Eliminar";
-            deleteBtn.onclick = () => delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule);
+            deleteBtn.onclick = () => delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns);
 
             actionsTd.appendChild(editBtn);
             actionsTd.appendChild(saveBtn);
@@ -449,7 +450,7 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
     });
 }
 
-function delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule) {
+function delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns) {
   if (!confirm("¿Estás seguro de que quieres eliminar esta política?")) {
     return; // El usuario canceló
   }
@@ -473,7 +474,7 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
     .then(response => response.json())
     .then(result => {
       if (result.success) {
-        loadTableContentGeneric(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, Object.keys(rule));
+        loadTableContentGeneric(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
       } else {
         alert(result.error || "Error al eliminar la política");
       }

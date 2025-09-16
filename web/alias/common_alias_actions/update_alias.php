@@ -148,6 +148,17 @@ $inputData = json_decode($requestBody, true);    // Decodifica el JSON recibido
 $aliasData = loadAliasData($path); // Carga los datos actuales del archivo
                                    // Load current data from file
 
+
+
+
+
+                                   
+if (isset($inputData['table']) && isset($inputData['rule'])) {
+    $inputData = [
+        $inputData['table'] => $inputData['rule']
+    ];
+}
+
 // Determina qué tipo de alias se está actualizando
 // Determine which alias type is being updated
 if (isset($inputData['alias_address'])) {
