@@ -5,7 +5,6 @@ if (!isset($_SESSION['username'])) {
     header('Location: index.php');
     exit;
 }
-
 $username = $_SESSION['username'];
 $role     = $_SESSION['role'];
 $language = $_SESSION['language'] ?? 'es';
@@ -22,6 +21,7 @@ $L = require $langFile;
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
+    <script src="javascript.js"></script>
     <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
 
@@ -106,8 +106,6 @@ $L = require $langFile;
     <div class="main-content" id="main-content">
         <p><?= htmlspecialchars($L['main_content']) ?></p>
     </div>
-
-    <!-- JavaScript externo -->
-    <script src="javascript.js"></script>
+    
 </body>
 </html>

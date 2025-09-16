@@ -1,18 +1,43 @@
 {
   "url_policies": {
       "select": {
-            "action": ["allow, deny"],
+            "action": [
+              "allow", 
+              "deny"
+            ],
             "domain_list":[""]
-      }
+      },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
     },
     "url_list":{
         "select": {
-            "type_acl":["ssl::server_name", "Client Hello TLS"]
-      }
+            "type":[
+              "ssl::server_name", 
+              "Client Hello TLS"
+            ]
+      },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
 
     },
     "url_listen_ports":{
-        "select": {
-      }
+        "select": 
+          {
+          },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
     }
 }

@@ -1,0 +1,56 @@
+{
+    "squid":{
+        "url_policies": [
+            {
+                "rule": {
+                    "id": "1",
+                    "action": "accept",
+                    "ip_addr_group": "MI_IP_ADDR_GROUP",
+                    "domain_list": "1my_domain_list1"
+                    
+                }
+            },
+            {
+                "rule": {
+                    "id": "2",
+                    "action": "accept",
+                    "ip_addr_group": "MI_IP_ADDR_GROUP_2",
+                    "domain_list": "2my_domain_list2"
+                    
+                }
+            }
+        ],
+        "url_list": [
+            {
+                "rule": {
+                    "id": "1",
+                    "name": "1my_domain_list1",
+                    "type": "ssl::server_name",
+                    "file": "myfile1"
+                }
+            },
+            {
+                "rule": {
+                    "id": "2",
+                    "name": "2my_domain_list2",
+                    "type": "ssl::server_name",
+                    "file": "myfile2"
+                }
+            }
+        ],
+        "url_listen_ports": [
+            {
+                "rule": {
+                    "id": "1",
+                    "port": "25"
+                }
+            },
+            {
+                "rule": {
+                    "id": "2",
+                    "port": "443"
+                }
+            }
+        ]
+    }
+}

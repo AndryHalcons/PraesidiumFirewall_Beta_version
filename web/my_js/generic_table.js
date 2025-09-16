@@ -21,7 +21,7 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
 
       // Insertar el botón "Agregar política" antes del contenedor
       const addBtn = document.createElement("button");
-      addBtn.textContent = LANG["add_policy"] || "Agregar política";
+      addBtn.textContent = LANG["add"] || "Add";
       addBtn.onclick = () => add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
       container.insertAdjacentElement("beforebegin", addBtn);
 

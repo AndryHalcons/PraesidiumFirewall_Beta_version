@@ -29,10 +29,6 @@ $path_get_delete = "/url_filter/url_filter_table/get_delete_url_filter.php";
 <body>
   <h1><?= htmlspecialchars($L['sidebar_url_list']) ?></h1>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
-  <script>
-    renderTableGeneric("<?= htmlspecialchars($currentAlias,$path_get_table_structure,$path_get_table_content,$path_get_forms_from_table,
-    $path_get_update,$path_get_delete ) ?>");
-  </script>
     <script>
      renderTableGeneric(
       <?= json_encode($currentAlias) ?>,

@@ -29,9 +29,15 @@ $path_get_delete = "/url_filter/url_filter_table/get_delete_url_filter.php";
 <body>
   <h1><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></h1>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
-  <script>
-    renderTableGeneric("<?= htmlspecialchars($currentAlias,$path_get_table_structure,$path_get_table_content,$path_get_forms_from_table,
-    $path_get_update,$path_get_delete ) ?>");
+    <script>
+     renderTableGeneric(
+      <?= json_encode($currentAlias) ?>,
+      <?= json_encode($path_get_table_structure) ?>,
+      <?= json_encode($path_get_table_content) ?>,
+      <?= json_encode($path_get_forms_from_table) ?>,
+      <?= json_encode($path_get_update) ?>,
+      <?= json_encode($path_get_delete) ?>
+    );
   </script>
 </body>
 </html>
