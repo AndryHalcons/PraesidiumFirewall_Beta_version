@@ -24,7 +24,6 @@ $L = require $langFile;
     <link rel="stylesheet" href="styles.css">
     <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
-    <script src="/users/users_table/users_table.js"></script>
 
 </head>
 <body>
