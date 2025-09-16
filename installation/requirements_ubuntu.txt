@@ -42,3 +42,4 @@ sed
 xxd
 nftables
 wireguard-tools
+squid

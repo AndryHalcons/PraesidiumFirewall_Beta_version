@@ -1,0 +1,18 @@
+{
+  "url_policies": {
+      "select": {
+            "action": ["allow, deny"],
+            "domain_list":[""]
+      }
+    },
+    "url_list":{
+        "select": {
+            "type_acl":["ssl::server_name", "Client Hello TLS"]
+      }
+
+    },
+    "url_listen_ports":{
+        "select": {
+      }
+    }
+}

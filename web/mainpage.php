@@ -21,13 +21,11 @@ $L = require $langFile;
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($L['title']) ?></title>
+    <script src="/my_js/generic_table.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script src="/libraries/chart.umd.js"></script>
     <script src="/alias/common_alias_actions/alias_table.js"></script>
-    <script src="/policies/common_policy_actions_nft/nft_table.js"></script>
-    <script src="/policies/common_policy_actions_bpf/bpf_table.js"></script>
     <script src="/users/users_table/users_table.js"></script>
-    <script src="/interfaces/interfaces_table/interfaces.js"></script>
 
 </head>
 <body>
@@ -92,8 +90,9 @@ $L = require $langFile;
 
       <details>
         <summary><?= htmlspecialchars($L['sidebar_url_filtering']) ?></summary>
-        <a href="#" data-page="/url_filter/url_filter.php"><?= htmlspecialchars($L['sidebar_url_filtering']) ?></a>
+        <a href="#" data-page="/url_filter/url_policies.php"><?= htmlspecialchars($L['sidebar_url_policies']) ?></a>
         <a href="#" data-page="/url_filter/url_list.php"><?= htmlspecialchars($L['sidebar_url_list']) ?></a>
+        <a href="#" data-page="/url_filter/url_listen_ports.php"><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></a>
       </details>
 
       <details>

@@ -36,14 +36,16 @@ instalar_php_yaml() {
 
     echo "Extensión YAML instalada y activada correctamente."
 }
-enable_nftables() {
+enable_services() {
     echo "Habilitando y arrancando el servicio nftables..."
     sudo systemctl enable nftables
     sudo systemctl start nftables
+    sudo systemctl enable squid
+    sudo systemctl start squid
 }
 
 # Ejecutar la función
 # Run the function
 instalar_dependencias
 instalar_php_yaml
-enable_nftables
+enable_services

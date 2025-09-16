@@ -46,6 +46,8 @@ return [
     'sidebar_services_group_objects'  => 'Service Groups',
     'sidebar_url_filtering'  => 'URL filter',
     'sidebar_url_list'  => 'URL List',
+    'sidebar_url_policies'  => 'URL Policies',
+    'sidebar_url_listen_ports'  => 'URL Listen ports',
 
     // Content
     'main_content'          => 'Content here...',

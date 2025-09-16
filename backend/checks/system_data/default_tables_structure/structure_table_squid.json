@@ -1,0 +1,17 @@
+{
+  "url_policies": [
+    "action",
+    "domain_list",
+    "ip_addr_group"
+  ],
+  "url_list": [
+    "name",
+    "type",
+    "file"
+  ],
+  "url_listen_ports": [
+    "name",
+    "type_acl",
+    "path"
+  ]
+}

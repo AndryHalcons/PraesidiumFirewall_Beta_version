@@ -1,0 +1,14 @@
+{
+    "squid":{
+        "acl_ip_list":{
+            "my_ip_list": ["10.0.0.0/24","192.168.0.0/16","172.16.0.0/12"]
+        },
+        "acl_and_locate":{
+            "my_url_list_locate":["/etc/squid/denegados1.txt"]
+        },
+        "acl_type_filter":{
+            "ssl::server_name": "",
+            "Client Hello TLS": ""
+        }
+    }
+}
