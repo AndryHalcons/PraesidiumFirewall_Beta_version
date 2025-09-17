@@ -52,6 +52,9 @@ function get_url_policies($chain) {
     // Read POST data
     $input = json_decode(file_get_contents('php://input'), true);
     $rule = $input['rule'] ?? null;
+    //////////////////////////////
+    //////////validate /////////
+    //////////////////////////////
 
     // Validaciones y conversión
     // Validations and conversion
@@ -59,32 +62,21 @@ function get_url_policies($chain) {
     $rule = Main_convert_alias_object_to_network_object($rule);
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
-
     // Verificar que exista el campo id
     // Check that the id field exists
     if (!is_array($rule) || empty($rule['id'])) {
         echo json_encode(['error' => 'Datos inválidos']);
         return;
     }
+    validation_url_policies($rule);
+    //reasignamos o asignamos posicion
+    //reassing or assign position
+    $json = reassign_position($json,$rule);
 
-    $id = $rule['id'];
-    $updated = false;
 
-    // Buscar y actualizar por ID
-    // Search and update by ID
-    foreach ($json['squid']['url_policies'] as $i => $entry) {
-        if (($entry['rule']['id'] ?? '') === $id) {
-            $json['squid']['url_policies'][$i]['rule'] = $rule;
-            $updated = true;
-            break;
-        }
-    }
-    
-    // Si no se encontró el ID, añadir como nueva entrada
-    // If ID was not found, add as new entry
-    if (!$updated) {
-        $json['squid']['url_policies'][] = ['rule' => $rule];
-    }
+    //////////////////////////////
+    //////////write /////////
+    //////////////////////////////
 
 
     // Guardar archivo actualizado
@@ -128,7 +120,6 @@ function get_url_profile($chain) {
     // Validaciones y conversión
     // Validations and conversion
     require __DIR__ . '/validation_url_filter.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
 

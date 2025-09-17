@@ -79,21 +79,19 @@ $L = require $langFile;
         <a href="#" data-page="policies/policies_nftables_output.php"><?= htmlspecialchars($L['sidebar_nftables_output']) ?></a>
       </details>
       <details>
-        <summary><?= htmlspecialchars($L['sidebar_AliasObjects']) ?></summary>
-        <a href="#" data-page="/alias/address_alias.php"><?= htmlspecialchars($L['sidebar_address_alias']) ?></a>
-        <a href="#" data-page="/alias/address_alias_group.php"><?= htmlspecialchars($L['sidebar_address_group_alias']) ?></a>
-        <a href="#" data-page="/alias/service_alias.php"><?= htmlspecialchars($L['sidebar_services_objects']) ?></a>
-        <a href="#" data-page="/alias/service_alias_group.php"><?= htmlspecialchars($L['sidebar_services_group_objects']) ?></a>
-      </details>
-
-      <details>
         <summary><?= htmlspecialchars($L['sidebar_url_filtering']) ?></summary>
         <a href="#" data-page="/url_filter/url_policies.php"><?= htmlspecialchars($L['sidebar_url_policies']) ?></a>
         <a href="#" data-page="/url_filter/url_profile.php"><?= htmlspecialchars($L['sidebar_url_profile']) ?></a>
         <a href="#" data-page="/url_filter/url_list.php"><?= htmlspecialchars($L['sidebar_url_list']) ?></a>
         <a href="#" data-page="/url_filter/url_listen_ports.php"><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></a>
       </details>
-
+      <details>
+        <summary><?= htmlspecialchars($L['sidebar_AliasObjects']) ?></summary>
+        <a href="#" data-page="/alias/address_alias.php"><?= htmlspecialchars($L['sidebar_address_alias']) ?></a>
+        <a href="#" data-page="/alias/address_alias_group.php"><?= htmlspecialchars($L['sidebar_address_group_alias']) ?></a>
+        <a href="#" data-page="/alias/service_alias.php"><?= htmlspecialchars($L['sidebar_services_objects']) ?></a>
+        <a href="#" data-page="/alias/service_alias_group.php"><?= htmlspecialchars($L['sidebar_services_group_objects']) ?></a>
+      </details>
       <details>
         <summary><?= htmlspecialchars($L['sidebar_system']) ?></summary>
         <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>

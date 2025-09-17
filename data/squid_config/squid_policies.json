@@ -1,22 +1,31 @@
 {
-    "squid":{
+    "squid": {
         "url_policies": [
             {
                 "rule": {
-                    "id": "1",
-                    "action": "accept",
+                    "id": "2",
+                    "position": 1,
+                    "action": "deny",
                     "ip_addr_group": "Private-networks",
-                    "profile": "1my_profile1"
-                    
+                    "profile": "my_profile_1"
                 }
             },
             {
                 "rule": {
-                    "id": "2",
-                    "action": "accept",
+                    "id": "1",
+                    "position": 2,
+                    "action": "deny",
                     "ip_addr_group": "Private-networks",
-                    "profile": "2my_profile2"
-                    
+                    "profile": "my_profile_2"
+                }
+            },
+            {
+                "rule": {
+                    "id": "3",
+                    "position": 3,
+                    "action": "allow",
+                    "ip_addr_group": "all",
+                    "profile": ""
                 }
             }
         ],
@@ -24,9 +33,9 @@
             {
                 "rule": {
                     "id": "1",
-                    "name": "my_profile1_",
+                    "name": "my_profile_1",
                     "type": "ssl::server_name",
-                    "file": "myfile1"
+                    "file": "my_domains_list_1_2025-05-17_15-06-45.txt"
                 }
             },
             {
@@ -34,7 +43,7 @@
                     "id": "2",
                     "name": "my_profile_2",
                     "type": "ssl::server_name",
-                    "file": "myfile2"
+                    "file": "my_domains_list_2_2025-05-17_15-06-45.txt"
                 }
             }
         ],
@@ -42,13 +51,7 @@
             {
                 "rule": {
                     "id": "1",
-                    "port": "25"
-                }
-            },
-            {
-                "rule": {
-                    "id": "2",
-                    "port": "443"
+                    "port": "3128"
                 }
             }
         ]

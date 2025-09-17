@@ -1,6 +1,7 @@
 {
   "url_policies": [
     "id",
+    "position",
     "action",
     "ip_addr_group",
     "profile"

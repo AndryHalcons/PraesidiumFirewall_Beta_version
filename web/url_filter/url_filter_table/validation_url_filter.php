@@ -109,6 +109,41 @@ function validation_form_field_review(array $rule): void {
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    Validation policy        /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validar campos de una regla URL
+// Validate fields of a URL rule
+// Validar campos de una regla URL
+// Validate fields of a URL rule
+function validation_url_policies(array $rule): void {
+    $ipGroup = $rule['ip_addr_group'] ?? '';
+    $profile = $rule['profile'] ?? '';
+    $action = $rule['action'] ?? '';
+
+    // Si ip_addr_group no está vacío y no es "all", entonces profile no puede estar vacío
+    // If ip_addr_group is not empty and not "all", then profile must not be empty
+    if ($ipGroup !== '' && strtolower($ipGroup) !== 'all' && $profile === '') {
+        echo json_encode(['error' => 'El campo "profile" no puede estar vacío si ip_addr_group no es "all"']);
+        exit;
+    }
+
+    // Si ip_addr_group es "all", entonces profile debe estar vacío
+    // If ip_addr_group is "all", then profile must be empty
+    if (strtolower($ipGroup) === 'all' && $profile !== '') {
+        echo json_encode(['error' => 'El campo "profile" debe estar vacío si ip_addr_group es "all"']);
+        exit;
+    }
+    // El campo action debe ser "allow" o "deny"
+    // The action field must be "allow" or "deny"
+    if (!in_array(strtolower($rule['action'] ?? ''), ['allow', 'deny'])) {
+        echo json_encode(['error' => 'El campo "action" debe contener "allow" o "deny"']);
+        exit;
+    }
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,20 +287,24 @@ function convert_alias_group_to_Network_ips_multiple_IP(string $value): bool {
 // checkea alias en objetos de red reales usando funciones auxiliares
 // check aliases into real network objects using helper functions
 function Main_convert_alias_object_to_network_object(array $rule): array {
-
-
     $ipFields = ['ip_addr_group'];
-
     foreach ($ipFields as $field) {
         if (isset($rule[$field])) {
-            // Llama a la función de conversión de grupos IP solo para validar
-            convert_alias_group_to_Network_ips_multiple_IP($rule[$field]);
+            $value = trim($rule[$field]);
+            // Si el valor es "all", lo damos por válido sin convertir
+            // If the value is "all", we accept it as valid without conversion
+            if (strtolower($value) === 'all') {
+                continue;
+            }
+            // Llama a la función de conversión de grupos IP
+            // Call the IP group conversion function
+            convert_alias_group_to_Network_ips_multiple_IP($value);
         }
     }
     // Devuelve la regla original sin modificar
+    // Return the original rule unchanged
     return $rule;
 }
-
 
 
 
@@ -326,6 +365,106 @@ function check_create_id(array $rule, string $chain): array {
     return $rule;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// Reassing position  //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Reasignar posición en url_policies
+// Reassign position in url_policies
+function reassign_position(array $json, array $rule): array {
+    // Extraer bloque url_policies
+    // Extract url_policies block
+    $block = $json['squid']['url_policies'] ?? [];
+    $id = $rule['id'] ?? null;
+
+    // Detectar posición original
+    // Detect original position
+    $originalPos = null;
+    foreach ($block as $entry) {
+        if (($entry['rule']['id'] ?? '') === $id) {
+            $originalPos = isset($entry['rule']['position']) ? (int)$entry['rule']['position'] : null;
+            break;
+        }
+    }
+
+    // Obtener nueva posición
+    // Get new position
+    $targetPos = isset($rule['position']) && is_numeric($rule['position']) ? (int)$rule['position'] : null;
+
+    // Si no hay posición, asignar la más baja disponible
+    // If no position, assign the lowest available
+    if ($targetPos === null) {
+        $used = [];
+        foreach ($block as $entry) {
+            $pos = $entry['rule']['position'] ?? null;
+            if (is_numeric($pos)) {
+                $used[] = (int)$pos;
+            }
+        }
+        $targetPos = 1;
+        while (in_array($targetPos, $used)) {
+            $targetPos++;
+        }
+        $rule['position'] = $targetPos;
+    }
+
+    // Separar reglas y excluir la actual
+    // Separate rules and exclude the current one
+    $others = [];
+    foreach ($block as $entry) {
+        if (($entry['rule']['id'] ?? '') !== $id) {
+            $others[] = $entry;
+        }
+    }
+
+    // Desplazar reglas según dirección del movimiento
+    // Shift rules based on movement direction
+    foreach ($others as &$entry) {
+        $pos = isset($entry['rule']['position']) ? (int)$entry['rule']['position'] : null;
+        if ($pos === null) continue;
+
+        if ($originalPos !== null && $targetPos < $originalPos) {
+            // Movimiento hacia arriba
+            // Moving up
+            if ($pos >= $targetPos && $pos < $originalPos) {
+                $entry['rule']['position'] = $pos + 1;
+            }
+        } elseif ($originalPos !== null && $targetPos > $originalPos) {
+            // Movimiento hacia abajo
+            // Moving down
+            if ($pos <= $targetPos && $pos > $originalPos) {
+                $entry['rule']['position'] = $pos - 1;
+            }
+        } elseif ($originalPos === null) {
+            // Nueva regla, no existía antes
+            // New rule, didn't exist before
+            if ($pos >= $targetPos) {
+                $entry['rule']['position'] = $pos + 1;
+            }
+        }
+    }
+
+    // Insertar la regla dominante
+    // Insert the dominant rule
+    $others[] = ['rule' => $rule];
+
+    // Reordenar por posición
+    // Reorder by position
+    usort($others, fn($a, $b) => ((int)$a['rule']['position']) <=> ((int)$b['rule']['position']));
+
+    // Renumerar secuencialmente sin huecos
+    // Renumber sequentially without gaps
+    $pos = 1;
+    foreach ($others as &$entry) {
+        $entry['rule']['position'] = $pos++;
+    }
+
+    // Actualizar el JSON
+    // Update the JSON
+    $json['squid']['url_policies'] = $others;
+    return $json;
+}
 
 
 
