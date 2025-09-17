@@ -5,7 +5,7 @@
               "allow", 
               "deny"
             ],
-            "domain_list":[""]
+            "profile":[""]
       },
       "checkbox":
           {
@@ -14,12 +14,13 @@
             "id": ["1-10000"]
           }
     },
-    "url_list":{
+    "url_profile":{
         "select": {
             "type":[
               "ssl::server_name", 
               "Client Hello TLS"
-            ]
+            ],
+            "file":[""]
       },
       "checkbox":
           {
@@ -30,6 +31,17 @@
 
     },
     "url_listen_ports":{
+        "select": 
+          {
+          },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
+    },
+    "url_list":{
         "select": 
           {
           },

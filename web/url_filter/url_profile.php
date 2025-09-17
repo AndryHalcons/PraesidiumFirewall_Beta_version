@@ -9,7 +9,7 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/../lang/es.php";
 }
 $L = require $langFile;
-$currentAlias = "url_list";
+$currentAlias = "url_profile";
 $path_get_table_structure = "/url_filter/url_filter_table/get_table_structure_url_filter.php";
 $path_get_table_content = "/url_filter/url_filter_table/get_table_content_url_filter.php";
 $path_get_forms_from_table = "/url_filter/url_filter_table/get_forms_from_table_url_filter.php";
@@ -26,22 +26,11 @@ $path_get_delete = "/url_filter/url_filter_table/get_delete_url_filter.php";
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">
 </head>
-<div id="upload_container"></div>
-    <script>
-     upload_files_url(
-      <?= json_encode($currentAlias) ?>,
-      <?= json_encode($path_get_table_structure) ?>,
-      <?= json_encode($path_get_table_content) ?>,
-      <?= json_encode($path_get_forms_from_table) ?>,
-      <?= json_encode($path_get_update) ?>,
-      <?= json_encode($path_get_delete) ?>
-    );
-  </script>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_url_list']) ?></h1>
-    <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
+  <h1><?= htmlspecialchars($L['sidebar_url_profile']) ?></h1>
+  <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
     <script>
-     renderTable_url_list(
+     renderTableGeneric(
       <?= json_encode($currentAlias) ?>,
       <?= json_encode($path_get_table_structure) ?>,
       <?= json_encode($path_get_table_content) ?>,
@@ -50,5 +39,6 @@ $path_get_delete = "/url_filter/url_filter_table/get_delete_url_filter.php";
       <?= json_encode($path_get_delete) ?>
     );
   </script>
+
 </body>
 </html>

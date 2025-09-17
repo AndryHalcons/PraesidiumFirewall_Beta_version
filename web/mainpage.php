@@ -24,7 +24,7 @@ $L = require $langFile;
     <script src="javascript.js"></script>
     <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
-
+    <script src="/my_js/url_file_list.js"></script>
 </head>
 <body>
 
@@ -89,6 +89,7 @@ $L = require $langFile;
       <details>
         <summary><?= htmlspecialchars($L['sidebar_url_filtering']) ?></summary>
         <a href="#" data-page="/url_filter/url_policies.php"><?= htmlspecialchars($L['sidebar_url_policies']) ?></a>
+        <a href="#" data-page="/url_filter/url_profile.php"><?= htmlspecialchars($L['sidebar_url_profile']) ?></a>
         <a href="#" data-page="/url_filter/url_list.php"><?= htmlspecialchars($L['sidebar_url_list']) ?></a>
         <a href="#" data-page="/url_filter/url_listen_ports.php"><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></a>
       </details>

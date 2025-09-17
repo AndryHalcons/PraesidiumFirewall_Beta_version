@@ -31,7 +31,7 @@ function import_alias_json() {
 }
 
 function import_squid_config_json() {
-    $jsonPath = '/var/www/config/squid_config/squid_policies.json';
+    $jsonPath = '/var/www/config/squid_policies.json';
 
     if (!file_exists($jsonPath)) {
         return false;

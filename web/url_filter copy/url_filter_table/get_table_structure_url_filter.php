@@ -8,7 +8,7 @@ if (empty($_SESSION['username'])) {
 }
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile'];
+$allowedChains = ['url_policies', 'url_list', 'url_listen_ports'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro "table" inválido']);
@@ -17,9 +17,8 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 
 switch ($chain) {
     case 'url_policies':      get_url_policies(); break;
-    case 'url_profile':          get_url_profile(); break;
+    case 'url_list':          get_url_list(); break;
     case 'url_listen_ports':  get_url_listen_ports(); break;
-    case 'url_list':  get_url_list(); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
@@ -40,17 +39,17 @@ function get_url_policies() {
     echo json_encode(['url_policies' => $json['url_policies']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
-function get_url_profile() {
+function get_url_list() {
     $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
     $raw = file_get_contents($path);
     $json = json_decode($raw, true);
 
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_profile'])) {
-        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_profile']);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_list'])) {
+        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_list']);
         return;
     }
 
-    echo json_encode(['url_profile' => $json['url_profile']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo json_encode(['url_list' => $json['url_list']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
 function get_url_listen_ports() {
@@ -65,19 +64,3 @@ function get_url_listen_ports() {
 
     echo json_encode(['url_listen_ports' => $json['url_listen_ports']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-
-
-function get_url_list() {
-    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
-    $raw = file_get_contents($path);
-    $json = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_list'])) {
-        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_list']);
-        return;
-    }
-
-    echo json_encode(['url_list' => $json['url_list']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}
-

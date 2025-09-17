@@ -5,8 +5,8 @@
                 "rule": {
                     "id": "1",
                     "action": "accept",
-                    "ip_addr_group": "MI_IP_ADDR_GROUP",
-                    "domain_list": "1my_domain_list1"
+                    "ip_addr_group": "Private-networks",
+                    "profile": "1my_profile1"
                     
                 }
             },
@@ -14,17 +14,17 @@
                 "rule": {
                     "id": "2",
                     "action": "accept",
-                    "ip_addr_group": "MI_IP_ADDR_GROUP_2",
-                    "domain_list": "2my_domain_list2"
+                    "ip_addr_group": "Private-networks",
+                    "profile": "2my_profile2"
                     
                 }
             }
         ],
-        "url_list": [
+        "url_profile": [
             {
                 "rule": {
                     "id": "1",
-                    "name": "1my_domain_list1",
+                    "name": "my_profile1_",
                     "type": "ssl::server_name",
                     "file": "myfile1"
                 }
@@ -32,7 +32,7 @@
             {
                 "rule": {
                     "id": "2",
-                    "name": "2my_domain_list2",
+                    "name": "my_profile_2",
                     "type": "ssl::server_name",
                     "file": "myfile2"
                 }

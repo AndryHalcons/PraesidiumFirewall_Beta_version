@@ -9,7 +9,7 @@ if (empty($_SESSION['username'])) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $chain = trim($input['table'] ?? '');
-$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile'];
+$allowedChains = ['url_policies', 'url_list', 'url_listen_ports'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro "table" inválido']);
@@ -18,7 +18,7 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 
 switch ($chain) {
     case 'url_policies':      get_url_policies_form(); break;
-    case 'url_profile':          get_url_profile_form(); break;
+    case 'url_list':          get_url_list_form(); break;
     case 'url_listen_ports':  get_url_listen_ports_form(); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
@@ -26,7 +26,7 @@ switch ($chain) {
 }
 
 function get_url_policies_form() {
-    $path = '/var/www/config/squid_config/squid_policies.json';
+    $path = '/var/www/config/squid_policies.json';
     $raw = file_get_contents($path);
     if ($raw === false) {
         echo json_encode(['error' => 'No se pudo leer el archivo']);
@@ -71,8 +71,8 @@ function get_url_policies_form() {
     echo json_encode(['success' => true, 'deleted_id' => $id]);
 }
 
-function get_url_profile_form() {
-    $path = '/var/www/config/squid_config/squid_policies.json';
+function get_url_list_form() {
+    $path = '/var/www/config/squid_policies.json';
     $raw = file_get_contents($path);
     if ($raw === false) {
         echo json_encode(['error' => 'No se pudo leer el archivo']);
@@ -80,7 +80,7 @@ function get_url_profile_form() {
     }
 
     $json = json_decode($raw, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['squid']['url_profile'])) {
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['squid']['url_list'])) {
         echo json_encode(['error' => 'Error al interpretar el JSON']);
         return;
     }
@@ -94,10 +94,10 @@ function get_url_profile_form() {
     }
 
     $found = false;
-    foreach ($json['squid']['url_profile'] as $i => $entry) {
+    foreach ($json['squid']['url_list'] as $i => $entry) {
         if (($entry['rule']['id'] ?? '') === $id) {
-            unset($json['squid']['url_profile'][$i]);
-            $json['squid']['url_profile'] = array_values($json['squid']['url_profile']);
+            unset($json['squid']['url_list'][$i]);
+            $json['squid']['url_list'] = array_values($json['squid']['url_list']);
             $found = true;
             break;
         }
@@ -118,7 +118,7 @@ function get_url_profile_form() {
 }
 
 function get_url_listen_ports_form() {
-    $path = '/var/www/config/squid_config/squid_policies.json';
+    $path = '/var/www/config/squid_policies.json';
     $raw = file_get_contents($path);
     if ($raw === false) {
         echo json_encode(['error' => 'No se pudo leer el archivo']);

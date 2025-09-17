@@ -3,10 +3,10 @@
     "id",
     "action",
     "ip_addr_group",
-    "domain_list"
+    "profile"
     
   ],
-  "url_list": [
+  "url_profile": [
     "id",
     "name",
     "type",
@@ -15,5 +15,8 @@
   "url_listen_ports": [
     "id",
     "port"
+  ],
+  "url_list": [
+    "file"
   ]
 }

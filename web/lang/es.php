@@ -51,6 +51,7 @@ return [
     'sidebar_url_filtering'  => 'Filtros URL',
     'sidebar_url_list'  => 'Listas URL',
     'sidebar_url_policies'  => 'Reglas URL',
+    'sidebar_url_profile'  => 'Perfil URL',
     'sidebar_url_listen_ports'  => 'Puertos de escucha URL',
     // Content
     'main_content'          => 'Contenido aquí...',
@@ -306,7 +307,17 @@ return [
     //table alias
     'id' => 'ID',
     'name' => 'Nombre',
-    'content' => 'Contenido'
+    'content' => 'Contenido',
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   url filter        //////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    //buttons
+    'upload_button' => 'Subir Archivo',
+    //table profile
+    'profile' => 'Perfil'
+
+
     
 
 
