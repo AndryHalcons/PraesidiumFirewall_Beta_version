@@ -50,7 +50,7 @@ function getDateTimeSuffix(): string {
 // Función para validar y guardar el archivo subido
 // Function to validate and save the uploaded file
 function parse_files_squid(string $tmpFile): void {
-    $targetDir = "/var/www/config/squid_config/";
+    $targetDir = "/var/www/config/squid_config/acl_domains/";
 
     // Validar que el archivo tenga extensión .txt
     // Validate that the file has .txt extension

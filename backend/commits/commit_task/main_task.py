@@ -22,8 +22,8 @@ def start_commit_process(user, date):
     #and also generate the files in the config_running folder.
     gen_json_mkdir(user, date)#dividr en dos
 
-    # Aplica la configuración de las interfaces de red  
-    # Applies the network interface configuration
+    # Genera la configuración de las interfaces de red  
+    # Generate the network interface configuration
     gen_interface_config(user, date)
 
 
@@ -31,8 +31,8 @@ def start_commit_process(user, date):
     # Generate the nftables rules, verify, clean up.
     gen_nftables_policies(user, date)
 
-    # Aplica las reglas de bpfilter, verifica, limpia y aplica.
-    # Applies the bpfilter rules: verifies, flushes, and then applies.
+    # Genera las reglas de bpfilter, verifica, limpia y aplica.
+    # Generate the bpfilter rules: verifies, flushes, and then applies.
     gen_bpfilter_policies(user, date)
 
     ################################################################################################################################

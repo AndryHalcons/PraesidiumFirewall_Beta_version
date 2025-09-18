@@ -52,7 +52,7 @@ foreach ($lines as $line) {
 
 // Ruta completa al archivo
 // Full path to the file
-$filePath = "/var/www/config/squid_config/$fileName";
+$filePath = "/var/www/config/squid_config/acl_domains/$fileName";
 
 // Intentar escribir el contenido
 // Try to write the content

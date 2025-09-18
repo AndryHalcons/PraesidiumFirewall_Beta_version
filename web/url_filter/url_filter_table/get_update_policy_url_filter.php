@@ -77,8 +77,6 @@ function get_url_policies($chain) {
     //////////////////////////////
     //////////write /////////
     //////////////////////////////
-
-
     // Guardar archivo actualizado
     // Save updated file
     $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -86,7 +84,11 @@ function get_url_policies($chain) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
     }
-
+    //generamos los archivos txt de acl ip por alias, solo genera un txt vacio con el nombre del alias, las ips se añaden el commit backend
+    //para evitar introducir objetos modificados, ya fueron verificados que son correctos previamente en Main_convert_alias_object_to_network_object
+    //we generate the acl ip txt files by alias, it only generates an empty txt with the alias name, the ips are added in the commit backend
+    //to avoid introducing modified objects, They have already been verified to be correct in Main_convert_alias_object_to_network_object
+    check_and_create_acl_ip();
     // Confirmar éxito
     // Confirm success
     echo json_encode(['success' => true, 'updated' => $id]);

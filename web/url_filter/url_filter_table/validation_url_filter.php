@@ -467,4 +467,143 @@ function reassign_position(array $json, array $rule): array {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// validation deletes  //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function validate_profile_delete($id, $chain) {
+    $config = import_squid_config_json();
+    if ($config === false || !isset($config['squid'][$chain])) {
+        // Error al cargar configuración o el chain no existe
+        // Error loading configuration or invalid chain
+        echo json_encode(['error' => 'No se pudo cargar la configuración o el chain es inválido']);
+        exit;
+    }
+
+    // Buscar el nombre del perfil por ID
+    // Find the profile name by ID
+    $profileName = null;
+    foreach ($config['squid'][$chain] as $entry) {
+        if (($entry['rule']['id'] ?? '') === $id) {
+            $profileName = $entry['rule']['name'] ?? null;
+            break;
+        }
+    }
+
+    if ($profileName === null) {
+        // No se encontró el perfil con ese ID
+        // Profile with that ID not found
+        echo json_encode(['error' => 'No se encontró el perfil con ese ID']);
+        exit;
+    }
+
+    // Verificar si el perfil está en uso en url_policies
+    // Check if the profile is used in url_policies
+    $policies = $config['squid']['url_policies'] ?? [];
+    $usedInRules = [];
+
+    foreach ($policies as $policy) {
+        if (($policy['rule']['profile'] ?? '') === $profileName) {
+            $usedInRules[] = $policy['rule']['id'] ?? 'desconocido'; // unknown
+        }
+    }
+
+    if (!empty($usedInRules)) {
+        // El perfil está en uso, no se puede borrar
+        // Profile is in use, cannot be deleted
+        echo json_encode([
+            'error' => 'El perfil no se puede borrar porque está en uso en las siguientes Policy ID: ' . implode(', ', $usedInRules)
+        ]);
+
+        exit;
+    }
+
+    // Si no está en uso, la función termina sin error
+    // If not in use, function exits silently
+}
+
+function validate_url_list_delete($file) {
+    $config = import_squid_config_json();
+    
+    // Verificar que se pudo cargar la configuración
+    // Check that configuration was successfully loaded
+    if ($config === false || !isset($config['squid']['url_profile'])) {
+        echo json_encode(['error' => 'No se pudo cargar la configuración o falta url_profile']);
+        exit;
+    }
+
+    // Recorrer los perfiles para ver si alguno usa el archivo
+    // Loop through profiles to check if any use the file
+    $profiles = $config['squid']['url_profile'];
+    $usedByProfiles = [];
+
+    foreach ($profiles as $entry) {
+        if (($entry['rule']['file'] ?? '') === $file) {
+            $usedByProfiles[] = $entry['rule']['name'] ?? 'desconocido'; // unknown
+        }
+    }
+
+    // Si el archivo está en uso, devolver error
+    // If the file is in use, return error
+    if (!empty($usedByProfiles)) {
+        echo json_encode([
+            'error' => 'El archivo no se puede borrar porque está en uso en los siguientes perfiles: ' . implode(', ', $usedByProfiles)
+        ]);
+        exit;
+    }
+
+    // Si no está en uso, la función termina sin error
+    // If not in use, function exits silently
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// create ip acl txt   //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function check_and_create_acl_ip() {
+    $config = import_squid_config_json();
+
+    // Verificar que se pudo cargar la configuración
+    // Check that configuration was successfully loaded
+    if ($config === false || !isset($config['squid']['url_policies'])) {
+        echo json_encode(['error' => 'No se pudo cargar la configuración o falta url_policies']);
+        exit;
+    }
+
+    // Extraer todos los grupos IP únicos
+    // Extract all unique IP groups
+    $ipGroups = [];
+    foreach ($config['squid']['url_policies'] as $entry) {
+        $group = $entry['rule']['ip_addr_group'] ?? '';
+        if ($group !== '' && strtolower($group) !== 'all') {
+            $ipGroups[$group] = true;
+        }
+    }
+
+    // Directorio de salida
+    // Output directory
+    $aclDir = '/var/www/config/squid_config/acl_ips';
+
+    // Crear el directorio si no existe
+    // Create directory if it doesn't exist
+    if (!is_dir($aclDir)) {
+        mkdir($aclDir, 0775, true);
+    }
+
+    // Eliminar todos los archivos existentes en el directorio
+    // Delete all existing files in the directory
+    $existingFiles = glob($aclDir . '/*.txt');
+    foreach ($existingFiles as $file) {
+        unlink($file);
+    }
+
+    // Crear archivos vacíos para cada grupo IP
+    // Create empty files for each IP group
+    foreach (array_keys($ipGroups) as $groupName) {
+        $filePath = $aclDir . '/' . $groupName . '.txt';
+        file_put_contents($filePath, '');
+    }
+}
 

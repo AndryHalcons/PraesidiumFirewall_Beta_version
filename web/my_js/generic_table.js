@@ -460,7 +460,8 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
   const payload = {
     table: currentAlias,
     id: rule.id,
-    name: rule.name
+    name: rule.name,
+    file: rule.file
 
   };
   console.log("📤 Enviando al backend:", JSON.stringify(payload, null, 2));
