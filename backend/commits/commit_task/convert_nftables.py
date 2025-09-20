@@ -819,13 +819,24 @@ def build_expr(rule, comment):
         if port.isdigit():
             snat["port"] = int(port)
         expr.append({"snat": snat})
-
+    """
     if rule.get("dnat.addr"):
         dnat = {"addr": rule["dnat.addr"]}
         port = str(rule.get("dnat.port", "")).strip()
         if port.isdigit():
             dnat["port"] = int(port)
         expr.append({"dnat": dnat})
+    """
+    if rule.get("dnat.addr"):
+        dnat = {"addr": rule["dnat.addr"]}
+        port = str(rule.get("dnat.port", "")).strip()
+        if port.isdigit():
+            dnat["port"] = int(port)
+        expr.append({"dnat": dnat})
+    elif rule.get("dnat.port"):
+        port = str(rule["dnat.port"]).strip()
+        if port.isdigit():
+            expr.append({"dnat": {"port": int(port)}})
 
     if rule.get("action"):
         expr.append({rule["action"]: None})

@@ -384,8 +384,8 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade debe tener valor
-    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true')) {
+    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade debe tener valor dnat.port
+    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true') && $dnatPort === '') {
     echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr o masquerade debe tener valor"]);
     exit;
     }
