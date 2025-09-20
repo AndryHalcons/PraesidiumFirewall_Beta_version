@@ -638,60 +638,8 @@ function isAliasServiceNamePort_ORserviceAlias($data, $path) {
     return true;
 }
 
-//funciona pero el error que devuelve no sirve
-/*
-function is_object_in_policy($name) {
-    $rulesFile = '/var/www/config/rules_nftables_human_viewer.json';
-    if (!file_exists($rulesFile)) return;
 
-    $json = file_get_contents($rulesFile);
-    $rulesData = json_decode($json, true);
-    if (!isset($rulesData['nftables']) || !is_array($rulesData['nftables'])) return;
-
-    $fields = [
-        'sport',
-        'dport',
-        'dnat.port',
-        'snat.port',
-        'dnat.addr',
-        'snat.addr',
-        'ip.daddr',
-        'ip.saddr'
-    ];
-
-    $matchedRules = [];
-    $target = trim($name);
-
-    foreach ($rulesData['nftables'] as $entry) {
-        if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
-
-        $rule = $entry['rule'];
-
-        foreach ($fields as $field) {
-            if (!isset($rule[$field]) || !is_string($rule[$field])) continue;
-
-            // Divide por comas y recorta cada valor
-            $values = array_map('trim', explode(',', $rule[$field]));
-
-            // Si el alias está en la lista, se añade el nombre de la regla
-            if (in_array($target, $values, true)) {
-                if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
-                    $matchedRules[] = $rule['name'];
-                }
-                break;
-            }
-        }
-    }
-
-    if (!empty($matchedRules)) {
-        http_response_code(409);
-        echo json_encode(['error' => 'Object is used in policies NFTables "' . implode(', ', $matchedRules) . '"']);
-        exit;
-    }
-}
-*/
-
-
+/* individual
 function is_object_in_policy($name) {
     error_log("DEBUG: Recibido name = '$name'");
 
@@ -746,12 +694,237 @@ function is_object_in_policy($name) {
         exit;
     }
 }
+*/
+/* doble
+function is_object_in_policy($name) {
+    // DEBUG: Recibimos el nombre del objeto a verificar
+    // DEBUG: Received the object name to check
+    error_log("DEBUG: Recibido name = '$name'");
+
+    $target = trim($name);
+    // Si el nombre está vacío, no hacemos nada
+    // If the name is empty, we do nothing
+    if ($target === '') return;
+
+    $matchedRules = [];
+
+    // 🔍 Verificación en el archivo de reglas NFTables
+    // 🔍 Check in the NFTables rules file
+    $nftFile = '/var/www/config/rules_nftables_human_viewer.json';
+    if (file_exists($nftFile)) {
+        $json = file_get_contents($nftFile);
+        $rulesData = json_decode($json, true);
+
+        // Aseguramos que el bloque 'nftables' existe y es un array
+        // Ensure the 'nftables' block exists and is an array
+        if (isset($rulesData['nftables']) && is_array($rulesData['nftables'])) {
+            $fields = [
+                'sport',
+                'dport',
+                'dnat.port',
+                'snat.port',
+                'dnat.addr',
+                'snat.addr',
+                'ip.daddr',
+                'ip.saddr'
+            ];
+
+            foreach ($rulesData['nftables'] as $entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                $rule = $entry['rule'];
+
+                foreach ($fields as $field) {
+                    // Saltamos si el campo no existe o está vacío
+                    // Skip if the field doesn't exist or is empty
+                    if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
+
+                    $values = array_map('trim', explode(',', $rule[$field]));
+                    // Comprobamos si el valor objetivo está en la lista
+                    // Check if the target value is in the list
+                    if (in_array($target, $values, true)) {
+                        if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
+                            $matchedRules[] = $rule['name'];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // 🔍 Verificación en el archivo de reglas BPFilter
+    // 🔍 Check in the BPFilter rules file
+    $bpFile = '/var/www/config/rules_bpfilter_human_viewer.json';
+    if (file_exists($bpFile)) {
+        $json = file_get_contents($bpFile);
+        $bpData = json_decode($json, true);
+
+        // Aseguramos que el bloque 'bpfilter' existe y es un array
+        // Ensure the 'bpfilter' block exists and is an array
+        if (isset($bpData['bpfilter']) && is_array($bpData['bpfilter'])) {
+            $fields = ['source', 'sport', 'destination', 'dport'];
+
+            foreach ($bpData['bpfilter'] as $entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                $rule = $entry['rule'];
+
+                foreach ($fields as $field) {
+                    // Saltamos si el campo no existe o está vacío
+                    // Skip if the field doesn't exist or is empty
+                    if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
+
+                    $values = array_map('trim', explode(',', $rule[$field]));
+                    // Comprobamos si el valor objetivo está en la lista
+                    // Check if the target value is in the list
+                    if (in_array($target, $values, true)) {
+                        if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
+                            $matchedRules[] = $rule['name'];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    //  Si se encontraron coincidencias, devolvemos error 409 con los nombres de las reglas
+    //  If matches were found, return error 409 with the rule names
+    if (!empty($matchedRules)) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Object is used in policies: "' . implode(', ', $matchedRules) . '"']);
+        exit;
+    }
+}
+*/
 
 
+function is_object_in_policy($name) {
+    // DEBUG: Recibimos el nombre del objeto a verificar
+    // DEBUG: Received the object name to check
+    error_log("DEBUG: Recibido name = '$name'");
+
+    $target = trim($name);
+    // Si el nombre está vacío, no hacemos nada
+    // If the name is empty, we do nothing
+    if ($target === '') return;
+
+    $matchedRules = [];
+
+    // 🔍 Verificación en el archivo de reglas NFTables
+    // 🔍 Check in the NFTables rules file
+    $nftFile = '/var/www/config/rules_nftables_human_viewer.json';
+    if (file_exists($nftFile)) {
+        $json = file_get_contents($nftFile);
+        $rulesData = json_decode($json, true);
+
+        if (isset($rulesData['nftables']) && is_array($rulesData['nftables'])) {
+            $fields = [
+                'sport',
+                'dport',
+                'dnat.port',
+                'snat.port',
+                'dnat.addr',
+                'snat.addr',
+                'ip.daddr',
+                'ip.saddr'
+            ];
+
+            foreach ($rulesData['nftables'] as $entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                $rule = $entry['rule'];
+
+                foreach ($fields as $field) {
+                    if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
+
+                    $values = array_map('trim', explode(',', $rule[$field]));
+                    if (in_array($target, $values, true)) {
+                        if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
+                            $matchedRules[] = $rule['name'];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // 🔍 Verificación en el archivo de reglas BPFilter
+    // 🔍 Check in the BPFilter rules file
+    $bpFile = '/var/www/config/rules_bpfilter_human_viewer.json';
+    if (file_exists($bpFile)) {
+        $json = file_get_contents($bpFile);
+        $bpData = json_decode($json, true);
+
+        if (isset($bpData['bpfilter']) && is_array($bpData['bpfilter'])) {
+            $fields = ['source', 'sport', 'destination', 'dport'];
+
+            foreach ($bpData['bpfilter'] as $entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                $rule = $entry['rule'];
+
+                foreach ($fields as $field) {
+                    if (!isset($rule[$field]) || !is_string($rule[$field]) || trim($rule[$field]) === '') continue;
+
+                    $values = array_map('trim', explode(',', $rule[$field]));
+                    if (in_array($target, $values, true)) {
+                        if (isset($rule['name']) && !in_array($rule['name'], $matchedRules)) {
+                            $matchedRules[] = $rule['name'];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // 🔍 Verificación en el archivo de políticas Squid
+    // 🔍 Check in the Squid policies file
+    $squidFile = '/var/www/config/squid_config/squid_policies.json';
+    if (file_exists($squidFile)) {
+        $json = file_get_contents($squidFile);
+        $squidData = json_decode($json, true);
+
+        // Aseguramos que el bloque 'url_policies' existe y es un array
+        // Ensure the 'url_policies' block exists and is an array
+        if (isset($squidData['squid']['url_policies']) && is_array($squidData['squid']['url_policies'])) {
+            foreach ($squidData['squid']['url_policies'] as $entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                $rule = $entry['rule'];
+
+                // Verificamos si el campo ip_addr_group coincide
+                // Check if the ip_addr_group field matches
+                if (isset($rule['ip_addr_group']) && is_string($rule['ip_addr_group'])) {
+                    $values = array_map('trim', explode(',', $rule['ip_addr_group']));
+                    if (in_array($target, $values, true)) {
+                        // Usamos el campo 'profile' como nombre de la regla si existe
+                        // Use the 'profile' field as rule name if available
+                        $ruleName = isset($rule['profile']) ? $rule['profile'] : 'SquidRule';
+                        if (!in_array($ruleName, $matchedRules)) {
+                            $matchedRules[] = $ruleName;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 🚨 Si se encontraron coincidencias, devolvemos error 409 con los nombres de las reglas
+    // 🚨 If matches were found, return error 409 with the rule names
+    if (!empty($matchedRules)) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Object is used in policies: "' . implode(', ', $matchedRules) . '"']);
+        exit;
+    }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////// update nftables and policy alias names  ////////////////////
+////////////////////////// update nftables and policy alias names  ////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //funcion que comprueba previamente a los borrados si nombre y id existen para evitar manipulaciones del front
 //function that checks before deletions if name and id exist to avoid front-end manipulations
@@ -793,7 +966,7 @@ function getAliasOldNameById(array $aliasData, string $sectionKey, int $id): ?st
 }
 
 
-
+/*
 function update_name_on_rules(string $newName, int $id, string $sectionKey): void {
     $aliasPath = '/var/www/config/alias.json';
     $nftPath = '/var/www/config/rules_nftables_human_viewer.json';
@@ -845,6 +1018,93 @@ function update_name_on_rules(string $newName, int $id, string $sectionKey): voi
 
         // Guardar cambios en BPFILTER
         file_put_contents($bpfPath, json_encode($bpfData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+}
+*/
+
+
+function update_name_on_rules(string $newName, int $id, string $sectionKey): void {
+    $aliasPath = '/var/www/config/alias.json';
+    $nftPath = '/var/www/config/rules_nftables_human_viewer.json';
+    $bpfPath = '/var/www/config/rules_bpfilter_human_viewer.json';
+    $squidPath = '/var/www/config/squid_config/squid_policies.json';
+
+    $aliasData = loadAliasData($aliasPath);
+    $oldName = getAliasOldNameById($aliasData, $sectionKey, $id);
+
+    // Si no hay cambio de nombre, salimos
+    // If there's no name change, exit
+    if ($oldName === null || $oldName === $newName) {
+        return;
+    }
+
+    //  NFTables
+    //  NFTables
+    $nftData = import_policy_nft_json();
+    if (is_array($nftData) && isset($nftData['nftables'])) {
+        foreach ($nftData['nftables'] as &$entry) {
+            if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+            $fields = [
+                'ip.saddr', 'sport', 'ip.daddr', 'dport',
+                'dnat.addr', 'snat.addr', 'snat.port', 'dnat.port'
+            ];
+
+            foreach ($fields as $field) {
+                if (isset($entry['rule'][$field]) && is_string($entry['rule'][$field])) {
+                    $entry['rule'][$field] = replaceAliasInField($entry['rule'][$field], $oldName, $newName);
+                }
+            }
+        }
+
+        // Guardar cambios en NFTables
+        // Save changes to NFTables
+        file_put_contents($nftPath, json_encode($nftData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    //  BPFILTER
+    //  BPFILTER
+    $bpfData = import_policy_bpf_json();
+    if (is_array($bpfData) && isset($bpfData['bpfilter'])) {
+        foreach ($bpfData['bpfilter'] as &$entry) {
+            if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+            $fields = ['source', 'sport', 'destination', 'dport'];
+
+            foreach ($fields as $field) {
+                if (isset($entry['rule'][$field]) && is_string($entry['rule'][$field])) {
+                    $entry['rule'][$field] = replaceAliasInField($entry['rule'][$field], $oldName, $newName);
+                }
+            }
+        }
+
+        // Guardar cambios en BPFILTER
+        // Save changes to BPFILTER
+        file_put_contents($bpfPath, json_encode($bpfData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    //  SQUID
+    //  SQUID
+    if (file_exists($squidPath)) {
+        $squidData = json_decode(file_get_contents($squidPath), true);
+
+        // Verificamos que existan políticas de URL
+        // Check that URL policies exist
+        if (is_array($squidData) && isset($squidData['squid']['url_policies'])) {
+            foreach ($squidData['squid']['url_policies'] as &$entry) {
+                if (!isset($entry['rule']) || !is_array($entry['rule'])) continue;
+
+                // Solo modificamos el campo ip_addr_group si es una cadena
+                // Only modify ip_addr_group field if it's a string
+                if (isset($entry['rule']['ip_addr_group']) && is_string($entry['rule']['ip_addr_group'])) {
+                    $entry['rule']['ip_addr_group'] = replaceAliasInField($entry['rule']['ip_addr_group'], $oldName, $newName);
+                }
+            }
+
+            // Guardar cambios en Squid
+            // Save changes to Squid
+            file_put_contents($squidPath, json_encode($squidData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
     }
 }
 

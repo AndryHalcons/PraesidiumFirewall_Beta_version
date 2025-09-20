@@ -562,6 +562,10 @@ function validate_url_list_delete($file) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// create ip acl txt   //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//generamos los archivos txt de acl ip por alias, solo genera un txt vacio con el nombre del alias, las ips se añaden el commit backend
+//para evitar introducir objetos modificados, ya fueron verificados que son correctos previamente en Main_convert_alias_object_to_network_object
+//we generate the acl ip txt files by alias, it only generates an empty txt with the alias name, the ips are added in the commit backend
+//to avoid introducing modified objects, They have already been verified to be correct in Main_convert_alias_object_to_network_object
 function check_and_create_acl_ip() {
     $config = import_squid_config_json();
 
