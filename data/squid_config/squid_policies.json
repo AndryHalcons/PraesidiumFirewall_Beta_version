@@ -3,20 +3,20 @@
         "url_policies": [
             {
                 "rule": {
-                    "id": "2",
+                    "id": "1",
                     "position": 1,
                     "action": "deny",
                     "ip_addr_group": "Private-networks",
-                    "profile": "my_profile_1"
+                    "profile": "my_profile_2"
                 }
             },
             {
                 "rule": {
-                    "id": "1",
+                    "id": "2",
                     "position": 2,
                     "action": "deny",
                     "ip_addr_group": "Private-networks",
-                    "profile": "my_profile_2"
+                    "profile": "my_profile_1"
                 }
             },
             {
@@ -51,7 +51,15 @@
             {
                 "rule": {
                     "id": "1",
+                    "type": "transparent",
                     "port": "3128"
+                }
+            },
+            {
+                "rule": {
+                    "type": "intercept",
+                    "port": "3129",
+                    "id": "2"
                 }
             }
         ]

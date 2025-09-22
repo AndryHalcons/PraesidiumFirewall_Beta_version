@@ -15,6 +15,7 @@
   ],
   "url_listen_ports": [
     "id",
+    "type",
     "port"
   ],
   "url_list": [

@@ -324,7 +324,8 @@ return [
     ///////////////////////////////////////////////////////////////////////
     //buttons
     'upload_button' => 'Upload file',
-    'profile' => 'Profile'
+    'profile' => 'Profile',
+    'type' => 'Type'
 
 
 

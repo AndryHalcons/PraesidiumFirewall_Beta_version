@@ -315,7 +315,8 @@ return [
     //buttons
     'upload_button' => 'Subir Archivo',
     //table profile
-    'profile' => 'Perfil'
+    'profile' => 'Perfil',
+    'type' => 'Tipo'
 
 
     

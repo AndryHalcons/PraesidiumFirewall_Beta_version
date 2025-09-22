@@ -17,7 +17,7 @@
     "url_profile":{
         "select": {
             "type":[
-              "ssl::server_name", 
+              "dstdomain", 
               "Client Hello TLS"
             ],
             "file":[""]
@@ -33,6 +33,10 @@
     "url_listen_ports":{
         "select": 
           {
+            "type":[
+              "transparent", 
+              "intercept"
+            ]
           },
       "checkbox":
           {
