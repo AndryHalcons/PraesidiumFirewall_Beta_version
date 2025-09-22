@@ -34,8 +34,14 @@
         "select": 
           {
             "type":[
-              "transparent", 
+              "explicit", 
               "intercept"
+            ],
+            "cert":[
+              ""
+            ],
+            "key":[
+              ""
             ]
           },
       "checkbox":

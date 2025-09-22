@@ -1,0 +1,5 @@
+[ v3_ca ]
+basicConstraints = CA:TRUE
+keyUsage = keyCertSign, cRLSign
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer

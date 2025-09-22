@@ -265,7 +265,7 @@
                 "position": 1,
                 "action": "",
                 "enable": "false",
-                "name": "squidpolicy",
+                "name": "Squid_policy_Intercept",
                 "ip.protocol": "tcp",
                 "ip.saddr.op": "==",
                 "ip.saddr": "Private-networks",
@@ -285,7 +285,7 @@
                 "masquerade": "",
                 "snat.port": "",
                 "dnat.addr": "",
-                "dnat.port": "3128"
+                "dnat.port": "3129"
             }
         },
         {

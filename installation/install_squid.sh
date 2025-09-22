@@ -47,3 +47,9 @@ EOF
 # Actualiza e instala Squid con soporte OpenSSL
 apt update
 apt install -y squid-openssl squid-common libecap3 libecap3-dev
+
+
+# Inicializa el almacén de certificados dinámicos SOLO si Squid está instalado y el directorio no existe
+if dpkg -l | grep -q squid-openssl && [ ! -d /var/lib/ssl_db ]; then
+    sudo /usr/lib/squid/security_file_certgen -s /var/lib/ssl_db -M 4MB -c
+fi

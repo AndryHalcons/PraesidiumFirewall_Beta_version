@@ -16,6 +16,8 @@
   "url_listen_ports": [
     "id",
     "type",
+    "cert",
+    "key",
     "port"
   ],
   "url_list": [
