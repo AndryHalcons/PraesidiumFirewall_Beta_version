@@ -1,22 +1,31 @@
 #!/bin/bash
 
 # Elimina Squid si está instalado
-if dpkg -l | grep -q '^ii  squid'; then
-    apt purge -y squid squid-common squid-langpack
-    apt autoremove -y
-fi
+apt purge -y squid squid-common squid-langpack squid-openssl
+apt autoremove -y
 
 # Elimina directorios residuales
 rm -rf /etc/squid /var/spool/squid /var/log/squid
 
-# Descarga la clave GPG y la guarda en el directorio recomendado
-wget -qO /etc/apt/trusted.gpg.d/diladele.gpg https://packages.diladele.com/diladele_pub.asc
+# Asegura que el entorno GPG de root existe
+mkdir -p /root/.gnupg
+chmod 700 /root/.gnupg
 
-# Añade (o sobrescribe) el repositorio de Squid 7.1 compilado con OpenSSL
+# Instala dirmngr y gnupg si faltan
+apt install -y dirmngr gnupg
+
+# Importa la clave GPG directamente desde el servidor de claves
+rm -f /etc/apt/trusted.gpg.d/diladele.gpg
+gpg --no-default-keyring \
+    --keyring /etc/apt/trusted.gpg.d/diladele.gpg \
+    --keyserver keyserver.ubuntu.com \
+    --recv-keys 9BC5EB655A7AF0DE
+
+# Añade el repositorio de Squid 7.1 compilado con OpenSSL
 echo "deb [signed-by=/etc/apt/trusted.gpg.d/diladele.gpg] https://squid71.diladele.com/ubuntu/ noble main" \
     > /etc/apt/sources.list.d/squid71.diladele.com.list
 
-# Sobrescribe el archivo de pinning para dar prioridad absoluta al repositorio de Diladele
+# Prioridad absoluta al repositorio de Diladele
 tee /etc/apt/preferences.d/squid-diladele.pref > /dev/null <<EOF
 Package: squid-openssl
 Pin: origin squid71.diladele.com
@@ -35,6 +44,6 @@ Pin: origin squid71.diladele.com
 Pin-Priority: 1001
 EOF
 
-# Actualiza la lista de paquetes e instala Squid con soporte OpenSSL
+# Actualiza e instala Squid con soporte OpenSSL
 apt update
 apt install -y squid-openssl squid-common libecap3 libecap3-dev
