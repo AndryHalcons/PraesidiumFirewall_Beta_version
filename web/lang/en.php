@@ -57,6 +57,7 @@ return [
     'sidebar_url_policies'  => 'URL Policies',
     'sidebar_url_listen_ports'  => 'URL Listen ports',
     'sidebar_url_profile'  => 'URL Profile',
+    'sidebar_certificates'  => 'Certificates',
 
     // Content
     'main_content'          => 'Content here...',
@@ -326,7 +327,10 @@ return [
     'upload_button' => 'Upload file',
     'profile' => 'Profile',
     'type' => 'Type'
-
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   certificates      //////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
 
     

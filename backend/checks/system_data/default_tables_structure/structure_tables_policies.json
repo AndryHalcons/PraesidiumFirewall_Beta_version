@@ -44,6 +44,7 @@
     "meta.iifname",
     "dnat.addr",
     "dnat.port",
+    "redirect",
     "ct.state",
     "packets",
     "bytes",

@@ -216,6 +216,7 @@ def validation_icmp_no_ports(rule: dict) -> dict:
             'sport',
             'dport.op',
             'dport',
+            'redirect',
             'dnat.port'
         ]
 
@@ -616,7 +617,7 @@ def Main_convert_alias_object_to_network_object(rule: dict, date):
         rule['snat.addr'] = ''
     # Campos relacionados con puertos
     # Port-related fields
-    port_fields = ['sport', 'dport', 'dnat.port']
+    port_fields = ['sport', 'dport', 'dnat.port', 'redirect']
 
     for field in port_fields:
         if field in rule:
@@ -819,14 +820,7 @@ def build_expr(rule, comment):
         if port.isdigit():
             snat["port"] = int(port)
         expr.append({"snat": snat})
-    """
-    if rule.get("dnat.addr"):
-        dnat = {"addr": rule["dnat.addr"]}
-        port = str(rule.get("dnat.port", "")).strip()
-        if port.isdigit():
-            dnat["port"] = int(port)
-        expr.append({"dnat": dnat})
-    """
+
     if rule.get("dnat.addr"):
         dnat = {"addr": rule["dnat.addr"]}
         port = str(rule.get("dnat.port", "")).strip()
@@ -838,6 +832,12 @@ def build_expr(rule, comment):
         if port.isdigit():
             expr.append({"dnat": {"port": int(port)}})
 
+    if rule.get("redirect"):
+        port = str(rule["redirect"]).strip()
+        if port.isdigit():
+            expr.append({"redirect": {"port": int(port)}})
+
+    
     if rule.get("action"):
         expr.append({rule["action"]: None})
 

@@ -93,6 +93,10 @@ $L = require $langFile;
         <a href="#" data-page="/alias/service_alias_group.php"><?= htmlspecialchars($L['sidebar_services_group_objects']) ?></a>
       </details>
       <details>
+        <summary><?= htmlspecialchars($L['sidebar_certificates']) ?></summary>
+        <a href="#" data-page="/certificates/certificates.php"><?= htmlspecialchars($L['sidebar_certificates']) ?></a>
+      </details>
+      <details>
         <summary><?= htmlspecialchars($L['sidebar_system']) ?></summary>
         <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>
         <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>

@@ -300,6 +300,7 @@ function validate_nft_rule_protocols(array $rule): void {
     $snatAddr = trim((string)($rule['snat.addr'] ?? ''));
     $dnatAddr = trim((string)($rule['dnat.addr'] ?? ''));
     $dnatPort = trim((string)($rule['dnat.port'] ?? ''));
+    $redirect = trim((string)($rule['redirect'] ?? ''));
     $ipSaddr = trim((string)($rule['ip.saddr'] ?? ''));
     $ipSaddrOp = trim((string)($rule['ip.saddr.op'] ?? ''));
     $ipDaddr = trim((string)($rule['ip.daddr'] ?? ''));
@@ -348,9 +349,9 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 8. ip.protocol = icmp → no debe tener dnat.port ni sport/dport
+    // 8. ip.protocol = icmp → no debe tener dnat.port ni sport/dport o redirect
     if ($ipProtocol === 'icmp') {
-        if ($dnatPort !== '' || $sport !== '' || $dport !== '') {
+        if ($dnatPort !== '' || $sport !== '' || $dport !== '' || $redirect !== '') {
             echo json_encode(['error' => "icmp no debe tener dnat.port ni sport/dport"]);
             exit;
         }
@@ -358,14 +359,14 @@ function validate_nft_rule_protocols(array $rule): void {
 
     // 9. ip.protocol = icmpv6 → igual que icmp
     if ($ipProtocol === 'icmpv6') {
-        if ($dnatPort !== '' || $sport !== '' || $dport !== '') {
+        if ($dnatPort !== '' || $sport !== '' || $dport !== '' || $redirect !== '') {
             echo json_encode(['error' => "icmpv6 no debe tener dnat.port ni sport/dport"]);
             exit;
         }
     }
     // 13. Si ip.protocol contiene "icmp" → campos de puertos deben estar vacíos
     if (str_contains($ipProtocol, 'icmp') && !str_contains($ipProtocol, 'icmpv6')) {
-        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '') {
+        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '' || $redirect !== '') {
             echo json_encode(['error' => "ip.protocol = 'icmp' no permite campos de puertos"]);
             exit;
         }
@@ -373,7 +374,7 @@ function validate_nft_rule_protocols(array $rule): void {
 
     // 14. Si ip.protocol contiene "icmpv6" → campos de puertos deben estar vacíos
     if (str_contains($ipProtocol, 'icmpv6')) {
-        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '') {
+        if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '' || $redirect !== '') {
             echo json_encode(['error' => "ip.protocol = 'icmpv6' no permite campos de puertos"]);
             exit;
         }
@@ -384,11 +385,25 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade debe tener valor dnat.port
-    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true') && $dnatPort === '') {
-    echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr o masquerade debe tener valor"]);
+    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade o redirect debe tener valor dnat.port
+    if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true') && $dnatPort === ''  && $redirect === '') {
+    echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr o masquerade o redirect debe tener valor"]);
     exit;
     }
+
+    // 17. Si redirect tiene valor, dnat.addr y dnat.port deben estar vacíos
+    if ($redirect !== '' && ($dnatAddr !== '' || $dnatPort !== '')) {
+        echo json_encode(['error' => "Si se usa redirect, no se permite definir dnat.addr ni dnat.port"]);
+        exit;
+    }
+
+    // 18. Si masquerade tiene valor, snat.addr no debe estar definido
+    if (strtolower($rule['masquerade'] ?? '') === 'true' && $snatAddr !== '') {
+        echo json_encode(['error' => "Si se usa masquerade, no se permite definir snat.addr"]);
+        exit;
+    }
+
+
 }
 
 
@@ -456,7 +471,8 @@ function validation_icmp_no_ports(array $rule): array {
             'sport',
             'dport.op',
             'dport',
-            'dnat.port'
+            'dnat.port',
+            'redirect'
         ];
 
         foreach ($fieldsToClear as $field) {
@@ -775,7 +791,7 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
         $rule['snat.addr'] = '';
     }
     // Campos relacionados con puertos
-    $portFields = ['sport', 'dport', 'dnat.port'];
+    $portFields = ['sport', 'dport', 'dnat.port', 'redirect'];
 
     foreach ($portFields as $field) {
         if (isset($rule[$field])) {
@@ -873,7 +889,8 @@ function saniticed_nftables_policy(array $rule): array {
             "masquerade"    => $rule["masquerade"]    ?? "",
             "snat.port"     => $rule["snat.port"]     ?? "",
             "dnat.addr"     => $rule["dnat.addr"]     ?? "",
-            "dnat.port"     => $rule["dnat.port"]     ?? ""
+            "dnat.port"     => $rule["dnat.port"]     ?? "",
+            "redirect"      => $rule["redirect"]     ?? ""
         ]
     ];
 }
