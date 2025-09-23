@@ -1,0 +1,16 @@
+{
+  "certificates":{
+      "select":
+        {
+        },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"],
+            "expires":[],
+            "status":[]
+            
+          }
+      }
+}
