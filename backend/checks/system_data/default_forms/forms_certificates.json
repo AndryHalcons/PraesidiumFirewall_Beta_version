@@ -2,6 +2,18 @@
   "certificates":{
       "select":
         {
+        "type": [
+          "",
+          "root",
+          "intermediate",
+          "server",
+          "issuer",
+          "client",
+          "csr",
+          "key",
+          "serial",
+          "config"
+      ]
         },
       "checkbox":
           {

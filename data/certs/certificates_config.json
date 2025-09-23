@@ -1,0 +1,14 @@
+{
+  "certificates": [
+        {
+            "type" : "",
+            "file_name" : "",
+            "name" : "",
+            "subject" : "",
+            "issuer" : "",
+            "expires" : "",
+            "status" : "",
+            "algorithm" : ""
+        }
+    ]
+}

@@ -451,7 +451,7 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
 }
 
 function delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns) {
-  if (!confirm("¿Estás seguro de que quieres eliminar esta política?")) {
+  if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) {
     return; // El usuario canceló
   }
 
@@ -461,7 +461,8 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
     table: currentAlias,
     id: rule.id,
     name: rule.name,
-    file: rule.file
+    file: rule.file,
+    fileName : rule.file_name
 
   };
   console.log("📤 Enviando al backend:", JSON.stringify(payload, null, 2));

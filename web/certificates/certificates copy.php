@@ -29,24 +29,12 @@ shell_exec("sudo $script5 2>&1");
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">
-   <h1><?= htmlspecialchars($L['sidebar_certificates']) ?></h1>
 </head>
-<div id="upload_container"></div>
-    <script>
-     upload_certs(
-      <?= json_encode($currentAlias) ?>,
-      <?= json_encode($path_get_table_structure) ?>,
-      <?= json_encode($path_get_table_content) ?>,
-      <?= json_encode($path_get_forms_from_table) ?>,
-      <?= json_encode($path_get_update) ?>,
-      <?= json_encode($path_get_delete) ?>
-    );
-  </script>
 <body>
- 
+  <h1><?= htmlspecialchars($L['sidebar_certificates']) ?></h1>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
-    renderTable_certs(
+    renderTableGeneric(
       "<?= htmlspecialchars($currentAlias) ?>",
       "<?= htmlspecialchars($path_get_table_structure) ?>",
       "<?= htmlspecialchars($path_get_table_content) ?>",

@@ -25,6 +25,7 @@ $L = require $langFile;
     <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
     <script src="/my_js/url_file_list.js"></script>
+    <script src="/my_js/certs_table.js"></script>
 </head>
 <body>
 
