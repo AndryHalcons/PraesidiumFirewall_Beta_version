@@ -29,11 +29,12 @@ switch ($chain) {
 
 
 function get_certificates() {
-    require __DIR__ . '/validation_certificates.php';
+    require __DIR__ . '/get_update_certificate.php';
+
     //actualiza y pre-carga el json de certificados para que contemple todos los certificados cargados
     // Updates and preloads the certificates JSON to include all loaded certificates
-
     update_certificates_config_json();
+    
     //ruta al archivo json de certificados
     $json_path = '/var/www/config/certs/certificates_config.json';
 

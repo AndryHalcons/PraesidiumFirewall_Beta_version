@@ -14,8 +14,8 @@ $currentAlias = "certificates";
 $path_get_table_structure = "/certificates/certificates_table/get_table_structure.php";
 $path_get_table_content = "/certificates/certificates_table/get_table_content.php";
 $path_get_forms_from_table = "/certificates/certificates_table/get_forms_from_table.php";
-$path_get_update = "/certificates/certificates_table/get_update_interface.php";
-$path_get_delete = "/certificates/certificates_table/get_delete_interface.php";
+$path_get_update = "/certificates/certificates_table/get_update_certificate.php";
+$path_get_delete = "/certificates/certificates_table/get_delete_certificates.php";
 // check interfaces scripts add/quit new/old physical interfaces
 $script5 = '/usr/bin/python3 /var/www/backend/checks/check_interfaces/main_interfaces_check.py';
 shell_exec("sudo $script5 2>&1");

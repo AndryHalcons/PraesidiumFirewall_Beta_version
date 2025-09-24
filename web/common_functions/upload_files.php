@@ -26,9 +26,8 @@ if (!$alias || !$file || !is_uploaded_file($file)) {
 }
 
 switch ($alias) {
-    case 'url_list':
-        parse_files_squid($file); // La función se encarga de devolver el JSON
-        break;
+    case 'url_list': upload_files_squid($file); break;
+    case 'certificates': upload_certificates($file); break;
     default:
         http_response_code(400);
         echo json_encode([
@@ -49,7 +48,7 @@ function getDateTimeSuffix(): string {
 
 // Función para validar y guardar el archivo subido
 // Function to validate and save the uploaded file
-function parse_files_squid(string $tmpFile): void {
+function upload_files_squid(string $tmpFile): void {
     $targetDir = "/var/www/config/squid_config/acl_domains/";
 
     // Validar que el archivo tenga extensión .txt
@@ -154,6 +153,85 @@ function parse_files_squid(string $tmpFile): void {
     echo json_encode([
         "status" => "ok",
         "message" => "Archivo procesado correctamente", // File processed successfully
+        "filename" => $filename
+    ]);
+    exit;
+}
+
+
+
+function upload_certificates(string $tmpFile): void {
+    $targetDir = "/var/www/config/certs/";
+
+    // Lista de extensiones válidas para certificados
+    // List of valid certificate extensions
+    $validExtensions = ['pem', 'key', 'crt', 'csr', 'srl', 'p12', 'pfx', 'der', 'cer', 'pkcs12'];
+
+    // Obtener nombre original del archivo
+    // Get original filename
+    $originalName = basename($_FILES['domain_file']['name']);
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+    // Validar extensión
+    // Validate extension
+    if (!in_array($extension, $validExtensions)) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Extensión de archivo no válida para certificados" // Invalid certificate file extension
+        ]);
+        exit;
+    }
+
+    // Validar que el archivo no esté vacío
+    // Validate that the file is not empty
+    if (filesize($tmpFile) === 0) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error",
+            "message" => "El archivo está vacío" // The file is empty
+        ]);
+        exit;
+    }
+
+    // Generar sufijo de fecha y hora
+    // Generate date and time suffix
+    $suffix = getDateTimeSuffix();
+
+    // Separar nombre base y extensión
+    // Split base name and extension
+    $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+
+    // Combinar nombre base, sufijo y extensión
+    // Combine base name, suffix and extension
+    $filename = $nameWithoutExt . '_' . $suffix . '.' . $extension;
+
+    // Ruta completa de destino
+    // Full destination path
+    $targetPath = $targetDir . $filename;
+
+    // Crear el directorio si no existe
+    // Create the directory if it doesn't exist
+    if (!is_dir($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+
+    // Guardar el archivo en el destino final
+    // Save the file to the final destination
+    if (!move_uploaded_file($tmpFile, $targetPath)) {
+        http_response_code(500);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Error al guardar el archivo" // Error saving the file
+        ]);
+        exit;
+    }
+
+    // Devolver nombre final del archivo
+    // Return final filename
+    echo json_encode([
+        "status" => "ok",
+        "message" => "Certificado subido correctamente", // Certificate uploaded successfully
         "filename" => $filename
     ]);
     exit;

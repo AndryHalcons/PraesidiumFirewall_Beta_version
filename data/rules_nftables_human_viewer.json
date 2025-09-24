@@ -280,12 +280,13 @@
                 "ct.state": "",
                 "packets": "",
                 "bytes": "",
-                "log": "false",
+                "log": "true",
                 "snat.addr": "",
                 "masquerade": "",
                 "snat.port": "",
                 "dnat.addr": "",
-                "dnat.port": "3129"
+                "dnat.port": "",
+                "redirect": "3129"
             }
         },
         {

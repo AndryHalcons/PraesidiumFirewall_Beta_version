@@ -109,7 +109,7 @@ function renderTable_certs(currentAlias, path_get_table_structure,path_get_table
       }
     });
 }
-function loadTableContent_certs(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, columns) {
+function loadTableContent_certs(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
   console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
@@ -153,18 +153,11 @@ function loadTableContent_certs(currentAlias, path_get_table_structure, path_get
             // Columna de acciones
             const actionsTd = document.createElement("td");
 
-            // Botón eliminar
             const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = LANG["delete"] || "delete";
-            deleteBtn.onclick = () => delete_certificate(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, rule, columns);
+            deleteBtn.textContent = LANG["delete"] || "Eliminar";
+            deleteBtn.onclick = () => delete_certificate(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns);
+
             actionsTd.appendChild(deleteBtn);
-
-            // Botón descargar
-            const downloadBtn = document.createElement("button");
-            downloadBtn.textContent = LANG["download"] || "Download";
-            downloadBtn.onclick = () => download_certificate(rule.file_name, rule.name, currentAlias);
-            actionsTd.appendChild(downloadBtn);
-
             tr.appendChild(actionsTd);
 
             // Rellenar columnas con inputs visuales
@@ -211,8 +204,6 @@ function loadTableContent_certs(currentAlias, path_get_table_structure, path_get
     });
 }
 
-
-
 function delete_certificate(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns) {
   if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) {
     return; // El usuario canceló
@@ -249,64 +240,4 @@ function delete_certificate(currentAlias,path_get_table_structure,path_get_table
       alert("Error de conexión con el servidor");
     });
 }
-
-
-
-function download_certificate(fileName, name, currentAlias) {
-  // Validar que se recibieron los parámetros necesarios
-  // Validate that required parameters were received
-  if (!fileName || !name || !currentAlias) {
-    alert("Datos insuficientes para descargar el archivo");
-    // Insufficient data to download the file
-    return;
-  }
-
-  // Definir la URL del backend
-  // Define the backend URL
-  const url = "/certificates/certificates_table/get_download_certificate.php";
-
-  // Construir el cuerpo de la solicitud
-  // Build the request payload
-  const payload = {
-    table: currentAlias,
-    fileName: fileName,
-    name: name
-  };
-
-  console.log("📤 Enviando payload de descarga:", JSON.stringify(payload, null, 2));
-  // Sending download payload to backend
-
-  // Realizar la solicitud POST al backend
-  // Make the POST request to the backend
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-    .then(response => {
-      if (!response.ok) throw new Error("Error al descargar el archivo");
-      // Throw error if response is not OK
-      return response.blob();
-      // Convert response to binary blob
-    })
-    .then(blob => {
-      // Crear enlace temporal para descargar el archivo
-      // Create temporary link to download the file
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    })
-    .catch(error => {
-      console.error("❌ Error en la descarga:", error);
-      // Error during download
-      alert("No se pudo descargar el archivo");
-      // Could not download the file
-    });
-}
-
 
