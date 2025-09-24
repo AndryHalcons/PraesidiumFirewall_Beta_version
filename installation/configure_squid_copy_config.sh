@@ -35,6 +35,9 @@ copy_config() {
   chown proxy:proxy "$DEST_DIR/conf.d/certs/my_new_squid.pem"
   chmod 600 "$DEST_DIR/conf.d/certs/my_new_squid.key"
   chmod 644 "$DEST_DIR/conf.d/certs/my_new_squid.pem"
+  rm -rf /var/lib/ssl_db
+  /usr/lib/squid/security_file_certgen -c -s /var/lib/ssl_db -M 4MB
+  chown -R proxy:proxy /var/lib/ssl_db
 
   # Reiniciar servicio
   echo "🔄 Reiniciando Squid..."

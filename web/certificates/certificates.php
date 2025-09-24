@@ -16,6 +16,7 @@ $path_get_table_content = "/certificates/certificates_table/get_table_content.ph
 $path_get_forms_from_table = "/certificates/certificates_table/get_forms_from_table.php";
 $path_get_update = "/certificates/certificates_table/get_update_certificate.php";
 $path_get_delete = "/certificates/certificates_table/get_delete_certificates.php";
+$path_download_certificates = "/certificates/certificates_table/get_download_certificate.php";
 // check interfaces scripts add/quit new/old physical interfaces
 $script5 = '/usr/bin/python3 /var/www/backend/checks/check_interfaces/main_interfaces_check.py';
 shell_exec("sudo $script5 2>&1");
@@ -52,7 +53,8 @@ shell_exec("sudo $script5 2>&1");
       "<?= htmlspecialchars($path_get_table_content) ?>",
       "<?= htmlspecialchars($path_get_forms_from_table) ?>",
       "<?= htmlspecialchars($path_get_update) ?>",
-      "<?= htmlspecialchars($path_get_delete) ?>"
+      "<?= htmlspecialchars($path_get_delete) ?>",
+      "<?= htmlspecialchars($path_download_certificates) ?>"
     );
   </script>
 </body>

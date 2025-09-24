@@ -50,7 +50,7 @@ function upload_certs(currentAlias, path_get_table_structure,path_get_table_cont
     container.appendChild(fileInput);
     container.appendChild(submitBtn);
 }
-function renderTable_certs(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete) {
+function renderTable_certs(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, path_download_certificates) {
   const endpoint = path_get_table_structure;
   const param = `table=${currentAlias}`;
 
@@ -100,7 +100,7 @@ function renderTable_certs(currentAlias, path_get_table_structure,path_get_table
       container.appendChild(table);
 
       // Cargar contenido de la tabla
-      loadTableContent_certs(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
+      loadTableContent_certs(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete,path_download_certificates, columns);
     })
     .catch(error => {
       const container = document.getElementById(`${currentAlias}_table`);
@@ -109,7 +109,7 @@ function renderTable_certs(currentAlias, path_get_table_structure,path_get_table
       }
     });
 }
-function loadTableContent_certs(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, columns) {
+function loadTableContent_certs(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete,path_download_certificates, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
   console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
@@ -162,7 +162,7 @@ function loadTableContent_certs(currentAlias, path_get_table_structure, path_get
             // Botón descargar
             const downloadBtn = document.createElement("button");
             downloadBtn.textContent = LANG["download"] || "Download";
-            downloadBtn.onclick = () => download_certificate(rule.file_name, rule.name, currentAlias);
+            downloadBtn.onclick = () => download_certificate(path_download_certificates, rule.file_name, rule.name, currentAlias);
             actionsTd.appendChild(downloadBtn);
 
             tr.appendChild(actionsTd);
@@ -210,9 +210,6 @@ function loadTableContent_certs(currentAlias, path_get_table_structure, path_get
       }
     });
 }
-
-
-
 function delete_certificate(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns) {
   if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) {
     return; // El usuario canceló
@@ -249,10 +246,7 @@ function delete_certificate(currentAlias,path_get_table_structure,path_get_table
       alert("Error de conexión con el servidor");
     });
 }
-
-
-
-function download_certificate(fileName, name, currentAlias) {
+function download_certificate(path_download_certificates, fileName, name, currentAlias) {
   // Validar que se recibieron los parámetros necesarios
   // Validate that required parameters were received
   if (!fileName || !name || !currentAlias) {
@@ -263,8 +257,7 @@ function download_certificate(fileName, name, currentAlias) {
 
   // Definir la URL del backend
   // Define the backend URL
-  const url = "/certificates/certificates_table/get_download_certificate.php";
-
+  const url = path_download_certificates;
   // Construir el cuerpo de la solicitud
   // Build the request payload
   const payload = {
