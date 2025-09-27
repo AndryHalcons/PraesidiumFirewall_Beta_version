@@ -51,7 +51,8 @@ return [
     'sidebar_url_filtering'  => 'Filtros URL',
     'sidebar_url_list'  => 'Listas URL',
     'sidebar_url_policies'  => 'Reglas URL',
-    'sidebar_url_profile'  => 'Perfil URL',
+    'sidebar_url_profile'  => 'Perfil listas URL',
+    'sidebar_url_port_profile'  => 'Perfil Puertos seguros URL',
     'sidebar_url_listen_ports'  => 'Puertos de escucha URL',
     'sidebar_certificates'  => 'Certificados',
     // Content

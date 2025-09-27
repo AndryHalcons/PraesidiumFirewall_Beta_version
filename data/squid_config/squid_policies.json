@@ -47,6 +47,22 @@
                 }
             }
         ],
+        "url_port_profile": [
+            {
+                "rule": {
+                    "id": "1",
+                    "name": "my_HTTPS_ports",
+                    "Port": "443"
+                }
+            },
+            {
+                "rule": {
+                    "id": "2",
+                    "name": "my_HTTP_ports",
+                    "Port": "443,80"
+                }
+            }
+        ],
         "url_listen_ports": [
             {
                 "rule": {

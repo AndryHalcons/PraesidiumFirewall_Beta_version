@@ -8,7 +8,7 @@ if (empty($_SESSION['username'])) {
 }
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile'];
+$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile','url_port_profile'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro "table" inválido']);
@@ -18,6 +18,7 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 switch ($chain) {
     case 'url_policies':      get_url_policies(); break;
     case 'url_profile':          get_url_profile(); break;
+    case 'url_port_profile':     get_url_url_port_profile($chain); break;
     case 'url_listen_ports':  get_url_listen_ports(); break;
     case 'url_list':  get_url_list(); break;
     default:
@@ -51,6 +52,19 @@ function get_url_profile() {
     }
 
     echo json_encode(['url_profile' => $json['url_profile']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
+function get_url_url_port_profile() {
+    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
+    $raw = file_get_contents($path);
+    $json = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_port_profile'])) {
+        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_port_profile']);
+        return;
+    }
+
+    echo json_encode(['url_port_profile' => $json['url_port_profile']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
 function get_url_listen_ports() {

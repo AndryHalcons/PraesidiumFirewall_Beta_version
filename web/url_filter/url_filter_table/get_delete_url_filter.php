@@ -9,7 +9,7 @@ if (empty($_SESSION['username'])) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $chain = trim($input['table'] ?? '');
-$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile'];
+$allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile','url_port_profile'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro "table" inválido']);
@@ -19,6 +19,7 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 switch ($chain) {
     case 'url_policies':      get_url_policies_delete(); break;
     case 'url_profile':          get_url_profile_delete($chain); break;
+    case 'url_port_profile':     get_url_url_port_profile($chain); break;
     case 'url_list':  get_url_list_delete(); break;
     case 'url_listen_ports':  get_url_listen_ports_delete(); break;
     default:

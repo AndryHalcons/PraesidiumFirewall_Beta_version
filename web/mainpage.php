@@ -83,6 +83,7 @@ $L = require $langFile;
         <summary><?= htmlspecialchars($L['sidebar_url_filtering']) ?></summary>
         <a href="#" data-page="/url_filter/url_policies.php"><?= htmlspecialchars($L['sidebar_url_policies']) ?></a>
         <a href="#" data-page="/url_filter/url_profile.php"><?= htmlspecialchars($L['sidebar_url_profile']) ?></a>
+        <a href="#" data-page="/url_filter/url_port_profile.php"><?= htmlspecialchars($L['sidebar_url_port_profile']) ?></a>
         <a href="#" data-page="/url_filter/url_list.php"><?= htmlspecialchars($L['sidebar_url_list']) ?></a>
         <a href="#" data-page="/url_filter/url_listen_ports.php"><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></a>
       </details>

@@ -2,11 +2,14 @@
   "url_policies": [
     "id",
     "position",
+    "name",
     "action",
+    "options",
     "negate_ip_addr",
     "ip_addr_group",
     "negate_profile",
-    "profile"
+    "profile",
+    "description"
     
   ],
   "url_profile": [
@@ -14,6 +17,11 @@
     "name",
     "type",
     "file"
+  ],
+  "url_port_profile": [
+    "id",
+    "name",
+    "Port"
   ],
   "url_listen_ports": [
     "id",
