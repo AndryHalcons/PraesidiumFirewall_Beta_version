@@ -4,11 +4,12 @@
             "action": [
               "allow", 
               "deny"
-            ],
-            "profile":[""]
+            ]
       },
       "checkbox":
           {
+            "negate_ip_addr":["true","false"],
+            "negate_profile":["true","false"]
           },
       "not_editable": {
             "id": ["1-10000"]
@@ -17,8 +18,7 @@
     "url_profile":{
         "select": {
             "type":[
-              "dstdomain", 
-              "Client Hello TLS"
+              "dstdomain"
             ],
             "file":[""]
       },
@@ -34,8 +34,7 @@
         "select": 
           {
             "type":[
-              "explicit", 
-              "intercept"
+              "explicit"
             ],
             "cert":[
               ""

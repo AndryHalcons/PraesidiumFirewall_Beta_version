@@ -3,7 +3,9 @@
     "id",
     "position",
     "action",
+    "negate_ip_addr",
     "ip_addr_group",
+    "negate_profile",
     "profile"
     
   ],
@@ -18,6 +20,7 @@
     "type",
     "cert",
     "key",
+    "iface_ip",
     "port"
   ],
   "url_list": [
