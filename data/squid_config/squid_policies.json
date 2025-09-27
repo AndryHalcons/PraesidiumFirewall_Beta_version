@@ -5,27 +5,70 @@
                 "rule": {
                     "id": "1",
                     "position": 1,
+                    "name": "Deny unsafe http ports",
                     "action": "deny",
-                    "ip_addr_group": "Private-networks",
-                    "profile": "my_profile_2"
+                    "options": "",
+                    "negate_ip_addr": "",
+                    "ip_addr_group": "",
+                    "negate_profile": "true",
+                    "profile": "port_Profile_HTTP",
+                    "description": "It does not allow HTTP navigation through ports that are not in the profile."
                 }
             },
             {
                 "rule": {
                     "id": "2",
                     "position": 2,
+                    "name": "Deny unsafe Https ports",
                     "action": "deny",
+                    "options": "CONNECT",
+                    "negate_ip_addr": "",
                     "ip_addr_group": "Private-networks",
-                    "profile": "my_profile_1"
+                    "negate_profile": "true",
+                    "profile": "port_Profile_HTTPS",
+                    "description": "It does not allow navigation through ports that are not in the profile, it uses CONNECT to indicate that it is HTTPS"
                 }
             },
             {
                 "rule": {
                     "id": "3",
                     "position": 3,
+                    "name": "My Example url policy 1",
+                    "action": "deny",
+                    "options": "",
+                    "negate_ip_addr": "",
+                    "ip_addr_group": "Private-networks",
+                    "negate_profile": "",
+                    "profile": "url_profile_1",
+                    "description": "It denies web traffic to the domains contained in the profile."
+                }
+            },
+            {
+                "rule": {
+                    "id": "4",
+                    "position": 4,
+                    "name": "My Example url policy 2",
+                    "action": "deny",
+                    "options": "",
+                    "negate_ip_addr": "",
+                    "ip_addr_group": "Private-networks",
+                    "negate_profile": "",
+                    "profile": "url_profile_2",
+                    "description": "It denies web traffic to the domains contained in the profile."
+                }
+            },
+            {
+                "rule": {
+                    "id": "5",
+                    "position": 5,
+                    "name": "Allow All",
                     "action": "allow",
+                    "options": "",
+                    "negate_ip_addr": "",
                     "ip_addr_group": "all",
-                    "profile": ""
+                    "negate_profile": "",
+                    "profile": "",
+                    "description": "It allows all traffic that has not been denied in the previous rules."
                 }
             }
         ],
@@ -33,16 +76,16 @@
             {
                 "rule": {
                     "id": "1",
-                    "name": "my_profile_1",
-                    "type": "ssl::server_name",
+                    "name": "url_profile_1",
+                    "type": "dstdomain",
                     "file": "my_domains_list_1_2025-05-17_15-06-45.txt"
                 }
             },
             {
                 "rule": {
                     "id": "2",
-                    "name": "my_profile_2",
-                    "type": "ssl::server_name",
+                    "name": "url_profile_2",
+                    "type": "dstdomain",
                     "file": "my_domains_list_2_2025-05-17_15-06-45.txt"
                 }
             }
@@ -51,14 +94,14 @@
             {
                 "rule": {
                     "id": "1",
-                    "name": "my_HTTPS_ports",
+                    "name": "port_Profile_HTTPS",
                     "Port": "443"
                 }
             },
             {
                 "rule": {
                     "id": "2",
-                    "name": "my_HTTP_ports",
+                    "name": "port_Profile_HTTP",
                     "Port": "443,80"
                 }
             }

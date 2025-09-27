@@ -55,7 +55,7 @@ function import_alias_json() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+/*
 // Funciones autónomas por tipo
 // Standalone functions by type
 function get_url_policies_form() {
@@ -93,6 +93,7 @@ function get_url_policies_form() {
         return;
     }
 
+    
     // Extraer los nombres de perfil desde la sección url_profile
     // Extract profile names from the url_profile section
     $profileNames = ['']; // Añadir opción vacía al inicio / Add empty option at the beginning
@@ -110,6 +111,53 @@ function get_url_policies_form() {
     // Return the updated JSON to the frontend
     echo json_encode($formJson['url_policies'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
+*/
+function get_url_policies_form() {
+    $formPath = '/var/www/backend/checks/system_data/default_forms/forms_squid.json';
+
+    $formRaw = file_get_contents($formPath);
+    if ($formRaw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo de configuración']);
+        return;
+    }
+
+    $formJson = json_decode($formRaw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($formJson['url_policies'])) {
+        echo json_encode(['error' => 'Error al interpretar los datos de ethernets']);
+        return;
+    }
+
+    $aliasJson = import_alias_json();
+    if ($aliasJson === false) {
+        echo json_encode(['error' => 'No se pudieron obtener los perfiles de alias']);
+        return;
+    }
+
+    // Extraer los nombres de perfil desde url_profile
+    $profileNames = [''];
+    if (isset($aliasJson['squid']['url_profile'])) {
+        foreach ($aliasJson['squid']['url_profile'] as $profile) {
+            if (isset($profile['rule']['name'])) {
+                $profileNames[] = $profile['rule']['name'];
+            }
+        }
+    }
+
+    // Añadir también los nombres de url_port_profile al mismo array
+    if (isset($aliasJson['squid']['url_port_profile'])) {
+        foreach ($aliasJson['squid']['url_port_profile'] as $profile) {
+            if (isset($profile['rule']['name'])) {
+                $profileNames[] = $profile['rule']['name'];
+            }
+        }
+    }
+
+    // Insertar todo en el mismo select
+    $formJson['url_policies']['select']['profile'] = $profileNames;
+
+    echo json_encode($formJson['url_policies'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
 
 
 
