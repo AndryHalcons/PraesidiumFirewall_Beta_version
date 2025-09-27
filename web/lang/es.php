@@ -319,6 +319,13 @@ return [
     //table profile
     'profile' => 'Perfil',
     'type' => 'Tipo',
+        //table polices
+    'negate_ip_addr' => 'Negar IP',
+    'ip_addr_group' => 'IPs',
+    'negate_profile' => 'Negar Profile',
+    'options' => 'Opciones',
+
+
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   certificates      //////////////////////////////

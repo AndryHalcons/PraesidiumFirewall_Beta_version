@@ -3,6 +3,7 @@
     "id",
     "position",
     "name",
+    "enable",
     "action",
     "options",
     "negate_ip_addr",

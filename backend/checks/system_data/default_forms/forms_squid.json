@@ -19,6 +19,10 @@
             "negate_profile": {
               "checked":"true",
               "unchecked":"false"
+            },
+            "enable": {
+              "checked":"true",
+              "unchecked":"false"
             }
           },
       "not_editable": {

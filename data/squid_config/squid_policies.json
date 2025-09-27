@@ -5,6 +5,7 @@
                 "rule": {
                     "id": "1",
                     "position": 1,
+                    "enable": "true",
                     "name": "Deny unsafe http ports",
                     "action": "deny",
                     "options": "",
@@ -19,11 +20,12 @@
                 "rule": {
                     "id": "2",
                     "position": 2,
+                    "enable": "true",
                     "name": "Deny unsafe Https ports",
                     "action": "deny",
                     "options": "CONNECT",
                     "negate_ip_addr": "",
-                    "ip_addr_group": "Private-networks",
+                    "ip_addr_group": "",
                     "negate_profile": "true",
                     "profile": "port_Profile_HTTPS",
                     "description": "It does not allow navigation through ports that are not in the profile, it uses CONNECT to indicate that it is HTTPS"
@@ -33,6 +35,7 @@
                 "rule": {
                     "id": "3",
                     "position": 3,
+                    "enable": "true",
                     "name": "My Example url policy 1",
                     "action": "deny",
                     "options": "",
@@ -47,6 +50,7 @@
                 "rule": {
                     "id": "4",
                     "position": 4,
+                    "enable": "true",
                     "name": "My Example url policy 2",
                     "action": "deny",
                     "options": "",
@@ -61,6 +65,7 @@
                 "rule": {
                     "id": "5",
                     "position": 5,
+                    "enable": "true",
                     "name": "Allow All",
                     "action": "allow",
                     "options": "",
