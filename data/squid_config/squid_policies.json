@@ -115,15 +115,21 @@
             {
                 "rule": {
                     "id": "1",
-                    "type": "transparent",
+                    "type": "explicit",
+                    "cert": "praesidium_issuer_ca.pem",
+                    "key": "praesidium_issuer_ca.key",
+                    "iface_ip": "192.168.1.1",
                     "port": "3128"
                 }
             },
             {
                 "rule": {
-                    "type": "intercept",
-                    "port": "3129",
-                    "id": "2"
+                    "id": "2",
+                    "type": "explicit",
+                    "cert": "praesidium_root_ca.pem",
+                    "key": "praesidium_client_ca.key",
+                    "iface_ip": "",
+                    "port": "3128"
                 }
             }
         ]

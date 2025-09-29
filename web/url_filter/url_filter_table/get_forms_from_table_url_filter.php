@@ -234,28 +234,6 @@ function get_url_port_profile_form() {
 }
 
 
-
-
-// Funciones autónomas por tipo
-function get_url_listen_ports_form() {
-    $path = '/var/www/backend/checks/system_data/default_forms/forms_squid.json';
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        echo json_encode(['error' => 'No se pudo leer el archivo de configuración']);
-        return;
-    }
-
-    $json = json_decode($raw, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_listen_ports'])) {
-        echo json_encode(['error' => 'Error al interpretar los datos de url_listen_ports']);
-        return;
-    }
-
-    echo json_encode($json['url_listen_ports'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    
-}
-
-
 // Funciones autónomas por tipo
 function get_url_list() {
     $path = '/var/www/backend/checks/system_data/default_forms/forms_squid.json';
@@ -274,3 +252,68 @@ function get_url_list() {
     echo json_encode($json['url_list'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     
 }
+
+
+function get_url_listen_ports_form() {
+    // Ruta del formulario base  
+    // Path to the base form  
+    $path = '/var/www/backend/checks/system_data/default_forms/forms_squid.json';
+
+    // Ruta del archivo de certificados  
+    // Path to the certificates config file  
+    $certPath = '/var/www/config/certs/certificates_config.json';
+
+    // Leer el formulario  
+    // Read the form  
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo de configuración']);
+        return;
+    }
+
+    // Decodificar el JSON del formulario  
+    // Decode form JSON  
+    $json = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_listen_ports'])) {
+        echo json_encode(['error' => 'Error al interpretar los datos de url_listen_ports']);
+        return;
+    }
+
+    // Leer el archivo de certificados  
+    // Read the certificates file  
+    $certRaw = file_get_contents($certPath);
+    if ($certRaw !== false) {
+        $certJson = json_decode($certRaw, true);
+        if (json_last_error() === JSON_ERROR_NONE && isset($certJson['certificates'])) {
+            // Extensiones válidas para certificados  
+            // Valid certificate extensions  
+            $validCertExtensions = ['.pem', '.crt', '.cer', '.der', '.p7b', '.pfx'];
+
+            // Añadir certificados válidos al campo select['cert']  
+            // Add valid certificates to select['cert']  
+            foreach ($certJson['certificates'] as $item) {
+                if (isset($item['file_name'])) {
+                    $file = $item['file_name'];
+
+                    foreach ($validCertExtensions as $ext) {
+                        if (str_ends_with($file, $ext) && !in_array($file, $json['url_listen_ports']['select']['cert'])) {
+                            $json['url_listen_ports']['select']['cert'][] = $file;
+                            break;
+                        }
+                    }
+
+                    // Añadir claves .key al campo select['key']  
+                    // Add .key files to select['key']  
+                    if (str_ends_with($file, '.key') && !in_array($file, $json['url_listen_ports']['select']['key'])) {
+                        $json['url_listen_ports']['select']['key'][] = $file;
+                    }
+                }
+            }
+        }
+    }
+
+    // Devolver el formulario actualizado  
+    // Return the updated form  
+    echo json_encode($json['url_listen_ports'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+

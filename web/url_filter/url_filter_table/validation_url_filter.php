@@ -151,6 +151,29 @@ function validation_url_policies(array $rule): void {
 ///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//valida si es una ip individual sin CIDR
+//validates if it is an individual IP without CIDR
+function validate_is_ip_no_cidr(string $value): bool {
+    // Si el valor está vacío o es null, se considera válido  
+    // If the value is empty or null, it's considered valid  
+    if ($value === '' || $value === null) {
+        return true;
+    }
+
+    // Validar si el valor es una IP sin CIDR  
+    // Validate if the value is an IP without CIDR  
+    if (filter_var($value, FILTER_VALIDATE_IP)) {
+        return true;
+    }
+
+    // IP no válida → lanzar error y terminar  
+    // Invalid IP → throw error and exit  
+    echo json_encode(['error' => 'no se ha introducido una ip valida']);
+    exit;
+}
+
+
+
 // Valida que las IPs o CIDRs tengan formato correcto
 // Validates that IPs or CIDRs have correct format
 function validate_ip_or_cidr(string $value): bool {

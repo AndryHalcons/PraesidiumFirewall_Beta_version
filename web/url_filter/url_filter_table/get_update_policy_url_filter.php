@@ -265,7 +265,7 @@ function get_url_listen_ports($chain) {
     // Validaciones y conversión
     // Validations and conversion
     require __DIR__ . '/validation_url_filter.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
+    validate_is_ip_no_cidr($rule['iface_ip']);
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
 
