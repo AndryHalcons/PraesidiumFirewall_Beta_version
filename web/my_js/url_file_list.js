@@ -50,6 +50,7 @@ function upload_files_url(currentAlias, path_get_table_structure,path_get_table_
     container.appendChild(fileInput);
     container.appendChild(submitBtn);
 }
+
 function renderTable_url_list(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete) {
   const endpoint = path_get_table_structure;
   const param = `table=${currentAlias}`;
@@ -109,6 +110,7 @@ function renderTable_url_list(currentAlias, path_get_table_structure,path_get_ta
       }
     });
 }
+
 function loadTableContent_url_list(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
@@ -209,6 +211,7 @@ function loadTableContent_url_list(currentAlias, path_get_table_structure,path_g
       }
     });
 }
+
 function edit_Generic_url_list(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, rule, columns, targetRow, editBtn) {
   const param = `table=${currentAlias}`;
   const fileName = rule["file"];

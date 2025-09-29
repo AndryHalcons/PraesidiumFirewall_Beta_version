@@ -19,6 +19,12 @@
     "type",
     "file"
   ],
+  "url_networks_list_profile": [
+    "id",
+    "name",
+    "type",
+    "file"
+  ],
   "url_port_profile": [
     "id",
     "name",
@@ -33,6 +39,9 @@
     "port"
   ],
   "url_list": [
+    "file"
+  ],
+  "url_network_list": [
     "file"
   ]
 }

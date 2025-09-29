@@ -36,14 +36,14 @@
                     "id": "3",
                     "position": 3,
                     "enable": "true",
-                    "name": "My Example url policy 1",
+                    "name": "My Example IPv4 domain policy",
                     "action": "deny",
                     "options": "",
                     "negate_ip_addr": "",
-                    "ip_addr_group": "Private-networks",
+                    "ip_addr_group": "Private_IPv4_network_profile_1",
                     "negate_profile": "",
                     "profile": "url_profile_1",
-                    "description": "It denies web traffic to the domains contained in the profile."
+                    "description": "It denies web traffic IPv4 to the domains contained in the profile."
                 }
             },
             {
@@ -51,14 +51,14 @@
                     "id": "4",
                     "position": 4,
                     "enable": "true",
-                    "name": "My Example url policy 2",
+                    "name": "My Example IPv6 domain policy",
                     "action": "deny",
                     "options": "",
                     "negate_ip_addr": "",
-                    "ip_addr_group": "Private-networks",
+                    "ip_addr_group": "Private_IPv6_network_profile_1",
                     "negate_profile": "",
                     "profile": "url_profile_2",
-                    "description": "It denies web traffic to the domains contained in the profile."
+                    "description": "It denies web traffic IPv6 to the domains contained in the profile."
                 }
             },
             {
@@ -92,6 +92,24 @@
                     "name": "url_profile_2",
                     "type": "dstdomain",
                     "file": "my_domains_list_2_2025-05-17_15-06-45.txt"
+                }
+            }
+        ],
+        "url_networks_list_profile": [
+            {
+                "rule": {
+                    "id": "1",
+                    "name": "Private_IPv4_network_profile_1",
+                    "type": "src",
+                    "file": "ipv4_private_ranges.txt"
+                }
+            },
+            {
+                "rule": {
+                    "id": "2",
+                    "name": "Private_IPv6_network_profile_1",
+                    "type": "src",
+                    "file": "ipv6_private_ranges.txt"
                 }
             }
         ],

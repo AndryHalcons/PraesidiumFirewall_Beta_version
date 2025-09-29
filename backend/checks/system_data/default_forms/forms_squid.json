@@ -8,6 +8,9 @@
             "options": [
               "", 
               "CONNECT"
+            ],
+            "ip_addr_group": [
+              ""
             ]
       },
       "checkbox":
@@ -33,6 +36,21 @@
         "select": {
             "type":[
               "dstdomain"
+            ],
+            "file":[""]
+      },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
+
+    },
+    "url_networks_list_profile":{
+        "select": {
+            "type":[
+              "src"
             ],
             "file":[""]
       },
@@ -80,6 +98,17 @@
           }
     },
     "url_list":{
+        "select": 
+          {
+          },
+      "checkbox":
+          {
+          },
+      "not_editable": {
+            "id": ["1-10000"]
+          }
+    },
+    "url_network_list":{
         "select": 
           {
           },

@@ -50,6 +50,8 @@ return [
     'sidebar_services_group_objects'      => 'Grupos de servicios',
     'sidebar_url_filtering'  => 'Filtros URL',
     'sidebar_url_list'  => 'Listas URL',
+    'sidebar_url_network_list'  => 'Listas Redes',
+    'sidebar_url_network_list_profile'  => 'Perfil listas de redes',
     'sidebar_url_policies'  => 'Reglas URL',
     'sidebar_url_profile'  => 'Perfil listas URL',
     'sidebar_url_port_profile'  => 'Perfil Puertos seguros URL',
