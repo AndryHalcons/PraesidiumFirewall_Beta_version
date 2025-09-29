@@ -29,7 +29,7 @@ if ($fileName === '' || pathinfo($fileName, PATHINFO_EXTENSION) !== 'txt') {
 
 // Ruta completa al archivo
 // Full path to the file
-$filePath = "/var/www/config/squid_config/acl_domains/$fileName";
+$filePath = "/var/www/config/squid_config/squid_folder/conf.d/domain_list/$fileName";
 
 // Verificar existencia y lectura
 // Check existence and readability

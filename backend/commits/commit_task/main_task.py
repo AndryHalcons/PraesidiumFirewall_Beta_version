@@ -3,6 +3,7 @@ from task_gen_json_mkdir import gen_json_mkdir
 from task_gen_interface_config import gen_interface_config
 from task_gen_nftables_policies import gen_nftables_policies
 from task_gen_bpfilter_policies import gen_bpfilter_policies
+from task_gen_squid_policy import gen_squid_config
 from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 from task_apply_interface_config import apply_interface_config
@@ -34,6 +35,10 @@ def start_commit_process(user, date):
     # Genera las reglas de bpfilter, verifica, limpia y aplica.
     # Generate the bpfilter rules: verifies, flushes, and then applies.
     gen_bpfilter_policies(user, date)
+
+        # Genera las reglas de bpfilter, verifica, limpia y aplica.
+    # Generate the bpfilter rules: verifies, flushes, and then applies.
+    gen_squid_config(user, date)
 
     ################################################################################################################################
     ###################################### Section APPLY ###########################################################################

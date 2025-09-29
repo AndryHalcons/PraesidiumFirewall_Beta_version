@@ -114,7 +114,7 @@ function get_url_list_form() {
 
     // Directorio de los archivos .txt
     // Directory containing the .txt files
-    $dir = '/var/www/config/squid_config/acl_domains/';
+    $dir = '/var/www/config/squid_config/squid_folder/conf.d/domain_list/';
 
     // Inicializar array de resultados
     // Initialize result array

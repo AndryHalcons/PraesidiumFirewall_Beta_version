@@ -186,7 +186,7 @@ function get_url_profile_form() {
 
     // Obtener archivos .txt desde el directorio de configuración
     // Get .txt files from squid_config directory
-    $configDir = '/var/www/config/squid_config/acl_domains/';
+    $configDir = '/var/www/config/squid_config/squid_folder/conf.d/domain_list/';
     $txtFiles = [];
 
     foreach (scandir($configDir) as $file) {

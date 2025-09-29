@@ -19,7 +19,7 @@ if ($chain === '' || !in_array($chain, $allowedChains, true)) {
 switch ($chain) {
     case 'url_policies':      get_url_policies_delete(); break;
     case 'url_profile':          get_url_profile_delete($chain); break;
-    case 'url_port_profile':     get_url_url_port_profile($chain); break;
+    case 'url_port_profile':     get_url_port_profile($chain); break;
     case 'url_list':  get_url_list_delete(); break;
     case 'url_listen_ports':  get_url_listen_ports_delete(); break;
     default:
@@ -125,6 +125,60 @@ function get_url_profile_delete($chain) {
 
     echo json_encode(['success' => true, 'deleted_id' => $id]);
 }
+
+function get_url_port_profile($chain) {
+    require __DIR__ . '/validation_url_filter.php';
+    $path = '/var/www/config/squid_config/squid_policies.json';
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo']);
+        return;
+    }
+
+
+
+    $json = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['squid']['url_port_profile'])) {
+        echo json_encode(['error' => 'Error al interpretar el JSON']);
+        return;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $id = $input['id'] ?? '';
+
+    if ($id === '') {
+        echo json_encode(['error' => 'ID no proporcionado']);
+        return;
+    }
+    /////////////////////////////////////////////
+    /////////////// validate ///////////////////
+    /////////////////////////////////////////////
+    validate_profile_delete($id, $chain);
+
+    $found = false;
+    foreach ($json['squid']['url_port_profile'] as $i => $entry) {
+        if (($entry['rule']['id'] ?? '') === $id) {
+            unset($json['squid']['url_port_profile'][$i]);
+            $json['squid']['url_port_profile'] = array_values($json['squid']['url_port_profile']);
+            $found = true;
+            break;
+        }
+    }
+
+    if (!$found) {
+        echo json_encode(['error' => 'ID no encontrado']);
+        return;
+    }
+
+    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    if ($saved === false) {
+        echo json_encode(['error' => 'No se pudo guardar el archivo']);
+        return;
+    }
+
+    echo json_encode(['success' => true, 'deleted_id' => $id]);
+}
+
 
 function get_url_listen_ports_delete() {
     $path = '/var/www/config/squid_config/squid_policies.json';
