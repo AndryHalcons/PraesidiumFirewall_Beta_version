@@ -84,7 +84,7 @@ function get_url_policies_form() {
     }
 
     // Extraer los nombres de perfil de ip profile
-    $profileIPs = [''];
+    $profileIPs = [];
     if (isset($aliasJson['squid']['url_networks_list_profile'])) {
         foreach ($aliasJson['squid']['url_networks_list_profile'] as $profile_ip) {
             if (isset($profile_ip['rule']['name'])) {
@@ -92,7 +92,14 @@ function get_url_policies_form() {
             }
         }
     }
-    $formJson['url_policies']['select']['ip_addr_group'] = $profileIPs;
+
+    // Añadir los perfiles sin eliminar las opciones existentes
+    $formJson['url_policies']['select']['ip_addr_group'] = array_merge(
+        $formJson['url_policies']['select']['ip_addr_group'] ?? [],
+        $profileIPs
+    );
+
+
     // Extraer los nombres de perfil desde url_profile
     $profileNames = [''];
     if (isset($aliasJson['squid']['url_profile'])) {
@@ -119,9 +126,6 @@ function get_url_policies_form() {
 
     echo json_encode($formJson['url_policies'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-
-
 
 
 // Funciones autónomas por tipo

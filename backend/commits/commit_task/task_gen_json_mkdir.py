@@ -148,4 +148,4 @@ def gen_json_mkdir(user, date):
 
 
 
-gen_json_mkdir("PRUEBA","2025090716335252d")
+#gen_json_mkdir("PRUEBA","2025090716335252d")

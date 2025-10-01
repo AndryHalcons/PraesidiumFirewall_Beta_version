@@ -7,8 +7,10 @@ from task_gen_squid_policy import gen_squid_config
 from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 from task_apply_interface_config import apply_interface_config
-def start_commit_process(user, date):
+from task_apply_squid_policy import apply_squid_config
 
+
+def start_commit_process(user, date):
 
     ################################################################################################################################
     ###################################### Section Generate Config #################################################################
@@ -36,8 +38,8 @@ def start_commit_process(user, date):
     # Generate the bpfilter rules: verifies, flushes, and then applies.
     gen_bpfilter_policies(user, date)
 
-        # Genera las reglas de bpfilter, verifica, limpia y aplica.
-    # Generate the bpfilter rules: verifies, flushes, and then applies.
+    # Genera las reglas de squid, verifica, limpia y aplica.
+    # Generates Squid rules, copies certificates, and verifies
     gen_squid_config(user, date)
 
     ################################################################################################################################
@@ -60,11 +62,15 @@ def start_commit_process(user, date):
     #apply the rules of bpfilter,
     apply_bpfilter_policies(user,date)
 
+    #aplica las reglas de squid,
+    #apply the rules of squid,
+    apply_squid_config(user,date)
+
     
 
 
 
 #only devops
-start_commit_process("praesidium", "20250907163352")
+#start_commit_process("praesidium", "20250907163352000")
 
 #{"commit":{"date":"20250824142408","user":"praesidium"}}

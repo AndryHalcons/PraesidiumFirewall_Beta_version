@@ -71,6 +71,7 @@ function get_url_policies($chain) {
         return;
     }
     validation_url_policies($rule);
+    validation_form_field_review_policy($rule);
     //reasignamos o asignamos posicion
     //reassing or assign position
     $json = reassign_position($json,$rule);
@@ -126,7 +127,7 @@ function get_url_profile($chain) {
     require __DIR__ . '/validation_url_filter.php';
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
-
+    rename_not_permit($json, $rule, $chain);
     // Verificar que exista el campo id
     // Check that the id field exists
     if (!is_array($rule) || empty($rule['id'])) {
@@ -136,7 +137,6 @@ function get_url_profile($chain) {
 
     $id = $rule['id'];
     $updated = false;
-
     // Buscar y actualizar por ID
     // Search and update by ID
     foreach ($json['squid']['url_profile'] as $i => $entry) {
@@ -153,7 +153,7 @@ function get_url_profile($chain) {
         $json['squid']['url_profile'][] = ['rule' => $rule];
     }
 
-
+    
     // Guardar archivo actualizado
     // Save updated file
     $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -196,6 +196,8 @@ function get_url_networks_list_profile($chain) {
     require __DIR__ . '/validation_url_filter.php';
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
+    rename_not_permit($json, $rule, $chain);
+
 
     // Verificar que exista el campo id
     // Check that the id field exists
@@ -268,7 +270,9 @@ function get_url_port_profile($chain) {
     require __DIR__ . '/validation_url_filter.php';
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
+    rename_not_permit($json, $rule, $chain);
     validatePort($rule['Port']);
+    
 
     // Verificar que exista el campo id
     // Check that the id field exists
@@ -296,7 +300,7 @@ function get_url_port_profile($chain) {
         $json['squid']['url_port_profile'][] = ['rule' => $rule];
     }
 
-
+    
     // Guardar archivo actualizado
     // Save updated file
     $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -341,7 +345,7 @@ function get_url_listen_ports($chain) {
     validate_is_ip_no_cidr($rule['iface_ip']);
     //validation_form_field_review($rule);
     $rule = check_create_id($rule, $chain);
-
+    
     // Verificar que exista el campo id
     // Check that the id field exists
     if (!is_array($rule) || empty($rule['id'])) {

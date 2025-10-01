@@ -47,24 +47,68 @@ function import_squid_config_json() {
     return $aliasJsonData;
 }
 
+
+function import_squid_forms() {
+    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_squid.json';
+
+    if (!file_exists($jsonPath)) {
+        return false;
+    }
+
+    $raw = file_get_contents($jsonPath);
+    $aliasJsonData = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
+
+    return $aliasJsonData;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //revisa los campos que contienen formularios
 //check the fields that contain forms
-function validation_form_field_review(array $rule): void {
-    $formConfig = import_forms_interfaces_json();
-    if (!$formConfig) {
-        echo json_encode(["error" => "No se pudo cargar la configuración del formulario interfaces"]);
+
+function validation_form_field_review_policy(array $rule): void {
+    $formConfig = import_squid_forms();
+    $configJson = import_squid_config_json();
+
+    if (!$formConfig || !$configJson) {
+        // Error al cargar configuración
+        // Error loading configuration
+        echo json_encode(["error" => "No se pudo cargar la configuración del formulario o del sistema"]);
         exit;
     }
 
-    // Validar select
+    // Validar campos tipo select
+    // Validate select fields
     if (isset($formConfig['select'])) {
         foreach ($formConfig['select'] as $key => $validValues) {
+
+            // Añadir dinámicamente perfiles de red e URL si aplica
+            // Dynamically add network and URL profiles if applicable
+            if ($key === 'ip_addr_group') {
+                foreach ($configJson['squid']['url_networks_list_profile'] ?? [] as $entry) {
+                    if (isset($entry['rule']['name'])) {
+                        $validValues[] = $entry['rule']['name'];
+                    }
+                }
+            }
+
+            if ($key === 'profile') {
+                foreach ($configJson['squid']['url_profile'] ?? [] as $entry) {
+                    if (isset($entry['rule']['name'])) {
+                        $validValues[] = $entry['rule']['name'];
+                    }
+                }
+            }
+
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') {
+                    // vacío o solo espacios → válido
+                    // empty or whitespace → valid
                     $rule[$key] = "";
                     continue;
                 }
@@ -76,31 +120,33 @@ function validation_form_field_review(array $rule): void {
         }
     }
 
-    // Validar checkbox
+    // Validar campos tipo checkbox
+    // Validate checkbox fields
     if (isset($formConfig['checkbox'])) {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') {
                     $rule[$key] = "";
                     continue;
                 }
                 if (!in_array($value, $options, true)) {
-                    echo json_encode(["error" => "alias port validation_form_field_review_checkbox '{$value}' not found"]);
+                    echo json_encode(["error" => "validation_form_field_review_checkbox '{$value}' not found"]);
                     exit;
                 }
             }
         }
     }
 
-    // Validar not_editable (excepto id)
+    // Validar campos no editables (excepto 'id')
+    // Validate not_editable fields (except 'id')
     if (isset($formConfig['not_editable'])) {
         foreach ($formConfig['not_editable'] as $key => $validValues) {
             if ($key === 'id') continue;
             if (isset($rule[$key])) {
                 $value = $rule[$key];
                 if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "alias port validation_form_field_review_not_editable '{$value}' not found"]);
+                    echo json_encode(["error" => "ID validation_form_field_review_not_editable '{$value}' not found"]);
                     exit;
                 }
             }
@@ -154,10 +200,11 @@ function validation_url_policies(array $rule): void {
 //valida si es una ip individual sin CIDR
 //validates if it is an individual IP without CIDR
 function validate_is_ip_no_cidr(string $value): bool {
-    // Si el valor está vacío o es null, se considera válido  
-    // If the value is empty or null, it's considered valid  
+    // Si el valor está vacío o es null, lanzar error por seguridad  
+    // If the value is empty or null, throw error for security reasons  
     if ($value === '' || $value === null) {
-        return true;
+        echo json_encode(['error' => 'IP no puede estar vacía por seguridad, ya que también escucharías en la WAN']);
+        exit;
     }
 
     // Validar si el valor es una IP sin CIDR  
@@ -168,9 +215,10 @@ function validate_is_ip_no_cidr(string $value): bool {
 
     // IP no válida → lanzar error y terminar  
     // Invalid IP → throw error and exit  
-    echo json_encode(['error' => 'no se ha introducido una ip valida']);
+    echo json_encode(['error' => 'No se ha introducido una IP válida']);
     exit;
 }
+
 
 
 
@@ -517,14 +565,14 @@ function reassign_position(array $json, array $rule): array {
 function validate_profile_delete($id, $chain) {
     $config = import_squid_config_json();
     if ($config === false || !isset($config['squid'][$chain])) {
-        // Error al cargar configuración o el chain no existe
-        // Error loading configuration or invalid chain
+        // Error al cargar la configuración o el chain no existe
+        // Error loading configuration or chain does not exist
         echo json_encode(['error' => 'No se pudo cargar la configuración o el chain es inválido']);
         exit;
     }
 
     // Buscar el nombre del perfil por ID
-    // Find the profile name by ID
+    // Find the profile name by its ID
     $profileName = null;
     foreach ($config['squid'][$chain] as $entry) {
         if (($entry['rule']['id'] ?? '') === $id) {
@@ -535,19 +583,20 @@ function validate_profile_delete($id, $chain) {
 
     if ($profileName === null) {
         // No se encontró el perfil con ese ID
-        // Profile with that ID not found
+        // Profile with that ID was not found
         echo json_encode(['error' => 'No se encontró el perfil con ese ID']);
         exit;
     }
 
-    // Verificar si el perfil está en uso en url_policies
-    // Check if the profile is used in url_policies
+    // Verificar si el perfil está en uso en url_policies (profile o ip_addr_group)
+    // Check if the profile is used in url_policies (either in 'profile' or 'ip_addr_group')
     $policies = $config['squid']['url_policies'] ?? [];
     $usedInRules = [];
 
     foreach ($policies as $policy) {
-        if (($policy['rule']['profile'] ?? '') === $profileName) {
-            $usedInRules[] = $policy['rule']['id'] ?? 'desconocido'; // unknown
+        $rule = $policy['rule'] ?? [];
+        if (($rule['profile'] ?? '') === $profileName || ($rule['ip_addr_group'] ?? '') === $profileName) {
+            $usedInRules[] = $rule['id'] ?? 'desconocido'; // unknown
         }
     }
 
@@ -557,13 +606,14 @@ function validate_profile_delete($id, $chain) {
         echo json_encode([
             'error' => 'El perfil no se puede borrar porque está en uso en las siguientes Policy ID: ' . implode(', ', $usedInRules)
         ]);
-
         exit;
     }
 
     // Si no está en uso, la función termina sin error
-    // If not in use, function exits silently
+    // If not in use, the function exits silently
 }
+
+
 
 function validate_url_list_delete($file) {
     $config = import_squid_config_json();
@@ -600,7 +650,39 @@ function validate_url_list_delete($file) {
 }
 
 
+function validate_url_network_list($file) {
+    $config = import_squid_config_json();
+    
+    // Verificar que se pudo cargar la configuración
+    // Check that configuration was successfully loaded
+    if ($config === false || !isset($config['squid']['url_networks_list_profile'])) {
+        echo json_encode(['error' => 'No se pudo cargar la configuración o falta url_networks_list_profile']);
+        exit;
+    }
 
+    // Recorrer los perfiles para ver si alguno usa el archivo
+    // Loop through profiles to check if any use the file
+    $profiles = $config['squid']['url_networks_list_profile'];
+    $usedByProfiles = [];
+
+    foreach ($profiles as $entry) {
+        if (($entry['rule']['file'] ?? '') === $file) {
+            $usedByProfiles[] = $entry['rule']['name'] ?? 'desconocido'; // unknown
+        }
+    }
+
+    // Si el archivo está en uso, devolver error
+    // If the file is in use, return error
+    if (!empty($usedByProfiles)) {
+        echo json_encode([
+            'error' => 'El archivo no se puede borrar porque está en uso en los siguientes perfiles: ' . implode(', ', $usedByProfiles)
+        ]);
+        exit;
+    }
+
+    // Si no está en uso, la función termina sin error
+    // If not in use, function exits silently
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// create ip acl txt   //////////////////////////////////////////////////////////////////////////////
@@ -653,4 +735,67 @@ function check_and_create_acl_ip() {
         file_put_contents($filePath, '');
     }
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// rename profiles     //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function rename_not_permit(array $json, array $rule, string $chain): array {
+    $path = '/var/www/config/squid_config/squid_policies.json';
+
+    // Leer el archivo original desde disco
+    // Read original file from disk
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo original para comparar']);
+        exit;
+    }
+
+    $original = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($original['squid'][$chain])) {
+        echo json_encode(['error' => 'Error al interpretar el JSON original']);
+        exit;
+    }
+
+    // Extraer ID y nuevo nombre
+    // Extract ID and new name
+    $id = $rule['id'] ?? null;
+    $newName = $rule['name'] ?? null;
+    if ($id === null || $newName === null) {
+        echo json_encode(['error' => 'Falta el campo "id" o "name" en el perfil']);
+        exit;
+    }
+
+    // Buscar el nombre antiguo en el archivo original
+    // Find old name in original file
+    $oldName = null;
+    foreach ($original['squid'][$chain] as $entry) {
+        if (($entry['rule']['id'] ?? '') === $id) {
+            $oldName = $entry['rule']['name'] ?? null;
+            break;
+        }
+    }
+
+    if ($oldName === null) {
+        echo json_encode(['error' => 'No se encontró el perfil con ese ID en el archivo original']);
+        exit;
+    }
+
+    // Si el nombre ha cambiado, no permitimos renombrado
+    // If the name has changed, renaming is not allowed
+    if ($oldName !== $newName) {
+        error_log("Renombrado no permitido: {$oldName} → {$newName}");
+        echo json_encode(['error' => 'No se permite cambiar el nombre del perfil', 'original_name' => $oldName, 'new_name' => $newName]);
+        exit;
+    }
+
+    // Si no hay renombrado, devolver el JSON sin cambios
+    // If no renaming, return JSON unchanged
+    return $json;
+}
+
+
+
 
