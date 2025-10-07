@@ -65,7 +65,7 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
 }
 
 
-function loadTableContentGeneric(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, columns) {
+function loadTableContentGeneric(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
   console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
@@ -111,38 +111,20 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
 
             const editBtn = document.createElement("button");
             editBtn.textContent = LANG["edit"] || "Editar";
-            editBtn.onclick = () => editModal_Generic(
-              
-              currentAlias,
-              path_get_forms_from_table,
-              path_get_update,
-              rule,
-              columns,
-              () => loadTableContentGeneric(
-                currentAlias,
-                path_get_table_structure,
-                path_get_table_content,
-                path_get_forms_from_table,
-                path_get_update,
-                path_get_delete,
-                columns
-              )
-            );
+
+            const saveBtn = document.createElement("button");
+            saveBtn.textContent = LANG["save"] || "Guardar";
+            saveBtn.style.display = "none";
+
+            editBtn.onclick = () => edit_Generic(currentAlias,path_get_forms_from_table, rule, columns, tr, editBtn, saveBtn);
+            saveBtn.onclick = () => save_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns, tr, editBtn, saveBtn);
 
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = LANG["delete"] || "Eliminar";
-            deleteBtn.onclick = () => delete_Generic(
-              currentAlias,
-              path_get_table_structure,
-              path_get_table_content,
-              path_get_forms_from_table,
-              path_get_update,
-              path_get_delete,
-              rule,
-              columns
-            );
+            deleteBtn.onclick = () => delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns);
 
             actionsTd.appendChild(editBtn);
+            actionsTd.appendChild(saveBtn);
             actionsTd.appendChild(deleteBtn);
             tr.appendChild(actionsTd);
 
@@ -190,140 +172,111 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
     });
 }
 
-
-function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_update, rule, columns, onSuccess) {
+function edit_Generic(currentAlias,path_get_forms_from_table, rule, columns, targetRow, editBtn, saveBtn) {
   const endpoint = path_get_forms_from_table;
   const param = `table=${currentAlias}`;
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(formConfig => {
-      const modal = document.createElement("div");
-      modal.className = "modal-overlay";
+      editBtn.style.display = "none";
+      saveBtn.style.display = "inline-block";
 
-      const modalContent = document.createElement("div");
-      modalContent.className = "modal-window";
+      const cells = targetRow.querySelectorAll("td");
 
-      const title = document.createElement("h3");
-      title.textContent = `Editar política de ${currentAlias}`;
-      modalContent.appendChild(title);
+      columns.forEach((key, i) => {
+        const td = cells[i + 1];
+        td.innerHTML = "";
 
-      const form = document.createElement("form");
-
-      columns.forEach(key => {
-        const fieldWrapper = document.createElement("div");
-        fieldWrapper.className = "modal-input-group";
-
-        const label = document.createElement("label");
-        label.textContent = typeof LANG !== "undefined" && LANG[key] ? LANG[key] : key;
-        label.className = "modal-prefix";
-        fieldWrapper.appendChild(label);
-
-        if (formConfig.not_editable && Object.keys(formConfig.not_editable).includes(key)) {
-          const span = document.createElement("span");
-          span.textContent = rule[key] || "Auto";
-          span.className = "modal-input";
-          fieldWrapper.appendChild(span);
-          form.appendChild(fieldWrapper);
+        if (Object.keys(formConfig.not_editable).includes(key)) {
+          td.textContent = rule[key] || "";
           return;
         }
 
-        if (formConfig.select?.[key]) {
+
+        if (formConfig.select[key]) {
           const select = document.createElement("select");
-          select.className = "modal-input";
           formConfig.select[key].forEach(opt => {
             const option = document.createElement("option");
             option.value = opt;
-            option.textContent = opt === "" ? " --- " : opt;
+            option.textContent = opt;
             if (opt === rule[key]) option.selected = true;
             select.appendChild(option);
           });
-          fieldWrapper.appendChild(select);
-          form.appendChild(fieldWrapper);
+          td.appendChild(select);
           return;
         }
 
-        if (formConfig.checkbox?.[key]) {
+        if (formConfig.checkbox[key]) {
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = rule[key] === formConfig.checkbox[key].checked;
-          fieldWrapper.appendChild(checkbox);
-          form.appendChild(fieldWrapper);
+          td.appendChild(checkbox);
           return;
         }
 
         const input = document.createElement("input");
         input.type = "text";
-        input.name = key;
         input.value = rule[key] || "";
-        input.className = "modal-input";
-        fieldWrapper.appendChild(input);
-        form.appendChild(fieldWrapper);
+        td.appendChild(input);
       });
-
-      const actions = document.createElement("div");
-      actions.className = "modal-actions";
-
-      const saveBtn = document.createElement("button");
-      saveBtn.type = "button";
-      saveBtn.textContent = "Guardar";
-      saveBtn.className = "modal-button";
-      saveBtn.onclick = () => {
-        const updatedRule = {};
-
-        columns.forEach(key => {
-          const fieldWrapper = form.querySelectorAll(".modal-input-group")[columns.indexOf(key)];
-
-          if (formConfig.not_editable?.[key]) {
-            const span = fieldWrapper.querySelector("span");
-            updatedRule[key] = span ? span.textContent : rule[key];
-            return;
-          }
-
-          const el = fieldWrapper.querySelector("select") ||
-                     fieldWrapper.querySelector("input[type='checkbox']") ||
-                     fieldWrapper.querySelector("input[type='text']");
-
-          let value = "";
-
-          if (el && el.tagName === "SELECT") {
-            value = el.value;
-          } else if (el && el.type === "checkbox") {
-            value = el.checked
-              ? formConfig.checkbox[key].checked
-              : formConfig.checkbox[key].unchecked;
-          } else if (el && el.tagName === "INPUT") {
-            value = el.value;
-          }
-
-          updatedRule[key] = value;
-        });
-
-        send_Generic(currentAlias, path_get_update, updatedRule, columns, () => {
-          document.body.removeChild(modal);
-          if (typeof onSuccess === "function") onSuccess();
-        });
-      };
-      actions.appendChild(saveBtn);
-
-      const closeBtn = document.createElement("button");
-      closeBtn.type = "button";
-      closeBtn.textContent = "Cancelar";
-      closeBtn.className = "modal-button cancel";
-      closeBtn.onclick = () => document.body.removeChild(modal);
-      actions.appendChild(closeBtn);
-
-      form.appendChild(actions);
-      modalContent.appendChild(form);
-      modal.appendChild(modalContent);
-      document.body.appendChild(modal);
     })
     .catch(error => {
       console.error("Error al cargar configuración de formulario:", error);
     });
 }
 
+function save_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns, targetRow, editBtn, saveBtn) {
+  const cells = targetRow.querySelectorAll("td");
+  const updatedRule = {};
 
+  const endpoint = path_get_forms_from_table;
+  const param = `table=${currentAlias}`;
+
+  fetch(`${endpoint}?${param}`)
+    .then(response => response.json())
+    .then(formConfig => {
+      columns.forEach((key, i) => {
+        const td = cells[i + 1];
+        const el = td.firstChild;
+
+        let value = rule[key];
+
+        if (el && el.tagName === "SELECT") {
+          el.disabled = false;
+          value = el.value;
+        } else if (el && el.type === "checkbox") {
+          el.disabled = false;
+          if (formConfig.checkbox?.[key]) {
+            value = el.checked
+              ? formConfig.checkbox[key].checked
+              : formConfig.checkbox[key].unchecked;
+          } else {
+            value = el.checked ? "==" : "!=";
+          }
+        } else if (el && el.tagName === "INPUT") {
+          el.disabled = false;
+          value = el.value;
+        }
+
+        updatedRule[key] = value;
+      });
+
+      send_Generic(currentAlias, path_get_update, updatedRule, columns, () => {
+        columns.forEach((key, i) => {
+          const td = cells[i + 1];
+          td.innerHTML = updatedRule[key]; // ✅ Solo si el backend responde bien
+        });
+
+        saveBtn.style.display = "none";
+        editBtn.style.display = "inline-block";
+        loadTableContentGeneric(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns); // ✅ Solo si todo fue OK
+      });
+    })
+    .catch(error => {
+      console.error("Error al cargar configuración de formulario:", error);
+    });
+}
 
 function add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table,path_get_update,path_get_delete, columns) {
   const endpoint = path_get_forms_from_table;
@@ -533,7 +486,6 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
       alert("Error de conexión con el servidor");
     });
 }
-
 
 
 
