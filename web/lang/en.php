@@ -45,7 +45,6 @@ return [
     'sidebar_system'   => 'System',
     'sidebar_logs'          => 'Logs',
     'sidebar_settings'      => 'Settings',
-    'sidebar_Routing'      => 'Routing',
     'sidebar_services'      => 'Services',
     'sidebar_AliasObjects'      => 'Objects Aliases',
     'sidebar_address_alias'           => 'Address Aliases',
@@ -61,6 +60,9 @@ return [
     'sidebar_url_profile'  => 'URL List Profile',
     'sidebar_url_port_profile'  => 'Safe Ports Profile',
     'sidebar_certificates'  => 'Certificates',
+    'sidebar_networking'  => 'Networking',
+    'sidebar_dhcp'  => 'DHCP',
+    'sidebar_Routing'      => 'Routing',
 
     // Content
     'main_content'          => 'Content here...',

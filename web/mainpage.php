@@ -70,7 +70,6 @@ $L = require $langFile;
         <a href="#" data-page="policies/policies_TC_ingress.php"><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></a>
         <a href="#" data-page="policies/policies_TC_egress.php"><?= htmlspecialchars($L['sidebar_TC_Egress']) ?></a>
       </details>
-
       <details>
         <summary>Nftables</summary>
         <a href="#" data-page="policies/policies_nftables_forwarding.php"><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></a>
@@ -97,12 +96,16 @@ $L = require $langFile;
         <a href="#" data-page="/alias/service_alias_group.php"><?= htmlspecialchars($L['sidebar_services_group_objects']) ?></a>
       </details>
       <details>
+        <summary><?= htmlspecialchars($L['sidebar_networking']) ?></summary>
+        <a href="#" data-page="/networking/dhcp_config.php"><?= htmlspecialchars($L['sidebar_dhcp']) ?></a>
+        <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>
+      </details>
+      <details>
         <summary><?= htmlspecialchars($L['sidebar_certificates']) ?></summary>
         <a href="#" data-page="/certificates/certificates.php"><?= htmlspecialchars($L['sidebar_certificates']) ?></a>
       </details>
       <details>
         <summary><?= htmlspecialchars($L['sidebar_system']) ?></summary>
-        <a href="#" data-page="routing/routing.php"><?= htmlspecialchars($L['sidebar_Routing']) ?></a>
         <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
         <a href="#" data-page="settings.php"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
         <a href="#" data-page="services/services.php"><?= htmlspecialchars($L['sidebar_services']) ?></a>

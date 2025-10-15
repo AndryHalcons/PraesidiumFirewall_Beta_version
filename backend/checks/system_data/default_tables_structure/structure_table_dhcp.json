@@ -1,0 +1,15 @@
+{
+  "dhcp": [
+    "interface",
+    "range_start",
+    "range_end",
+    "time_lease",
+    "gateway",
+    "netmask",
+    "dns_primary",
+    "dns_secondary",
+    "ntp_server",
+    "dhcp_relay",
+    "destination_server"
+  ]
+}

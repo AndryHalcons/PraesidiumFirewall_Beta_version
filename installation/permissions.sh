@@ -104,7 +104,7 @@ grant_backend_permissions() {
 }
 
 
-# Llamada directa si quieres ejecutarla al cargar
+
 registrar_excepciones_python
 registrar_excepciones_php
 grant_apache_permissions

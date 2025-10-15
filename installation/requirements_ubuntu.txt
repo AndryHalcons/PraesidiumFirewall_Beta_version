@@ -43,3 +43,4 @@ xxd
 nftables
 wireguard-tools
 docker.io
+dnsmasq

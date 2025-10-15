@@ -41,7 +41,6 @@ return [
     'sidebar_system'   => 'Sistema',
     'sidebar_logs'          => 'Registros',
     'sidebar_settings'      => 'Configuración',
-    'sidebar_Routing'      => 'Enrutamiento',
     'sidebar_services'      => 'Servicios',
     'sidebar_AliasObjects'      => 'Alias de objetos',
     'sidebar_address_alias'      => 'Direcciones',
@@ -57,6 +56,10 @@ return [
     'sidebar_url_port_profile'  => 'Perfil Puertos seguros URL',
     'sidebar_url_listen_ports'  => 'Puertos de escucha URL',
     'sidebar_certificates'  => 'Certificados',
+    'sidebar_networking'  => 'Configuracion de red',
+    'sidebar_dhcp'  => 'DHCP',
+    'sidebar_Routing'      => 'Enrutamiento',
+
     // Content
     'main_content'          => 'Contenido aquí...',
     ///////////////////////////////////////////////////////////////////////
