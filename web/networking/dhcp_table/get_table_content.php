@@ -1,72 +1,47 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
+header('Content-Type: application/json');
+
+if (empty($_SESSION['username'])) {
     echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
-header('Content-Type: application/json');
+$chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
+$allowedChains = ['dhcp'];
 
-$chain = $_GET['table'] ?? $_GET['chain'] ?? '';
-$chain = is_string($chain) ? trim($chain) : '';
-
-if ($chain === '') {
-    echo json_encode(['error' => 'Parámetro requerido: "table" o "chain"']);
+if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+    echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-$allowedChains = ['FORWARDING', 'PREROUTING', 'POSTROUTING', 'input', 'output'];
-if (!in_array($chain, $allowedChains, true)) {
-    echo json_encode(['error' => 'get_table_content: Parámetro inválido']);
-    exit;
+switch ($chain) {
+    case 'dhcp':          get_dhcp_content(); break;
+    default:
+        echo json_encode(['error' => 'Cadena no soportada']);
+        break;
 }
 
-$structurePath = '/var/www/backend/checks/system_data/default_tables_structure/structure_tables_policies.json';
-if (!file_exists($structurePath)) {
-    echo json_encode(['error' => 'Archivo de estructura no encontrado']);
-    exit;
-}
+function get_dhcp_content() {
+    $structure = @json_decode(@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json'), true);
+    $columns = $structure['dhcp'] ?? [];
 
-$structureRaw = file_get_contents($structurePath);
-$structureData = json_decode($structureRaw, true);
-if (json_last_error() !== JSON_ERROR_NONE || !isset($structureData[$chain])) {
-    echo json_encode(['error' => 'Estructura inválida o no definida para la cadena']);
-    exit;
-}
+    $data = @json_decode(@file_get_contents('/var/www/config/dhcp.json'), true);
+    $block = $data['dhcp'] ?? [];
 
-$columns = $structureData[$chain];
-
-$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
-if (!file_exists($jsonPath)) {
-    echo json_encode(['error' => 'Archivo de datos no encontrado']);
-    exit;
-}
-
-$raw = file_get_contents($jsonPath);
-$data = json_decode($raw, true);
-if (json_last_error() !== JSON_ERROR_NONE || !isset($data['nftables']) || !is_array($data['nftables'])) {
-    echo json_encode(['error' => 'Formato de datos no válido']);
-    exit;
-}
-
-/**
- * Devuelve solo los campos de la regla que están en $columns
- */
-function satinize_rule(array $rule, array $columns): array {
-    $flat = [];
-    foreach ($columns as $col) {
-        $flat[$col] = $rule[$col] ?? "";
+    $result = [];
+    foreach ($block as $entry) {
+        $rule = $entry['rule'] ?? [];
+        $flat = [];
+        foreach ($columns as $col) {
+            $flat[$col] = $rule[$col] ?? "";
+        }
+        $result[] = $flat; // ✅ sin envoltorio "rule"
     }
-    return $flat;
+
+    error_log(json_encode(['dhcp' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)); // log para depurar
+
+    echo json_encode(['dhcp' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
-$sanitized = [];
-foreach ($data['nftables'] as $item) {
-    if (isset($item['rule']) && $item['rule']['chain'] === $chain) {
-        $flat = satinize_rule($item['rule'], $columns);
-        $sanitized[] = $flat;
-    }
-}
 
-echo json_encode([$chain => $sanitized], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

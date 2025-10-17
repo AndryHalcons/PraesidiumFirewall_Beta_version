@@ -1,5 +1,6 @@
 {
   "dhcp": [
+    "id",
     "interface",
     "range_start",
     "range_end",
@@ -9,7 +10,7 @@
     "dns_primary",
     "dns_secondary",
     "ntp_server",
-    "dhcp_relay",
-    "destination_server"
+    "relay_local_ip",
+    "relay_dest_server"
   ]
 }

@@ -1,91 +1,70 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']); 
-    exit;
-}
-
 header('Content-Type: application/json');
 
-// Leer y decodificar el cuerpo JSON
-// Read and decode the JSON body
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
-
-// Validar formato JSON
-// Validate JSON format
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(['error' => 'Entrada JSON inválida']); // Invalid JSON input
+// Verifica si el usuario está autenticado
+// Check if the user is authenticated
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['error' => 'No autorizado']); // Not authorized
     exit;
 }
 
-// Validar tabla permitida
-// Validate allowed table
-$allowedTables = [ 'FORWARDING', 'PREROUTING', 'POSTROUTING', 'input', 'output' ];
-if (!isset($data['table']) || !in_array($data['table'], $allowedTables)) {
-    echo json_encode(['error' => 'Tabla no permitida']); // Table not allowed
+// Leer el cuerpo de la solicitud (JSON enviado por fetch)
+// Read the request body (JSON sent via fetch)
+$input = json_decode(file_get_contents('php://input'), true);
+
+// Validar que se recibió el parámetro 'table' y el 'id'
+// Validate that 'table' and 'id' were received
+$userTable = isset($input['table']) ? trim($input['table']) : '';
+$idToDelete = isset($input['id']) && is_numeric($input['id']) ? (string)(int)$input['id'] : null;
+
+$allowedTables = ['dhcp'];
+if (!in_array($userTable, $allowedTables, true)) {
+    echo json_encode(['error' => 'Parámetro "table" inválido']); // Invalid "table" parameter
     exit;
 }
-
-// Validar que el ID sea un entero positivo
-// Validate that ID is a positive integer
-function is_valid_integer_id($value): bool {
-    return is_int($value) || (is_string($value) && ctype_digit($value));
-}
-
-if (!isset($data['id']) || !is_valid_integer_id($data['id'])) {
+if ($idToDelete === null) {
     echo json_encode(['error' => 'ID inválido']); // Invalid ID
     exit;
 }
 
-// Ruta del archivo de reglas
-// Path to the rules file
-$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
+// Ruta del archivo JSON
+// Path to the JSON file
+$jsonPath = '/var/www/config/dhcp.json';
 
-// Verificar que el archivo existe
+// Verifica que el archivo exista
 // Check that the file exists
 if (!file_exists($jsonPath)) {
-    echo json_encode(['error' => 'Archivo de reglas no encontrado']); // Rules file not found
+    echo json_encode(['error' => 'Archivo de datos no encontrado']); // Data file not found
     exit;
 }
 
-// Cargar y decodificar el JSON
-// Load and decode the JSON
-$raw = file_get_contents($jsonPath);
-$rulesJson = json_decode($raw, true);
+// Cargar el contenido actual del archivo
+// Load current content from file
+$data = json_decode(file_get_contents($jsonPath), true);
 
-if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
-    echo json_encode(['error' => 'JSON de reglas mal formado']); // Malformed rules JSON
+// Verificar que el JSON esté bien formado y contenga la tabla
+// Validate JSON structure and presence of the table
+if (json_last_error() !== JSON_ERROR_NONE || !isset($data[$userTable]) || !is_array($data[$userTable])) {
+    echo json_encode(['error' => 'JSON mal formado o tabla no encontrada']); // Malformed JSON or missing table
     exit;
 }
 
-// Eliminar la regla con el ID proporcionado
-// Remove the rule with the provided ID
-$idToDelete = (string)$data['id'];
-$originalCount = count($rulesJson['nftables']);
-
-$rulesJson['nftables'] = array_values(array_filter($rulesJson['nftables'], function ($entry) use ($idToDelete) {
-    return isset($entry['rule']['id']) && (string)$entry['rule']['id'] !== $idToDelete;
+// Filtrar los usuarios excluyendo el que tiene el ID a eliminar
+// Filter users excluding the one with the matching ID
+$data[$userTable] = array_values(array_filter($data[$userTable], function ($user) use ($idToDelete) {
+    return isset($user['id']) && (string)$user['id'] !== $idToDelete;
 }));
 
-// Verificar si se eliminó algo
-// Check if something was deleted
-if (count($rulesJson['nftables']) === $originalCount) {
-    echo json_encode(['error' => 'No se encontró ninguna regla con ese ID']); // No rule found with that ID
-    exit;
-}
-
-// Guardar el archivo actualizado
-// Save the updated file
-$saved = file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
+// Guardar el JSON actualizado
+// Save the updated JSON
+$saved = file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 if ($saved === false) {
     echo json_encode(['error' => 'No se pudo guardar el archivo']); // Failed to save file
     exit;
 }
 
-// Todo correcto
-// All good
+// Respuesta de éxito
+// Success response
 echo json_encode(['success' => true]);
 exit;

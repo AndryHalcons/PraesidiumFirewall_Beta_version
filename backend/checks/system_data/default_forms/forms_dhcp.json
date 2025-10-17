@@ -8,12 +8,9 @@
         },
       "checkbox":
           {
-        "dhcp_relay": {
-          "checked":"true",
-          "unchecked":"false"
-        }
           },
       "not_editable": {  
+        "id": []
           }
       }
 }

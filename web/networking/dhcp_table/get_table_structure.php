@@ -2,41 +2,51 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
+if (empty($_SESSION['username'])) {
     echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
-$allowedTables = [
-    'FORWARDING',
-    'PREROUTING',
-    'POSTROUTING',
-    'input',
-    'output'
-];
+$chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
+$allowedChains = ['dhcp'];
 
-$table = $_GET['table'] ?? '';
-
-if (!in_array($table, $allowedTables)) {
-    echo json_encode(['error' => 'mi mensaje de errore es este mierda de parametro']);
+if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+    echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-$jsonPath = '/var/www/backend/checks/system_data/default_tables_structure/structure_tables_policies.json';
-
-if (!file_exists($jsonPath)) {
-    echo json_encode(['error' => 'Archivo de estructura no encontrado']);
-    exit;
+switch ($chain) {
+    case 'dhcp':      get_dhcp_structure(); break;
+    default:
+        echo json_encode(['error' => 'Cadena no soportada']);
+        break;
 }
 
-$structures = json_decode(file_get_contents($jsonPath), true);
+// Funciones autónomas por tabla
 
-if (!isset($structures[$table])) {
-    echo json_encode(['error' => 'Estructura no definida para esta tabla: '. $table]);
-    exit;
+function get_dhcp_structure() {
+    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json';
+    $raw = file_get_contents($path);
+    $json = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp'])) {
+        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de dhcp']);
+        return;
+    }
+
+    echo json_encode(['dhcp' => $json['dhcp']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
-echo json_encode([
-    $table => $structures[$table]
-]);
+function get_url_profile() {
+    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
+    $raw = file_get_contents($path);
+    $json = json_decode($raw, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_profile'])) {
+        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_profile']);
+        return;
+    }
+
+    echo json_encode(['url_profile' => $json['url_profile']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
 

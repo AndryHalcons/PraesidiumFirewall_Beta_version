@@ -1,0 +1,36 @@
+{
+  "dhcp": [
+    {
+      "rule": {
+        "id": "1",
+        "interface": "",
+        "range_start": "start range",
+        "range_end": "end range",
+        "time_lease": "lease",
+        "gateway": "gatewaysss",
+        "netmask": "netmasss",
+        "dns_primary": "dns primario",
+        "dns_secondary": "dns secundario",
+        "ntp_server": "server ntp",
+        "relay_local_ip": "relay local",
+        "relay_dest_server": "relay dest"
+      }
+    },
+    {
+      "rule": {
+        "id": "2",
+        "interface": "",
+        "range_start": "2start range",
+        "range_end": "2end range",
+        "time_lease": "2lease",
+        "gateway": "2gatewaysss",
+        "netmask": "2netmasss",
+        "dns_primary": "2dns primario",
+        "dns_secondary": "2dns secundario",
+        "ntp_server": "2server ntp",
+        "relay_local_ip": "2relay local",
+        "relay_dest_server": "2relay dest"
+      }
+    }
+  ]
+}

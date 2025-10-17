@@ -1,114 +1,94 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 header('Content-Type: application/json');
 
+// Verifica si el usuario tiene sesión activa
+// Check if the user has an active session
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['error' => 'No autorizado']); // Not authorized
+    exit;
+}
 
-// Lee el cuerpo de la solicitud y decodifica el JSON
-// Read the request body and decode the JSON
+// Leer el cuerpo de la solicitud (JSON enviado por el frontend)
+// Read the request body (JSON sent from frontend)
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
-// Verifica que el JSON sea válido y contenga los campos necesarios
-// Validate that the JSON is correct and contains required fields
+// Validar que el JSON sea válido y contenga las claves necesarias
+// Validate that the JSON is valid and contains required keys
 if (json_last_error() !== JSON_ERROR_NONE || !isset($data['table']) || !isset($data['rule'])) {
-    echo json_encode(['error' => 'Entrada JSON inválida']);
+    echo json_encode(['error' => 'Entrada JSON inválida']); // Invalid JSON input
     exit;
 }
 
-$allowedTables = [ 'FORWARDING', 'PREROUTING', 'POSTROUTING', 'input', 'output' ];
-
+// Definir las tablas permitidas para edición
+// Define allowed tables for editing
+$allowedTables = ['table_users'];
 if (!in_array($data['table'], $allowedTables)) {
-    echo json_encode(['error' => 'Tabla no permitida: ' . $data['table']]);
+    echo json_encode(['error' => 'Tabla no permitida: ' . $data['table']]); // Table not allowed
     exit;
 }
 
-// Incluye las funciones de validación y sanitización
-// Include validation and sanitization functions
-require __DIR__ . '/validation_policy.php';
-
-// Ruta del archivo de configuración de reglas
-// Path to the nftables rules configuration file
-$jsonPath = '/var/www/config/rules_nftables_human_viewer.json';
+// Ruta del archivo JSON que contiene los datos
+// Path to the JSON file containing user data
+$jsonPath = '/var/www/config/users.json';
 
 // Verifica que el archivo exista
 // Check that the file exists
 if (!file_exists($jsonPath)) {
-    echo json_encode(['error' => 'Archivo de reglas no encontrado']);
+    echo json_encode(['error' => 'Archivo de datos no encontrado']); // Data file not found
     exit;
 }
 
-// Carga y decodifica el contenido del archivo
-// Load and decode the file content
+// Cargar y decodificar el contenido actual del archivo
+// Load and decode the current content of the file
 $raw = file_get_contents($jsonPath);
 $rulesJson = json_decode($raw, true);
 
-// Verifica que el JSON sea válido y tenga la clave 'nftables'
-// Validate that the JSON is correct and contains the 'nftables' key
-if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson['nftables'])) {
-    echo json_encode(['error' => 'JSON de reglas mal formado']);
+// Verifica que el JSON esté bien formado y contenga la tabla solicitada
+// Validate that the JSON is well-formed and contains the requested table
+if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson[$data['table']])) {
+    echo json_encode(['error' => 'JSON mal formado o tabla no encontrada']); // Malformed JSON or missing table
     exit;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// Execute Updated ////////////////////////////////////////////
+///////////////////////////// validation_user ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-// Función para validar la regla recibida
-// Function to validate the received rule
-function validate_nftables_policy(array $data, array $rule): array {
-    $rule = validationFamiliy($data,$rule);
-    $rule = validation_icmp_no_ports($rule);
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    $rule = get_id_from_policy($rule);
-    validation_form_field_review($rule);
-    validate_nft_rule_protocols($rule);
-    $rule = assign_position($rule);
-    return $rule;
+require __DIR__ . '/validation_user.php';
+// Esta función recibe la regla y devuelve el JSON completo actualizado
+// This function receives the rule and returns the full updated JSON
+function validation_user(array $rule, array $rulesJson): array {
+    $rule = check_user_id($rule);
+    $rule = hash_pass($rule);
+    $rulesJson = update_or_add_user($rule,$rulesJson);
+
+
+    return $rulesJson; // Devuelve el JSON completo actualizado
+    // Return the full updated JSON
 }
-// proceso de validacion
-// validation process
-$validated = validate_nftables_policy($data, $data['rule']);
-//preceso de satinizacion
 
+//////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// EJECUCIÓN //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
+// Ejecutar validation_user para obtener el nuevo JSON
+// Run validators to get the new JSON
+$updatedJson = validation_user($data['rule'], $rulesJson);
 
-//sanitization process
-$sanitized = saniticed_nftables_policy($validated);
-//insert o update de la regla
-//insert or update of the police
-$rulesJson = update_or_insert_nft_rule($sanitized['rule'], $rulesJson);
-//ordenamos las reglas por el campo posicion
-//We order the rules by the position field
-
-
-
-$rulesJson = reorderPosition(
-    $rulesJson,
-    $sanitized['rule']['id'],
-    $sanitized['rule']['position'],
-    $sanitized['rule']['family'],
-    $sanitized['rule']['table'],
-    $sanitized['rule']['chain']
-);
-
-// guardar el archivo actualizado
-//save updated file
-$saved = file_put_contents($jsonPath, json_encode($rulesJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
+// Guardar el archivo actualizado
+// Save the updated file
+$saved = file_put_contents($jsonPath, json_encode($updatedJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 if ($saved === false) {
-    echo json_encode(['error' => 'No se pudo guardar el archivo']);
+    echo json_encode(['error' => 'No se pudo guardar el archivo']); // Failed to save file
     exit;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// JSON for front /////////////////////////////////////////////
+///////////////////////////// RESPUESTA FINAL ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-// respuesta final al frontend
+// Enviar respuesta de éxito al frontend
+// Send success response to frontend
 echo json_encode(['success' => true]);
 exit;
-
-

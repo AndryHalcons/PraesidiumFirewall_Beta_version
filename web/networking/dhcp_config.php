@@ -40,7 +40,6 @@ $path_get_delete = "/networking/dhcp_table/get_delete_dhcp.php";
       "<?= htmlspecialchars($path_get_delete) ?>"
     );
   </script>
-
 </body>
 </html>
 
