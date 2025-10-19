@@ -2,93 +2,149 @@
 session_start();
 header('Content-Type: application/json');
 
-// Verifica si el usuario tiene sesión activa
-// Check if the user has an active session
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']); // Not authorized
+if (empty($_SESSION['username'])) {
+    echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
-// Leer el cuerpo de la solicitud (JSON enviado por el frontend)
-// Read the request body (JSON sent from frontend)
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+$input = json_decode(file_get_contents('php://input'), true);
+$chain = trim($input['table'] ?? '');
+$allowedChains = ['url_policies', 'dhcp'];
 
-// Validar que el JSON sea válido y contenga las claves necesarias
-// Validate that the JSON is valid and contains required keys
-if (json_last_error() !== JSON_ERROR_NONE || !isset($data['table']) || !isset($data['rule'])) {
-    echo json_encode(['error' => 'Entrada JSON inválida']); // Invalid JSON input
+if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+    echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-// Definir las tablas permitidas para edición
-// Define allowed tables for editing
-$allowedTables = ['table_users'];
-if (!in_array($data['table'], $allowedTables)) {
-    echo json_encode(['error' => 'Tabla no permitida: ' . $data['table']]); // Table not allowed
-    exit;
+switch ($chain) {
+    case 'url_policies':      get_url_policies_update($chain); break;
+    case 'dhcp':          get_dhcp_update($chain); break;
+    default:
+        echo json_encode(['error' => 'Cadena no soportada']);
+        break;
+}
+// Funciones autónomas por tablag
+function get_dhcp_update($chain) {
+    $path = '/var/www/config/dhcp.json';
+
+    // Leer archivo JSON
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo']);
+        return;
+    }
+
+    // Decodificar contenido
+    $json = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp']) || !is_array($json['dhcp'])) {
+        echo json_encode(['error' => 'Error al interpretar el JSON']);
+        return;
+    }
+
+    // Leer datos enviados por POST
+    $input = json_decode(file_get_contents('php://input'), true);
+    $rule = $input['rule'] ?? null;
+
+    // Validaciones y conversión
+    require __DIR__ . '/validation_dhcp.php';
+    $rule = check_create_id($rule, $chain);
+
+    if (!is_array($rule) || empty($rule['id'])) {
+        echo json_encode(['error' => 'Datos inválidos']);
+        return;
+    }
+
+    $id = $rule['id'];
+    $updated = false;
+
+    // Buscar y actualizar por ID dentro de dhcp
+    foreach ($json['dhcp'] as $i => $entry) {
+        if (($entry['rule']['id'] ?? '') === $id) {
+            $json['dhcp'][$i]['rule'] = $rule;
+            $updated = true;
+            break;
+        }
+    }
+
+    // Si no se encontró el ID, añadir como nueva entrada
+    if (!$updated) {
+        $json['dhcp'][] = ['rule' => $rule];
+    }
+
+    // Guardar archivo actualizado
+    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    if ($saved === false) {
+        echo json_encode(['error' => 'No se pudo guardar el archivo']);
+        return;
+    }
+
+    // Confirmar éxito
+    echo json_encode(['success' => true, 'updated' => $id]);
 }
 
-// Ruta del archivo JSON que contiene los datos
-// Path to the JSON file containing user data
-$jsonPath = '/var/www/config/users.json';
 
-// Verifica que el archivo exista
-// Check that the file exists
-if (!file_exists($jsonPath)) {
-    echo json_encode(['error' => 'Archivo de datos no encontrado']); // Data file not found
-    exit;
+function get_url_policies_update($chain) {
+    $path = '/var/www/config/squid_config/squid_policies.json';
+
+    // Leer archivo JSON
+    // Read JSON file
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        echo json_encode(['error' => 'No se pudo leer el archivo']);
+        return;
+    }
+
+    // Decodificar contenido
+    // Decode content
+    $json = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['squid']['url_policies'])) {
+        echo json_encode(['error' => 'Error al interpretar el JSON']);
+        return;
+    }
+
+    // Leer datos enviados por POST
+    // Read POST data
+    $input = json_decode(file_get_contents('php://input'), true);
+    $rule = $input['rule'] ?? null;
+    //////////////////////////////
+    //////////validate /////////
+    //////////////////////////////
+
+    // Validaciones y conversión
+    // Validations and conversion
+    require __DIR__ . '/validation_url_filter.php';
+    //validation_form_field_review($rule);
+    $rule = check_create_id($rule, $chain);
+    // Verificar que exista el campo id
+    // Check that the id field exists
+    if (!is_array($rule) || empty($rule['id'])) {
+        echo json_encode(['error' => 'Datos inválidos']);
+        return;
+    }
+    validation_url_policies($rule);
+    validation_form_field_review_policy($rule);
+    //reasignamos o asignamos posicion
+    //reassing or assign position
+    $json = reassign_position($json,$rule);
+
+
+    //////////////////////////////
+    //////////write /////////
+    //////////////////////////////
+    // Guardar archivo actualizado
+    // Save updated file
+    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    if ($saved === false) {
+        echo json_encode(['error' => 'No se pudo guardar el archivo']);
+        return;
+    }
+    //generamos los archivos txt de acl ip por alias, solo genera un txt vacio con el nombre del alias, las ips se añaden el commit backend
+    //para evitar introducir objetos modificados, ya fueron verificados que son correctos previamente en Main_convert_alias_object_to_network_object
+    //we generate the acl ip txt files by alias, it only generates an empty txt with the alias name, the ips are added in the commit backend
+    //to avoid introducing modified objects, They have already been verified to be correct in Main_convert_alias_object_to_network_object
+    check_and_create_acl_ip();
+    // Confirmar éxito
+    // Confirm success
+    echo json_encode(['success' => true, 'updated' => $id]);
 }
 
-// Cargar y decodificar el contenido actual del archivo
-// Load and decode the current content of the file
-$raw = file_get_contents($jsonPath);
-$rulesJson = json_decode($raw, true);
-
-// Verifica que el JSON esté bien formado y contenga la tabla solicitada
-// Validate that the JSON is well-formed and contains the requested table
-if (json_last_error() !== JSON_ERROR_NONE || !isset($rulesJson[$data['table']])) {
-    echo json_encode(['error' => 'JSON mal formado o tabla no encontrada']); // Malformed JSON or missing table
-    exit;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// validation_user ////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-require __DIR__ . '/validation_user.php';
-// Esta función recibe la regla y devuelve el JSON completo actualizado
-// This function receives the rule and returns the full updated JSON
-function validation_user(array $rule, array $rulesJson): array {
-    $rule = check_user_id($rule);
-    $rule = hash_pass($rule);
-    $rulesJson = update_or_add_user($rule,$rulesJson);
-
-
-    return $rulesJson; // Devuelve el JSON completo actualizado
-    // Return the full updated JSON
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// EJECUCIÓN //////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-// Ejecutar validation_user para obtener el nuevo JSON
-// Run validators to get the new JSON
-$updatedJson = validation_user($data['rule'], $rulesJson);
-
-// Guardar el archivo actualizado
-// Save the updated file
-$saved = file_put_contents($jsonPath, json_encode($updatedJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-if ($saved === false) {
-    echo json_encode(['error' => 'No se pudo guardar el archivo']); // Failed to save file
-    exit;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// RESPUESTA FINAL ////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-// Enviar respuesta de éxito al frontend
-// Send success response to frontend
-echo json_encode(['success' => true]);
-exit;

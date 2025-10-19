@@ -50,10 +50,10 @@ if (json_last_error() !== JSON_ERROR_NONE || !isset($data[$userTable]) || !is_ar
     exit;
 }
 
-// Filtrar los usuarios excluyendo el que tiene el ID a eliminar
-// Filter users excluding the one with the matching ID
-$data[$userTable] = array_values(array_filter($data[$userTable], function ($user) use ($idToDelete) {
-    return isset($user['id']) && (string)$user['id'] !== $idToDelete;
+// Filtrar las reglas excluyendo la que tiene el ID a eliminar
+// Filter rules excluding the one with the matching ID
+$data[$userTable] = array_values(array_filter($data[$userTable], function ($entry) use ($idToDelete) {
+    return isset($entry['rule']['id']) && (string)$entry['rule']['id'] !== $idToDelete;
 }));
 
 // Guardar el JSON actualizado

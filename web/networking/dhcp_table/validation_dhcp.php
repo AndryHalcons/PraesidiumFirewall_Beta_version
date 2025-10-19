@@ -2,10 +2,8 @@
 session_start();
 header('Content-Type: application/json');
 
-// Verifica si el usuario tiene sesión activa
-// Check if the user has an active session
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']); // Not authorized
+if (empty($_SESSION['username'])) {
+    echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
@@ -13,10 +11,10 @@ if (!isset($_SESSION['username'])) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    Import Json to to consult  ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-// Importa el archivo de users y lo devuelve como array
-// Imports the users file and returns it as an array
-function import_user_json() {
-    $jsonPath = '/var/www/config/users.json';
+
+
+function import_dhcp_json() {
+    $jsonPath = '/var/www/config/dhcp.json';
 
     if (!file_exists($jsonPath)) {
         return false;
@@ -33,139 +31,388 @@ function import_user_json() {
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    id section  /////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+function import_dhcp_forms() {
+    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_dhcp.json';
 
-// Verifica si la regla tiene un ID válido; si no, le asigna el siguiente disponible
-// Checks if the rule has a valid ID; if not, assigns the next available one
-function check_user_id(array $rule): array {
-    // Si el campo 'id' existe y es un número válido (entero o string numérico)
-    // If 'id' exists and is a valid number (integer or numeric string)
-    if (isset($rule['id']) && is_numeric($rule['id'])) {
-        $rule['id'] = (string)(int)$rule['id']; // Normaliza el ID como string
-        // Normalize ID as string
-
-        // Reordenar el array para que 'id' esté al principio
-        // Reorder array so 'id' appears first
-        $rule = array_merge(
-            ['id' => $rule['id']],
-            array_diff_key($rule, ['id' => null])
-        );
-
-        return $rule;
+    if (!file_exists($jsonPath)) {
+        return false;
     }
 
-    // Si no tiene ID, se genera uno nuevo
-    // If no ID is present, generate a new one
-    $nextId = get_next_id();
-    $rule['id'] = (string)$nextId;
+    $raw = file_get_contents($jsonPath);
+    $aliasJsonData = json_decode($raw, true);
 
-    // Reordenar el array para que 'id' esté al principio
-    // Reorder array so 'id' appears first
-    $rule = array_merge(
-        ['id' => $rule['id']],
-        array_diff_key($rule, ['id' => null])
-    );
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return false;
+    }
 
+    return $aliasJsonData;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    form field review        /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//revisa los campos que contienen formularios
+//check the fields that contain forms
+
+function validation_form_field_review_policy(array $rule): void {
+    $formConfig = import_dhcp_forms();
+    $configJson = import_dhcp_json();
+
+    if (!$formConfig || !$configJson) {
+        // Error al cargar configuración
+        // Error loading configuration
+        echo json_encode(["error" => "No se pudo cargar la configuración del formulario o del sistema"]);
+        exit;
+    }
+
+    // Validar campos tipo select
+    // Validate select fields
+    if (isset($formConfig['select'])) {
+        foreach ($formConfig['select'] as $key => $validValues) {
+
+            // Añadir dinámicamente perfiles de red e URL si aplica
+            // Dynamically add network and URL profiles if applicable
+            if ($key === 'ip_addr_group') {
+                foreach ($configJson['squid']['url_networks_list_profile'] ?? [] as $entry) {
+                    if (isset($entry['rule']['name'])) {
+                        $validValues[] = $entry['rule']['name'];
+                    }
+                }
+            }
+
+            if ($key === 'profile') {
+                foreach ($configJson['squid']['url_profile'] ?? [] as $entry) {
+                    if (isset($entry['rule']['name'])) {
+                        $validValues[] = $entry['rule']['name'];
+                    }
+                }
+            }
+
+            if (isset($rule[$key])) {
+                $value = trim((string)$rule[$key]);
+                if ($value === '') {
+                    // vacío o solo espacios → válido
+                    // empty or whitespace → valid
+                    $rule[$key] = "";
+                    continue;
+                }
+                if (!in_array($value, $validValues, true)) {
+                    echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+
+    // Validar campos tipo checkbox
+    // Validate checkbox fields
+    if (isset($formConfig['checkbox'])) {
+        foreach ($formConfig['checkbox'] as $key => $options) {
+            if (isset($rule[$key])) {
+                $value = trim((string)$rule[$key]);
+                if ($value === '') {
+                    $rule[$key] = "";
+                    continue;
+                }
+                if (!in_array($value, $options, true)) {
+                    echo json_encode(["error" => "validation_form_field_review_checkbox '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+
+    // Validar campos no editables (excepto 'id')
+    // Validate not_editable fields (except 'id')
+    if (isset($formConfig['not_editable'])) {
+        foreach ($formConfig['not_editable'] as $key => $validValues) {
+            if ($key === 'id') continue;
+            if (isset($rule[$key])) {
+                $value = $rule[$key];
+                if (!in_array($value, $validValues, true)) {
+                    echo json_encode(["error" => "ID validation_form_field_review_not_editable '{$value}' not found"]);
+                    exit;
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    Validation policy        /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//valida si es una ip individual sin CIDR
+//validates if it is an individual IP without CIDR
+function validate_is_ip_no_cidr(string $value): bool {
+    // Si el valor está vacío o es null, lanzar error por seguridad  
+    // If the value is empty or null, throw error for security reasons  
+    if ($value === '' || $value === null) {
+        echo json_encode(['error' => 'IP no puede estar vacía por seguridad, ya que también escucharías en la WAN']);
+        exit;
+    }
+
+    // Validar si el valor es una IP sin CIDR  
+    // Validate if the value is an IP without CIDR  
+    if (filter_var($value, FILTER_VALIDATE_IP)) {
+        return true;
+    }
+
+    // IP no válida → lanzar error y terminar  
+    // Invalid IP → throw error and exit  
+    echo json_encode(['error' => 'No se ha introducido una IP válida']);
+    exit;
+}
+
+
+
+
+// Valida que las IPs o CIDRs tengan formato correcto
+// Validates that IPs or CIDRs have correct format
+function validate_ip_or_cidr(string $value): bool {
+    $items = array_map('trim', explode(',', $value)); // Divide la cadena por comas
+
+    foreach ($items as $item) {
+        // Si es una IP válida (sin CIDR)
+        if (filter_var($item, FILTER_VALIDATE_IP)) {
+            continue;
+        }
+
+        // Si es una IP con CIDR
+        if (preg_match('/^(.+)\/(\d{1,3})$/', $item, $matches)) {
+            $ip = $matches[1];
+            $cidr = (int)$matches[2];
+
+            // Verifica que la IP base sea válida
+            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                return false;
+            }
+
+            // Verifica que el CIDR esté dentro del rango permitido
+            if (
+                (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $cidr >= 0 && $cidr <= 32) ||
+                (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && $cidr >= 0 && $cidr <= 128)
+            ) {
+                continue;
+            }
+
+            return false;
+        }
+
+        // No es IP ni CIDR válido
+        return false;
+    }
+
+    return true;
+}
+// Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
+// Returns the first IP or CIDR linked to a named alias in alias_address.
+
+function convert_alias_ip_to_ip(string $value): bool {
+    if (trim($value) === '') {
+        return true; 
+    }
+    $aliasJsonData = import_alias_json();
+
+    if (!$aliasJsonData) {
+        echo json_encode(["error" => "alias file not found or invalid"]);
+        exit;
+    }
+
+    // DEBUG: ver exactamente qué valor llega y qué hay en el JSON
+    /*
+    error_log("Valor recibido: >" . $value . "<");
+    foreach ($aliasJsonData['alias_address'] as $entry) {
+        error_log("Comparando con: >" . $entry['name'] . "<");
+    }
+    */
+    if (isset($aliasJsonData['alias_address'])) {
+        foreach ($aliasJsonData['alias_address'] as $entry) {
+            if (isset($entry['name']) && $entry['name'] === $value) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+// Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
+// Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
+function convert_alias_group_to_Network_ips_multiple_IP(string $value): bool {
+    $aliasJsonData = import_alias_json();
+
+    // Verifica que se haya cargado correctamente el JSON  
+    // Check that the JSON was loaded successfully  
+    if (!$aliasJsonData) {
+        echo json_encode(["error" => "alias file not found or invalid"]);
+        exit;
+    }
+
+    // Divide la cadena por comas y elimina espacios  
+    // Split the input string by commas and trim whitespace  
+    $items = array_map('trim', explode(',', $value));
+
+    foreach ($items as $item) {
+        // Si es IP o CIDR válida, se acepta  
+        // If it's a valid IP or CIDR, accept it  
+        if (validate_ip_or_cidr($item)) {
+            continue;
+        }
+
+        $foundGroup = false;
+
+        // Verifica si el elemento es un grupo de alias  
+        // Check if the item is an alias group  
+        if (isset($aliasJsonData['alias_addr_group'])) {
+            foreach ($aliasJsonData['alias_addr_group'] as $group) {
+                if (isset($group['name']) && $group['name'] === $item) {
+                    $foundGroup = true;
+
+                    // Verifica cada alias dentro del grupo  
+                    // Verify each alias inside the group  
+                    foreach ($group['content'] as $aliasName) {
+                        if (!convert_alias_ip_to_ip($aliasName)) {
+                            // Si algún alias no es válido, lanza error  
+                            // If any alias is invalid, throw error  
+                            echo json_encode(["error" => "alias '{$aliasName}' in group '{$item}' is invalid"]);
+                            exit;
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        // Si no es grupo, lo tratamos como alias individual  
+        // If it's not a group, treat it as an individual alias  
+        if (!$foundGroup) {
+            if (!convert_alias_ip_to_ip($item)) {
+                // Si no se pudo resolver, se lanza error  
+                // If resolution fails, throw an error  
+                echo json_encode(["error" => "alias or group '{$item}' not found or invalid"]);
+                exit;
+            }
+        }
+    }
+
+    // Si todo es válido, retorna true  
+    // If everything is valid, return true  
+    return true;
+}
+
+// checkea alias en objetos de red reales usando funciones auxiliares
+// check aliases into real network objects using helper functions
+function Main_convert_alias_object_to_network_object(array $rule): array {
+    $ipFields = ['ip_addr_group'];
+    foreach ($ipFields as $field) {
+        if (isset($rule[$field])) {
+            $value = trim($rule[$field]);
+            // Si el valor es "all", lo damos por válido sin convertir
+            // If the value is "all", we accept it as valid without conversion
+            if (strtolower($value) === 'all') {
+                continue;
+            }
+            // Llama a la función de conversión de grupos IP
+            // Call the IP group conversion function
+            convert_alias_group_to_Network_ips_multiple_IP($value);
+        }
+    }
+    // Devuelve la regla original sin modificar
+    // Return the original rule unchanged
     return $rule;
 }
 
 
-// Busca el siguiente ID disponible empezando desde "1"
-// Finds the next available ID starting from "1"
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// PORTS  VALIDATION SECTION ////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Valida que sea un puerto único válido
+// Validates that it's a valid single port
+function validatePort($port) {
+    // Elimina espacios y convierte a entero
+    $port = (int)trim($port);
 
-function get_next_id(): string {
-    $data = import_user_json();
-
-    // Si no se pudo cargar el JSON, se responde con error y se detiene el script
-    // If JSON couldn't be loaded, respond with error and stop execution
-    if (!$data || !isset($data['table_users']) || !is_array($data['table_users'])) {
-        echo json_encode(['error' => 'No se pudo cargar el JSON de usuarios']); // Failed to load user JSON
+    // Verifica que sea un número válido dentro del rango permitido
+    if (!is_numeric($port) || $port < 1 || $port > 65535) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid port number']);
         exit;
     }
+}
 
-    // Extraemos todos los IDs existentes y los normalizamos como strings
-    // Extract all existing IDs and normalize them as strings
-    $existingIds = [];
-    foreach ($data['table_users'] as $entry) {
-        if (isset($entry['id'])) {
-            $existingIds[] = (string)$entry['id'];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// create Name & validate ID  ///////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// Genera automáticamente un ID si no se proporciona, solo si se puede acceder a la lista
+// Automatically generates an ID if not provided, only if the list is accessible
+function check_create_id(array $rule, string $chain): array {
+    // Si el campo 'id' existe, es numérico y no está vacío, no hacemos nada
+    // If 'id' exists, is numeric, and not empty, do nothing
+    if (isset($rule['id']) && is_numeric($rule['id']) && $rule['id'] !== '') {
+        return $rule;
+    }
+
+    // Importar el JSON actual
+    // Import current JSON
+    $jsonData = import_dhcp_json();
+
+    // Verificar que se haya cargado correctamente y que la lista exista
+    // Check that it was loaded correctly and the list exists
+    if (!is_array($jsonData) || !isset($jsonData[$chain]) || !is_array($jsonData[$chain])) {
+        // No se puede generar un ID sin acceder a la lista
+        // Cannot generate an ID without accessing the list
+        return $rule;
+    }
+
+    // Extraer la lista correspondiente
+    // Extract the corresponding list
+    $list = $jsonData[$chain];
+
+    // Crear un conjunto de IDs existentes
+    // Create a set of existing IDs
+    $usedIds = [];
+    foreach ($list as $entry) {
+        $entryId = $entry['rule']['id'] ?? null;
+        if (is_numeric($entryId)) {
+            $usedIds[(int)$entryId] = true;
         }
     }
 
-    // Comenzamos desde "1" y buscamos el primer ID libre
-    // Start from "1" and find the first free ID
-    $id = 1;
-    while (in_array((string)$id, $existingIds, true)) {
-        $id++;
+    // Buscar el primer ID libre empezando desde 1
+    // Find the first free ID starting from 1
+    $newId = 1;
+    while (isset($usedIds[$newId])) {
+        $newId++;
     }
 
-    return (string)$id;
-}
+    // Asignar el nuevo ID
+    // Assign the new ID
+    $rule['id'] = (string)$newId;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    Hash   section  //////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Hashea el campo 'user_pass' usando SHA-512 si es válido
-// Hashes the 'user_pass' field using SHA-512 if valid
-function hash_pass(array $rule): array {
-    // Verifica que el campo exista y no esté vacío ni enmascarado
-    // Check that the field exists and is not empty or masked
-    if (
-        isset($rule['user_pass']) &&
-        trim($rule['user_pass']) !== '' &&
-        $rule['user_pass'] !== '******'
-    ) {
-        // Aplica SHA-512 al valor de la contraseña
-        // Apply SHA-512 to the password value
-        $rule['user_pass'] = hash('sha512', $rule['user_pass']);
-    }
-
-    return $rule; // Devuelve la regla actualizada
+    // Devolver el rule actualizado
     // Return the updated rule
+    return $rule;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    update or add user  section  /////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-// Actualiza un usuario existente por ID o lo añade si no existe
-// Updates an existing user by ID or adds it if not found
-function update_or_add_user(array $rule, array $rulesJson): array {
-    // Verificamos que 'table_users' exista y sea un array
-    // Ensure 'table_users' exists and is an array
-    if (!isset($rulesJson['table_users']) || !is_array($rulesJson['table_users'])) {
-        $rulesJson['table_users'] = [];
-    }
-
-    $id = isset($rule['id']) ? (string)$rule['id'] : null;
-    $found = false;
-
-    // Recorremos el array original sin alterar el orden
-    // Traverse the original array without altering the order
-    foreach ($rulesJson['table_users'] as $i => $user) {
-        if (isset($user['id']) && (string)$user['id'] === $id) {
-            // Actualizamos el usuario en su posición original
-            // Update the user in its original position
-            $rulesJson['table_users'][$i] = $rule;
-            $found = true;
-            break;
-        }
-    }
-
-    // Si no se encontró el ID, añadimos el nuevo usuario al final
-    // If ID not found, append the new user at the end
-    if (!$found) {
-        $rulesJson['table_users'][] = $rule;
-    }
-
-    return $rulesJson; // Devolvemos el JSON actualizado sin alterar el orden
-    // Return the updated JSON without altering the order
-}
 
 
 
