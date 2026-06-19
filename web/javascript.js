@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Función reutilizable para cargar páginas
     function cargarPagina(page) {
+        if (window.praesidiumDashboardCleanup) {
+            window.praesidiumDashboardCleanup();
+            window.praesidiumDashboardCleanup = null;
+        }
+        document.querySelectorAll('script[src="/dashboard/dashboard.js"]').forEach(script => script.remove());
+
         fetch(page)
             .then(res => {
                 if (!res.ok) throw new Error(`Error al cargar ${page}`);

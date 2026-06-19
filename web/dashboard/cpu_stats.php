@@ -1,7 +1,10 @@
 <?php
 session_start();
 if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(["error" => "No autorizado"]);
+    exit;
 }
 
 header('Content-Type: application/json');
@@ -13,12 +16,9 @@ function leerCpuStats() {
     foreach ($lines as $line) {
         if (preg_match('/^cpu[0-9]+/', $line)) {
             $parts = preg_split('/\s+/', trim($line));
-            array_shift($parts); // quitar "cpuN"
-
-            // Campos: user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice
-            $idle = $parts[3] + $parts[4]; // idle + iowait
-            $total = array_sum($parts);
-
+            array_shift($parts);
+            $idle = (int)$parts[3] + (int)$parts[4];
+            $total = array_sum(array_map('intval', $parts));
             $cores[] = ['idle' => $idle, 'total' => $total];
         }
     }
@@ -26,18 +26,20 @@ function leerCpuStats() {
     return $cores;
 }
 
-// Leer dos veces para calcular diferencia
 $start = leerCpuStats();
-usleep(500000); // 0.5 segundos
+usleep(300000);
 $end = leerCpuStats();
-
 $usages = [];
 
 foreach ($start as $i => $core) {
+    if (!isset($end[$i])) {
+        continue;
+    }
     $idleDiff = $end[$i]['idle'] - $core['idle'];
     $totalDiff = $end[$i]['total'] - $core['total'];
     $usage = $totalDiff > 0 ? round(100 * (1 - $idleDiff / $totalDiff), 2) : 0;
-    $usages[] = $usage;
+    $usages[] = max(0, min(100, $usage));
 }
 
-echo json_encode(['cores' => $usages]);
+$average = count($usages) ? round(array_sum($usages) / count($usages), 2) : 0;
+echo json_encode(['cores' => $usages, 'average' => $average], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
