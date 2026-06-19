@@ -14,7 +14,7 @@ $L = require $langFile;
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
-    const LANG = <?= json_encode($L) ?>;
+    window.LANG = <?= json_encode($L) ?>;
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="/styles.css">
