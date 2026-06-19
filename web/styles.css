@@ -2,26 +2,123 @@
 #############################################################################
 #############################################################################
 #############################################################################
-   Generic
+   Generic / Praesidium-style visual theme
+   Genérico / Tema visual praesidium-style
 #############################################################################
 #############################################################################
 #############################################################################
 */
-.boton-generic {
+
+:root {
+    --praesidium-bg-page: #eef3f8;
+    --praesidium-bg-panel: #ffffff;
+    --praesidium-bg-soft: #f7f9fc;
+    --praesidium-bg-dark: #0b1726;
+    --praesidium-bg-dark-2: #111f33;
+    --praesidium-bg-dark-3: #182b43;
+    --praesidium-bg-sidebar: #132238;
+    --praesidium-border: #d9e2ec;
+    --praesidium-border-strong: #b8c6d7;
+    --praesidium-text: #1f2d3d;
+    --praesidium-text-soft: #637083;
+    --praesidium-text-light: #f7fafc;
+    --praesidium-accent: #0f6fb3;
+    --praesidium-accent-hover: #0a5f9d;
+    --praesidium-accent-soft: #e6f2fb;
+    --praesidium-success: #14805e;
+    --praesidium-warning: #b7791f;
+    --praesidium-danger: #c2413b;
+    --praesidium-danger-hover: #a93631;
+    --praesidium-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
+    --praesidium-shadow-md: 0 12px 30px rgba(15, 23, 42, 0.16);
+    --praesidium-radius-sm: 6px;
+    --praesidium-radius-md: 10px;
+    --praesidium-radius-lg: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--praesidium-text);
+    background:
+        radial-gradient(circle at top left, rgba(15, 111, 179, 0.10), transparent 34%),
+        linear-gradient(180deg, #f5f8fb 0%, var(--praesidium-bg-page) 100%);
+}
+
+.boton-generic,
+table.interfaz button,
+.add-user-btn,
+.edit-btn,
+.save-btn,
+.delete-btn,
+.cancel-btn,
+.modal-button {
     margin: 2px;
-    padding: 6px 12px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    padding: 7px 14px;
+    border: 1px solid transparent;
+    border-radius: var(--praesidium-radius-sm);
+    background: linear-gradient(180deg, #1379bf 0%, var(--praesidium-accent) 100%);
+    color: var(--praesidium-text-light);
     cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.14);
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.boton-generic:hover {
-    background-color: #2980b9;
+.boton-generic:hover,
+table.interfaz button:hover,
+.add-user-btn:hover,
+.edit-btn:hover,
+.save-btn:hover,
+.delete-btn:hover,
+.cancel-btn:hover,
+.modal-button:hover {
+    background: linear-gradient(180deg, #0f6fb3 0%, var(--praesidium-accent-hover) 100%);
+    box-shadow: 0 4px 10px rgba(15, 111, 179, 0.22);
+    transform: translateY(-1px);
 }
 
+.boton-generic:active,
+table.interfaz button:active,
+.add-user-btn:active,
+.edit-btn:active,
+.save-btn:active,
+.delete-btn:active,
+.cancel-btn:active,
+.modal-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
 
+.delete-btn,
+.modal-button.cancel,
+.cancel-btn {
+    background: linear-gradient(180deg, #6b7788 0%, #4b5563 100%);
+}
+
+.delete-btn:hover,
+.modal-button.cancel:hover,
+.cancel-btn:hover {
+    background: linear-gradient(180deg, #5b6575 0%, #374151 100%);
+}
+
+input,
+select,
+textarea,
+button {
+    font-family: inherit;
+}
 
 
 
@@ -36,14 +133,27 @@
 #############################################################################
 */
 
+body:has(.login-container) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(40, 120, 180, 0.28), transparent 32%),
+        radial-gradient(circle at 85% 80%, rgba(10, 31, 51, 0.45), transparent 34%),
+        linear-gradient(135deg, #07111f 0%, #0d1b2e 50%, #12253c 100%);
+}
+
 .login-container {
-    width: 300px;
-    margin: 100px auto;
-    padding: 20px;
-    background-color: #2c3e50;
-    color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 360px;
+    margin: 0 auto;
+    padding: 30px 30px 26px;
+    color: var(--praesidium-text-light);
+    border: 1px solid rgba(167, 187, 213, 0.26);
+    border-radius: var(--praesidium-radius-lg);
+    background: linear-gradient(180deg, rgba(19, 34, 56, 0.96), rgba(10, 23, 38, 0.98));
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(8px);
 }
 
 .login-container h2 {
@@ -53,39 +163,69 @@
 .login-container form {
     display: flex;
     flex-direction: column;
+    gap: 12px;
 }
 
 .login-container input {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 12px 13px;
+    border: 1px solid rgba(184, 198, 215, 0.38);
+    border-radius: var(--praesidium-radius-sm);
+    color: var(--praesidium-text-light);
+    background: rgba(6, 18, 31, 0.68);
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.login-container input::placeholder {
+    color: rgba(247, 250, 252, 0.62);
+}
+
+.login-container input:focus {
+    border-color: #5aa9e6;
+    background: rgba(8, 24, 41, 0.86);
+    box-shadow: 0 0 0 3px rgba(15, 111, 179, 0.28);
 }
 
 .login-container button {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #e74c3c;
-    color: white;
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border: 1px solid rgba(118, 180, 225, 0.35);
+    border-radius: var(--praesidium-radius-sm);
+    background: linear-gradient(180deg, #147ec7 0%, #0b609f 100%);
+    color: var(--praesidium-text-light);
     cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .login-container button:hover {
-    background-color: #c0392b;
+    background: linear-gradient(180deg, #168bd8 0%, #0d6caf 100%);
+    box-shadow: 0 8px 18px rgba(15, 111, 179, 0.26);
+    transform: translateY(-1px);
 }
 
 .login-container .error-message {
-    color: #e74c3c;
+    min-height: 20px;
+    margin: 4px 0 0;
+    color: #ffb4a8;
     text-align: center;
+    font-size: 13px;
 }
 
-
 .logo_login {
-    width: 204px;
-    height: 204px;
+    width: 190px;
+    height: 190px;
     display: block;
-    margin: 0 auto 10px auto;
+    margin: 0 auto 18px auto;
+    padding: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.82) 45%, rgba(255, 255, 255, 0.00) 72%);
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.30));
+    object-fit: contain;
 }
 
 .logo_log {
@@ -94,9 +234,6 @@
     vertical-align: middle;
     margin-right: 10px;
 }
-
-
-
 
 
 
@@ -111,115 +248,174 @@
 #############################################################################
 */
 
-/* Encabezado superior */
+/* Encabezado superior / Top header */
 .header-top {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background-color: #2f4050;
-    color: white;
-    padding: 10px 20px;
+    height: 96px;
+    background: linear-gradient(90deg, var(--praesidium-bg-dark) 0%, var(--praesidium-bg-dark-2) 58%, #102a44 100%);
+    color: var(--praesidium-text-light);
+    padding: 14px 26px;
     z-index: 1000;
+    border-bottom: 1px solid rgba(184, 198, 215, 0.18);
+    box-shadow: 0 4px 18px rgba(7, 17, 31, 0.32);
 }
 
 .header-top h1 {
     margin: 0;
-    font-size: 20px;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.015em;
 }
 
 .header-top h2 {
-    margin: 5px 0 0;
-    font-size: 16px;
-    font-weight: normal;
+    margin: 6px 0 0;
+    color: rgba(247, 250, 252, 0.78);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.user-info {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
 }
 
 .user-info p {
     margin: 0;
-    font-size: 14px;
+    padding: 3px 9px;
+    border: 1px solid rgba(184, 198, 215, 0.20);
+    border-radius: 999px;
+    color: rgba(247, 250, 252, 0.78);
+    background: rgba(255, 255, 255, 0.055);
+    font-size: 12px;
 }
 
-/* Menú horizontal */
+/* Menú horizontal / Top menu */
 .top-menu {
     position: fixed;
-    top: 100px; /* debajo del header */
+    top: 96px;
     left: 0;
     right: 0;
-    background-color: #34495e;
-    padding: 10px 20px;
+    min-height: 44px;
+    background: #16253a;
+    padding: 0 24px;
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 8px;
     z-index: 999;
+    border-bottom: 1px solid rgba(184, 198, 215, 0.16);
 }
 
 .top-menu a {
-    color: white;
+    color: rgba(247, 250, 252, 0.82);
     text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 13px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .top-menu a:hover {
-    color: #1abc9c;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom-color: #4aa3df;
 }
 
-
-
-/*################ Menú lateral ################*/
+/*################ Menú lateral / Sidebar ################*/
 .sidebar {
     position: fixed;
-    top: 140px; /* debajo del header + menú horizontal */
+    top: 140px;
     left: 0;
-    width: 200px;
+    width: 238px;
     height: calc(100% - 140px);
-    background-color: #34495e;
-    color: white;
-    padding-top: 20px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, var(--praesidium-bg-sidebar) 0%, #0f1c2f 100%);
+    color: var(--praesidium-text-light);
+    padding: 14px 10px 22px;
+    border-right: 1px solid rgba(184, 198, 215, 0.14);
+    box-shadow: 4px 0 18px rgba(15, 23, 42, 0.18);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(184, 198, 215, 0.28);
+    border-radius: 999px;
 }
 
 .sidebar a {
     display: block;
-    color: white;
-    padding: 12px 20px;
+    margin: 3px 0;
+    padding: 9px 12px 9px 24px;
+    color: rgba(247, 250, 252, 0.75);
+    border-radius: var(--praesidium-radius-sm);
     text-decoration: none;
-    transition: background 0.3s;
+    font-size: 13px;
+    transition: background 0.18s ease, color 0.18s ease, padding-left 0.18s ease;
 }
 
 .sidebar a:hover {
-    background-color: #3d566e;
+    color: #ffffff;
+    background: rgba(15, 111, 179, 0.24);
+    padding-left: 28px;
 }
+
 .sidebar details {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .sidebar summary {
-    padding: 12px 20px;
+    padding: 10px 12px;
     cursor: pointer;
-    font-weight: bold;
-    color: white;
-    background-color: #2c3e50;
-    transition: background 0.3s;
+    font-weight: 700;
+    color: rgba(247, 250, 252, 0.90);
+    border-radius: var(--praesidium-radius-sm);
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(184, 198, 215, 0.10);
+    transition: background 0.18s ease, border-color 0.18s ease;
 }
 
 .sidebar summary:hover {
-    background-color: #3d566e;
+    background: rgba(15, 111, 179, 0.20);
+    border-color: rgba(90, 169, 230, 0.24);
 }
 
 .sidebar details[open] summary {
-    background-color: #3d566e;
+    background: rgba(15, 111, 179, 0.28);
+    border-color: rgba(90, 169, 230, 0.34);
 }
 
 .sidebar details a {
-    padding-left: 30px;
+    padding-left: 26px;
 }
 
-/*################ Contenido principal ################*/
+/*################ Contenido principal / Main content ################*/
 .main-content {
-    margin-top: 140px; /* espacio para header y menú */
-    margin-left: 200px; /* espacio para sidebar */
-    padding: 20px;
-    background-color: #f5f7fa;
+    margin-top: 140px;
+    margin-left: 238px;
+    padding: 26px;
+    background: transparent;
     min-height: calc(100vh - 140px);
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3 {
+    color: #132238;
+}
+
+.main-content > h2,
+.main-content > p,
+.main-content > div,
+.main-content > form,
+.main-content > table {
+    max-width: 100%;
 }
 
 
@@ -228,145 +424,190 @@
 #############################################################################
 #############################################################################
 #############################################################################
-   Estilos para la seccion interfaces
-   Styles for the section interfaces
+   Estilos para tablas principales
+   Styles for main tables
 #############################################################################
 #############################################################################
 #############################################################################
 */
-table.interfaz {
+
+table.interfaz,
+.users-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 40px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 34px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--praesidium-text);
+    background-color: var(--praesidium-bg-panel);
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-md);
+    box-shadow: var(--praesidium-shadow-sm);
+    overflow: hidden;
 }
 
-table.interfaz thead th {
-    background-color: #2c3e50;
-    color: #ecf0f1;
+table.interfaz thead th,
+.users-table thead th {
+    background: linear-gradient(180deg, #f3f7fb 0%, #e7eef6 100%);
+    color: #24364b;
     text-align: left;
-    padding: 12px;
-    font-size: 16px;
+    padding: 12px 13px;
+    border-bottom: 1px solid var(--praesidium-border-strong);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
 }
 
-table.interfaz tbody td {
-    border: 1px solid #ddd;
-    padding: 10px;
+table.interfaz tbody td,
+.users-table tbody td {
+    border-right: 1px solid #edf2f7;
+    border-bottom: 1px solid #edf2f7;
+    padding: 10px 12px;
     vertical-align: top;
+    background: #ffffff;
+}
+
+table.interfaz tbody tr:nth-child(even) td,
+.users-table tbody tr:nth-child(even) td {
+    background: #fbfdff;
+}
+
+table.interfaz tbody tr:hover td,
+.users-table tbody tr:hover td {
+    background: var(--praesidium-accent-soft);
+}
+
+table.interfaz tbody td:last-child,
+.users-table tbody td:last-child {
+    border-right: none;
+}
+
+table.interfaz tbody tr:last-child td,
+.users-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 table.interfaz tbody td strong {
     display: block;
-    color: #34495e;
+    color: #1f3b57;
     margin-bottom: 4px;
+    font-weight: 700;
 }
 
 table.interfaz tbody td span.valor {
     display: block;
-    color: #2c3e50;
+    color: var(--praesidium-text);
 }
 
 table.interfaz tbody td span.valor[contenteditable="true"] {
-    background-color: #fff8dc;
-    border: 1px dashed #f39c12;
-    padding: 4px;
+    background-color: #fff7db;
+    border: 1px dashed #d69e2e;
+    border-radius: var(--praesidium-radius-sm);
+    padding: 5px;
 }
 
-table.interfaz button {
-    margin: 2px;
-    padding: 6px 12px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
 
-table.interfaz button:hover {
-    background-color: #2980b9;
-}
 
-/*modal style , estilo del modal*/
+/* 
+#############################################################################
+#############################################################################
+#############################################################################
+   Modal / Ventana de edición
+   Modal / Edit window
+#############################################################################
+#############################################################################
+#############################################################################
+*/
 
-/* Modal Overlay */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0,0,0,0.5);
+    background: rgba(7, 17, 31, 0.62);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 22px;
+    backdrop-filter: blur(3px);
 }
 
-/* Modal Window */
 .modal-window {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    min-width: 300px;
-    font-family: Arial, sans-serif;
-    max-height: 80vh;
+    background-color: var(--praesidium-bg-panel);
+    padding: 24px;
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-lg);
+    box-shadow: var(--praesidium-shadow-md);
+    min-width: 340px;
+    max-width: min(92vw, 920px);
+    max-height: 84vh;
     overflow-y: auto;
-
+    font-family: inherit;
 }
 
-/* Input Group */
+.modal-window h2,
+.modal-window h3 {
+    margin-top: 0;
+    color: #132238;
+}
+
 .modal-input-group {
     display: flex;
-    gap: 5px;
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
 }
 
 .modal-prefix {
-    padding: 6px 8px;
-    background: #eee;
-    border: 1px solid #ccc;
-    font-weight: bold;
+    padding: 8px 10px;
+    background: #eef3f8;
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-sm);
+    color: #334155;
+    font-weight: 700;
 }
 
-.modal-input {
+.modal-input,
+.users-table input[type="text"],
+.users-table input[type="password"] {
     flex: 1;
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--praesidium-border-strong);
+    border-radius: var(--praesidium-radius-sm);
+    color: var(--praesidium-text);
+    background: #ffffff;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-/* Buttons */
+.modal-input:focus,
+.users-table input[type="text"]:focus,
+.users-table input[type="password"]:focus {
+    border-color: #4aa3df;
+    box-shadow: 0 0 0 3px rgba(15, 111, 179, 0.14);
+}
+
+.users-table input:disabled {
+    background-color: #f3f6fa;
+    color: var(--praesidium-text-soft);
+}
+
 .modal-actions {
-    margin-top: 20px;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid var(--praesidium-border);
     text-align: right;
 }
 
 .modal-button {
     margin-left: 10px;
-    padding: 6px 12px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
-
-.modal-button:hover {
-    background-color: #2980b9;
-}
-
-.modal-button.cancel {
-    background-color: #7f8c8d;
-}
-
-.modal-button.cancel:hover {
-    background-color: #636e72;
-}
-
 
 
 
@@ -381,89 +622,15 @@ table.interfaz button:hover {
 #############################################################################
 */
 
-/* Contenedor principal */
 .users-container {
-    margin: 20px;
-    font-family: Arial, sans-serif;
+    margin: 20px 0;
+    font-family: inherit;
 }
 
-/* Tabla de usuarios con estilo similar a .interfaz */
-.users-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 40px;
-    font-size: 14px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-.users-table thead th {
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    text-align: left;
-    padding: 12px;
-    font-size: 16px;
-}
-
-.users-table tbody td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    vertical-align: top;
-}
-
-/* Inputs dentro de la tabla */
-.users-table input[type="text"],
-.users-table input[type="password"] {
-    width: 100%;
-    padding: 6px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.users-table input:disabled {
-    background-color: #f9f9f9;
-    color: #555;
-}
-
-/* Botón para añadir usuario */
 .add-user-btn {
     margin-top: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
-.add-user-btn:hover {
-    background-color: #2980b9;
-}
-
-/* Botones de acción */
-.edit-btn,
-.save-btn,
-.delete-btn,
-.cancel-btn {
-    margin: 2px;
-    padding: 6px 12px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.edit-btn:hover,
-.save-btn:hover,
-.delete-btn:hover,
-.cancel-btn:hover {
-    background-color: #2980b9;
-}
 
 
 /* 
@@ -477,25 +644,25 @@ table.interfaz button:hover {
 #############################################################################
 */
 
-/* El modal se adapta al contenido */
 .modal-1-alias-example {
-    display: inline-block;       /* ancho y alto según contenido */
-    max-width: none;             /* sin límite artificial */
-    max-height: none;
-    width: 50%;                 /* que no esté forzado */
+    display: inline-block;
+    max-width: min(92vw, 980px);
+    max-height: 84vh;
+    width: 50%;
     height: auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
+    padding: 24px;
+    background: var(--praesidium-bg-panel);
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-lg);
     box-sizing: border-box;
+    box-shadow: var(--praesidium-shadow-md);
 }
 
-/* El textarea más grande */
 .modal-1-alias-example textarea.modal-input {
-    width: 100%;   /* 200% del ancho base */
-    height: 200%;  /* 300% del alto base */
+    width: 100%;
+    min-height: 180px;
     box-sizing: border-box;
-    resize: both;  /* opcional: permitir redimensionar manualmente */
+    resize: both;
 }
 
 
@@ -512,29 +679,66 @@ table.interfaz button:hover {
 */
 
 .commit-controls {
-  display: flex;
-  gap: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-md);
+    background: var(--praesidium-bg-panel);
+    box-shadow: var(--praesidium-shadow-sm);
 }
 
 #commit-spinner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    color: var(--praesidium-text);
 }
 
 .spinner-icon {
-  font-size: 32px; /* flechas más grandes */
-  animation: commit-spinner-rotate 1s linear infinite;
+    font-size: 32px;
+    color: var(--praesidium-accent);
+    animation: commit-spinner-rotate 1s linear infinite;
 }
 
 .spinner-text {
-  font-weight: bold;
-  font-size: 16px;
-  color: #333;
+    font-weight: 700;
+    font-size: 15px;
+    color: #24364b;
 }
 
 @keyframes commit-spinner-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+/* 
+#############################################################################
+#############################################################################
+#############################################################################
+   Ajustes responsive basicos
+   Basic responsive adjustments
+#############################################################################
+#############################################################################
+#############################################################################
+*/
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 210px;
+    }
+
+    .main-content {
+        margin-left: 210px;
+        padding: 18px;
+    }
+
+    .login-container {
+        width: calc(100vw - 36px);
+        max-width: 360px;
+    }
 }
