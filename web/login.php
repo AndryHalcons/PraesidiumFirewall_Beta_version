@@ -16,6 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($data['table_users']) && is_array($data['table_users'])) {
             foreach ($data['table_users'] as $user) {
                 if ($user['user_name'] === $username && $user['user_pass'] === $hashedPassword) {
+                    // Regenera el ID de sesión después de un login correcto
+                    // Regenerate the session ID after a successful login
+                    session_regenerate_id(true);
+
                     // Asigna los datos de sesión usando los nombres correctos
                     // Assign session data using correct key names
                     $_SESSION['username'] = $user['user_name'];
