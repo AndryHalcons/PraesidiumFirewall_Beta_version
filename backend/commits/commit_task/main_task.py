@@ -8,6 +8,7 @@ from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 from task_apply_interface_config import apply_interface_config
 from task_apply_squid_policy import apply_squid_config
+from task_apply_system_logging import apply_system_logging
 
 
 def start_commit_process(user, date):
@@ -65,6 +66,10 @@ def start_commit_process(user, date):
     #aplica las reglas de squid,
     #apply the rules of squid,
     apply_squid_config(user,date)
+
+    # aplica la configuración de logs del sistema
+    # apply system logging configuration
+    apply_system_logging(user,date)
 
     
 
