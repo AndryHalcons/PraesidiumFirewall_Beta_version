@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
@@ -64,7 +65,7 @@ function get_ethernets_form() {
 
     unset($json['network']['ethernets'][$name]);
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -110,7 +111,7 @@ function get_bonds_form() {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -145,7 +146,7 @@ function get_bridges_form() {
 
     unset($json['network']['bridges'][$name]);
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -178,7 +179,7 @@ function get_vlans_form() {
 
     unset($json['network']['vlans'][$name]);
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -211,7 +212,7 @@ function get_wireguard_form() {
 
     unset($json['network']['wireguard'][$name]);
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -244,7 +245,7 @@ function get_wifis_form() {
 
     unset($json['network']['wifis'][$name]);
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -290,7 +291,7 @@ function get_tunnels_form() {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
@@ -62,7 +63,7 @@ $data[$userTable] = array_values(array_filter($data[$userTable], function ($user
 
 // Guardar el JSON actualizado
 // Save the updated JSON
-$saved = file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+$saved = json_store_write($jsonPath, $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 if ($saved === false) {
     echo json_encode(['error' => 'No se pudo guardar el archivo']); // Failed to save file
     exit;

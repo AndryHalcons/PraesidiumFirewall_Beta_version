@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
@@ -70,7 +71,7 @@ function get_url_policies_delete() {
         return;
     }
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -123,7 +124,7 @@ function get_url_profile_delete($chain) {
         return;
     }
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -174,7 +175,7 @@ function get_url_networks_list_profile_delete($chain) {
         return;
     }
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -229,7 +230,7 @@ function get_url_port_profile_delete($chain) {
         return;
     }
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;
@@ -276,7 +277,7 @@ function get_url_listen_ports_delete() {
         return;
     }
 
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
         return;

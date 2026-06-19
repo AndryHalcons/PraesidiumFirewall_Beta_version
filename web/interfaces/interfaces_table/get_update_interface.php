@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
@@ -91,7 +92,7 @@ function get_ethernets($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -154,7 +155,7 @@ function get_bridges($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -216,7 +217,7 @@ function get_bonds($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -278,7 +279,7 @@ function get_vlans($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -344,7 +345,7 @@ function get_wireguard($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -405,7 +406,7 @@ function get_wifis($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;
@@ -467,7 +468,7 @@ function get_tunnels($chain) {
 
     // Guardar el archivo actualizado
     // Save the updated file
-    $saved = file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if ($saved === false) {
         echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
         return;

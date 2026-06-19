@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
@@ -146,7 +147,7 @@ function update_certificates_config_json() {
 
     // Guardar en certificates_config.json
     $output = ['certificates' => $ordered];
-    file_put_contents('/var/www/config/certs/certificates_config.json', json_encode($output, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    json_store_write('/var/www/config/certs/certificates_config.json', $output, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 }
 */
 
@@ -311,5 +312,5 @@ function update_certificates_config_json() {
     // Guardar en certificates_config.json
     // Save to certificates_config.json
     $output = ['certificates' => $ordered];
-    file_put_contents('/var/www/config/certs/certificates_config.json', json_encode($output, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    json_store_write('/var/www/config/certs/certificates_config.json', $output, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 }
