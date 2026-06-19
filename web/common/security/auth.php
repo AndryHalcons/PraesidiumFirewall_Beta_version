@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/audit.php';
 /*
 #############################################################################
 #############################################################################
@@ -82,9 +83,15 @@ function require_login_json(): void {
 #############################################################################
 */
 function require_admin_json(): void {
-    require_login_json();
+    if (!auth_is_logged_in()) {
+        audit_admin_event('admin_endpoint_not_authenticated');
+        auth_json_error(401, 'No autorizado');
+    }
 
     if (auth_current_role() !== 'admin') {
+        audit_admin_event('admin_endpoint_role_denied');
         auth_json_error(403, 'Forbidden: admin role required');
     }
+
+    audit_admin_event('admin_endpoint_access');
 }
