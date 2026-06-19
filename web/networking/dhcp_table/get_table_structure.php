@@ -3,50 +3,24 @@ session_start();
 header('Content-Type: application/json');
 
 if (empty($_SESSION['username'])) {
+    http_response_code(401);
     echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
-$chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['dhcp'];
-
-if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+$table = trim($_GET['table'] ?? $_GET['chain'] ?? '');
+if ($table !== 'dhcp') {
+    http_response_code(400);
     echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-switch ($chain) {
-    case 'dhcp':      get_dhcp_structure(); break;
-    default:
-        echo json_encode(['error' => 'Cadena no soportada']);
-        break;
+$path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json';
+$json = json_decode((string)@file_get_contents($path), true);
+if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp']) || !is_array($json['dhcp'])) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al cargar o interpretar la estructura de DHCP']);
+    exit;
 }
 
-// Funciones autónomas por tabla
-
-function get_dhcp_structure() {
-    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json';
-    $raw = file_get_contents($path);
-    $json = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp'])) {
-        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de dhcp']);
-        return;
-    }
-
-    echo json_encode(['dhcp' => $json['dhcp']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}
-
-function get_url_profile() {
-    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
-    $raw = file_get_contents($path);
-    $json = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['url_profile'])) {
-        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de url_profile']);
-        return;
-    }
-
-    echo json_encode(['url_profile' => $json['url_profile']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}
-
+echo json_encode(['dhcp' => $json['dhcp']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

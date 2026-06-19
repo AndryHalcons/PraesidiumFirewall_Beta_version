@@ -21,14 +21,13 @@ $path_get_delete = "/networking/dhcp_table/get_delete_dhcp.php";
 <head>
   <script>
     const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_dhcp']) ?></h1>
+  <h1><?= htmlspecialchars($L['sidebar_dhcp'] ?? 'DHCP') ?></h1>
+  <p class="section-description"><?= htmlspecialchars($L['dhcp_description'] ?? 'Configure dnsmasq DHCP server scopes or relay entries.') ?></p>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableGeneric(
@@ -42,6 +41,3 @@ $path_get_delete = "/networking/dhcp_table/get_delete_dhcp.php";
   </script>
 </body>
 </html>
-
-
-

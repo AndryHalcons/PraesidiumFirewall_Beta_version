@@ -7,83 +7,42 @@ require_admin_json();
 csrf_validate_or_exit();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
-
 $input = json_decode(file_get_contents('php://input'), true);
-$chain = trim($input['table'] ?? '');
-$allowedChains = ['url_policies', 'dhcp'];
-
-if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+if (!is_array($input) || trim($input['table'] ?? '') !== 'dhcp') {
+    http_response_code(400);
     echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-switch ($chain) {
-    case 'dhcp':          get_dhcp_update($chain); break;
-    default:
-        echo json_encode(['error' => 'Cadena no soportada']);
-        break;
-}
-// Funciones autónomas por tablag
-function get_dhcp_update($chain) {
-    $path = '/var/www/config/dhcp.json';
+$path = '/var/www/config/dhcp.json';
+require __DIR__ . '/validation_dhcp.php';
 
-    // Leer archivo JSON
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        echo json_encode(['error' => 'No se pudo leer el archivo']);
-        return;
-    }
-
-    // Decodificar contenido
-    $json = json_decode($raw, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp']) || !is_array($json['dhcp'])) {
-        echo json_encode(['error' => 'Error al interpretar el JSON']);
-        return;
-    }
-
-    // Leer datos enviados por POST
-    $input = json_decode(file_get_contents('php://input'), true);
+try {
+    $json = dhcp_import_config();
     $rule = $input['rule'] ?? null;
-
-    // Validaciones y conversión
-    require __DIR__ . '/validation_dhcp.php';
-    $rule = check_create_id($rule, $chain);
-
-    if (!is_array($rule) || empty($rule['id'])) {
-        echo json_encode(['error' => 'Datos inválidos']);
-        return;
+    if (!is_array($rule)) {
+        dhcp_fail('Datos inválidos');
     }
-
-    $id = $rule['id'];
+    $rule = validate_dhcp_rule($rule, $json['dhcp']);
     $updated = false;
-
-    // Buscar y actualizar por ID dentro de dhcp
     foreach ($json['dhcp'] as $i => $entry) {
-        if (($entry['rule']['id'] ?? '') === $id) {
+        if (($entry['rule']['id'] ?? '') === $rule['id']) {
             $json['dhcp'][$i]['rule'] = $rule;
             $updated = true;
             break;
         }
     }
-
-    // Si no se encontró el ID, añadir como nueva entrada
     if (!$updated) {
         $json['dhcp'][] = ['rule' => $rule];
     }
-
-    // Guardar archivo actualizado
-    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    if ($saved === false) {
+    if (json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) === false) {
+        http_response_code(500);
         echo json_encode(['error' => 'No se pudo guardar el archivo']);
-        return;
+        exit;
     }
-
-    // Confirmar éxito
-    echo json_encode(['success' => true, 'updated' => $id]);
+    @chmod($path, 0664);
+    echo json_encode(['success' => true, 'updated' => $rule['id']]);
+} catch (Throwable $e) {
+    http_response_code(400);
+    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-

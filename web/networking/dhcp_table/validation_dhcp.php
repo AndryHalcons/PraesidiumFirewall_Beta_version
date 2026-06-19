@@ -1,419 +1,196 @@
 <?php
-session_start();
-header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
+function dhcp_import_config(): array {
+    $path = '/var/www/config/dhcp.json';
+    if (!file_exists($path)) {
+        return ['dhcp' => []];
+    }
+    $json = json_decode((string)file_get_contents($path), true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['dhcp']) || !is_array($json['dhcp'])) {
+        throw new RuntimeException('JSON DHCP mal formado');
+    }
+    return $json;
+}
+
+function dhcp_import_interfaces(): array {
+    $interfaces = [];
+    $path = '/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json';
+    if (file_exists($path)) {
+        $json = json_decode((string)file_get_contents($path), true);
+        if (json_last_error() === JSON_ERROR_NONE && isset($json['all_interfaces']) && is_array($json['all_interfaces'])) {
+            $interfaces = array_merge($interfaces, array_map('strval', $json['all_interfaces']));
+        }
+    }
+    foreach (glob('/sys/class/net/*') ?: [] as $ifaceDir) {
+        $name = basename($ifaceDir);
+        if ($name !== 'lo') {
+            $interfaces[] = $name;
+        }
+    }
+    $interfaces = array_values(array_unique(array_filter($interfaces, fn($v) => $v !== '')));
+    sort($interfaces, SORT_NATURAL);
+    return $interfaces;
+}
+
+function dhcp_fail(string $message): void {
+    http_response_code(400);
+    echo json_encode(['error' => $message], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    Import Json to to consult  ///////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-function import_dhcp_json() {
-    $jsonPath = '/var/www/config/dhcp.json';
-
-    if (!file_exists($jsonPath)) {
-        return false;
-    }
-
-    $raw = file_get_contents($jsonPath);
-    $aliasJsonData = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return false;
-    }
-
-    return $aliasJsonData;
+function dhcp_clean_string($value): string {
+    return trim((string)($value ?? ''));
 }
 
-
-function import_dhcp_forms() {
-    $jsonPath = '/var/www/backend/checks/system_data/default_forms/forms_dhcp.json';
-
-    if (!file_exists($jsonPath)) {
-        return false;
+function dhcp_validate_ip(string $value, string $field, bool $required = false): string {
+    $value = dhcp_clean_string($value);
+    if ($value === '') {
+        if ($required) dhcp_fail("{$field} es obligatorio");
+        return '';
     }
-
-    $raw = file_get_contents($jsonPath);
-    $aliasJsonData = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return false;
+    if (!filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        dhcp_fail("{$field} debe ser una IPv4 válida");
     }
-
-    return $aliasJsonData;
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    form field review        /////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//revisa los campos que contienen formularios
-//check the fields that contain forms
-
-function validation_form_field_review_policy(array $rule): void {
-    $formConfig = import_dhcp_forms();
-    $configJson = import_dhcp_json();
-
-    if (!$formConfig || !$configJson) {
-        // Error al cargar configuración
-        // Error loading configuration
-        echo json_encode(["error" => "No se pudo cargar la configuración del formulario o del sistema"]);
-        exit;
-    }
-
-    // Validar campos tipo select
-    // Validate select fields
-    if (isset($formConfig['select'])) {
-        foreach ($formConfig['select'] as $key => $validValues) {
-
-            // Añadir dinámicamente perfiles de red e URL si aplica
-            // Dynamically add network and URL profiles if applicable
-            if ($key === 'ip_addr_group') {
-                foreach ($configJson['squid']['url_networks_list_profile'] ?? [] as $entry) {
-                    if (isset($entry['rule']['name'])) {
-                        $validValues[] = $entry['rule']['name'];
-                    }
-                }
-            }
-
-            if ($key === 'profile') {
-                foreach ($configJson['squid']['url_profile'] ?? [] as $entry) {
-                    if (isset($entry['rule']['name'])) {
-                        $validValues[] = $entry['rule']['name'];
-                    }
-                }
-            }
-
-            if (isset($rule[$key])) {
-                $value = trim((string)$rule[$key]);
-                if ($value === '') {
-                    // vacío o solo espacios → válido
-                    // empty or whitespace → valid
-                    $rule[$key] = "";
-                    continue;
-                }
-                if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "value in validation_form_field_review_select '{$value}' not found"]);
-                    exit;
-                }
-            }
-        }
-    }
-
-    // Validar campos tipo checkbox
-    // Validate checkbox fields
-    if (isset($formConfig['checkbox'])) {
-        foreach ($formConfig['checkbox'] as $key => $options) {
-            if (isset($rule[$key])) {
-                $value = trim((string)$rule[$key]);
-                if ($value === '') {
-                    $rule[$key] = "";
-                    continue;
-                }
-                if (!in_array($value, $options, true)) {
-                    echo json_encode(["error" => "validation_form_field_review_checkbox '{$value}' not found"]);
-                    exit;
-                }
-            }
-        }
-    }
-
-    // Validar campos no editables (excepto 'id')
-    // Validate not_editable fields (except 'id')
-    if (isset($formConfig['not_editable'])) {
-        foreach ($formConfig['not_editable'] as $key => $validValues) {
-            if ($key === 'id') continue;
-            if (isset($rule[$key])) {
-                $value = $rule[$key];
-                if (!in_array($value, $validValues, true)) {
-                    echo json_encode(["error" => "ID validation_form_field_review_not_editable '{$value}' not found"]);
-                    exit;
-                }
-            }
-        }
-    }
+    return $value;
 }
 
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    Validation policy        /////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// IPV4 & IPV6 VALIDATION SECTION ////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//valida si es una ip individual sin CIDR
-//validates if it is an individual IP without CIDR
-function validate_is_ip_no_cidr(string $value): bool {
-    // Si el valor está vacío o es null, lanzar error por seguridad  
-    // If the value is empty or null, throw error for security reasons  
-    if ($value === '' || $value === null) {
-        echo json_encode(['error' => 'IP no puede estar vacía por seguridad, ya que también escucharías en la WAN']);
-        exit;
+function dhcp_validate_netmask(string $value, bool $required = false): string {
+    $value = dhcp_clean_string($value);
+    if ($value === '') {
+        if ($required) dhcp_fail('netmask es obligatorio');
+        return '';
     }
-
-    // Validar si el valor es una IP sin CIDR  
-    // Validate if the value is an IP without CIDR  
-    if (filter_var($value, FILTER_VALIDATE_IP)) {
-        return true;
+    if (!filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        dhcp_fail('netmask debe ser una IPv4 válida');
     }
-
-    // IP no válida → lanzar error y terminar  
-    // Invalid IP → throw error and exit  
-    echo json_encode(['error' => 'No se ha introducido una IP válida']);
-    exit;
+    $long = ip2long($value);
+    $bin = str_pad(decbin($long), 32, '0', STR_PAD_LEFT);
+    if (!preg_match('/^1*0*$/', $bin)) {
+        dhcp_fail('netmask debe ser una máscara IPv4 contigua');
+    }
+    return $value;
 }
 
-
-
-
-// Valida que las IPs o CIDRs tengan formato correcto
-// Validates that IPs or CIDRs have correct format
-function validate_ip_or_cidr(string $value): bool {
-    $items = array_map('trim', explode(',', $value)); // Divide la cadena por comas
-
-    foreach ($items as $item) {
-        // Si es una IP válida (sin CIDR)
-        if (filter_var($item, FILTER_VALIDATE_IP)) {
-            continue;
-        }
-
-        // Si es una IP con CIDR
-        if (preg_match('/^(.+)\/(\d{1,3})$/', $item, $matches)) {
-            $ip = $matches[1];
-            $cidr = (int)$matches[2];
-
-            // Verifica que la IP base sea válida
-            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return false;
-            }
-
-            // Verifica que el CIDR esté dentro del rango permitido
-            if (
-                (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $cidr >= 0 && $cidr <= 32) ||
-                (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && $cidr >= 0 && $cidr <= 128)
-            ) {
-                continue;
-            }
-
-            return false;
-        }
-
-        // No es IP ni CIDR válido
-        return false;
+function dhcp_validate_lease(string $value): string {
+    $value = dhcp_clean_string($value);
+    if ($value === '') return '12h';
+    if (!preg_match('/^[1-9][0-9]*[mhdw]$/', $value)) {
+        dhcp_fail('lease_time debe tener formato dnsmasq válido, por ejemplo 30m, 12h, 7d o 1w');
     }
-
-    return true;
-}
-// Devuelve la primera IP o CIDR asociada a un alias definido en alias_address.
-// Returns the first IP or CIDR linked to a named alias in alias_address.
-
-function convert_alias_ip_to_ip(string $value): bool {
-    if (trim($value) === '') {
-        return true; 
-    }
-    $aliasJsonData = import_alias_json();
-
-    if (!$aliasJsonData) {
-        echo json_encode(["error" => "alias file not found or invalid"]);
-        exit;
-    }
-
-    // DEBUG: ver exactamente qué valor llega y qué hay en el JSON
-    /*
-    error_log("Valor recibido: >" . $value . "<");
-    foreach ($aliasJsonData['alias_address'] as $entry) {
-        error_log("Comparando con: >" . $entry['name'] . "<");
-    }
-    */
-    if (isset($aliasJsonData['alias_address'])) {
-        foreach ($aliasJsonData['alias_address'] as $entry) {
-            if (isset($entry['name']) && $entry['name'] === $value) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return $value;
 }
 
-
-// Convierte IPs, alias y grupos de alias en una lista normalizada de redes IP únicas.
-// Converts IPs, aliases, and alias groups into a normalized list of unique network addresses.
-function convert_alias_group_to_Network_ips_multiple_IP(string $value): bool {
-    $aliasJsonData = import_alias_json();
-
-    // Verifica que se haya cargado correctamente el JSON  
-    // Check that the JSON was loaded successfully  
-    if (!$aliasJsonData) {
-        echo json_encode(["error" => "alias file not found or invalid"]);
-        exit;
-    }
-
-    // Divide la cadena por comas y elimina espacios  
-    // Split the input string by commas and trim whitespace  
-    $items = array_map('trim', explode(',', $value));
-
-    foreach ($items as $item) {
-        // Si es IP o CIDR válida, se acepta  
-        // If it's a valid IP or CIDR, accept it  
-        if (validate_ip_or_cidr($item)) {
-            continue;
-        }
-
-        $foundGroup = false;
-
-        // Verifica si el elemento es un grupo de alias  
-        // Check if the item is an alias group  
-        if (isset($aliasJsonData['alias_addr_group'])) {
-            foreach ($aliasJsonData['alias_addr_group'] as $group) {
-                if (isset($group['name']) && $group['name'] === $item) {
-                    $foundGroup = true;
-
-                    // Verifica cada alias dentro del grupo  
-                    // Verify each alias inside the group  
-                    foreach ($group['content'] as $aliasName) {
-                        if (!convert_alias_ip_to_ip($aliasName)) {
-                            // Si algún alias no es válido, lanza error  
-                            // If any alias is invalid, throw error  
-                            echo json_encode(["error" => "alias '{$aliasName}' in group '{$item}' is invalid"]);
-                            exit;
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        // Si no es grupo, lo tratamos como alias individual  
-        // If it's not a group, treat it as an individual alias  
-        if (!$foundGroup) {
-            if (!convert_alias_ip_to_ip($item)) {
-                // Si no se pudo resolver, se lanza error  
-                // If resolution fails, throw an error  
-                echo json_encode(["error" => "alias or group '{$item}' not found or invalid"]);
-                exit;
-            }
-        }
-    }
-
-    // Si todo es válido, retorna true  
-    // If everything is valid, return true  
-    return true;
+function dhcp_ip_to_long(string $ip): int {
+    $n = ip2long($ip);
+    if ($n === false) dhcp_fail("IP inválida: {$ip}");
+    return (int)sprintf('%u', $n);
 }
 
-// checkea alias en objetos de red reales usando funciones auxiliares
-// check aliases into real network objects using helper functions
-function Main_convert_alias_object_to_network_object(array $rule): array {
-    $ipFields = ['ip_addr_group'];
-    foreach ($ipFields as $field) {
-        if (isset($rule[$field])) {
-            $value = trim($rule[$field]);
-            // Si el valor es "all", lo damos por válido sin convertir
-            // If the value is "all", we accept it as valid without conversion
-            if (strtolower($value) === 'all') {
-                continue;
-            }
-            // Llama a la función de conversión de grupos IP
-            // Call the IP group conversion function
-            convert_alias_group_to_Network_ips_multiple_IP($value);
-        }
-    }
-    // Devuelve la regla original sin modificar
-    // Return the original rule unchanged
-    return $rule;
+function dhcp_same_network(string $ip, string $gateway, string $netmask): bool {
+    return (dhcp_ip_to_long($ip) & dhcp_ip_to_long($netmask)) === (dhcp_ip_to_long($gateway) & dhcp_ip_to_long($netmask));
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// PORTS  VALIDATION SECTION ////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Valida que sea un puerto único válido
-// Validates that it's a valid single port
-function validatePort($port) {
-    // Elimina espacios y convierte a entero
-    $port = (int)trim($port);
-
-    // Verifica que sea un número válido dentro del rango permitido
-    if (!is_numeric($port) || $port < 1 || $port > 65535) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid port number']);
-        exit;
-    }
+function dhcp_ranges_overlap(array $a, array $b): bool {
+    return dhcp_ip_to_long($a['range_start']) <= dhcp_ip_to_long($b['range_end']) && dhcp_ip_to_long($b['range_start']) <= dhcp_ip_to_long($a['range_end']);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// create Name & validate ID  ///////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// Genera automáticamente un ID si no se proporciona, solo si se puede acceder a la lista
-// Automatically generates an ID if not provided, only if the list is accessible
 function check_create_id(array $rule, string $chain): array {
-    // Si el campo 'id' existe, es numérico y no está vacío, no hacemos nada
-    // If 'id' exists, is numeric, and not empty, do nothing
-    if (isset($rule['id']) && is_numeric($rule['id']) && $rule['id'] !== '') {
+    if (isset($rule['id']) && is_numeric($rule['id']) && (string)$rule['id'] !== '') {
+        $rule['id'] = (string)(int)$rule['id'];
         return $rule;
     }
-
-    // Importar el JSON actual
-    // Import current JSON
-    $jsonData = import_dhcp_json();
-
-    // Verificar que se haya cargado correctamente y que la lista exista
-    // Check that it was loaded correctly and the list exists
-    if (!is_array($jsonData) || !isset($jsonData[$chain]) || !is_array($jsonData[$chain])) {
-        // No se puede generar un ID sin acceder a la lista
-        // Cannot generate an ID without accessing the list
-        return $rule;
+    $json = dhcp_import_config();
+    $used = [];
+    foreach ($json[$chain] ?? [] as $entry) {
+        $id = $entry['rule']['id'] ?? null;
+        if (is_numeric($id)) $used[(int)$id] = true;
     }
-
-    // Extraer la lista correspondiente
-    // Extract the corresponding list
-    $list = $jsonData[$chain];
-
-    // Crear un conjunto de IDs existentes
-    // Create a set of existing IDs
-    $usedIds = [];
-    foreach ($list as $entry) {
-        $entryId = $entry['rule']['id'] ?? null;
-        if (is_numeric($entryId)) {
-            $usedIds[(int)$entryId] = true;
-        }
-    }
-
-    // Buscar el primer ID libre empezando desde 1
-    // Find the first free ID starting from 1
-    $newId = 1;
-    while (isset($usedIds[$newId])) {
-        $newId++;
-    }
-
-    // Asignar el nuevo ID
-    // Assign the new ID
-    $rule['id'] = (string)$newId;
-
-    // Devolver el rule actualizado
-    // Return the updated rule
+    $next = 1;
+    while (isset($used[$next])) $next++;
+    $rule['id'] = (string)$next;
     return $rule;
 }
 
+function validate_dhcp_rule(array $rule, ?array $existing = null): array {
+    $rule = check_create_id($rule, 'dhcp');
+    $id = (string)$rule['id'];
+    $enable = strtolower(dhcp_clean_string($rule['enable'] ?? 'true'));
+    if (!in_array($enable, ['true', 'false'], true)) dhcp_fail('enable debe ser true o false');
+    $mode = strtolower(dhcp_clean_string($rule['mode'] ?? 'server'));
+    if (!in_array($mode, ['server', 'relay'], true)) dhcp_fail('mode debe ser server o relay');
 
+    $interfaces = dhcp_import_interfaces();
+    $interface = dhcp_clean_string($rule['interface'] ?? '');
+    if ($interface === '') dhcp_fail('interface es obligatorio');
+    if ($interfaces && !in_array($interface, $interfaces, true)) dhcp_fail("interface '{$interface}' no existe");
 
+    $normalized = [
+        'id' => $id,
+        'enable' => $enable,
+        'mode' => $mode,
+        'interface' => $interface,
+        'range_start' => '',
+        'range_end' => '',
+        'lease_time' => '',
+        'gateway' => '',
+        'netmask' => '',
+        'dns_primary' => '',
+        'dns_secondary' => '',
+        'ntp_server' => '',
+        'relay_local_ip' => '',
+        'relay_dest_server' => '',
+    ];
 
+    if ($mode === 'server') {
+        if (dhcp_clean_string($rule['relay_local_ip'] ?? '') !== '' || dhcp_clean_string($rule['relay_dest_server'] ?? '') !== '') {
+            dhcp_fail('Una entrada server no puede tener relay_local_ip ni relay_dest_server');
+        }
+        $normalized['range_start'] = dhcp_validate_ip($rule['range_start'] ?? '', 'range_start', $enable === 'true');
+        $normalized['range_end'] = dhcp_validate_ip($rule['range_end'] ?? '', 'range_end', $enable === 'true');
+        $normalized['gateway'] = dhcp_validate_ip($rule['gateway'] ?? '', 'gateway', $enable === 'true');
+        $normalized['netmask'] = dhcp_validate_netmask($rule['netmask'] ?? '', $enable === 'true');
+        $normalized['lease_time'] = dhcp_validate_lease($rule['lease_time'] ?? '');
+        $normalized['dns_primary'] = dhcp_validate_ip($rule['dns_primary'] ?? '', 'dns_primary', false);
+        $normalized['dns_secondary'] = dhcp_validate_ip($rule['dns_secondary'] ?? '', 'dns_secondary', false);
+        $normalized['ntp_server'] = dhcp_validate_ip($rule['ntp_server'] ?? '', 'ntp_server', false);
 
+        if ($enable === 'true') {
+            if (dhcp_ip_to_long($normalized['range_start']) > dhcp_ip_to_long($normalized['range_end'])) {
+                dhcp_fail('range_start no puede ser mayor que range_end');
+            }
+            foreach (['range_start', 'range_end'] as $field) {
+                if (!dhcp_same_network($normalized[$field], $normalized['gateway'], $normalized['netmask'])) {
+                    dhcp_fail("{$field} debe estar en la misma red que gateway/netmask");
+                }
+            }
+        }
+    } else {
+        foreach (['range_start','range_end','gateway','netmask','dns_primary','dns_secondary','ntp_server'] as $field) {
+            if (dhcp_clean_string($rule[$field] ?? '') !== '') {
+                dhcp_fail('Una entrada relay no puede tener campos de scope/rango DHCP');
+            }
+        }
+        $normalized['relay_local_ip'] = dhcp_validate_ip($rule['relay_local_ip'] ?? '', 'relay_local_ip', $enable === 'true');
+        $normalized['relay_dest_server'] = dhcp_validate_ip($rule['relay_dest_server'] ?? '', 'relay_dest_server', $enable === 'true');
+    }
 
+    if ($existing !== null && $enable === 'true') {
+        foreach ($existing as $entry) {
+            $other = $entry['rule'] ?? [];
+            if (!is_array($other) || ($other['id'] ?? '') === $id || ($other['enable'] ?? 'true') !== 'true') continue;
+            if (($other['interface'] ?? '') === $interface) {
+                if (($other['mode'] ?? 'server') !== $mode) {
+                    dhcp_fail("La interfaz {$interface} no puede mezclar server y relay");
+                }
+                if ($mode === 'relay') {
+                    dhcp_fail("Solo se permite un relay activo por interfaz {$interface}");
+                }
+                if ($mode === 'server' && !empty($other['range_start']) && !empty($other['range_end']) && dhcp_ranges_overlap($normalized, $other)) {
+                    dhcp_fail("El rango DHCP se solapa con otra entrada activa en {$interface}");
+                }
+            }
+        }
+    }
 
-
+    return $normalized;
+}

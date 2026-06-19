@@ -1,10 +1,12 @@
 {
   "dhcp": [
     "id",
+    "enable",
+    "mode",
     "interface",
     "range_start",
     "range_end",
-    "time_lease",
+    "lease_time",
     "gateway",
     "netmask",
     "dns_primary",

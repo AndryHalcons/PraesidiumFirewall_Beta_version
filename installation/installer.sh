@@ -14,7 +14,7 @@ chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
 chmod +x configure_logs.sh
 chmod +x install_squid.sh
-chmod +x install_kea.sh
+# install_kea.sh is legacy; DHCP service is dnsmasq.
 
 
 
@@ -80,8 +80,6 @@ echo "Configurando install_squid.sh / Configuring install_squid.sh"
 echo "✅ Instalación install_squid.sh completada / Installation install_squid.sh completed"
 
 
-# Ejecutar install_kea.sh / Run install_kea.sh
-echo "Configurando install_kea.sh/ Configuring install_kea.sh"
-./install_kea.sh
-echo "✅ Instalación install_kea.sh completada / Installation install_kea.sh completed"
+# DHCP uses dnsmasq; Kea installer intentionally not executed.
+# DHCP usa dnsmasq; el instalador de Kea no se ejecuta intencionadamente.
 

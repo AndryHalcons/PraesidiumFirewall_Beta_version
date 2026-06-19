@@ -1,16 +1,21 @@
 {
-  "dhcp":{
-      "select":
-        {
-        "interface": [
-          ""
+  "dhcp": {
+    "select": {
+      "enable": [
+        "true",
+        "false"
+      ],
+      "mode": [
+        "server",
+        "relay"
+      ],
+      "interface": [
+        ""
       ]
-        },
-      "checkbox":
-          {
-          },
-      "not_editable": {  
-        "id": []
-          }
-      }
+    },
+    "checkbox": {},
+    "not_editable": {
+      "id": []
+    }
+  }
 }

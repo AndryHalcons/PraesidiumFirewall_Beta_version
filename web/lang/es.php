@@ -161,7 +161,7 @@ return [
     'access-points.<SSID>.mode'        => 'Modo Wi-Fi',
     'access-points.<SSID>.band'        => 'Banda Wi-Fi',
     'access-points.<SSID>.channel'     => 'Canal Wi-Fi',
-    'mode'                              => 'Modo de túnel',
+    'mode'                              => 'Modo',
     'local'                             => 'Dirección local',
     'remote'                            => 'Dirección remota',
     'port'                              => 'Puerto',
@@ -388,4 +388,13 @@ return [
     'system_logging_load_error' => 'Error cargando configuración',
     'system_logging_save_error' => 'Error guardando configuración',
 
+    'dhcp_description' => 'Configura ámbitos DHCP server o relay de dnsmasq.',
+    'range_start' => 'Inicio rango',
+    'range_end' => 'Fin rango',
+    'lease_time' => 'Tiempo lease',
+    'dns_primary' => 'DNS primario',
+    'dns_secondary' => 'DNS secundario',
+    'ntp_server' => 'Servidor NTP',
+    'relay_local_ip' => 'IP local relay',
+    'relay_dest_server' => 'Servidor relay destino',
 ];

@@ -3,45 +3,40 @@ session_start();
 header('Content-Type: application/json');
 
 if (empty($_SESSION['username'])) {
+    http_response_code(401);
     echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
-$chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['dhcp'];
-
-if ($chain === '' || !in_array($chain, $allowedChains, true)) {
+$table = trim($_GET['table'] ?? $_GET['chain'] ?? '');
+if ($table !== 'dhcp') {
+    http_response_code(400);
     echo json_encode(['error' => 'Parámetro "table" inválido']);
     exit;
 }
 
-switch ($chain) {
-    case 'dhcp':          get_dhcp_content(); break;
-    default:
-        echo json_encode(['error' => 'Cadena no soportada']);
-        break;
+$structure = json_decode((string)@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json'), true);
+$columns = $structure['dhcp'] ?? [];
+$data = json_decode((string)@file_get_contents('/var/www/config/dhcp.json'), true);
+$block = $data['dhcp'] ?? [];
+
+if (!is_array($columns) || !is_array($block)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'JSON DHCP mal formado']);
+    exit;
 }
 
-function get_dhcp_content() {
-    $structure = @json_decode(@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_dhcp.json'), true);
-    $columns = $structure['dhcp'] ?? [];
-
-    $data = @json_decode(@file_get_contents('/var/www/config/dhcp.json'), true);
-    $block = $data['dhcp'] ?? [];
-
-    $result = [];
-    foreach ($block as $entry) {
-        $rule = $entry['rule'] ?? [];
-        $flat = [];
-        foreach ($columns as $col) {
-            $flat[$col] = $rule[$col] ?? "";
-        }
-        $result[] = $flat; // ✅ sin envoltorio "rule"
+$result = [];
+foreach ($block as $entry) {
+    $rule = $entry['rule'] ?? [];
+    if (!is_array($rule)) {
+        continue;
     }
-
-    error_log(json_encode(['dhcp' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)); // log para depurar
-
-    echo json_encode(['dhcp' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $flat = [];
+    foreach ($columns as $col) {
+        $flat[$col] = isset($rule[$col]) ? (string)$rule[$col] : '';
+    }
+    $result[] = $flat;
 }
 
-
+echo json_encode(['dhcp' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

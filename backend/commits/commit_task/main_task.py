@@ -4,10 +4,12 @@ from task_gen_interface_config import gen_interface_config
 from task_gen_nftables_policies import gen_nftables_policies
 from task_gen_bpfilter_policies import gen_bpfilter_policies
 from task_gen_squid_policy import gen_squid_config
+from task_gen_dhcp_config import gen_dhcp_config
 from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 from task_apply_interface_config import apply_interface_config
 from task_apply_squid_policy import apply_squid_config
+from task_apply_dhcp_config import apply_dhcp_config
 from task_apply_system_logging import apply_system_logging
 
 
@@ -43,6 +45,10 @@ def start_commit_process(user, date):
     # Generates Squid rules, copies certificates, and verifies
     gen_squid_config(user, date)
 
+    # Genera la configuración DHCP/dnsmasq
+    # Generate DHCP/dnsmasq configuration
+    gen_dhcp_config(user, date)
+
     ################################################################################################################################
     ###################################### Section APPLY ###########################################################################
     ################################################################################################################################
@@ -66,6 +72,10 @@ def start_commit_process(user, date):
     #aplica las reglas de squid,
     #apply the rules of squid,
     apply_squid_config(user,date)
+
+    # aplica la configuración DHCP/dnsmasq
+    # apply DHCP/dnsmasq configuration
+    apply_dhcp_config(user,date)
 
     # aplica la configuración de logs del sistema
     # apply system logging configuration
