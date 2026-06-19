@@ -42,4 +42,4 @@ foreach ($start as $i => $core) {
 }
 
 $average = count($usages) ? round(array_sum($usages) / count($usages), 2) : 0;
-echo json_encode(['cores' => $usages, 'average' => $average], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo json_encode(['cores' => $usages, 'average' => $average, 'core_count' => count($usages)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

@@ -60,17 +60,34 @@
                     backgroundColor: 'rgba(58, 134, 255, 0.72)',
                     borderColor: 'rgba(58, 134, 255, 1)',
                     borderWidth: 1,
-                    borderRadius: 5
+                    borderRadius: 5,
+                    minBarLength: 3
                 }]
             },
             options: {
+                indexAxis: 'y',
                 animation: false,
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `${context.parsed.x.toFixed(1)}%`
+                        }
+                    }
+                },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, max: 100, ticks: { callback: value => `${value}%` } }
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(148, 163, 184, 0.14)' },
+                        ticks: { callback: value => `${value}%` }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { autoSkip: false }
+                    }
                 }
             }
         });
@@ -101,8 +118,13 @@
     const updateCpu = async () => {
         const data = await getJson('/dashboard/cpu_stats.php');
         const cores = Array.isArray(data.cores) ? data.cores : [];
+        const cpuBox = document.querySelector('.dashboard-chart-box-cpu');
+        if (cpuBox) {
+            const dynamicHeight = Math.min(760, Math.max(240, cores.length * 34));
+            cpuBox.style.height = `${dynamicHeight}px`;
+        }
         cpuChart.data.labels = cores.map((_, index) => `${i18n.coreLabel || 'Core'} ${index}`);
-        cpuChart.data.datasets[0].data = cores;
+        cpuChart.data.datasets[0].data = cores.map(value => Number(value) || 0);
         cpuChart.update();
 
         const average = Number(data.average ?? 0);
@@ -111,12 +133,21 @@
 
         const list = document.getElementById('dashboard-cpu-list');
         if (list) {
-            list.innerHTML = cores.map((value, index) => `
-                <div class="dashboard-core-pill">
-                    <span>${i18n.coreLabel || 'Core'} ${index}</span>
-                    <strong>${Number(value).toFixed(1)}%</strong>
-                </div>
-            `).join('');
+            list.innerHTML = cores.map((value, index) => {
+                const percent = Math.max(0, Math.min(100, Number(value) || 0));
+                const visibleWidth = percent > 0 ? percent : 1;
+                return `
+                    <div class="dashboard-core-pill">
+                        <div class="dashboard-core-pill-top">
+                            <span>${i18n.coreLabel || 'Core'} ${index}</span>
+                            <strong>${percent.toFixed(1)}%</strong>
+                        </div>
+                        <div class="dashboard-core-bar" aria-hidden="true">
+                            <span style="width: ${visibleWidth}%"></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
     };
 
