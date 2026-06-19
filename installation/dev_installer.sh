@@ -68,5 +68,5 @@ echo "✅ Instalación install_bpfilter.sh completada / Installation install_bpf
 
 # Ejecutar configure_bpfilter.sh / Run configure_bpfilter.sh
 echo "Configurando configure_logs.sh / Configuring configure_logs.sh"
-#./configure_logs.sh
+./configure_logs.sh
 echo "✅ Instalación configure_logs.sh completada / Installation configure_logs.sh completed"

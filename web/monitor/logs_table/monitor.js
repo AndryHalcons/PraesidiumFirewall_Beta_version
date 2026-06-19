@@ -204,8 +204,9 @@ function searchMonitorLogs() {
     }
   });
 
-  // Añadimos el único campo extra
-  filters.user = "praesidium";
+  // Añadimos el usuario autenticado publicado por monitor.php.
+  // Add the authenticated user published by monitor.php.
+  filters.user = (typeof USERNAME !== "undefined" && USERNAME) ? USERNAME : "";
 
   // 🔍 Mostrar en consola lo que se va a enviar
   console.log("Enviando al backend:", filters);
