@@ -36,21 +36,31 @@ def _ipv4(value, field, required=True):
             raise ValueError(f'{field} is required')
         return ''
     try:
-        ipaddress.IPv4Address(value)
-        return value
+        ip = ipaddress.IPv4Address(value)
     except ValueError as exc:
-        raise ValueError(f'{field} must be a valid IPv4 address') from exc
+        raise ValueError(f'{field} must be a valid IPv4 address; IPv6 is not supported in DHCPv4') from exc
+    if not _is_unicast_ipv4(ip):
+        raise ValueError(f'{field} must be a usable unicast IPv4 address')
+    return value
+
+
+def _is_unicast_ipv4(ip):
+    return not (
+        ip.is_unspecified or ip.is_loopback or ip.is_link_local or
+        ip.is_multicast or ip.is_reserved or ip == ipaddress.IPv4Address('255.255.255.255')
+    )
 
 
 def _netmask(value):
-    value = _ipv4(value, 'netmask', True)
+    value = str(value or '').strip()
+    if not value:
+        raise ValueError('netmask is required')
     try:
+        ipaddress.IPv4Address(value)
         ipaddress.IPv4Network(f'0.0.0.0/{value}')
     except ValueError as exc:
         raise ValueError('netmask must be a valid contiguous IPv4 netmask') from exc
     return value
-
-
 def _lease(value):
     value = str(value or '').strip() or '12h'
     import re
@@ -59,9 +69,28 @@ def _lease(value):
     return value
 
 
+def _network(gateway, netmask):
+    return ipaddress.IPv4Network(f'{gateway}/{netmask}', strict=False)
+
+
 def _network_contains(ip, gateway, netmask):
-    network = ipaddress.IPv4Network(f'{gateway}/{netmask}', strict=False)
-    return ipaddress.IPv4Address(ip) in network
+    return ipaddress.IPv4Address(ip) in _network(gateway, netmask)
+
+
+def _is_network_or_broadcast(ip, gateway, netmask):
+    network = _network(gateway, netmask)
+    candidate = ipaddress.IPv4Address(ip)
+    return candidate == network.network_address or candidate == network.broadcast_address
+
+
+def _range_contains(ip, start, end):
+    candidate = int(ipaddress.IPv4Address(ip))
+    return int(ipaddress.IPv4Address(start)) <= candidate <= int(ipaddress.IPv4Address(end))
+
+
+def _interface_exists(name):
+    sys_path = Path('/sys/class/net') / name
+    return name != 'lo' and sys_path.is_dir() and (sys_path / 'ifindex').exists()
 
 
 def _range_tuple(rule):
@@ -92,6 +121,8 @@ def _validate_rules(date, entries):
         }
         if item['enable'] not in ('true', 'false') or item['mode'] not in ('server', 'relay') or not item['interface']:
             _fail(date, 'dhcp_validate_model')
+        if not _interface_exists(item['interface']):
+            _fail(date, 'dhcp_validate_model')
         if item['enable'] != 'true':
             normalized.append(item)
             continue
@@ -107,16 +138,28 @@ def _validate_rules(date, entries):
                 item['dns_primary'] = _ipv4(rule.get('dns_primary'), 'dns_primary', False)
                 item['dns_secondary'] = _ipv4(rule.get('dns_secondary'), 'dns_secondary', False)
                 item['ntp_server'] = _ipv4(rule.get('ntp_server'), 'ntp_server', False)
+                if _network(item['gateway'], item['netmask']).prefixlen > 30:
+                    raise ValueError('netmask does not leave enough usable addresses for a DHCP scope')
                 if int(ipaddress.IPv4Address(item['range_start'])) > int(ipaddress.IPv4Address(item['range_end'])):
                     raise ValueError('range_start cannot be greater than range_end')
-                if not _network_contains(item['range_start'], item['gateway'], item['netmask']) or not _network_contains(item['range_end'], item['gateway'], item['netmask']):
-                    raise ValueError('range must be inside gateway/netmask network')
+                for field in ('gateway', 'range_start', 'range_end'):
+                    if not _network_contains(item[field], item['gateway'], item['netmask']):
+                        raise ValueError(f'{field} must be inside gateway/netmask network')
+                    if _is_network_or_broadcast(item[field], item['gateway'], item['netmask']):
+                        raise ValueError(f'{field} cannot be network or broadcast address')
+                if _range_contains(item['gateway'], item['range_start'], item['range_end']):
+                    raise ValueError('gateway cannot be inside the DHCP client pool')
+                for field in ('dns_primary', 'dns_secondary', 'ntp_server'):
+                    if item[field] and _is_network_or_broadcast(item[field], item['gateway'], item['netmask']):
+                        raise ValueError(f'{field} cannot be network or broadcast address')
             else:
                 forbidden = ['range_start','range_end','gateway','netmask','dns_primary','dns_secondary','ntp_server']
                 if any(str(rule.get(k, '')).strip() for k in forbidden):
                     raise ValueError('relay entries cannot contain server scope fields')
                 item['relay_local_ip'] = _ipv4(rule.get('relay_local_ip'), 'relay_local_ip')
                 item['relay_dest_server'] = _ipv4(rule.get('relay_dest_server'), 'relay_dest_server')
+                if item['relay_local_ip'] == item['relay_dest_server']:
+                    raise ValueError('relay_local_ip and relay_dest_server cannot be equal')
         except ValueError:
             _fail(date, 'dhcp_validate_model')
 

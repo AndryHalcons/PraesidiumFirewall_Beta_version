@@ -42,16 +42,43 @@ function dhcp_clean_string($value): string {
     return trim((string)($value ?? ''));
 }
 
-function dhcp_validate_ip(string $value, string $field, bool $required = false): string {
+function dhcp_validate_ip(string $value, string $field, bool $required = false, bool $allowSpecial = false): string {
     $value = dhcp_clean_string($value);
     if ($value === '') {
         if ($required) dhcp_fail("{$field} es obligatorio");
         return '';
     }
+    // DHCP v4/dnsmasq scope UI accepts IPv4 only. IPv6 must not be mixed into these fields.
+    // La UI de ámbitos DHCP v4/dnsmasq solo acepta IPv4. No se permite mezclar IPv6 en estos campos.
     if (!filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        dhcp_fail("{$field} debe ser una IPv4 válida");
+        dhcp_fail("{$field} debe ser una IPv4 válida; IPv6 no está soportado en esta sección DHCPv4");
+    }
+    if (!$allowSpecial) {
+        $flags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+        // We do not use the PHP flags because private RFC1918 addresses are valid for DHCP scopes.
+        // No usamos esos flags porque las privadas RFC1918 son válidas para ámbitos DHCP.
+        if (!dhcp_is_unicast_ipv4($value)) {
+            dhcp_fail("{$field} debe ser una IPv4 unicast utilizable");
+        }
     }
     return $value;
+}
+
+function dhcp_is_unicast_ipv4(string $ip): bool {
+    $long = dhcp_ip_to_long($ip);
+    // 0.0.0.0/8, 127.0.0.0/8, 169.254.0.0/16, multicast 224.0.0.0/4, reserved 240.0.0.0/4, broadcast.
+    // 0.0.0.0/8, loopback, link-local, multicast, reservado y broadcast no son direcciones de host DHCP válidas.
+    $badRanges = [
+        ['0.0.0.0', '0.255.255.255'],
+        ['127.0.0.0', '127.255.255.255'],
+        ['169.254.0.0', '169.254.255.255'],
+        ['224.0.0.0', '239.255.255.255'],
+        ['240.0.0.0', '255.255.255.255'],
+    ];
+    foreach ($badRanges as [$start, $end]) {
+        if ($long >= dhcp_ip_to_long($start) && $long <= dhcp_ip_to_long($end)) return false;
+    }
+    return true;
 }
 
 function dhcp_validate_netmask(string $value, bool $required = false): string {
@@ -86,8 +113,31 @@ function dhcp_ip_to_long(string $ip): int {
     return (int)sprintf('%u', $n);
 }
 
+function dhcp_network_bounds(string $gateway, string $netmask): array {
+    $network = dhcp_ip_to_long($gateway) & dhcp_ip_to_long($netmask);
+    $broadcast = $network | (~dhcp_ip_to_long($netmask) & 0xFFFFFFFF);
+    return [$network, $broadcast];
+}
+
 function dhcp_same_network(string $ip, string $gateway, string $netmask): bool {
-    return (dhcp_ip_to_long($ip) & dhcp_ip_to_long($netmask)) === (dhcp_ip_to_long($gateway) & dhcp_ip_to_long($netmask));
+    [$network, $broadcast] = dhcp_network_bounds($gateway, $netmask);
+    $candidate = dhcp_ip_to_long($ip);
+    return $candidate >= $network && $candidate <= $broadcast;
+}
+
+function dhcp_is_network_or_broadcast(string $ip, string $gateway, string $netmask): bool {
+    [$network, $broadcast] = dhcp_network_bounds($gateway, $netmask);
+    $candidate = dhcp_ip_to_long($ip);
+    return $candidate === $network || $candidate === $broadcast;
+}
+
+function dhcp_range_contains(string $ip, string $start, string $end): bool {
+    $candidate = dhcp_ip_to_long($ip);
+    return $candidate >= dhcp_ip_to_long($start) && $candidate <= dhcp_ip_to_long($end);
+}
+
+function dhcp_netmask_prefix(string $netmask): int {
+    return substr_count(str_pad(decbin(dhcp_ip_to_long($netmask)), 32, '0', STR_PAD_LEFT), '1');
 }
 
 function dhcp_ranges_overlap(array $a, array $b): bool {
@@ -155,12 +205,26 @@ function validate_dhcp_rule(array $rule, ?array $existing = null): array {
         $normalized['ntp_server'] = dhcp_validate_ip($rule['ntp_server'] ?? '', 'ntp_server', false);
 
         if ($enable === 'true') {
+            if (dhcp_netmask_prefix($normalized['netmask']) > 30) {
+                dhcp_fail('netmask no deja suficientes direcciones útiles para un ámbito DHCP');
+            }
             if (dhcp_ip_to_long($normalized['range_start']) > dhcp_ip_to_long($normalized['range_end'])) {
                 dhcp_fail('range_start no puede ser mayor que range_end');
             }
-            foreach (['range_start', 'range_end'] as $field) {
+            foreach (['gateway', 'range_start', 'range_end'] as $field) {
                 if (!dhcp_same_network($normalized[$field], $normalized['gateway'], $normalized['netmask'])) {
                     dhcp_fail("{$field} debe estar en la misma red que gateway/netmask");
+                }
+                if (dhcp_is_network_or_broadcast($normalized[$field], $normalized['gateway'], $normalized['netmask'])) {
+                    dhcp_fail("{$field} no puede ser la dirección de red ni broadcast");
+                }
+            }
+            if (dhcp_range_contains($normalized['gateway'], $normalized['range_start'], $normalized['range_end'])) {
+                dhcp_fail('gateway no puede estar dentro del rango DHCP entregado a clientes');
+            }
+            foreach (['dns_primary', 'dns_secondary', 'ntp_server'] as $field) {
+                if ($normalized[$field] !== '' && dhcp_is_network_or_broadcast($normalized[$field], $normalized['gateway'], $normalized['netmask'])) {
+                    dhcp_fail("{$field} no puede ser la dirección de red ni broadcast");
                 }
             }
         }
@@ -172,6 +236,9 @@ function validate_dhcp_rule(array $rule, ?array $existing = null): array {
         }
         $normalized['relay_local_ip'] = dhcp_validate_ip($rule['relay_local_ip'] ?? '', 'relay_local_ip', $enable === 'true');
         $normalized['relay_dest_server'] = dhcp_validate_ip($rule['relay_dest_server'] ?? '', 'relay_dest_server', $enable === 'true');
+        if ($enable === 'true' && $normalized['relay_local_ip'] === $normalized['relay_dest_server']) {
+            dhcp_fail('relay_local_ip y relay_dest_server no pueden ser la misma IP');
+        }
     }
 
     if ($existing !== null && $enable === 'true') {
