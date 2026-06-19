@@ -336,11 +336,37 @@ return [
     ////////////////////   certificates      //////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    'download' => '⬇️ Descargar'
+    'download' => '⬇️ Descargar',
 
-    
-
-
-    
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   system logging settings   //////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'system_logging_title' => 'Logs del sistema',
+    'system_logging_description' => 'Configura los límites de journald, logs clásicos de Ubuntu y logs nftables. Los cambios se guardan como candidate y se aplican con Commit.',
+    'system_logging_group_journald' => 'Journal systemd',
+    'system_logging_group_system_logs' => 'Logs clásicos de Ubuntu',
+    'system_logging_group_nftables_logs' => 'Logs nftables Praesidium',
+    'system_logging_journald_system_max_use' => 'Journal: tamaño máximo persistente',
+    'system_logging_journald_system_keep_free' => 'Journal: espacio libre protegido',
+    'system_logging_journald_runtime_max_use' => 'Journal: tamaño máximo runtime',
+    'system_logging_journald_max_retention_sec' => 'Journal: retención máxima',
+    'system_logging_journald_compress' => 'Journal: comprimir',
+    'system_logging_system_logs_enabled' => 'Logs Ubuntu: aplicar rotación',
+    'system_logging_system_logs_rotation' => 'Logs Ubuntu: frecuencia',
+    'system_logging_system_logs_rotate' => 'Logs Ubuntu: rotaciones',
+    'system_logging_system_logs_maxsize' => 'Logs Ubuntu: tamaño máximo',
+    'system_logging_system_logs_compress' => 'Logs Ubuntu: comprimir',
+    'system_logging_system_logs_delaycompress' => 'Logs Ubuntu: retrasar compresión',
+    'system_logging_nftables_logs_enabled' => 'Logs nftables: activar archivo dedicado',
+    'system_logging_nftables_logs_size' => 'Logs nftables: tamaño máximo',
+    'system_logging_nftables_logs_rotate' => 'Logs nftables: rotaciones',
+    'system_logging_nftables_logs_compress' => 'Logs nftables: comprimir',
+    'system_logging_nftables_logs_delaycompress' => 'Logs nftables: retrasar compresión',
+    'system_logging_save_candidate' => 'Guardar candidate',
+    'system_logging_loaded' => 'Configuración candidate cargada.',
+    'system_logging_saved' => 'Configuración guardada en candidate. Aplique Commit para pasarla a running.',
+    'system_logging_load_error' => 'Error cargando configuración',
+    'system_logging_save_error' => 'Error guardando configuración',
 
 ];

@@ -22,8 +22,8 @@ $L = require $langFile;
 <body>
   <h1><?= htmlspecialchars($L['sidebar_settings'] ?? 'Configuración') ?></h1>
   <section class="settings-card">
-    <h2>Logs del sistema</h2>
-    <p>Configura los límites de journald, logs clásicos de Ubuntu y logs nftables. Los cambios se guardan como candidate y se aplican con Commit.</p>
+    <h2><?= htmlspecialchars($L['system_logging_title'] ?? 'System logs') ?></h2>
+    <p><?= htmlspecialchars($L['system_logging_description'] ?? '') ?></p>
     <div id="system-logging-status" class="settings-status"></div>
     <form id="system-logging-form" class="settings-form"></form>
   </section>

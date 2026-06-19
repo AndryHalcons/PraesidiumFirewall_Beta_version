@@ -345,7 +345,37 @@ return [
     ////////////////////   certificates      //////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    'download' => '⬇️ Download'
+    'download' => '⬇️ Download',
 
-    
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    ////////////////////   system logging settings   //////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    'system_logging_title' => 'System logs',
+    'system_logging_description' => 'Configure journald, classic Ubuntu logs and nftables log limits. Changes are saved as candidate and applied with Commit.',
+    'system_logging_group_journald' => 'systemd journal',
+    'system_logging_group_system_logs' => 'Classic Ubuntu logs',
+    'system_logging_group_nftables_logs' => 'Praesidium nftables logs',
+    'system_logging_journald_system_max_use' => 'Journal: persistent maximum size',
+    'system_logging_journald_system_keep_free' => 'Journal: protected free space',
+    'system_logging_journald_runtime_max_use' => 'Journal: runtime maximum size',
+    'system_logging_journald_max_retention_sec' => 'Journal: maximum retention',
+    'system_logging_journald_compress' => 'Journal: compress',
+    'system_logging_system_logs_enabled' => 'Ubuntu logs: apply rotation',
+    'system_logging_system_logs_rotation' => 'Ubuntu logs: frequency',
+    'system_logging_system_logs_rotate' => 'Ubuntu logs: rotations',
+    'system_logging_system_logs_maxsize' => 'Ubuntu logs: maximum size',
+    'system_logging_system_logs_compress' => 'Ubuntu logs: compress',
+    'system_logging_system_logs_delaycompress' => 'Ubuntu logs: delay compression',
+    'system_logging_nftables_logs_enabled' => 'nftables logs: enable dedicated file',
+    'system_logging_nftables_logs_size' => 'nftables logs: maximum size',
+    'system_logging_nftables_logs_rotate' => 'nftables logs: rotations',
+    'system_logging_nftables_logs_compress' => 'nftables logs: compress',
+    'system_logging_nftables_logs_delaycompress' => 'nftables logs: delay compression',
+    'system_logging_save_candidate' => 'Save candidate',
+    'system_logging_loaded' => 'Candidate configuration loaded.',
+    'system_logging_saved' => 'Configuration saved as candidate. Apply Commit to move it to running.',
+    'system_logging_load_error' => 'Error loading configuration',
+    'system_logging_save_error' => 'Error saving configuration',
+
 ];
