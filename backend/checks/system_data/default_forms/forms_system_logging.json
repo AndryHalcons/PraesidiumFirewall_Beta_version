@@ -1,105 +1,176 @@
 {
-    "select": {
-        "journald.system_max_use": [
-            "10M",
-            "25M",
-            "50M",
-            "100M",
-            "250M",
-            "500M",
-            "1G",
-            "2G"
-        ],
-        "journald.system_keep_free": [
-            "10M",
-            "25M",
-            "50M",
-            "100M",
-            "250M",
-            "500M",
-            "1G",
-            "2G"
-        ],
-        "journald.runtime_max_use": [
-            "10M",
-            "25M",
-            "50M",
-            "100M",
-            "250M",
-            "500M",
-            "1G",
-            "2G"
-        ],
-        "journald.max_retention_sec": [
-            "1day",
-            "3day",
-            "7day",
-            "14day",
-            "30day"
-        ],
-        "system_logs.rotation": [
-            "daily",
-            "weekly"
-        ],
-        "system_logs.maxsize": [
-            "10M",
-            "25M",
-            "50M",
-            "100M",
-            "250M",
-            "500M",
-            "1G",
-            "2G"
-        ],
-        "nftables_logs.size": [
-            "10M",
-            "25M",
-            "50M",
-            "100M",
-            "250M",
-            "500M",
-            "1G",
-            "2G"
-        ]
-    },
-    "checkbox": {
-        "journald.compress": {
-            "checked": true,
-            "unchecked": false
+    "system_logging": {
+        "disable_add": true,
+        "disable_delete": true,
+        "not_editable": {},
+        "select": {
+            "system_logging_journald_system_max_use": [
+                "10M",
+                "25M",
+                "50M",
+                "100M",
+                "250M",
+                "500M",
+                "1G",
+                "2G"
+            ],
+            "system_logging_journald_system_keep_free": [
+                "10M",
+                "25M",
+                "50M",
+                "100M",
+                "250M",
+                "500M",
+                "1G",
+                "2G"
+            ],
+            "system_logging_journald_runtime_max_use": [
+                "10M",
+                "25M",
+                "50M",
+                "100M",
+                "250M",
+                "500M",
+                "1G",
+                "2G"
+            ],
+            "system_logging_journald_max_retention_sec": [
+                "1day",
+                "3day",
+                "7day",
+                "14day",
+                "30day"
+            ],
+            "system_logging_system_logs_rotation": [
+                "daily",
+                "weekly"
+            ],
+            "system_logging_system_logs_maxsize": [
+                "10M",
+                "25M",
+                "50M",
+                "100M",
+                "250M",
+                "500M",
+                "1G",
+                "2G"
+            ],
+            "system_logging_nftables_logs_size": [
+                "10M",
+                "25M",
+                "50M",
+                "100M",
+                "250M",
+                "500M",
+                "1G",
+                "2G"
+            ]
         },
-        "system_logs.enabled": {
-            "checked": true,
-            "unchecked": false
+        "checkbox": {
+            "system_logging_journald_compress": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_system_logs_enabled": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_system_logs_compress": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_system_logs_delaycompress": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_nftables_logs_enabled": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_nftables_logs_compress": {
+                "checked": true,
+                "unchecked": false
+            },
+            "system_logging_nftables_logs_delaycompress": {
+                "checked": true,
+                "unchecked": false
+            }
         },
-        "system_logs.compress": {
-            "checked": true,
-            "unchecked": false
+        "number": {
+            "system_logging_system_logs_rotate": {
+                "min": 1,
+                "max": 30
+            },
+            "system_logging_nftables_logs_rotate": {
+                "min": 1,
+                "max": 30
+            }
         },
-        "system_logs.delaycompress": {
-            "checked": true,
-            "unchecked": false
-        },
-        "nftables_logs.enabled": {
-            "checked": true,
-            "unchecked": false
-        },
-        "nftables_logs.compress": {
-            "checked": true,
-            "unchecked": false
-        },
-        "nftables_logs.delaycompress": {
-            "checked": true,
-            "unchecked": false
-        }
-    },
-    "number": {
-        "system_logs.rotate": {
-            "min": 1,
-            "max": 30
-        },
-        "nftables_logs.rotate": {
-            "min": 1,
-            "max": 30
+        "_field_map": {
+            "system_logging_journald_system_max_use": {
+                "section": "journald",
+                "key": "system_max_use"
+            },
+            "system_logging_journald_system_keep_free": {
+                "section": "journald",
+                "key": "system_keep_free"
+            },
+            "system_logging_journald_runtime_max_use": {
+                "section": "journald",
+                "key": "runtime_max_use"
+            },
+            "system_logging_journald_max_retention_sec": {
+                "section": "journald",
+                "key": "max_retention_sec"
+            },
+            "system_logging_journald_compress": {
+                "section": "journald",
+                "key": "compress"
+            },
+            "system_logging_system_logs_enabled": {
+                "section": "system_logs",
+                "key": "enabled"
+            },
+            "system_logging_system_logs_rotation": {
+                "section": "system_logs",
+                "key": "rotation"
+            },
+            "system_logging_system_logs_rotate": {
+                "section": "system_logs",
+                "key": "rotate"
+            },
+            "system_logging_system_logs_maxsize": {
+                "section": "system_logs",
+                "key": "maxsize"
+            },
+            "system_logging_system_logs_compress": {
+                "section": "system_logs",
+                "key": "compress"
+            },
+            "system_logging_system_logs_delaycompress": {
+                "section": "system_logs",
+                "key": "delaycompress"
+            },
+            "system_logging_nftables_logs_enabled": {
+                "section": "nftables_logs",
+                "key": "enabled"
+            },
+            "system_logging_nftables_logs_size": {
+                "section": "nftables_logs",
+                "key": "size"
+            },
+            "system_logging_nftables_logs_rotate": {
+                "section": "nftables_logs",
+                "key": "rotate"
+            },
+            "system_logging_nftables_logs_compress": {
+                "section": "nftables_logs",
+                "key": "compress"
+            },
+            "system_logging_nftables_logs_delaycompress": {
+                "section": "nftables_logs",
+                "key": "delaycompress"
+            }
         }
     }
 }

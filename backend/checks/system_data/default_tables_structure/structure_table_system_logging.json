@@ -1,109 +1,20 @@
 {
-    "system_logging": {
-        "groups": [
-            {
-                "id": "journald",
-                "labelKey": "system_logging_group_journald",
-                "fallback": "systemd journal",
-                "fields": [
-                    "journald.system_max_use",
-                    "journald.system_keep_free",
-                    "journald.runtime_max_use",
-                    "journald.max_retention_sec",
-                    "journald.compress"
-                ]
-            },
-            {
-                "id": "system_logs",
-                "labelKey": "system_logging_group_system_logs",
-                "fallback": "Classic Ubuntu logs",
-                "fields": [
-                    "system_logs.enabled",
-                    "system_logs.rotation",
-                    "system_logs.rotate",
-                    "system_logs.maxsize",
-                    "system_logs.compress",
-                    "system_logs.delaycompress"
-                ]
-            },
-            {
-                "id": "nftables_logs",
-                "labelKey": "system_logging_group_nftables_logs",
-                "fallback": "Praesidium nftables logs",
-                "fields": [
-                    "nftables_logs.enabled",
-                    "nftables_logs.size",
-                    "nftables_logs.rotate",
-                    "nftables_logs.compress",
-                    "nftables_logs.delaycompress"
-                ]
-            }
-        ],
-        "fields": {
-            "journald.system_max_use": {
-                "labelKey": "system_logging_journald_system_max_use",
-                "fallback": "Journal: persistent maximum size"
-            },
-            "journald.system_keep_free": {
-                "labelKey": "system_logging_journald_system_keep_free",
-                "fallback": "Journal: protected free space"
-            },
-            "journald.runtime_max_use": {
-                "labelKey": "system_logging_journald_runtime_max_use",
-                "fallback": "Journal: runtime maximum size"
-            },
-            "journald.max_retention_sec": {
-                "labelKey": "system_logging_journald_max_retention_sec",
-                "fallback": "Journal: maximum retention"
-            },
-            "journald.compress": {
-                "labelKey": "system_logging_journald_compress",
-                "fallback": "Journal: compress"
-            },
-            "system_logs.enabled": {
-                "labelKey": "system_logging_system_logs_enabled",
-                "fallback": "Ubuntu logs: apply rotation"
-            },
-            "system_logs.rotation": {
-                "labelKey": "system_logging_system_logs_rotation",
-                "fallback": "Ubuntu logs: frequency"
-            },
-            "system_logs.rotate": {
-                "labelKey": "system_logging_system_logs_rotate",
-                "fallback": "Ubuntu logs: rotations"
-            },
-            "system_logs.maxsize": {
-                "labelKey": "system_logging_system_logs_maxsize",
-                "fallback": "Ubuntu logs: maximum size"
-            },
-            "system_logs.compress": {
-                "labelKey": "system_logging_system_logs_compress",
-                "fallback": "Ubuntu logs: compress"
-            },
-            "system_logs.delaycompress": {
-                "labelKey": "system_logging_system_logs_delaycompress",
-                "fallback": "Ubuntu logs: delay compression"
-            },
-            "nftables_logs.enabled": {
-                "labelKey": "system_logging_nftables_logs_enabled",
-                "fallback": "nftables logs: enable dedicated file"
-            },
-            "nftables_logs.size": {
-                "labelKey": "system_logging_nftables_logs_size",
-                "fallback": "nftables logs: maximum size"
-            },
-            "nftables_logs.rotate": {
-                "labelKey": "system_logging_nftables_logs_rotate",
-                "fallback": "nftables logs: rotations"
-            },
-            "nftables_logs.compress": {
-                "labelKey": "system_logging_nftables_logs_compress",
-                "fallback": "nftables logs: compress"
-            },
-            "nftables_logs.delaycompress": {
-                "labelKey": "system_logging_nftables_logs_delaycompress",
-                "fallback": "nftables logs: delay compression"
-            }
-        }
-    }
+    "system_logging": [
+        "system_logging_journald_system_max_use",
+        "system_logging_journald_system_keep_free",
+        "system_logging_journald_runtime_max_use",
+        "system_logging_journald_max_retention_sec",
+        "system_logging_journald_compress",
+        "system_logging_system_logs_enabled",
+        "system_logging_system_logs_rotation",
+        "system_logging_system_logs_rotate",
+        "system_logging_system_logs_maxsize",
+        "system_logging_system_logs_compress",
+        "system_logging_system_logs_delaycompress",
+        "system_logging_nftables_logs_enabled",
+        "system_logging_nftables_logs_size",
+        "system_logging_nftables_logs_rotate",
+        "system_logging_nftables_logs_compress",
+        "system_logging_nftables_logs_delaycompress"
+    ]
 }

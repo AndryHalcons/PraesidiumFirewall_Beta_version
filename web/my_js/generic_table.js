@@ -19,11 +19,21 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
         return;
       }
 
-      // Insertar el botón "Agregar política" antes del contenedor
-      const addBtn = document.createElement("button");
-      addBtn.textContent = LANG["add"] || "Add";
-      addBtn.onclick = () => add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
-      container.insertAdjacentElement("beforebegin", addBtn);
+      // Leer la configuración del formulario para respetar opciones comunes
+      // Read form configuration to honor shared table options
+      fetch(`${path_get_forms_from_table}?table=${currentAlias}`)
+        .then(res => res.json())
+        .then(formConfigForTable => {
+          if (!formConfigForTable.disable_add) {
+            // Insertar el botón "Agregar" antes del contenedor
+            // Insert the shared "Add" button before the container
+            const addBtn = document.createElement("button");
+            addBtn.textContent = LANG["add"] || "Add";
+            addBtn.onclick = () => add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
+            container.insertAdjacentElement("beforebegin", addBtn);
+          }
+        })
+        .catch(error => console.error("Error al cargar opciones de formulario:", error));
 
       container.innerHTML = "";
 
@@ -129,21 +139,24 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
               )
             );
 
-            const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = LANG["delete"] || "Eliminar";
-            deleteBtn.onclick = () => delete_Generic(
-              currentAlias,
-              path_get_table_structure,
-              path_get_table_content,
-              path_get_forms_from_table,
-              path_get_update,
-              path_get_delete,
-              rule,
-              columns
-            );
-
             actionsTd.appendChild(editBtn);
-            actionsTd.appendChild(deleteBtn);
+
+            if (!formConfig.disable_delete) {
+              const deleteBtn = document.createElement("button");
+              deleteBtn.textContent = LANG["delete"] || "Eliminar";
+              deleteBtn.onclick = () => delete_Generic(
+                currentAlias,
+                path_get_table_structure,
+                path_get_table_content,
+                path_get_forms_from_table,
+                path_get_update,
+                path_get_delete,
+                rule,
+                columns
+              );
+              actionsTd.appendChild(deleteBtn);
+            }
+
             tr.appendChild(actionsTd);
 
             // Rellenar columnas con inputs visuales
