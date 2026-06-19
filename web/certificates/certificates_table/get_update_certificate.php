@@ -1,15 +1,5 @@
 <?php
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
-require_admin_json();
-csrf_validate_or_exit();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,4 +303,31 @@ function update_certificates_config_json() {
     // Save to certificates_config.json
     $output = ['certificates' => $ordered];
     json_store_write('/var/www/config/certs/certificates_config.json', $output, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+}
+
+/*
+#############################################################################
+   Ejecución directa del actualizador de certificados
+   Direct execution of the certificates updater
+
+   Cuando este archivo se incluye desde get_table_content.php solo aporta la
+   función update_certificates_config_json(). Si se llama directamente como
+   endpoint administrativo, exige login admin y token CSRF.
+
+   When this file is included from get_table_content.php it only provides the
+   update_certificates_config_json() function. If called directly as an admin
+   endpoint, it requires admin login and a CSRF token.
+#############################################################################
+*/
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    session_start();
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
+
+    require_admin_json();
+    csrf_validate_or_exit();
+
+    header('Content-Type: application/json');
+    update_certificates_config_json();
+    echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
