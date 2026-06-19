@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
+csrf_validate_or_exit();
 if (!isset($_SESSION['username'])) {
     http_response_code(403);
     echo json_encode(["error" => "No autorizado"]);

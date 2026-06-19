@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
+csrf_validate_or_exit();
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['username'])) {

@@ -2,6 +2,8 @@
 require_once __DIR__ . "/validation_uploads.php";
 
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
+csrf_validate_or_exit();
 if (!isset($_SESSION['username'])) {
     http_response_code(403);
     header('Content-Type: application/json');

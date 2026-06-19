@@ -25,6 +25,9 @@ function upload_certs(currentAlias, path_get_table_structure,path_get_table_cont
 
         fetch('/common_functions/upload_files.php', {
             method: 'POST',
+            headers: {
+                "X-CSRF-Token": getCsrfToken()
+            },
             body: formData
         })
         .then(res => res.json()) // Procesar respuesta como JSON
@@ -229,7 +232,8 @@ function delete_certificate(currentAlias,path_get_table_structure,path_get_table
   fetch(endpoint, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-CSRF-Token": getCsrfToken()
     },
     body: JSON.stringify(payload)
   })
@@ -274,7 +278,8 @@ function download_certificate(path_download_certificates, fileName, name, curren
   fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-CSRF-Token": getCsrfToken()
     },
     body: JSON.stringify(payload)
   })

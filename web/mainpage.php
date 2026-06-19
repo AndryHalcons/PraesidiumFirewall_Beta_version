@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/common/security/csrf.php';
 
 if (!isset($_SESSION['username'])) {
     header('Location: index.php');
@@ -14,11 +15,13 @@ if (!file_exists($langFile)) {
     $langFile = __DIR__ . "/lang/es.php";
 }
 $L = require $langFile;
+$csrfToken = csrf_get_token();
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
     <script src="javascript.js"></script>

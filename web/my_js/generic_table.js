@@ -467,7 +467,8 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
   fetch(endpoint, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-CSRF-Token": getCsrfToken()
     },
     body: JSON.stringify(payload)
   })
@@ -516,7 +517,8 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
   fetch(endpoint, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-CSRF-Token": getCsrfToken()
     },
     body: JSON.stringify(payload)
   })

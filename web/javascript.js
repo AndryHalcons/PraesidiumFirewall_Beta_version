@@ -1,3 +1,14 @@
+/*
+#############################################################################
+   Lee el token CSRF publicado por mainpage.php
+   Reads the CSRF token published by mainpage.php
+#############################################################################
+*/
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute("content") : "";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.getElementById("main-content");
 

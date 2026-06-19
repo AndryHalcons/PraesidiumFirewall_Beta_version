@@ -25,6 +25,9 @@ function upload_files_url(currentAlias, path_get_table_structure,path_get_table_
 
         fetch('/common_functions/upload_files.php', {
             method: 'POST',
+            headers: {
+                "X-CSRF-Token": getCsrfToken()
+            },
             body: formData
         })
         .then(res => res.json()) // Procesar respuesta como JSON
@@ -285,6 +288,9 @@ function edit_Generic_url_list(currentAlias, path_get_table_structure, path_get_
 
     fetch("/url_filter/url_filter_table/get_save_file_data.php", {
       method: "POST",
+      headers: {
+        "X-CSRF-Token": getCsrfToken()
+      },
       body: formData
     })
     .then(res => res.json())

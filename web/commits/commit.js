@@ -38,7 +38,12 @@ function buttonApplyCommit() {
   `;
   container.appendChild(spinner);
 
-  fetch("/commits/check_commit/commit_apply/commit_apply.php")
+  fetch("/commits/check_commit/commit_apply/commit_apply.php", {
+    method: "POST",
+    headers: {
+      "X-CSRF-Token": getCsrfToken()
+    }
+  })
     .then(res => res.json())
     .then(data => {
       // quitar spinner
