@@ -742,3 +742,44 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
         max-width: 360px;
     }
 }
+
+
+/* ========================================================================== */
+/* System settings form alignment                                             */
+/* Alineación del formulario de configuración del sistema                     */
+/*                                                                            */
+/* Español: mantiene todos los controles en la misma columna, incluidos los   */
+/* checkbox, para que Sistema -> Configuración se lea como una tabla limpia.  */
+/* English: keeps every control in the same column, including checkboxes, so  */
+/* System -> Settings reads like a clean table.                               */
+/* ========================================================================== */
+.settings-form .modal-input-group {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) minmax(160px, 260px);
+    align-items: center;
+    column-gap: 14px;
+}
+
+.settings-form .modal-prefix {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.settings-form .modal-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.settings-form input[type="checkbox"].modal-input {
+    justify-self: start;
+    width: 18px;
+    height: 18px;
+    margin-left: 0;
+}
+
+@media (max-width: 720px) {
+    .settings-form .modal-input-group {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+    }
+}
