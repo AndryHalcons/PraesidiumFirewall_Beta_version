@@ -1,7 +1,12 @@
 (function () {
     // Función independiente para el botón
     function reloadSystemRoutes() {
-        fetch("/routing/update_routing/reload_system_routes_running.php")
+        fetch("/routing/update_routing/reload_system_routes_running.php", {
+            method: "POST",
+            headers: {
+                "X-CSRF-Token": getCsrfToken()
+            }
+        })
             .then(response => {
                 if (!response.ok) throw new Error("Error al ejecutar la recarga");
                 return response.json();
