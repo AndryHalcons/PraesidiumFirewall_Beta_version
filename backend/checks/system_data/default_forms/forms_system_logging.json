@@ -1,0 +1,105 @@
+{
+    "select": {
+        "journald.system_max_use": [
+            "10M",
+            "25M",
+            "50M",
+            "100M",
+            "250M",
+            "500M",
+            "1G",
+            "2G"
+        ],
+        "journald.system_keep_free": [
+            "10M",
+            "25M",
+            "50M",
+            "100M",
+            "250M",
+            "500M",
+            "1G",
+            "2G"
+        ],
+        "journald.runtime_max_use": [
+            "10M",
+            "25M",
+            "50M",
+            "100M",
+            "250M",
+            "500M",
+            "1G",
+            "2G"
+        ],
+        "journald.max_retention_sec": [
+            "1day",
+            "3day",
+            "7day",
+            "14day",
+            "30day"
+        ],
+        "system_logs.rotation": [
+            "daily",
+            "weekly"
+        ],
+        "system_logs.maxsize": [
+            "10M",
+            "25M",
+            "50M",
+            "100M",
+            "250M",
+            "500M",
+            "1G",
+            "2G"
+        ],
+        "nftables_logs.size": [
+            "10M",
+            "25M",
+            "50M",
+            "100M",
+            "250M",
+            "500M",
+            "1G",
+            "2G"
+        ]
+    },
+    "checkbox": {
+        "journald.compress": {
+            "checked": true,
+            "unchecked": false
+        },
+        "system_logs.enabled": {
+            "checked": true,
+            "unchecked": false
+        },
+        "system_logs.compress": {
+            "checked": true,
+            "unchecked": false
+        },
+        "system_logs.delaycompress": {
+            "checked": true,
+            "unchecked": false
+        },
+        "nftables_logs.enabled": {
+            "checked": true,
+            "unchecked": false
+        },
+        "nftables_logs.compress": {
+            "checked": true,
+            "unchecked": false
+        },
+        "nftables_logs.delaycompress": {
+            "checked": true,
+            "unchecked": false
+        }
+    },
+    "number": {
+        "system_logs.rotate": {
+            "min": 1,
+            "max": 30
+        },
+        "nftables_logs.rotate": {
+            "min": 1,
+            "max": 30
+        }
+    }
+}
