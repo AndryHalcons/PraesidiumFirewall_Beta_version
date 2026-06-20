@@ -11,11 +11,11 @@ header('Content-Type: application/json');
 $input = json_decode(file_get_contents('php://input'), true);
 $name = trim((string)($input['name'] ?? ''));
 $config = wireguard_read_json(WIREGUARD_CONFIG_PATH);
-if ($name === '' || !isset($config['remote_access'][$name])) { wireguard_error('La entrada que intenta borrar no existe o ya fue eliminada.', 'name'); }
+if ($name === '' || !isset($config['remote_access'][$name])) { wireguard_error(wireguard_t('wireguard_error_delete_missing'), 'name'); }
 wireguard_can_delete('remote_access', $name, $config);
 unset($config['remote_access'][$name]);
 $saved = json_store_write(WIREGUARD_CONFIG_PATH, wireguard_prepare_for_json($config), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-if ($saved === false) { wireguard_error('No se pudo guardar la configuración WireGuard después del borrado.', null); }
+if ($saved === false) { wireguard_error(wireguard_t('wireguard_error_save_after_delete'), null); }
 @chmod(WIREGUARD_CONFIG_PATH, 0664);
 echo json_encode(['success' => true, 'deleted' => $name], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>

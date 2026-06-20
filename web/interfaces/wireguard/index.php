@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) { exit("No autorizado"); }
+if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 $language = $_SESSION['language'] ?? 'es';
 $langFile = __DIR__ . "/../../lang/{$language}.php";
 if (!file_exists($langFile)) { $langFile = __DIR__ . "/../../lang/es.php"; }
@@ -12,32 +12,32 @@ $L = require $langFile;
 <body>
   <section class="wireguard-hero">
     <div>
-      <span class="wireguard-kicker">VPN</span>
-      <h1><?= htmlspecialchars($L['sidebar_wireguard'] ?? 'WireGuard') ?></h1>
-      <p><?= htmlspecialchars($L['wireguard_overview_description'] ?? 'Configure WireGuard VPN scenarios.') ?></p>
+      <span class="wireguard-kicker"><?= htmlspecialchars($L['wireguard_kicker']) ?></span>
+      <h1><?= htmlspecialchars($L['sidebar_wireguard'] ?? 'sidebar_wireguard') ?></h1>
+      <p><?= htmlspecialchars($L['wireguard_overview_description'] ?? 'wireguard_overview_description') ?></p>
     </div>
   </section>
 
   <div class="praesidium-cards wireguard-cards">
     <article class="praesidium-card wireguard-card">
       <div class="wireguard-card-icon">↔</div>
-      <h2><?= htmlspecialchars($L['wireguard_site_to_site'] ?? 'Site to site') ?></h2>
-      <p><?= htmlspecialchars($L['wireguard_site_to_site_desc'] ?? 'Create point-to-point VPNs between two offices or networks.') ?></p>
+      <h2><?= htmlspecialchars($L['wireguard_site_to_site'] ?? 'wireguard_site_to_site') ?></h2>
+      <p><?= htmlspecialchars($L['wireguard_site_to_site_desc'] ?? 'wireguard_site_to_site_desc') ?></p>
       <ul>
-        <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_1'] ?? 'Join two locations with a dedicated tunnel.') ?></li>
-        <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_2'] ?? 'Validate tunnel IPs, remote networks and endpoint.') ?></li>
+        <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_1'] ?? 'wireguard_site_to_site_hint_1') ?></li>
+        <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_2'] ?? 'wireguard_site_to_site_hint_2') ?></li>
       </ul>
-      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/site_to_site.php')"><?= htmlspecialchars($L['open'] ?? 'Open') ?></button>
+      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/site_to_site.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
     </article>
     <article class="praesidium-card wireguard-card">
       <div class="wireguard-card-icon">◉</div>
-      <h2><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'Remote access') ?></h2>
-      <p><?= htmlspecialchars($L['wireguard_remote_access_desc'] ?? 'Create remote-access VPN servers and clients.') ?></p>
+      <h2><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'wireguard_remote_access') ?></h2>
+      <p><?= htmlspecialchars($L['wireguard_remote_access_desc'] ?? 'wireguard_remote_access_desc') ?></p>
       <ul>
-        <li><?= htmlspecialchars($L['wireguard_remote_access_hint_1'] ?? 'Create the VPN server first.') ?></li>
-        <li><?= htmlspecialchars($L['wireguard_remote_access_hint_2'] ?? 'Then add clients associated with that server.') ?></li>
+        <li><?= htmlspecialchars($L['wireguard_remote_access_hint_1'] ?? 'wireguard_remote_access_hint_1') ?></li>
+        <li><?= htmlspecialchars($L['wireguard_remote_access_hint_2'] ?? 'wireguard_remote_access_hint_2') ?></li>
       </ul>
-      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/remote_access.php')"><?= htmlspecialchars($L['open'] ?? 'Open') ?></button>
+      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/remote_access.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
     </article>
   </div>
   <script>
@@ -58,7 +58,7 @@ $L = require $langFile;
             document.body.appendChild(next);
           });
         })
-        .catch(() => { document.getElementById('main-content').innerHTML = '<p style="color:red;">No se pudo cargar el contenido.</p>'; });
+        .catch(() => { document.getElementById('main-content').innerHTML = `<p style="color:red;">${window.LANG?.wireguard_load_error || 'wireguard_load_error'}</p>`; });
     }
   </script>
 </body>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) { exit("No autorizado"); }
+if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 $language = $_SESSION['language'] ?? 'es';
 $langFile = __DIR__ . "/../../lang/{$language}.php";
 if (!file_exists($langFile)) { $langFile = __DIR__ . "/../../lang/es.php"; }
@@ -11,19 +11,19 @@ $L = require $langFile;
 <head><meta charset="UTF-8"></head>
 <body>
   <section class="wireguard-section-header">
-    <h1><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'WireGuard remote access') ?></h1>
-    <p><?= htmlspecialchars($L['wireguard_remote_access_long_desc'] ?? ($L['wireguard_remote_access_desc'] ?? 'Create remote-access VPN servers and clients.')) ?></p>
+    <h1><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'wireguard_remote_access') ?></h1>
+    <p><?= htmlspecialchars($L['wireguard_remote_access_long_desc'] ?? ($L['wireguard_remote_access_desc'] ?? 'wireguard_remote_access_desc')) ?></p>
   </section>
   <div class="wireguard-help-box">
-    <?= htmlspecialchars($L['wireguard_remote_access_form_help'] ?? 'Create the VPN server first. Each client must reference an existing server and use a unique VPN IP and public key.') ?>
+    <?= htmlspecialchars($L['wireguard_remote_access_form_help'] ?? 'wireguard_remote_access_form_help') ?>
   </div>
 
-  <h2><?= htmlspecialchars($L['wireguard_remote_servers'] ?? 'VPN servers') ?></h2>
-  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_servers_help'] ?? 'Define the server interface, VPN network, internal networks and private key.') ?></p>
+  <h2><?= htmlspecialchars($L['wireguard_remote_servers'] ?? 'wireguard_remote_servers') ?></h2>
+  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_servers_help'] ?? 'wireguard_remote_servers_help') ?></p>
   <div id="wireguard_remote_access_table"></div>
 
-  <h2><?= htmlspecialchars($L['wireguard_remote_clients'] ?? 'VPN clients') ?></h2>
-  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_clients_help'] ?? 'Associate each client with an existing remote-access VPN server.') ?></p>
+  <h2><?= htmlspecialchars($L['wireguard_remote_clients'] ?? 'wireguard_remote_clients') ?></h2>
+  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_clients_help'] ?? 'wireguard_remote_clients_help') ?></p>
   <div id="wireguard_remote_clients_table"></div>
 
   <script>
