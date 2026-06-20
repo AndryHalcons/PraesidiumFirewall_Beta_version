@@ -2,24 +2,40 @@
 // Devuelve el nombre real de una columna, sea string antiguo u objeto nuevo.
 // Returns the real column name, whether it is an old string or a new object.
 function genericColumnField(column) {
+  // Mantiene compatibilidad hacia atrás: las tablas antiguas siguen enviando strings.
+  // Keeps backward compatibility: old tables still send plain string columns.
+  // Las columnas nuevas pueden enviar objetos JSON, pero siempre exponemos su field real.
+  // New columns may send JSON objects, but we always expose their real field.
   return typeof column === "object" && column !== null ? column.field : column;
 }
 
 // Comprueba si una columna declarada por JSON debe pintarse como botón por fila.
 // Checks whether a JSON-declared column must be rendered as a per-row button.
 function genericIsButtonColumn(column) {
+  // Solo las columnas que declaran explícitamente type="button" cambian de comportamiento.
+  // Only columns explicitly declaring type="button" change behaviour.
+  // Esto evita que el cambio afecte por accidente al resto de tablas del firewall.
+  // This prevents the change from accidentally affecting the rest of the firewall tables.
   return typeof column === "object" && column !== null && column.type === "button";
 }
 
 // Devuelve solo columnas de datos para formularios y envíos al backend.
 // Returns only data columns for forms and backend submissions.
 function genericDataColumns(columns) {
+  // Los botones son acciones visuales por fila, no datos que deba editar/guardar el formulario.
+  // Buttons are visual per-row actions, not data that the form should edit/save.
+  // Por eso se excluyen de añadir/editar para no mandar campos falsos al backend.
+  // They are excluded from add/edit so fake fields are not submitted to the backend.
   return columns.filter(column => !genericIsButtonColumn(column)).map(column => genericColumnField(column));
 }
 
 // Resuelve la etiqueta visible de una columna usando LANG si existe.
 // Resolves the visible column label using LANG when available.
 function genericColumnLabel(column) {
+  // Obtiene la clave de idioma desde label si existe; si no, usa field/string.
+  // Gets the language key from label when present; otherwise uses field/string.
+  // Así los botones nuevos siguen usando web/lang igual que el resto de columnas.
+  // This keeps new buttons using web/lang just like normal columns.
   const labelKey = typeof column === "object" && column !== null ? (column.label || column.field) : column;
   return typeof LANG !== "undefined" && LANG[labelKey] ? LANG[labelKey] : labelKey;
 }
@@ -27,9 +43,16 @@ function genericColumnLabel(column) {
 // Construye la URL de un botón por fila sin modificar el resto de tablas.
 // Builds a per-row button URL without changing the rest of the tables.
 function genericButtonUrl(column, rule) {
+  // Lee de la fila el identificador declarado por value_field; no usa estado global.
+  // Reads the declared value_field from this row; it does not use global state.
+  // Esto garantiza que cada botón descargue/actúe solo sobre su propia fila.
+  // This guarantees each button downloads/acts only on its own row.
   const paramName = column.param || "name";
   const valueField = column.value_field || paramName;
   const value = rule[valueField] !== undefined ? rule[valueField] : "";
+
+  // Respeta endpoints que ya traen query string para no construir URLs inválidas.
+  // Respects endpoints that already include a query string to avoid invalid URLs.
   const separator = column.endpoint.includes("?") ? "&" : "?";
   return `${column.endpoint}${separator}${encodeURIComponent(paramName)}=${encodeURIComponent(value)}`;
 }
@@ -37,11 +60,21 @@ function genericButtonUrl(column, rule) {
 // Pinta un botón declarado en JSON y ligado únicamente a su fila.
 // Renders a JSON-declared button bound only to its own row.
 function genericRenderButtonCell(column, rule) {
+  // Crea una celda normal de tabla para que el layout siga siendo genérico.
+  // Creates a normal table cell so the layout remains generic.
   const td = document.createElement("td");
+
+  // El botón se define por JSON, pero el texto sigue saliendo del sistema LANG.
+  // The button is defined by JSON, but its text still comes from the LANG system.
   const button = document.createElement("button");
   button.type = "button";
   button.className = column.class || "table-action-button";
   button.textContent = genericColumnLabel(column);
+
+  // Al pulsar, se calcula la URL con los datos de la fila actual.
+  // On click, the URL is computed from the current row data.
+  // No se mezclan filas ni se busca el cliente por posición visual de la tabla.
+  // Rows are not mixed and the client is not inferred from the visual table position.
   button.onclick = () => {
     const url = genericButtonUrl(column, rule);
     if (column.target === "blank") {
@@ -54,7 +87,13 @@ function genericRenderButtonCell(column, rule) {
   return td;
 }
 
+// Renderiza una tabla genérica desde estructura JSON y rutas backend configurables.
+// Renders a generic table from JSON structure and configurable backend routes.
 function renderTableGeneric(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete) {
+  // Fase 1: pedir al backend la estructura declarativa de la tabla.
+  // Phase 1: ask the backend for the declarative table structure.
+  // Importante: este script lo usa todo el firewall; los cambios deben ser opt-in por JSON.
+  // Important: the whole firewall uses this script; changes must be opt-in through JSON.
   const endpoint = path_get_table_structure;
   const param = `table=${currentAlias}`;
 
@@ -132,6 +171,8 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
 }
 
 
+// Carga filas de una tabla genérica y decide cómo pintar cada columna declarada.
+// Loads rows for a generic table and decides how to render each declared column.
 function loadTableContentGeneric(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
@@ -267,7 +308,13 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
 }
 
 
+// Abre el modal de edición usando solo columnas persistentes de datos.
+// Opens the edit modal using only persistent data columns.
 function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_update, rule, columns, onSuccess) {
+  // Fase 3: abrir edición solo con columnas de datos persistentes.
+  // Phase 3: open editing only with persistent data columns.
+  // Las columnas botón se descartan aquí para no exponer acciones como campos editables.
+  // Button columns are discarded here so actions are not exposed as editable fields.
   const endpoint = path_get_forms_from_table;
   const param = `table=${currentAlias}`;
   const dataColumns = genericDataColumns(columns);
@@ -402,7 +449,13 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
 
 
 
+// Abre el modal de creación usando la misma definición genérica de formularios.
+// Opens the creation modal using the same generic form definition.
 function add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table,path_get_update,path_get_delete, columns) {
+  // Fase 4: crear una entrada nueva con el mismo filtro de columnas de datos.
+  // Phase 4: create a new entry with the same data-column filter.
+  // Esto evita que un botón declarado en la tabla acabe guardado en el JSON candidate.
+  // This prevents a declared table button from being saved into the candidate JSON.
   const endpoint = path_get_forms_from_table;
   const param = `table=${currentAlias}`;
   const dataColumns = genericDataColumns(columns);
@@ -533,6 +586,8 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
     });
 }
 
+// Envía al backend una regla creada o editada desde la tabla genérica.
+// Sends a created or edited rule from the generic table to the backend.
 function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuccess) {
   const endpoint = path_get_update;
   const payload = {
@@ -576,6 +631,8 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
     });
 }
 
+// Borra una fila tras confirmación y recarga la tabla afectada.
+// Deletes a row after confirmation and reloads the affected table.
 function delete_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, rule, columns) {
   if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) {
     return; // El usuario canceló
