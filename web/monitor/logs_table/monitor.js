@@ -21,6 +21,66 @@ function setMonitorSearchLoading(isLoading) {
   button.textContent = isLoading ? "Buscando..." : "Search";
 }
 
+let monitorLastLogRows = [];
+let monitorLastLogColumns = [];
+let monitorLastFilters = {};
+
+function getMonitorExportButton() {
+  return document.querySelector("#tabla-monitorOptions .export-monitor-csv");
+}
+
+function setMonitorExportAvailable(isAvailable) {
+  const button = getMonitorExportButton();
+  if (!button) return;
+
+  button.disabled = !isAvailable;
+  button.title = isAvailable
+    ? "Exportar a CSV los logs que coinciden con el filtro actual"
+    : "Busque logs antes de exportar";
+}
+
+function escapeCsvValue(value) {
+  const text = String(value ?? "");
+  const escaped = text.replace(/"/g, '""');
+  return /[",\r\n]/.test(escaped) ? `"${escaped}"` : escaped;
+}
+
+function buildMonitorCsv() {
+  const header = monitorLastLogColumns.map(escapeCsvValue).join(",");
+  const rows = monitorLastLogRows.map(row =>
+    monitorLastLogColumns.map(column => escapeCsvValue(row[column])).join(",")
+  );
+
+  const filterLines = [
+    ["Praesidium Firewall - Traffic monitor export"],
+    ["Exported_At", new Date().toISOString()],
+    ["Filters_JSON", JSON.stringify(monitorLastFilters)],
+    []
+  ].map(line => line.map(escapeCsvValue).join(","));
+
+  return `${filterLines.join("\r\n")}\r\n${[header, ...rows].join("\r\n")}\r\n`;
+}
+
+function exportMonitorLogsCsv() {
+  if (!monitorLastLogRows.length || !monitorLastLogColumns.length) {
+    setMonitorStatus("No hay logs filtrados para exportar. Pulse Search primero.", "error");
+    return;
+  }
+
+  const csv = buildMonitorCsv();
+  const blob = new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+  link.href = url;
+  link.download = `praesidium-monitor-logs-${timestamp}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function renderMonitorTableStructure() {
   const container = document.getElementById("tabla-monitorOptions");
   if (!container) return;
@@ -45,12 +105,17 @@ function renderMonitorTableStructure() {
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
 
-      // Añadir columna "Search" al principio
-      // Add the "Search" column first
+      // Añadir columnas de acciones al principio
+      // Add action columns first
       const searchTh = document.createElement("th");
       searchTh.textContent = "Search";
       searchTh.dataset.key = "Search";
       headerRow.appendChild(searchTh);
+
+      const exportTh = document.createElement("th");
+      exportTh.textContent = "Export";
+      exportTh.dataset.key = "Export";
+      headerRow.appendChild(exportTh);
 
       columns.forEach(col => {
         const th = document.createElement("th");
@@ -79,6 +144,17 @@ function renderMonitorTableStructure() {
       searchTd.appendChild(searchBtn);
       inputRow.appendChild(searchTd);
 
+      const exportTd = document.createElement("td");
+      const exportBtn = document.createElement("button");
+      exportBtn.type = "button";
+      exportBtn.textContent = "Export CSV";
+      exportBtn.className = "export-monitor-csv";
+      exportBtn.disabled = true;
+      exportBtn.title = "Busque logs antes de exportar";
+      exportBtn.addEventListener("click", exportMonitorLogsCsv);
+      exportTd.appendChild(exportBtn);
+      inputRow.appendChild(exportTd);
+
       // Añadir celdas vacías para el resto de columnas con dataset.key
       // Add empty cells for the rest of columns with dataset.key
       columns.forEach(col => {
@@ -102,6 +178,7 @@ function renderMonitorTableStructure() {
         searchBtn.disabled = false;
         searchBtn.title = "Buscar logs";
       }
+      setMonitorExportAvailable(false);
       setMonitorStatus("Seleccione filtros y pulse Search para cargar logs.", "info");
     })
     .catch(err => {
@@ -148,7 +225,7 @@ function renderMonitorTableContent(columns) {
           const { select = {}, date = {}, time = {} } = data;
 
           columns.forEach((key, index) => {
-            const td = inputRow.children[index + 1];
+            const td = inputRow.children[index + 2];
             if (!td) return;
 
             let input;
@@ -195,11 +272,17 @@ function view_logs_table_Structure(dataLogs) {
   container.innerHTML = "";
 
   if (dataLogs && typeof dataLogs === "object" && dataLogs.error) {
+    monitorLastLogRows = [];
+    monitorLastLogColumns = [];
+    setMonitorExportAvailable(false);
     setMonitorStatus(`Error al buscar logs: ${dataLogs.error}`, "error");
     return;
   }
 
   if (dataLogs && typeof dataLogs === "object" && dataLogs.info) {
+    monitorLastLogRows = [];
+    monitorLastLogColumns = [];
+    setMonitorExportAvailable(false);
     setMonitorStatus(dataLogs.info, "info");
     return;
   }
@@ -235,6 +318,9 @@ function view_logs_table_Structure(dataLogs) {
       // Body
       const tbody = document.createElement("tbody");
       const rows = dataLogs && typeof dataLogs === "object" ? Object.values(dataLogs) : [];
+      monitorLastLogColumns = columns;
+      monitorLastLogRows = rows;
+      setMonitorExportAvailable(rows.length > 0);
 
       if (rows.length === 0) {
         const tr = document.createElement("tr");
@@ -301,6 +387,10 @@ function searchMonitorLogs(event) {
   // Add the authenticated user published by monitor.php.
   filters.user = (typeof USERNAME !== "undefined" && USERNAME) ? USERNAME : "";
 
+  monitorLastFilters = { ...filters };
+  monitorLastLogRows = [];
+  monitorLastLogColumns = [];
+  setMonitorExportAvailable(false);
   window.__monitorSearchInFlight = true;
   setMonitorSearchLoading(true);
   setMonitorStatus("Buscando logs...", "info");
