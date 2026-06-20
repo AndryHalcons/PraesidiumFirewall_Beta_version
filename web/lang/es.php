@@ -4,7 +4,7 @@ return [
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   Generic      ///////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
-    'add'                 => 'Añadir',
+    'add'                 => '➕ Añadir',
 
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
@@ -96,14 +96,14 @@ return [
     ////////////////////   Interfaces.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    "create_bridge" => "Crear Bridge",
-    "create_bond" => "Crear Bond (grupo de agregación)",
+    "create_bridge" => "➕ Crear Bridge",
+    "create_bond" => "➕ Crear Bond (grupo de agregación)",
     'add_interface' => 'Añadir interfaz',
-    "delete_interface" => "Eliminar interfaz",
+    "delete_interface" => "🗑️ Eliminar interfaz",
     "ok" => "Aceptar",
     "cancel" => "Cancelar",
-    'edit' => 'Editar',
-    'save' => 'Guardar',
+    'edit' => '✏️ Editar',
+    'save' => '💾 Guardar',
     'save_and_apply' => 'Guardar y aplicar',
     
     //aux
@@ -197,10 +197,10 @@ return [
     ////////////////////   users.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    "edit" => "Editar",
-    "save" => "Guardar",
-    "delete" => "Eliminar",
-    "add_user" => "Añadir Usuario",
+    "edit" => "✏️ Editar",
+    "save" => "💾 Guardar",
+    "delete" => "🗑️ Eliminar",
+    "add_user" => "➕ Añadir Usuario",
     "cancel" => "Cancelar",
 
     //aux
@@ -215,7 +215,7 @@ return [
     ////////////////////   policies.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //botones
-    "add_policy" => "Crear Regla",
+    "add_policy" => "➕ Crear Regla",
     // campos nftables
     'family'           => 'Familia',
     'table'            => 'Tabla',
@@ -329,7 +329,7 @@ return [
     ////////////////////   alias         //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    "add_alias" => "Añadir",
+    "add_alias" => "➕ Añadir",
     //table alias
     'id' => 'ID',
     'name' => 'Nombre',
@@ -355,7 +355,7 @@ return [
     ////////////////////   certificates      //////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    'download' => 'Descargar',
+    'download' => '⬇️ Descargar',
 
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
