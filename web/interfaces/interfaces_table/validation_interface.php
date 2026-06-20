@@ -108,7 +108,7 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['select'] as $key => $validValues) {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') { // vacío o solo espacios -> válido
                     $rule[$key] = "";
                     continue;
                 }
@@ -125,7 +125,7 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') { // vacío o solo espacios -> válido
                     $rule[$key] = "";
                     continue;
                 }

@@ -145,7 +145,7 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['select'] as $key => $validValues) {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') { // vacío o solo espacios -> válido
                     $rule[$key] = "";
                     continue;
                 }
@@ -162,7 +162,7 @@ function validation_form_field_review(array $rule): void {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
-                if ($value === '') { // vacío o solo espacios → válido
+                if ($value === '') { // vacío o solo espacios -> válido
                     $rule[$key] = "";
                     continue;
                 }
@@ -209,25 +209,25 @@ function get_id_from_policy(array $rule): array {
             $idCandidate = trim($idCandidate);
         }
 
-        // Si está vacío, nulo o solo espacios → generar nuevo ID
+        // Si está vacío, nulo o solo espacios -> generar nuevo ID
         if ($idCandidate === '' || $idCandidate === null) {
             $rule['id'] = get_id(); // asigna nuevo ID
             return $rule;
         }
 
-        // Si es entero positivo o string numérico positivo → lo aceptamos
+        // Si es entero positivo o string numérico positivo -> lo aceptamos
         if ((is_int($idCandidate) && $idCandidate > 0) ||
             (is_string($idCandidate) && ctype_digit($idCandidate) && (int)$idCandidate > 0)) {
             $rule['id'] = (string)(int)$idCandidate; // normaliza a string
             return $rule;
         }
 
-        // Si está mal formado o es negativo → generar nuevo ID
+        // Si está mal formado o es negativo -> generar nuevo ID
         $rule['id'] = get_id();
         return $rule;
     }
 
-    // Si no existe el campo 'id' → generar nuevo ID
+    // Si no existe el campo 'id' -> generar nuevo ID
     $rule['id'] = get_id();
     return $rule;
 }
@@ -307,13 +307,13 @@ function validate_nft_rule_protocols(array $rule): void {
     $ipDaddrOp = trim((string)($rule['ip.daddr.op'] ?? ''));
     $ctState = trim((string)($rule['ct.state'] ?? ''));
 
-    // 1. sport vacío → sport.op debe estar vacío
+    // 1. sport vacío -> sport.op debe estar vacío
     if ($sport === '' && $sportOp !== '') {
         echo json_encode(['error' => "Si sport está vacío, sport.op también debe estarlo"]);
         exit;
     }
 
-    // 2. dport vacío → dport.op debe estar vacío
+    // 2. dport vacío -> dport.op debe estar vacío
     if ($dport === '' && $dportOp !== '') {
         echo json_encode(['error' => "Si dport está vacío, dport.op también debe estarlo"]);
         exit;
@@ -325,31 +325,31 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 4. ip.saddr vacío → ip.saddr.op también debe estarlo
+    // 4. ip.saddr vacío -> ip.saddr.op también debe estarlo
     if ($ipSaddr === '' && $ipSaddrOp !== '') {
         echo json_encode(['error' => "Si ip.saddr está vacío, ip.saddr.op también debe estarlo"]);
         exit;
     }
 
-    // 5. ip.daddr vacío → ip.daddr.op también debe estarlo
+    // 5. ip.daddr vacío -> ip.daddr.op también debe estarlo
     if ($ipDaddr === '' && $ipDaddrOp !== '') {
         echo json_encode(['error' => "Si ip.daddr está vacío, ip.daddr.op también debe estarlo"]);
         exit;
     }
 
-    // 6. ip.protocol contiene UDP → ct.state debe estar vacío
+    // 6. ip.protocol contiene UDP -> ct.state debe estar vacío
     if (str_contains($ipProtocol, 'udp') && $ctState !== '') {
         echo json_encode(['error' => "No se permite ct.state si ip.protocol contiene UDP"]);
         exit;
     }
 
-    // 7. ip.protocol = "tcp, udp" → ct.state debe estar vacío
+    // 7. ip.protocol = "tcp, udp" -> ct.state debe estar vacío
     if ($ipProtocol === 'tcp, udp' && $ctState !== '') {
         echo json_encode(['error' => "No se permite ct.state si ip.protocol es 'tcp, udp'"]);
         exit;
     }
 
-    // 8. ip.protocol = icmp → no debe tener dnat.port ni sport/dport o redirect
+    // 8. ip.protocol = icmp -> no debe tener dnat.port ni sport/dport o redirect
     if ($ipProtocol === 'icmp') {
         if ($dnatPort !== '' || $sport !== '' || $dport !== '' || $redirect !== '') {
             echo json_encode(['error' => "icmp no debe tener dnat.port ni sport/dport"]);
@@ -357,14 +357,14 @@ function validate_nft_rule_protocols(array $rule): void {
         }
     }
 
-    // 9. ip.protocol = icmpv6 → igual que icmp
+    // 9. ip.protocol = icmpv6 -> igual que icmp
     if ($ipProtocol === 'icmpv6') {
         if ($dnatPort !== '' || $sport !== '' || $dport !== '' || $redirect !== '') {
             echo json_encode(['error' => "icmpv6 no debe tener dnat.port ni sport/dport"]);
             exit;
         }
     }
-    // 13. Si ip.protocol contiene "icmp" → campos de puertos deben estar vacíos
+    // 13. Si ip.protocol contiene "icmp" -> campos de puertos deben estar vacíos
     if (str_contains($ipProtocol, 'icmp') && !str_contains($ipProtocol, 'icmpv6')) {
         if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '' || $redirect !== '') {
             echo json_encode(['error' => "ip.protocol = 'icmp' no permite campos de puertos"]);
@@ -372,7 +372,7 @@ function validate_nft_rule_protocols(array $rule): void {
         }
     }
 
-    // 14. Si ip.protocol contiene "icmpv6" → campos de puertos deben estar vacíos
+    // 14. Si ip.protocol contiene "icmpv6" -> campos de puertos deben estar vacíos
     if (str_contains($ipProtocol, 'icmpv6')) {
         if ($sport !== '' || $sportOp !== '' || $dport !== '' || $dportOp !== '' || $dnatPort !== '' || $redirect !== '') {
             echo json_encode(['error' => "ip.protocol = 'icmpv6' no permite campos de puertos"]);
@@ -385,7 +385,7 @@ function validate_nft_rule_protocols(array $rule): void {
         exit;
     }
 
-    // 16. Si table = nat → al menos uno de snat.addr o dnat.addr o masquerade o redirect debe tener valor dnat.port
+    // 16. Si table = nat -> al menos uno de snat.addr o dnat.addr o masquerade o redirect debe tener valor dnat.port
     if ($table === 'nat' && ($snatAddr === '' && $dnatAddr === '' && strtolower($rule['masquerade'] ?? '') !== 'true') && $dnatPort === ''  && $redirect === '') {
     echo json_encode(['error' => "Si table es 'nat', al menos snat.addr o dnat.addr o masquerade o redirect debe tener valor"]);
     exit;
@@ -430,12 +430,12 @@ function contains_mixed_ip_versions_nft(string $ipSaddr = '', string $ipDaddr = 
         }
     }
 
-    // Si no hay IPs válidas, no hay mezcla → se permite
+    // Si no hay IPs válidas, no hay mezcla -> se permite
     if (count($allVersions) === 0) {
         return true;
     }
 
-    // Si hay más de un tipo de IP → mezcla → no se permite
+    // Si hay más de un tipo de IP -> mezcla -> no se permite
     return count(array_unique($allVersions)) === 1;
 }
 
@@ -838,8 +838,8 @@ function assign_position(array $rule): array {
         return $rule;
     }
     $posCandidate = is_string($rule["position"]) ? trim($rule["position"]) : $rule["position"];
-    // Si no es un entero positivo → asigna 1 por defecto
-    // If not a positive integer → assign default 1
+    // Si no es un entero positivo -> asigna 1 por defecto
+    // If not a positive integer -> assign default 1
     if (!is_int($posCandidate) && (!is_string($posCandidate) || !ctype_digit($posCandidate))) {
         $rule["position"] = 1;
         return $rule;

@@ -25,7 +25,7 @@ def parse_log_line(line):
         if len(parts) >= 3:
             parsed["ID"] = parts[0]
             parsed["Chain"] = parts[1]
-            # Si el tercer elemento es IN=... o OUT=..., no hay acción → poner NAT (ya que solo ocurre en este caso)
+            # Si el tercer elemento es IN=... o OUT=..., no hay acción -> poner NAT (ya que solo ocurre en este caso)
             if parts[2].startswith("IN=") or parts[2].startswith("OUT="):
                 parsed["Action"] = "NAT"
             else:

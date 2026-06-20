@@ -82,14 +82,14 @@ function validateSimply($data, $path, $keyJson) {
         exit;
     }
 
-    // 🔹 Validación de nombre duplicado en la misma sección
+    // Validación de nombre duplicado en la misma sección
     if (file_exists($path)) {
         $jsonContent = file_get_contents($path);
         $aliasData = json_decode($jsonContent, true);
 
         if (isset($aliasData[$keyJson]) && is_array($aliasData[$keyJson])) {
             foreach ($aliasData[$keyJson] as $item) {
-                // Si el nombre ya existe y no es el mismo ID → error
+                // Si el nombre ya existe y no es el mismo ID -> error
                 if (
                     isset($item['name']) &&
                     $item['name'] === $data['name'] &&
@@ -398,12 +398,12 @@ function contains_mixed_ip_versions_nft(string $ipList): bool {
         }
     }
 
-    // Si no hay IPs válidas, no hay mezcla → se permite
+    // Si no hay IPs válidas, no hay mezcla -> se permite
     if (count($allVersions) === 0) {
         return true;
     }
 
-    // Si hay más de un tipo de IP → mezcla → no se permite
+    // Si hay más de un tipo de IP -> mezcla -> no se permite
     return count(array_unique($allVersions)) === 1;
 }
 
@@ -523,16 +523,16 @@ function isAliasAddressNameIP_ORserviceAlias($data, $path) {
     $ipList = [];
 
     foreach ($data['content'] as $item) {
-	// Si está en alias_address → válido
+	// Si está en alias_address -> válido
         if (in_array($item, $validNames, true)) {
             continue;
         }
-		// Si es una IP válida → válido
+		// Si es una IP válida -> válido
         if (filter_var($item, FILTER_VALIDATE_IP)) {
             $ipList[] = $item;
             continue;
         }
-		// Si es una red CIDR válida → válido
+		// Si es una red CIDR válida -> válido
         if (strpos($item, '/') !== false) {
             [$ip, $mask] = explode('/', $item, 2);
             if (filter_var($ip, FILTER_VALIDATE_IP) && ctype_digit($mask) && (int)$mask >= 0 && (int)$mask <= 128) {
@@ -540,7 +540,7 @@ function isAliasAddressNameIP_ORserviceAlias($data, $path) {
                 continue;
             }
         }
-		// Si no cumple ninguna condición → inválido
+		// Si no cumple ninguna condición -> inválido
         $invalid[] = $item;
     }
 
@@ -615,15 +615,15 @@ function isAliasServiceNamePort_ORserviceAlias($data, $path) {
     // Buscar inválidos (permitiendo puertos válidos)
     $invalid = [];
     foreach ($data['content'] as $item) {
-        // Si está en alias_service → válido
+        // Si está en alias_service -> válido
         if (in_array($item, $validNames, true)) {
             continue;
         }
-        // Si es un puerto válido → válido
+        // Si es un puerto válido -> válido
         if (ctype_digit($item) && (int)$item >= 1 && (int)$item <= 65535) {
             continue;
         }
-        // Si no cumple ninguna condición → inválido
+        // Si no cumple ninguna condición -> inválido
         $invalid[] = $item;
     }
 
@@ -708,8 +708,8 @@ function is_object_in_policy($name) {
 
     $matchedRules = [];
 
-    // 🔍 Verificación en el archivo de reglas NFTables
-    // 🔍 Check in the NFTables rules file
+    // Verificación en el archivo de reglas NFTables
+    // Check in the NFTables rules file
     $nftFile = '/var/www/config/rules_nftables_human_viewer.json';
     if (file_exists($nftFile)) {
         $json = file_get_contents($nftFile);
@@ -753,8 +753,8 @@ function is_object_in_policy($name) {
         }
     }
 
-    // 🔍 Verificación en el archivo de reglas BPFilter
-    // 🔍 Check in the BPFilter rules file
+    // Verificación en el archivo de reglas BPFilter
+    // Check in the BPFilter rules file
     $bpFile = '/var/www/config/rules_bpfilter_human_viewer.json';
     if (file_exists($bpFile)) {
         $json = file_get_contents($bpFile);
@@ -812,8 +812,8 @@ function is_object_in_policy($name) {
 
     $matchedRules = [];
 
-    // 🔍 Verificación en el archivo de reglas NFTables
-    // 🔍 Check in the NFTables rules file
+    // Verificación en el archivo de reglas NFTables
+    // Check in the NFTables rules file
     $nftFile = '/var/www/config/rules_nftables_human_viewer.json';
     if (file_exists($nftFile)) {
         $json = file_get_contents($nftFile);
@@ -851,8 +851,8 @@ function is_object_in_policy($name) {
         }
     }
 
-    // 🔍 Verificación en el archivo de reglas BPFilter
-    // 🔍 Check in the BPFilter rules file
+    // Verificación en el archivo de reglas BPFilter
+    // Check in the BPFilter rules file
     $bpFile = '/var/www/config/rules_bpfilter_human_viewer.json';
     if (file_exists($bpFile)) {
         $json = file_get_contents($bpFile);
@@ -881,8 +881,8 @@ function is_object_in_policy($name) {
         }
     }
 
-    // 🔍 Verificación en el archivo de políticas Squid
-    // 🔍 Check in the Squid policies file
+    // Verificación en el archivo de políticas Squid
+    // Check in the Squid policies file
     $squidFile = '/var/www/config/squid_config/squid_policies.json';
     if (file_exists($squidFile)) {
         $json = file_get_contents($squidFile);
@@ -913,8 +913,8 @@ function is_object_in_policy($name) {
         }
     }
 
-    // 🚨 Si se encontraron coincidencias, devolvemos error 409 con los nombres de las reglas
-    // 🚨 If matches were found, return error 409 with the rule names
+    // Si se encontraron coincidencias, devolvemos error 409 con los nombres de las reglas
+    // If matches were found, return error 409 with the rule names
     if (!empty($matchedRules)) {
         http_response_code(409);
         echo json_encode(['error' => 'Object is used in policies: "' . implode(', ', $matchedRules) . '"']);

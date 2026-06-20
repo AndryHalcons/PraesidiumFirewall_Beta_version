@@ -419,14 +419,14 @@ def validation_ip_networks(value: str) -> str:
         #print(f"DEBUG iteración {idx}: item =>{item}<")
 
         try:
-            # IP sin CIDR → se normaliza como /32 (IPv4) o /128 (IPv6)
-            # IP without CIDR → normalize as /32 (IPv4) or /128 (IPv6)
+            # IP sin CIDR -> se normaliza como /32 (IPv4) o /128 (IPv6)
+            # IP without CIDR -> normalize as /32 (IPv4) or /128 (IPv6)
             ip_obj = ipaddress.ip_address(item)
             suffix = '/32' if ip_obj.version == 4 else '/128'
             normalized.append(f"{item}{suffix}")
         except ValueError:
-            # IP con CIDR → se valida y se agrega si es válida
-            # IP with CIDR → validate and add if valid
+            # IP con CIDR -> se valida y se agrega si es válida
+            # IP with CIDR -> validate and add if valid
             if re.match(r'^(.+)/(\d{1,3})$', item):
                 try:
                     ip_net = ipaddress.ip_network(item, strict=False)
@@ -435,8 +435,8 @@ def validation_ip_networks(value: str) -> str:
                     #print(json.dumps({"error": f"invalid CIDR '{item}'"}))
                     exit()
             else:
-                # Formato inválido → se muestra error y se detiene
-                # Invalid format → show error and stop
+                # Formato inválido -> se muestra error y se detiene
+                # Invalid format -> show error and stop
                 #print(json.dumps({"error": f"invalid IP format '{item}'"}))
                 exit()
 

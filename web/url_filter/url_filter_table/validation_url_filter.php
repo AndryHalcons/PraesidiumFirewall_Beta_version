@@ -107,8 +107,8 @@ function validation_form_field_review_policy(array $rule): void {
             if (isset($rule[$key])) {
                 $value = trim((string)$rule[$key]);
                 if ($value === '') {
-                    // vacío o solo espacios → válido
-                    // empty or whitespace → valid
+                    // vacío o solo espacios -> válido
+                    // empty or whitespace -> valid
                     $rule[$key] = "";
                     continue;
                 }
@@ -213,8 +213,8 @@ function validate_is_ip_no_cidr(string $value): bool {
         return true;
     }
 
-    // IP no válida → lanzar error y terminar  
-    // Invalid IP → throw error and exit  
+    // IP no válida -> lanzar error y terminar
+    // Invalid IP -> throw error and exit
     echo json_encode(['error' => 'No se ha introducido una IP válida']);
     exit;
 }
@@ -786,7 +786,7 @@ function rename_not_permit(array $json, array $rule, string $chain): array {
     // Si el nombre ha cambiado, no permitimos renombrado
     // If the name has changed, renaming is not allowed
     if ($oldName !== $newName) {
-        error_log("Renombrado no permitido: {$oldName} → {$newName}");
+        error_log("Renombrado no permitido: {$oldName} -> {$newName}");
         echo json_encode(['error' => 'No se permite cambiar el nombre del perfil', 'original_name' => $oldName, 'new_name' => $newName]);
         exit;
     }

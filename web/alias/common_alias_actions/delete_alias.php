@@ -26,7 +26,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-// 🔧 Transformar si viene en formato genérico y la clave es válida
+// Transformar si viene en formato genérico y la clave es válida
 if (
     isset($input['table'], $input['id'], $input['name']) &&
     in_array($input['table'], ['alias_address', 'alias_addr_group', 'alias_service', 'alias_service_group'], true)

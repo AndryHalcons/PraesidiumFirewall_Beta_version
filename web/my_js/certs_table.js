@@ -115,7 +115,7 @@ function renderTable_certs(currentAlias, path_get_table_structure,path_get_table
 function loadTableContent_certs(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete,path_download_certificates, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
-  console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
+  console.log(" Enviando al backend:", `${endpoint}?${param}`);
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
@@ -228,7 +228,7 @@ function delete_certificate(currentAlias,path_get_table_structure,path_get_table
     fileName : rule.file_name
 
   };
-  console.log("📤 Enviando al backend:", JSON.stringify(payload, null, 2));
+  console.log(" Enviando al backend:", JSON.stringify(payload, null, 2));
   fetch(endpoint, {
     method: "POST",
     headers: {
@@ -270,7 +270,7 @@ function download_certificate(path_download_certificates, fileName, name, curren
     name: name
   };
 
-  console.log("📤 Enviando payload de descarga:", JSON.stringify(payload, null, 2));
+  console.log(" Enviando payload de descarga:", JSON.stringify(payload, null, 2));
   // Sending download payload to backend
 
   // Realizar la solicitud POST al backend
@@ -300,7 +300,7 @@ function download_certificate(path_download_certificates, fileName, name, curren
       document.body.removeChild(link);
     })
     .catch(error => {
-      console.error("❌ Error en la descarga:", error);
+      console.error(" Error en la descarga:", error);
       // Error during download
       alert("No se pudo descargar el archivo");
       // Could not download the file

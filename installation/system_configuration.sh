@@ -33,4 +33,4 @@ sysctl -p
 # Mostrar estado del reenvío IPv4 e IPv6
 echo "IPv4 forwarding: $(cat /proc/sys/net/ipv4/ip_forward)"
 echo "IPv6 forwarding: $(cat /proc/sys/net/ipv6/conf/all/forwarding)"
-echo "✔ IP forwarding permanently enabled / ✔ Reenvío IP activado permanentemente"
+echo "IP forwarding permanently enabled / Reenvío IP activado permanentemente"

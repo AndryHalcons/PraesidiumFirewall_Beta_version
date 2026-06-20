@@ -570,7 +570,7 @@ Change log
 3.1.1
 -----
 
-* Update change log to contain version 3.1 changes. :P
+* Update change log to contain version 3.1 changes.
 
 * Give the ``qr`` script an ``--optimize`` argument to control the chunk
   optimization setting.

@@ -25,16 +25,16 @@ configure_nftables_logging() {
     # Custom log directory
     LOG_DIR="/var/log/praesidium"
 
-    echo "🔧 Copiando configuración de logs Praesidium... / Copying Praesidium log configuration..."
+    echo "Copiando configuración de logs Praesidium... / Copying Praesidium log configuration..."
     sudo cp "$SOURCE_DIR/$RSYSLOG_CONF" "$RSYSLOG_DEST"
     sudo cp "$SOURCE_DIR/$NFTABLES_LOGROTATE_CONF" "$NFTABLES_LOGROTATE_DEST"
 
-    echo "🔧 Aplicando límites de journald... / Applying journald limits..."
+    echo "Aplicando límites de journald... / Applying journald limits..."
     sudo mkdir -p "$JOURNALD_DEST_DIR"
     sudo cp "$SOURCE_DIR/$JOURNALD_CONF" "$JOURNALD_DEST"
     sudo chmod 644 "$JOURNALD_DEST"
 
-    echo "🔧 Aplicando rotación limitada de logs del sistema... / Applying bounded system log rotation..."
+    echo "Aplicando rotación limitada de logs del sistema... / Applying bounded system log rotation..."
     if [ -f "$RSYSLOG_LOGROTATE_DEST" ] && [ ! -f "$RSYSLOG_LOGROTATE_DEST.praesidium.bak" ]; then
         sudo cp "$RSYSLOG_LOGROTATE_DEST" "$RSYSLOG_LOGROTATE_DEST.praesidium.bak"
     fi

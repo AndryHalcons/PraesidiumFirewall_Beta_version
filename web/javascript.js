@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.body.appendChild(newScript);
                 });
 
-                // 👉 Cargar dashboard.js solo si estamos en dashboard.php
+                // Cargar dashboard.js solo si estamos en dashboard.php
                 if (page === "dashboard/dashboard.php") {
                     const dashboardScript = document.createElement("script");
                     dashboardScript.src = "/dashboard/dashboard.js";
@@ -71,6 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 🚀 Cargar dashboard.php por defecto al entrar
+    // Cargar dashboard.php por defecto al entrar
     cargarPagina("dashboard/dashboard.php");
 });

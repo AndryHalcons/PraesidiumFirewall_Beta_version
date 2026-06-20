@@ -28,7 +28,7 @@ $L = require $langFile;
 
   <div class="praesidium-cards wireguard-cards">
     <article class="praesidium-card wireguard-card">
-      <div class="wireguard-card-icon">↔</div>
+      <div class="wireguard-card-icon"></div>
       <h2><?= htmlspecialchars($L['wireguard_site_to_site'] ?? 'wireguard_site_to_site') ?></h2>
       <p><?= htmlspecialchars($L['wireguard_site_to_site_desc'] ?? 'wireguard_site_to_site_desc') ?></p>
       <ul>
@@ -38,7 +38,7 @@ $L = require $langFile;
       <button type="button" class="boton-generic wireguard-card-button" onclick="loadWireGuardChild('interfaces/wireguard/site_to_site.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
     </article>
     <article class="praesidium-card wireguard-card">
-      <div class="wireguard-card-icon">◉</div>
+      <div class="wireguard-card-icon"></div>
       <h2><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'wireguard_remote_access') ?></h2>
       <p><?= htmlspecialchars($L['wireguard_remote_access_desc'] ?? 'wireguard_remote_access_desc') ?></p>
       <ul>

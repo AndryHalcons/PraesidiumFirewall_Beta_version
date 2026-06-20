@@ -117,7 +117,7 @@ function renderTable_url_list(currentAlias, path_get_table_structure,path_get_ta
 function loadTableContent_url_list(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
-  console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
+  console.log(" Enviando al backend:", `${endpoint}?${param}`);
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {

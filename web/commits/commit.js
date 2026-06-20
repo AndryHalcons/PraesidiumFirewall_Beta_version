@@ -33,7 +33,7 @@ function buttonApplyCommit() {
   const spinner = document.createElement("div");
   spinner.id = "commit-spinner";
   spinner.innerHTML = `
-    <span class="spinner-icon">🔄</span>
+    <span class="spinner-icon"></span>
     <span class="spinner-text">Aplicando commit</span>
   `;
   container.appendChild(spinner);

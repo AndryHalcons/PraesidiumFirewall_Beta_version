@@ -35,7 +35,7 @@ function saveAliasData($path, $data) {
                 if (isset($entry['content'])) {
                     $normalizado = [];
 
-                    // Si viene como string → lo partimos por comas
+                    // Si viene como string -> lo partimos por comas
                     if (is_string($entry['content'])) {
                         $normalizado = array_map('trim', explode(',', $entry['content']));
                     }

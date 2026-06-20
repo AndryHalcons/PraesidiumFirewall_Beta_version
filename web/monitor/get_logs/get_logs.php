@@ -38,13 +38,13 @@ function ejecutarNftables($input) {
     }
 }
 
-// 🔧 Función para BPFILTER
+// Función para BPFILTER
 function ejecutarBpfilter($input) {
     // lógica  BPFILTER
     return json_encode(["info" => "BPFILTER aún no implementado"]);
 }
 
-// 🔧 Función para firewall vacío o no reconocido
+// Función para firewall vacío o no reconocido
 function ejecutarSinFirewall($input) {
     return json_encode([]);
 }

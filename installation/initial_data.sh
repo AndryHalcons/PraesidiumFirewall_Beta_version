@@ -4,7 +4,7 @@
 DEST_CONFIG="/var/www/config"
 DEST_RUNNING="/var/www/config_running"
 
-# 1️ Preparar /var/www/config
+# 1 Preparar /var/www/config
 # Prepare /var/www/config
 if [ ! -d "$DEST_CONFIG" ]; then
   echo "Creating directory $DEST_CONFIG... / Creando directorio $DEST_CONFIG..."
@@ -14,7 +14,7 @@ else
   rm -rf "$DEST_CONFIG"/*
 fi
 
-# 2️ Preparar /var/www/config_running
+# 2 Preparar /var/www/config_running
 # Prepare /var/www/config_running
 if [ ! -d "$DEST_RUNNING" ]; then
   echo "Creating directory $DEST_RUNNING... / Creando directorio $DEST_RUNNING..."
@@ -24,16 +24,16 @@ else
   rm -rf "$DEST_RUNNING"/*
 fi
 
-# 3️ Copiar ../data a /var/www/config
+# 3 Copiar ../data a /var/www/config
 # Copy ../data to /var/www/config
 echo "Copying ../data to $DEST_CONFIG... / Copiando ../data a $DEST_CONFIG..."
 cp -r ../data/* "$DEST_CONFIG/"
 
-# 4️ Copiar ../data_running a /var/www/config_running
+# 4 Copiar ../data_running a /var/www/config_running
 # Copy ../data_running to /var/www/config_running
 echo "Copying ../data_running to $DEST_RUNNING... / Copiando ../data_running a $DEST_RUNNING..."
 cp -r ../data_running/* "$DEST_RUNNING/"
 
-# 5️ Finalizado
+# 5 Finalizado
 # Done
 echo "Script completed. / Script completado."

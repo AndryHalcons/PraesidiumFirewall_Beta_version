@@ -228,25 +228,25 @@ function get_id_from_policy(array $rule): array {
             $idCandidate = trim($idCandidate);
         }
 
-        // Si está vacío, nulo o solo espacios → generar nuevo ID
+        // Si está vacío, nulo o solo espacios -> generar nuevo ID
         if ($idCandidate === '' || $idCandidate === null) {
             $rule['id'] = get_id(); // asigna nuevo ID
             return $rule;
         }
 
-        // Si es entero positivo o string numérico positivo → lo aceptamos
+        // Si es entero positivo o string numérico positivo -> lo aceptamos
         if ((is_int($idCandidate) && $idCandidate > 0) ||
             (is_string($idCandidate) && ctype_digit($idCandidate) && (int)$idCandidate > 0)) {
             $rule['id'] = (string)(int)$idCandidate; // normaliza a string
             return $rule;
         }
 
-        // Si está mal formado o es negativo → generar nuevo ID
+        // Si está mal formado o es negativo -> generar nuevo ID
         $rule['id'] = get_id();
         return $rule;
     }
 
-    // Si no existe el campo 'id' → generar nuevo ID
+    // Si no existe el campo 'id' -> generar nuevo ID
     $rule['id'] = get_id();
     return $rule;
 }
@@ -661,8 +661,8 @@ function assign_position(array $rule): array {
         return $rule;
     }
     $posCandidate = is_string($rule["position"]) ? trim($rule["position"]) : $rule["position"];
-    // Si no es un entero positivo → asigna 1 por defecto
-    // If not a positive integer → assign default 1
+    // Si no es un entero positivo -> asigna 1 por defecto
+    // If not a positive integer -> assign default 1
     if (!is_int($posCandidate) && (!is_string($posCandidate) || !ctype_digit($posCandidate))) {
         $rule["position"] = 1;
         return $rule;
@@ -815,7 +815,7 @@ function validate_bpfilter_protocols(array $rule): bool {
             }
         }
 
-        // Si ipv6_next_header indica Hop-by-Hop, Routing, Fragment, AH, ESP, Destination → no debe haber ningún campo adicional
+        // Si ipv6_next_header indica Hop-by-Hop, Routing, Fragment, AH, ESP, Destination -> no debe haber ningún campo adicional
         if (in_array($ip6, ['Hop-by-Hop', 'Routing', 'Fragment', 'AH', 'ESP', 'Destination'])) {
             if ($l4 !== '' || $tcpFlags !== '' || $icmpType !== '' || $icmpCode !== '' || $icmpv6Type !== '' || $icmpv6Code !== '') {
                 echo json_encode(['error' => "ipv6_next_header = '{$ip6}' no permite campos adicionales"]);

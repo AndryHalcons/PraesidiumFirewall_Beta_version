@@ -54,7 +54,7 @@ function update_certificates_config_json() {
 
         $ext = pathinfo($file, PATHINFO_EXTENSION);
 
-        // 📄 Certificado PEM
+        // Certificado PEM
         if ($ext === 'pem') {
             $cmd = "openssl x509 -in " . escapeshellarg($path) . " -noout -subject -issuer -enddate -text";
             exec($cmd, $lines, $code);
@@ -85,7 +85,7 @@ function update_certificates_config_json() {
             }
         }
 
-        // 📄 CSR
+        // CSR
         elseif ($ext === 'csr') {
             $cmd = "openssl req -in " . escapeshellarg($path) . " -noout -subject";
             exec($cmd, $lines, $code);
@@ -96,18 +96,18 @@ function update_certificates_config_json() {
             $entry['type'] = 'csr';
         }
 
-        // 🔑 KEY
+        // KEY
         elseif ($ext === 'key') {
             $entry['type'] = 'key';
         }
 
-        // 🔢 SRL
+        // SRL
         elseif ($ext === 'srl') {
             $entry['type'] = 'serial';
             $entry['status'] = 'serial';
         }
 
-        // ⚙️ CNF
+        // CNF
         elseif ($ext === 'cnf') {
             $entry['type'] = 'config';
         }

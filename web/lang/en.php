@@ -7,7 +7,7 @@ return [
     ////////////////////   Generic      ///////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    'add'                 => '➕ Add',
+    'add'                 => 'Add',
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ////////////////////   mainpage.php  //////////////////////////////////
@@ -100,15 +100,15 @@ return [
     ////////////////////   Interfaces.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    "create_bridge" => "➕ Create Bridge",
-    "create_bond" => "➕ Create Bond (aggregation group)",
+    "create_bridge" => "Create Bridge",
+    "create_bond" => "Create Bond (aggregation group)",
     'add_interface' => 'Add Interface',
-    "delete_interface" => "🗑️ Delete interface",
+    "delete_interface" => "Delete interface",
     "ok" => "OK",
     "cancel" => "Cancel",
-    'edit' => "✏️ Edit",
-    'save' => "💾 Save",
-    'save_and_apply' => '💾 Save and Apply',
+    'edit' => "Edit",
+    'save' => "Save",
+    'save_and_apply' => 'Save and Apply',
 
     //aux
     'network_config_title' => 'Network Interface Configuration',
@@ -202,10 +202,10 @@ return [
     ////////////////////   users.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //butons
-    "edit" => "✏️ Edit",
-    "save" => "💾 Save",
-    "delete" => "🗑️ Delete",
-    "add_user" => "➕ Add User",
+    "edit" => "Edit",
+    "save" => "Save",
+    "delete" => "Delete",
+    "add_user" => "Add User",
     "cancel" => "Cancel",
 
     //aux
@@ -220,7 +220,7 @@ return [
     ////////////////////   policies.php  //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //button
-    "add_policy" => "➕ Add Policy",
+    "add_policy" => "Add Policy",
     // nftables fields
     'family'           => 'Family',
     'table'            => 'Table',
@@ -338,7 +338,7 @@ return [
     ////////////////////   alias         //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    "add_alias" => "➕ Add",
+    "add_alias" => "Add",
     //table alias
     'id' => 'ID',
     'name' => 'Name',
@@ -364,7 +364,7 @@ return [
     ////////////////////   certificates      //////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     //buttons
-    'download' => '⬇️ Download',
+    'download' => 'Download',
 
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////

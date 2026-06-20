@@ -2,7 +2,7 @@
 
 set -e
 
-# 🧪 Verifica los requisitos del sistema / Check system requirements
+# Verifica los requisitos del sistema / Check system requirements
 check_requirements() {
     echo " Verificando requisitos para bpfilter... / Checking requirements for bpfilter..."
 
@@ -140,6 +140,6 @@ install_bpfilter() {
 
 
 
-# 🧪 Ejecutar verificación e instalación / Run verification and installation
+# Ejecutar verificación e instalación / Run verification and installation
 check_requirements
 install_bpfilter

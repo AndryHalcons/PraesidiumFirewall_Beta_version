@@ -176,7 +176,7 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
 function loadTableContentGeneric(currentAlias, path_get_table_structure, path_get_table_content, path_get_forms_from_table, path_get_update, path_get_delete, columns) {
   const endpoint = path_get_table_content; 
   const param = `table=${currentAlias}`;
-  console.log("📤 Enviando al backend:", `${endpoint}?${param}`);
+  console.log(" Enviando al backend:", `${endpoint}?${param}`);
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
     .then(data => {
@@ -607,27 +607,27 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
   })
     .then(response => response.text())
     .then(text => {
-      console.log("🧾 Respuesta cruda del backend:", text);
+      console.log(" Respuesta cruda del backend:", text);
       try {
         const result = JSON.parse(text);
-        console.log("✅ JSON parseado:", result);
+        console.log(" JSON parseado:", result);
 
         if (result.error) {
-          console.error("❌ Error al guardar en el backend:", result.error);
-          alert(JSON.stringify(result, null, 2)); // ✅ Ventana emergente con el JSON completo
+          console.error(" Error al guardar en el backend:", result.error);
+          alert(JSON.stringify(result, null, 2)); // Ventana emergente con el JSON completo
         } else {
           if (typeof onSuccess === "function") {
             onSuccess();
           }
         }
       } catch (e) {
-        console.error("❌ No se pudo parsear JSON:", e);
-        alert("Error al parsear la respuesta del servidor:\n\n" + text); // ✅ Si no se puede parsear
+        console.error(" No se pudo parsear JSON:", e);
+        alert("Error al parsear la respuesta del servidor:\n\n" + text); // Si no se puede parsear
       }
     })
     .catch(error => {
       console.error("Error de conexión al guardar:", error);
-      alert("Error de conexión al guardar:\n\n" + error); // ✅ Si falla la conexión
+      alert("Error de conexión al guardar:\n\n" + error); // Si falla la conexión
     });
 }
 
@@ -648,7 +648,7 @@ function delete_Generic(currentAlias,path_get_table_structure,path_get_table_con
     fileName : rule.file_name
 
   };
-  console.log("📤 Enviando al backend:", JSON.stringify(payload, null, 2));
+  console.log(" Enviando al backend:", JSON.stringify(payload, null, 2));
   fetch(endpoint, {
     method: "POST",
     headers: {
