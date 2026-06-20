@@ -10,22 +10,22 @@ header('Content-Type: application/json');
 
 $input = json_decode(file_get_contents('php://input'), true);
 $rule = $input['rule'] ?? null;
-if (!is_array($rule)) { echo json_encode(['error' => 'Datos inválidos']); exit; }
+if (!is_array($rule)) { wireguard_error('No se recibieron datos válidos para guardar.', null); }
 
-wireguard_validate_rule('wireguard_site_to_site', $rule);
 $config = wireguard_read_json(WIREGUARD_CONFIG_PATH);
 $name = trim((string)($rule['name'] ?? ''));
 if ($name === '' || $name === 'Auto') { $name = wireguard_make_name($config, 'site_to_site'); }
-wireguard_validate_simple_name($name, 'name');
+wireguard_validate_entry_name($name, 'name');
 unset($rule['name']);
 
 if (($rule['private_key'] ?? '') === '********' && isset($config['site_to_site'][$name]['private_key'])) {
     $rule['private_key'] = $config['site_to_site'][$name]['private_key'];
 }
 
+$rule = wireguard_validate_rule('wireguard_site_to_site', $rule, $config, $name);
 $config['site_to_site'][$name] = $rule;
-$saved = json_store_write(WIREGUARD_CONFIG_PATH, wireguard_prepare_for_json($config), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-if ($saved === false) { echo json_encode(['error' => 'No se pudo guardar wireguard.json']); exit; }
+$saved = json_store_write(WIREGUARD_CONFIG_PATH, wireguard_prepare_for_json($config), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+if ($saved === false) { wireguard_error('No se pudo guardar la configuración WireGuard. Revise permisos de wireguard.json.', null); }
 @chmod(WIREGUARD_CONFIG_PATH, 0664);
 echo json_encode(['success' => true, 'updated' => $name], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>

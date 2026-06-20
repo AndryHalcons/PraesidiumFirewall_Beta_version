@@ -411,7 +411,7 @@ return [
     'wireguard_site_to_site_desc' => 'Create point-to-point tunnels between two offices or networks.',
     'wireguard_remote_access' => 'WireGuard remote access',
     'wireguard_remote_access_desc' => 'Create remote-access VPN servers and clients.',
-    'wireguard_overview_description' => 'Configure WireGuard VPN scenarios separated by use case.',
+    'wireguard_overview_description' => 'Choose the WireGuard scenario you want to configure. Each option uses separate forms to reduce mistakes and keep the configuration clear.',
     'wireguard_remote_servers' => 'VPN servers',
     'wireguard_remote_clients' => 'VPN clients',
     'open' => 'Open',
@@ -435,4 +435,14 @@ return [
     'client_public_key' => 'Client public key',
     'allowed_ips' => 'Allowed IPs',
 
+    'wireguard_site_to_site_long_desc' => 'Use this section to join two remote networks with a WireGuard tunnel between sites. Validation enforces coherent tunnel IPs, non-overlapping networks and a valid remote endpoint.',
+    'wireguard_remote_access_long_desc' => 'Use this section to let remote users securely access internal networks through WireGuard servers and associated clients.',
+    'wireguard_site_to_site_form_help' => 'Complete interface, tunnel IPs, local/remote networks, endpoint, port and keys. If the entry is enabled, critical fields are mandatory.',
+    'wireguard_remote_access_form_help' => 'Create a VPN server first. Then add clients associated with that server. Duplicate client IPs and public keys are not allowed.',
+    'wireguard_remote_servers_help' => 'Define the server interface, VPN network, accessible internal networks, listen port and private key.',
+    'wireguard_remote_clients_help' => 'Associate each client with an existing server. The client IP must belong to the selected server VPN network.',
+    'wireguard_site_to_site_hint_1' => 'Join two locations with a dedicated tunnel.',
+    'wireguard_site_to_site_hint_2' => 'Validate tunnel IPs, remote networks, endpoint and keys.',
+    'wireguard_remote_access_hint_1' => 'Create the remote-access VPN server first.',
+    'wireguard_remote_access_hint_2' => 'Then add clients associated with the server.',
 ];

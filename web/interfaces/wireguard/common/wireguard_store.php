@@ -7,68 +7,45 @@ const WIREGUARD_STRUCTURE_PATH = '/var/www/backend/checks/system_data/default_ta
 const WIREGUARD_FORMS_PATH = '/var/www/backend/checks/system_data/default_forms/forms_wireguard.json';
 
 function wireguard_empty_config(): array {
-    return [
-        'site_to_site' => [],
-        'remote_access' => [],
-        'remote_clients' => []
-    ];
+    return ['site_to_site' => [], 'remote_access' => [], 'remote_clients' => []];
 }
 
 function wireguard_section_for_alias(string $alias): ?string {
-    $map = [
+    return [
         'wireguard_site_to_site' => 'site_to_site',
         'wireguard_remote_access' => 'remote_access',
         'wireguard_remote_clients' => 'remote_clients'
-    ];
-    return $map[$alias] ?? null;
+    ][$alias] ?? null;
 }
 
 function wireguard_prefix_for_section(string $section): string {
-    $map = [
-        'site_to_site' => 'wg-s2s',
-        'remote_access' => 'wg-ra',
-        'remote_clients' => 'wg-client'
-    ];
-    return $map[$section] ?? 'wg';
+    return ['site_to_site' => 'wg-s2s', 'remote_access' => 'wg-ra', 'remote_clients' => 'wg-client'][$section] ?? 'wg';
 }
 
 function wireguard_read_json(string $path): array {
-    if (!file_exists($path)) {
-        return wireguard_empty_config();
-    }
-    $raw = file_get_contents($path);
-    $data = json_decode($raw, true);
-    if (!is_array($data)) {
-        return wireguard_empty_config();
-    }
-    return array_replace_recursive(wireguard_empty_config(), $data);
+    if (!file_exists($path)) return wireguard_empty_config();
+    $data = json_decode(file_get_contents($path), true);
+    return is_array($data) ? array_replace_recursive(wireguard_empty_config(), $data) : wireguard_empty_config();
 }
 
 function wireguard_read_structure(string $alias): array {
-    $raw = file_get_contents(WIREGUARD_STRUCTURE_PATH);
-    $data = json_decode($raw, true);
+    $data = json_decode(file_get_contents(WIREGUARD_STRUCTURE_PATH), true);
     return is_array($data) ? ($data[$alias] ?? []) : [];
 }
 
 function wireguard_read_forms(string $alias): array {
-    $raw = file_get_contents(WIREGUARD_FORMS_PATH);
-    $data = json_decode($raw, true);
+    $data = json_decode(file_get_contents(WIREGUARD_FORMS_PATH), true);
     return is_array($data) ? ($data[$alias] ?? []) : [];
 }
 
 function wireguard_mask_row_for_table(array $row): array {
-    if (isset($row['private_key']) && trim((string)$row['private_key']) !== '') {
-        $row['private_key'] = '********';
-    }
+    if (isset($row['private_key']) && trim((string)$row['private_key']) !== '') $row['private_key'] = '********';
     return $row;
 }
 
-
 function wireguard_prepare_for_json(array $config): array {
     foreach (['site_to_site', 'remote_access', 'remote_clients'] as $section) {
-        if (!isset($config[$section]) || !is_array($config[$section]) || count($config[$section]) === 0) {
-            $config[$section] = new stdClass();
-        }
+        if (!isset($config[$section]) || !is_array($config[$section]) || count($config[$section]) === 0) $config[$section] = new stdClass();
     }
     return $config;
 }
@@ -76,114 +53,239 @@ function wireguard_prepare_for_json(array $config): array {
 function wireguard_make_name(array $config, string $section): string {
     $prefix = wireguard_prefix_for_section($section);
     $index = 0;
-    do {
-        $candidate = $prefix . $index;
-        $index++;
-    } while (isset($config[$section][$candidate]));
+    do { $candidate = $prefix . $index; $index++; } while (isset($config[$section][$candidate]));
     return $candidate;
 }
 
+function wireguard_lang(): array {
+    $language = $_SESSION['language'] ?? 'es';
+    $langFile = $_SERVER['DOCUMENT_ROOT'] . "/lang/{$language}.php";
+    if (!file_exists($langFile)) $langFile = $_SERVER['DOCUMENT_ROOT'] . "/lang/es.php";
+    $lang = require $langFile;
+    return is_array($lang) ? $lang : [];
+}
+
+function wireguard_label(string $field): string {
+    $lang = wireguard_lang();
+    return (string)($lang[$field] ?? $field);
+}
+
+function wireguard_error(string $message, ?string $field = null): void {
+    echo json_encode(['error' => $message, 'field' => $field], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function wireguard_trim_rule(array $rule): array {
+    foreach ($rule as $key => $value) if (is_string($value)) $rule[$key] = trim($value);
+    return $rule;
+}
+
+function wireguard_is_enabled(array $rule): bool { return (string)($rule['enabled'] ?? '') === 'true'; }
+
+function wireguard_required(array $rule, array $fields): void {
+    foreach ($fields as $field) {
+        if (!isset($rule[$field]) || trim((string)$rule[$field]) === '') {
+            wireguard_error('El campo "' . wireguard_label($field) . '" es obligatorio para guardar una entrada activa.', $field);
+        }
+    }
+}
+
 function wireguard_validate_bool_string(string $value, string $field): void {
-    if ($value !== '' && !in_array($value, ['true', 'false'], true)) {
-        echo json_encode(['error' => "Campo booleano inválido: {$field}"]);
-        exit;
-    }
+    if ($value !== '' && !in_array($value, ['true', 'false'], true)) wireguard_error('El campo "' . wireguard_label($field) . '" solo puede estar activo o inactivo.', $field);
 }
 
-function wireguard_validate_simple_name(string $value, string $field): void {
-    if ($value !== '' && !preg_match('/^[A-Za-z0-9_.-]{1,64}$/', $value)) {
-        echo json_encode(['error' => "Nombre inválido en {$field}"]);
-        exit;
-    }
+function wireguard_validate_entry_name(string $value, string $field = 'name'): void {
+    if ($value !== '' && !preg_match('/^[A-Za-z0-9_.-]{1,64}$/', $value)) wireguard_error('El campo "' . wireguard_label($field) . '" solo puede usar letras, números, guiones, puntos y guiones bajos; máximo 64 caracteres.', $field);
 }
 
-function wireguard_validate_csv_cidrs(string $value, string $field, bool $allowDefault = false): void {
-    if (trim($value) === '') return;
-    foreach (array_map('trim', explode(',', $value)) as $item) {
-        if ($allowDefault && $item === 'default') continue;
-        if (!preg_match('/^(.+)\/(\d{1,3})$/', $item, $m)) {
-            echo json_encode(['error' => "{$field} debe contener IP/CIDR separados por comas"]);
-            exit;
-        }
-        $ip = $m[1];
-        $cidr = (int)$m[2];
-        $is4 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
-        $is6 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
-        if ((!$is4 && !$is6) || ($is4 && ($cidr < 0 || $cidr > 32)) || ($is6 && ($cidr < 0 || $cidr > 128))) {
-            echo json_encode(['error' => "CIDR inválido en {$field}: {$item}"]);
-            exit;
-        }
-    }
+function wireguard_validate_interface_name(string $value, string $field = 'interface'): void {
+    if ($value === '') return;
+    if (!preg_match('/^[A-Za-z0-9_.:-]{1,15}$/', $value)) wireguard_error('La interfaz debe ser un nombre Linux válido de hasta 15 caracteres, por ejemplo wg0 o wg-office.', $field);
+}
+
+function wireguard_split_csv(string $value): array {
+    if (trim($value) === '') return [];
+    $items = array_map('trim', explode(',', $value));
+    return array_values(array_filter($items, fn($item) => $item !== ''));
+}
+
+function wireguard_parse_cidr(string $item, string $field, bool $allowDefault = false): array {
+    if ($allowDefault && $item === 'default') return ['ip' => 'default', 'prefix' => 0, 'version' => 'default', 'raw' => $item];
+    if (!preg_match('/^(.+)\/(\d{1,3})$/', $item, $m)) wireguard_error('El campo "' . wireguard_label($field) . '" debe usar formato CIDR, por ejemplo 192.168.20.0/24. Separe varios valores con comas.', $field);
+    $ip = $m[1]; $prefix = (int)$m[2];
+    $is4 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+    $is6 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+    if (!$is4 && !$is6) wireguard_error('La IP "' . $ip . '" no es válida en el campo "' . wireguard_label($field) . '".', $field);
+    if ($is4 && ($prefix < 0 || $prefix > 32)) wireguard_error('La máscara IPv4 de "' . wireguard_label($field) . '" debe estar entre /0 y /32.', $field);
+    if ($is6 && ($prefix < 0 || $prefix > 128)) wireguard_error('La máscara IPv6 de "' . wireguard_label($field) . '" debe estar entre /0 y /128.', $field);
+    return ['ip' => $ip, 'prefix' => $prefix, 'version' => $is4 ? 4 : 6, 'raw' => $item];
+}
+
+function wireguard_validate_csv_cidrs(string $value, string $field, bool $allowDefault = false): array {
+    $parsed = [];
+    foreach (wireguard_split_csv($value) as $item) $parsed[] = wireguard_parse_cidr($item, $field, $allowDefault);
+    return $parsed;
 }
 
 function wireguard_validate_csv_ips(string $value, string $field): void {
-    if (trim($value) === '') return;
-    foreach (array_map('trim', explode(',', $value)) as $item) {
-        if (!filter_var($item, FILTER_VALIDATE_IP)) {
-            echo json_encode(['error' => "IP inválida en {$field}: {$item}"]);
-            exit;
-        }
-    }
+    foreach (wireguard_split_csv($value) as $item) if (!filter_var($item, FILTER_VALIDATE_IP)) wireguard_error('La IP "' . $item . '" no es válida en el campo "' . wireguard_label($field) . '".', $field);
 }
 
 function wireguard_validate_port(string $value, string $field): void {
     if (trim($value) === '') return;
-    if (!ctype_digit((string)$value) || (int)$value < 1 || (int)$value > 65535) {
-        echo json_encode(['error' => "Puerto inválido en {$field}"]);
-        exit;
-    }
+    if (!ctype_digit((string)$value) || (int)$value < 1 || (int)$value > 65535) wireguard_error('El puerto de escucha debe ser un número entre 1 y 65535.', $field);
 }
 
-function wireguard_validate_int_range(string $value, string $field, int $min, int $max): void {
+function wireguard_validate_int_range(string $value, string $field, int $min, int $max, string $friendlyName): void {
     if (trim($value) === '') return;
-    if (!ctype_digit((string)$value) || (int)$value < $min || (int)$value > $max) {
-        echo json_encode(['error' => "Valor fuera de rango en {$field}"]);
-        exit;
-    }
+    if (!ctype_digit((string)$value) || (int)$value < $min || (int)$value > $max) wireguard_error('El campo "' . $friendlyName . '" debe ser un número entre ' . $min . ' y ' . $max . '.', $field);
 }
 
 function wireguard_validate_key(string $value, string $field): void {
     if (trim($value) === '' || $value === '********') return;
-    if (!preg_match('/^[A-Za-z0-9+\/]{43}=$/', $value)) {
-        echo json_encode(['error' => "Clave WireGuard inválida en {$field}"]);
-        exit;
-    }
+    if (!preg_match('/^[A-Za-z0-9+\/]{43}=$/', $value)) wireguard_error('El campo "' . wireguard_label($field) . '" no parece una clave WireGuard válida. Debe ser una clave base64 de 44 caracteres terminada en =.', $field);
 }
 
 function wireguard_validate_endpoint(string $value, string $field): void {
     if (trim($value) === '') return;
-    if (!preg_match('/^(.+):(\d{1,5})$/', $value, $m)) {
-        echo json_encode(['error' => "{$field} debe tener formato host:puerto"]);
-        exit;
+    if (preg_match('/^\[([0-9A-Fa-f:.]+)\]:(\d{1,5})$/', $value, $m)) {
+        if (filter_var($m[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) wireguard_error('El endpoint IPv6 debe usar formato [IPv6]:puerto, por ejemplo [2001:db8::1]:51820.', $field);
+        wireguard_validate_port($m[2], $field); return;
     }
-    wireguard_validate_port($m[2], $field);
+    if (preg_match('/^([^:\s]+):(\d{1,5})$/', $value, $m)) {
+        if (!preg_match('/^[A-Za-z0-9.-]+$/', $m[1]) && filter_var($m[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) wireguard_error('El host del endpoint solo puede ser un dominio, una IPv4 o una IPv6 entre corchetes.', $field);
+        wireguard_validate_port($m[2], $field); return;
+    }
+    wireguard_error('El endpoint remoto debe tener formato host:puerto, por ejemplo vpn.sede.example:51820.', $field);
 }
 
-function wireguard_validate_rule(string $alias, array $rule): void {
-    $enabled = (string)($rule['enabled'] ?? '');
-    wireguard_validate_bool_string($enabled, 'enabled');
+function wireguard_ipv4_to_uint(string $ip): int { return (int)sprintf('%u', ip2long($ip)); }
+function wireguard_ipv4_network(array $cidr): ?array {
+    if (($cidr['version'] ?? null) !== 4) return null;
+    $prefix = (int)$cidr['prefix']; $ip = wireguard_ipv4_to_uint($cidr['ip']);
+    $mask = $prefix === 0 ? 0 : ((0xFFFFFFFF << (32 - $prefix)) & 0xFFFFFFFF);
+    $network = $ip & $mask; $broadcast = $network | (~$mask & 0xFFFFFFFF);
+    return ['network' => $network, 'broadcast' => $broadcast, 'prefix' => $prefix];
+}
+function wireguard_ipv4_contains(array $networkCidr, array $hostCidr): bool {
+    $network = wireguard_ipv4_network($networkCidr); if ($network === null) return false;
+    $hostIp = wireguard_ipv4_to_uint($hostCidr['ip']);
+    return $hostIp >= $network['network'] && $hostIp <= $network['broadcast'];
+}
+function wireguard_ipv4_overlap(array $a, array $b): bool {
+    $na = wireguard_ipv4_network($a); $nb = wireguard_ipv4_network($b);
+    if ($na === null || $nb === null) return false;
+    return $na['network'] <= $nb['broadcast'] && $nb['network'] <= $na['broadcast'];
+}
 
-    foreach (['interface', 'vpn'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_simple_name((string)$rule[$field], $field);
+function wireguard_require_same_tunnel_network(array $localList, array $remoteList): void {
+    if (count($localList) !== 1 || count($remoteList) !== 1) wireguard_error('La VPN sede a sede debe tener una única IP de túnel local y una única IP de túnel remota.', 'local_tunnel_ip');
+    $local = $localList[0]; $remote = $remoteList[0];
+    if ($local['version'] !== $remote['version']) wireguard_error('La IP de túnel local y la remota deben ser ambas IPv4 o ambas IPv6.', 'remote_tunnel_ip');
+    if ($local['version'] === 4) {
+        $ln = wireguard_ipv4_network($local); $rn = wireguard_ipv4_network($remote);
+        if ($ln['network'] !== $rn['network'] || $local['prefix'] !== $remote['prefix']) wireguard_error('La IP de túnel local y la remota deben pertenecer a la misma red de túnel, por ejemplo 10.10.10.1/30 y 10.10.10.2/30.', 'remote_tunnel_ip');
     }
+}
 
-    foreach (['listen_port'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_port((string)$rule[$field], $field);
-    }
-    foreach (['keepalive'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_int_range((string)$rule[$field], $field, 0, 65535);
-    }
-    foreach (['mtu'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_int_range((string)$rule[$field], $field, 576, 9000);
-    }
+function wireguard_check_network_overlap(array $left, array $right, string $leftField, string $rightField): void {
+    foreach ($left as $a) foreach ($right as $b) if (($a['version'] ?? null) === 4 && ($b['version'] ?? null) === 4 && wireguard_ipv4_overlap($a, $b)) wireguard_error('Las redes de "' . wireguard_label($leftField) . '" y "' . wireguard_label($rightField) . '" no deben solaparse.', $rightField);
+}
 
-    foreach (['local_tunnel_ip','remote_tunnel_ip','server_vpn_ip','vpn_network','client_vpn_ip','local_networks','remote_networks','internal_networks','allowed_ips'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_csv_cidrs((string)$rule[$field], $field, $field === 'allowed_ips');
+function wireguard_validate_no_duplicate_interface(array $config, string $section, string $entryName, string $interface): void {
+    if ($interface === '') return;
+    foreach (['site_to_site', 'remote_access'] as $otherSection) foreach (($config[$otherSection] ?? []) as $name => $entry) {
+        if ($otherSection === $section && $name === $entryName) continue;
+        if (($entry['interface'] ?? '') === $interface) wireguard_error('La interfaz "' . $interface . '" ya está usada por otra VPN WireGuard.', 'interface');
     }
+}
+
+function wireguard_validate_no_duplicate_port(array $config, string $section, string $entryName, string $port): void {
+    if ($port === '') return;
+    foreach (['site_to_site', 'remote_access'] as $otherSection) foreach (($config[$otherSection] ?? []) as $name => $entry) {
+        if ($otherSection === $section && $name === $entryName) continue;
+        if (($entry['listen_port'] ?? '') === $port) wireguard_error('El puerto ' . $port . ' ya está usado por otra VPN WireGuard.', 'listen_port');
+    }
+}
+
+function wireguard_validate_unique_client_values(array $config, string $entryName, array $rule): void {
+    foreach (($config['remote_clients'] ?? []) as $name => $entry) {
+        if ($name === $entryName) continue;
+        if (($rule['client_vpn_ip'] ?? '') !== '' && ($entry['client_vpn_ip'] ?? '') === ($rule['client_vpn_ip'] ?? '')) wireguard_error('La IP del cliente VPN ya está asignada a otro cliente.', 'client_vpn_ip');
+        if (($rule['client_public_key'] ?? '') !== '' && ($entry['client_public_key'] ?? '') === ($rule['client_public_key'] ?? '')) wireguard_error('La clave pública del cliente ya está usada por otro cliente.', 'client_public_key');
+    }
+}
+
+function wireguard_validate_remote_client_vpn(array $config, array $rule): void {
+    $vpn = (string)($rule['vpn'] ?? ''); if ($vpn === '') return;
+    if (!isset($config['remote_access'][$vpn])) wireguard_error('La VPN seleccionada para el cliente no existe. Cree primero el servidor de acceso remoto.', 'vpn');
+    if (($rule['client_vpn_ip'] ?? '') !== '' && ($config['remote_access'][$vpn]['vpn_network'] ?? '') !== '') {
+        $serverNets = wireguard_validate_csv_cidrs((string)$config['remote_access'][$vpn]['vpn_network'], 'vpn_network');
+        $clientIps = wireguard_validate_csv_cidrs((string)$rule['client_vpn_ip'], 'client_vpn_ip');
+        if (count($clientIps) !== 1) wireguard_error('Cada cliente debe tener una única IP VPN en formato CIDR, por ejemplo 10.20.0.2/32.', 'client_vpn_ip');
+        $inside = false;
+        foreach ($serverNets as $net) if (($net['version'] ?? null) === 4 && ($clientIps[0]['version'] ?? null) === 4 && wireguard_ipv4_contains($net, $clientIps[0])) $inside = true;
+        if (!$inside && ($clientIps[0]['version'] ?? null) === 4) wireguard_error('La IP del cliente debe pertenecer a la red VPN del servidor seleccionado.', 'client_vpn_ip');
+    }
+}
+
+function wireguard_validate_site_to_site(array $rule, array $config, string $entryName): void {
+    if (wireguard_is_enabled($rule)) wireguard_required($rule, ['interface','local_tunnel_ip','remote_tunnel_ip','local_networks','remote_networks','listen_port','remote_endpoint','private_key','remote_public_key']);
+    wireguard_validate_interface_name((string)($rule['interface'] ?? ''));
+    wireguard_validate_no_duplicate_interface($config, 'site_to_site', $entryName, (string)($rule['interface'] ?? ''));
+    wireguard_validate_no_duplicate_port($config, 'site_to_site', $entryName, (string)($rule['listen_port'] ?? ''));
+    $localTunnel = wireguard_validate_csv_cidrs((string)($rule['local_tunnel_ip'] ?? ''), 'local_tunnel_ip');
+    $remoteTunnel = wireguard_validate_csv_cidrs((string)($rule['remote_tunnel_ip'] ?? ''), 'remote_tunnel_ip');
+    if ($localTunnel && $remoteTunnel) wireguard_require_same_tunnel_network($localTunnel, $remoteTunnel);
+    $localNets = wireguard_validate_csv_cidrs((string)($rule['local_networks'] ?? ''), 'local_networks');
+    $remoteNets = wireguard_validate_csv_cidrs((string)($rule['remote_networks'] ?? ''), 'remote_networks');
+    if ($localNets && $remoteNets) wireguard_check_network_overlap($localNets, $remoteNets, 'local_networks', 'remote_networks');
+}
+
+function wireguard_validate_remote_access(array $rule, array $config, string $entryName): void {
+    if (wireguard_is_enabled($rule)) wireguard_required($rule, ['interface','server_vpn_ip','vpn_network','listen_port','internal_networks','private_key']);
+    wireguard_validate_interface_name((string)($rule['interface'] ?? ''));
+    wireguard_validate_no_duplicate_interface($config, 'remote_access', $entryName, (string)($rule['interface'] ?? ''));
+    wireguard_validate_no_duplicate_port($config, 'remote_access', $entryName, (string)($rule['listen_port'] ?? ''));
+    $serverIps = wireguard_validate_csv_cidrs((string)($rule['server_vpn_ip'] ?? ''), 'server_vpn_ip');
+    $vpnNets = wireguard_validate_csv_cidrs((string)($rule['vpn_network'] ?? ''), 'vpn_network');
+    if (count($serverIps) > 1) wireguard_error('El servidor de acceso remoto debe tener una única IP VPN.', 'server_vpn_ip');
+    if ($serverIps && $vpnNets && ($serverIps[0]['version'] ?? null) === 4) {
+        $inside = false; foreach ($vpnNets as $net) if (($net['version'] ?? null) === 4 && wireguard_ipv4_contains($net, $serverIps[0])) $inside = true;
+        if (!$inside) wireguard_error('La IP del servidor VPN debe pertenecer a la red VPN configurada.', 'server_vpn_ip');
+    }
+    $internal = wireguard_validate_csv_cidrs((string)($rule['internal_networks'] ?? ''), 'internal_networks');
+    if ($vpnNets && $internal) wireguard_check_network_overlap($vpnNets, $internal, 'vpn_network', 'internal_networks');
+}
+
+function wireguard_validate_remote_client(array $rule, array $config, string $entryName): void {
+    if (wireguard_is_enabled($rule)) wireguard_required($rule, ['vpn','client_vpn_ip','client_public_key','allowed_ips']);
+    wireguard_validate_entry_name((string)($rule['vpn'] ?? ''), 'vpn');
+    wireguard_validate_remote_client_vpn($config, $rule);
+    wireguard_validate_unique_client_values($config, $entryName, $rule);
+}
+
+function wireguard_validate_rule(string $alias, array $rule, ?array $config = null, string $entryName = ''): array {
+    $rule = wireguard_trim_rule($rule); $config = $config ?? wireguard_empty_config(); $section = wireguard_section_for_alias($alias) ?? '';
+    $allowed = wireguard_read_structure($alias);
+    foreach (array_keys($rule) as $field) {
+        if (!in_array($field, $allowed, true)) wireguard_error('El campo "' . $field . '" no pertenece a este formulario WireGuard.', $field);
+        if (is_string($rule[$field]) && strlen($rule[$field]) > 512) wireguard_error('El campo "' . wireguard_label($field) . '" es demasiado largo.', $field);
+    }
+    wireguard_validate_bool_string((string)($rule['enabled'] ?? ''), 'enabled');
+    if (isset($rule['listen_port'])) wireguard_validate_port((string)$rule['listen_port'], 'listen_port');
+    if (isset($rule['keepalive'])) wireguard_validate_int_range((string)$rule['keepalive'], 'keepalive', 0, 65535, 'Keepalive');
+    if (isset($rule['mtu'])) wireguard_validate_int_range((string)$rule['mtu'], 'mtu', 576, 9000, 'MTU');
     if (isset($rule['dns'])) wireguard_validate_csv_ips((string)$rule['dns'], 'dns');
-    foreach (['private_key','remote_public_key','client_public_key'] as $field) {
-        if (isset($rule[$field])) wireguard_validate_key((string)$rule[$field], $field);
-    }
+    foreach (['private_key','remote_public_key','client_public_key'] as $field) if (isset($rule[$field])) wireguard_validate_key((string)$rule[$field], $field);
     if (isset($rule['remote_endpoint'])) wireguard_validate_endpoint((string)$rule['remote_endpoint'], 'remote_endpoint');
+    if ($section === 'site_to_site') wireguard_validate_site_to_site($rule, $config, $entryName);
+    if ($section === 'remote_access') wireguard_validate_remote_access($rule, $config, $entryName);
+    if ($section === 'remote_clients') wireguard_validate_remote_client($rule, $config, $entryName);
+    return $rule;
+}
+
+function wireguard_can_delete(string $section, string $name, array $config): void {
+    if ($section === 'remote_access') foreach (($config['remote_clients'] ?? []) as $client) if (($client['vpn'] ?? '') === $name) wireguard_error('No se puede borrar esta VPN porque todavía tiene clientes asociados. Borre o reasigne primero los clientes.', 'vpn');
 }
 ?>

@@ -402,7 +402,7 @@ return [
     'wireguard_site_to_site_desc' => 'Crea túneles punto a punto para unir dos sedes o redes.',
     'wireguard_remote_access' => 'WireGuard acceso remoto',
     'wireguard_remote_access_desc' => 'Crea servidores VPN de acceso remoto y sus clientes.',
-    'wireguard_overview_description' => 'Configura escenarios VPN WireGuard separados por tipo de uso.',
+    'wireguard_overview_description' => 'Elija el escenario WireGuard que quiere configurar. Cada opción usa formularios separados para reducir errores y mantener la configuración clara.',
     'wireguard_remote_servers' => 'Servidores VPN',
     'wireguard_remote_clients' => 'Clientes VPN',
     'open' => 'Abrir',
@@ -426,4 +426,14 @@ return [
     'client_public_key' => 'Clave pública cliente',
     'allowed_ips' => 'IPs permitidas',
 
+    'wireguard_site_to_site_long_desc' => 'Use esta sección para unir dos redes remotas mediante un túnel WireGuard entre sedes. La validación exige IPs de túnel coherentes, redes sin solapamientos y endpoint remoto correcto.',
+    'wireguard_remote_access_long_desc' => 'Use esta sección para permitir que usuarios remotos accedan de forma segura a redes internas mediante servidores WireGuard y clientes asociados.',
+    'wireguard_site_to_site_form_help' => 'Complete la interfaz, las IPs del túnel, redes local/remota, endpoint, puerto y claves. Si la entrada está activa, los campos críticos son obligatorios.',
+    'wireguard_remote_access_form_help' => 'Primero cree un servidor VPN. Después añada clientes asociados a ese servidor. No se permiten IPs de cliente ni claves públicas duplicadas.',
+    'wireguard_remote_servers_help' => 'Defina la interfaz del servidor, red VPN, redes internas accesibles, puerto de escucha y clave privada.',
+    'wireguard_remote_clients_help' => 'Asocie cada cliente a un servidor existente. La IP del cliente debe pertenecer a la red VPN del servidor.',
+    'wireguard_site_to_site_hint_1' => 'Une dos sedes mediante un túnel dedicado.',
+    'wireguard_site_to_site_hint_2' => 'Valida IPs del túnel, redes remotas, endpoint y claves.',
+    'wireguard_remote_access_hint_1' => 'Cree primero el servidor VPN de acceso remoto.',
+    'wireguard_remote_access_hint_2' => 'Añada después clientes asociados al servidor.',
 ];
