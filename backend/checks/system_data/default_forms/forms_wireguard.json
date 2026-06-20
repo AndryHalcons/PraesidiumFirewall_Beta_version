@@ -1,59 +1,38 @@
 {
-  "wireguard_site_to_site": {
-    "select": {},
-    "checkbox": {
-      "enabled": {
-        "checked": "true",
-        "unchecked": "false"
-      }
+    "wireguard_site_to_site": {
+        "select": {},
+        "checkbox": {
+            "enabled": {
+                "checked": "true",
+                "unchecked": "false"
+            }
+        },
+        "not_editable": {
+            "name": []
+        }
     },
-    "not_editable": {
-      "name": []
+    "wireguard_remote_access": {
+        "select": {},
+        "checkbox": {
+            "enabled": {
+                "checked": "true",
+                "unchecked": "false"
+            }
+        },
+        "not_editable": {
+            "name": []
+        }
     },
-    "chips": {
-      "local_networks": {
-        "separator": ","
-      },
-      "remote_networks": {
-        "separator": ","
-      }
+    "wireguard_remote_clients": {
+        "select": {},
+        "checkbox": {
+            "enabled": {
+                "checked": "true",
+                "unchecked": "false"
+            }
+        },
+        "not_editable": {
+            "name": []
+        }
     }
-  },
-  "wireguard_remote_access": {
-    "select": {},
-    "checkbox": {
-      "enabled": {
-        "checked": "true",
-        "unchecked": "false"
-      }
-    },
-    "not_editable": {
-      "name": []
-    },
-    "chips": {
-      "internal_networks": {
-        "separator": ","
-      },
-      "dns": {
-        "separator": ","
-      }
-    }
-  },
-  "wireguard_remote_clients": {
-    "select": {},
-    "checkbox": {
-      "enabled": {
-        "checked": "true",
-        "unchecked": "false"
-      }
-    },
-    "not_editable": {
-      "name": []
-    },
-    "chips": {
-      "allowed_ips": {
-        "separator": ","
-      }
-    }
-  }
 }
