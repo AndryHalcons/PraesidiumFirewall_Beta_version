@@ -1,0 +1,38 @@
+{
+  "wireguard_site_to_site": [
+    "name",
+    "enabled",
+    "interface",
+    "local_tunnel_ip",
+    "remote_tunnel_ip",
+    "local_networks",
+    "remote_networks",
+    "listen_port",
+    "remote_endpoint",
+    "private_key",
+    "remote_public_key",
+    "keepalive",
+    "mtu"
+  ],
+  "wireguard_remote_access": [
+    "name",
+    "enabled",
+    "interface",
+    "server_vpn_ip",
+    "vpn_network",
+    "listen_port",
+    "internal_networks",
+    "dns",
+    "private_key",
+    "mtu"
+  ],
+  "wireguard_remote_clients": [
+    "name",
+    "enabled",
+    "vpn",
+    "client_vpn_ip",
+    "client_public_key",
+    "allowed_ips",
+    "keepalive"
+  ]
+}

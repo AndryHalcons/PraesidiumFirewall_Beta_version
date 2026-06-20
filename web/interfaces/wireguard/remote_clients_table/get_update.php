@@ -1,0 +1,31 @@
+<?php
+session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
+require_once __DIR__ . '/../common/wireguard_store.php';
+require_admin_json();
+csrf_validate_or_exit();
+header('Content-Type: application/json');
+
+$input = json_decode(file_get_contents('php://input'), true);
+$rule = $input['rule'] ?? null;
+if (!is_array($rule)) { echo json_encode(['error' => 'Datos inválidos']); exit; }
+
+wireguard_validate_rule('wireguard_remote_clients', $rule);
+$config = wireguard_read_json(WIREGUARD_CONFIG_PATH);
+$name = trim((string)($rule['name'] ?? ''));
+if ($name === '' || $name === 'Auto') { $name = wireguard_make_name($config, 'remote_clients'); }
+wireguard_validate_simple_name($name, 'name');
+unset($rule['name']);
+
+if (($rule['private_key'] ?? '') === '********' && isset($config['remote_clients'][$name]['private_key'])) {
+    $rule['private_key'] = $config['remote_clients'][$name]['private_key'];
+}
+
+$config['remote_clients'][$name] = $rule;
+$saved = json_store_write(WIREGUARD_CONFIG_PATH, wireguard_prepare_for_json($config), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+if ($saved === false) { echo json_encode(['error' => 'No se pudo guardar wireguard.json']); exit; }
+@chmod(WIREGUARD_CONFIG_PATH, 0664);
+echo json_encode(['success' => true, 'updated' => $name], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+?>

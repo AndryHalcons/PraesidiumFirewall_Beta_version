@@ -64,7 +64,9 @@ $csrfToken = csrf_get_token();
         <a href="#" data-page="interfaces/bridges.php"><?= htmlspecialchars($L['sidebar_bridges']) ?></a>
         <a href="#" data-page="interfaces/vlans.php"><?= htmlspecialchars($L['sidebar_vlans']) ?></a>
         <a href="#" data-page="interfaces/tunnels.php"><?= htmlspecialchars($L['sidebar_tunnels']) ?></a>
-        <a href="#" data-page="interfaces/wireguard.php"><?= htmlspecialchars($L['sidebar_wireguard']) ?></a>
+        <a href="#" data-page="interfaces/wireguard/index.php"><?= htmlspecialchars($L['sidebar_wireguard']) ?></a>
+        <a href="#" data-page="interfaces/wireguard/site_to_site.php">↳ <?= htmlspecialchars($L['wireguard_site_to_site']) ?></a>
+        <a href="#" data-page="interfaces/wireguard/remote_access.php">↳ <?= htmlspecialchars($L['wireguard_remote_access']) ?></a>
         <a href="#" data-page="interfaces/wifis.php"><?= htmlspecialchars($L['sidebar_wifis']) ?></a>
       </details>
       <details>
