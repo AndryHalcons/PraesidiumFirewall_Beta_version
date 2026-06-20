@@ -29,6 +29,124 @@ function genericDataColumns(columns) {
   return columns.filter(column => !genericIsButtonColumn(column)).map(column => genericColumnField(column));
 }
 
+
+// Comprueba si un campo del modal debe usar el editor de chips declarado en el JSON de formularios.
+// Checks whether a modal field should use the chips editor declared in the forms JSON.
+function genericIsChipsField(formConfig, key) {
+  return Boolean(formConfig && formConfig.chips && formConfig.chips[key]);
+}
+
+// Devuelve el separador de serialización manteniendo coma como formato compatible con el backend actual.
+// Returns the serialization separator, keeping comma as the format compatible with the current backend.
+function genericChipsSeparator(formConfig, key) {
+  const config = formConfig && formConfig.chips ? formConfig.chips[key] : null;
+  return config && typeof config === "object" && config.separator ? config.separator : ",";
+}
+
+// Normaliza una lista textual de valores separados por coma sin cambiar el contrato enviado al backend.
+// Normalizes a textual comma-separated list without changing the backend submission contract.
+function genericSplitChipsValue(value, separator) {
+  return String(value || "")
+    .split(separator || ",")
+    .map(item => item.trim())
+    .filter(item => item !== "");
+}
+
+// Crea el control visual de chips solo para el modal genérico; la tabla sigue mostrando texto plano.
+// Creates the visual chips control only for the generic modal; the table keeps rendering plain text.
+function genericCreateChipsInput(key, initialValue, formConfig) {
+  const separator = genericChipsSeparator(formConfig, key);
+  const chips = [];
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "modal-input generic-chips-widget";
+  wrapper.dataset.field = key;
+
+  const hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.name = key;
+  hidden.className = "generic-chips-value";
+
+  const textInput = document.createElement("input");
+  textInput.type = "text";
+  textInput.className = "generic-chips-input";
+  textInput.placeholder = separator === "," ? "Añadir y pulsar coma" : "Añadir valor";
+
+  function syncHidden() {
+    hidden.value = chips.join(separator);
+  }
+
+  function removeChip(index) {
+    chips.splice(index, 1);
+    renderChips();
+  }
+
+  function addChip(rawValue) {
+    const value = String(rawValue || "").trim();
+    if (value === "") return;
+    if (!chips.includes(value)) {
+      chips.push(value);
+    }
+    renderChips();
+  }
+
+  function flushInput() {
+    const pending = textInput.value;
+    textInput.value = "";
+    genericSplitChipsValue(pending, separator).forEach(addChip);
+  }
+
+  function renderChips() {
+    wrapper.querySelectorAll(".generic-chip").forEach(chip => chip.remove());
+    chips.forEach((value, index) => {
+      const chip = document.createElement("span");
+      chip.className = "generic-chip";
+
+      const label = document.createElement("span");
+      label.className = "generic-chip-label";
+      label.textContent = value;
+      chip.appendChild(label);
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "generic-chip-remove";
+      removeButton.setAttribute("aria-label", `Eliminar ${value}`);
+      removeButton.textContent = "X";
+      removeButton.onclick = () => removeChip(index);
+      chip.appendChild(removeButton);
+
+      wrapper.insertBefore(chip, textInput);
+    });
+    syncHidden();
+  }
+
+  wrapper.addEventListener("click", () => textInput.focus());
+  textInput.addEventListener("keydown", event => {
+    if (event.key === separator || event.key === "Enter" || event.key === "Tab") {
+      if (textInput.value.trim() !== "") {
+        event.preventDefault();
+        flushInput();
+      }
+    } else if (event.key === "Backspace" && textInput.value === "" && chips.length > 0) {
+      removeChip(chips.length - 1);
+    }
+  });
+  textInput.addEventListener("paste", event => {
+    const pasted = event.clipboardData ? event.clipboardData.getData("text") : "";
+    if (pasted.includes(separator)) {
+      event.preventDefault();
+      genericSplitChipsValue(pasted, separator).forEach(addChip);
+    }
+  });
+  textInput.addEventListener("blur", flushInput);
+
+  wrapper.appendChild(hidden);
+  wrapper.appendChild(textInput);
+  genericSplitChipsValue(initialValue, separator).forEach(addChip);
+  renderChips();
+  return wrapper;
+}
+
 // Resuelve la etiqueta visible de una columna usando LANG si existe.
 // Resolves the visible column label using LANG when available.
 function genericColumnLabel(column) {
@@ -376,6 +494,13 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
           return;
         }
 
+        if (genericIsChipsField(formConfig, key)) {
+          const chipsInput = genericCreateChipsInput(key, rule[key] || "", formConfig);
+          fieldWrapper.appendChild(chipsInput);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
         const input = document.createElement("input");
         input.type = "text";
         input.name = key;
@@ -404,13 +529,16 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
             return;
           }
 
+          const chipsValue = fieldWrapper.querySelector(".generic-chips-value");
           const el = fieldWrapper.querySelector("select") ||
                      fieldWrapper.querySelector("input[type='checkbox']") ||
                      fieldWrapper.querySelector("input[type='text']");
 
           let value = "";
 
-          if (el && el.tagName === "SELECT") {
+          if (chipsValue) {
+            value = chipsValue.value;
+          } else if (el && el.tagName === "SELECT") {
             value = el.value;
           } else if (el && el.type === "checkbox") {
             value = el.checked
@@ -516,6 +644,13 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
           return;
         }
 
+        if (genericIsChipsField(formConfig, key)) {
+          const chipsInput = genericCreateChipsInput(key, "", formConfig);
+          fieldWrapper.appendChild(chipsInput);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
         const input = document.createElement("input");
         input.type = "text";
         input.name = key;
@@ -537,6 +672,7 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
 
         dataColumns.forEach(key => {
           const fieldWrapper = form.querySelectorAll(".modal-input-group")[dataColumns.indexOf(key)];
+          const chipsValue = fieldWrapper.querySelector(".generic-chips-value");
           const el = fieldWrapper.querySelector("select") || fieldWrapper.querySelector("input");
 
           let value = "";
@@ -545,7 +681,9 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
             return;
           }
 
-          if (el && el.tagName === "SELECT") {
+          if (chipsValue) {
+            value = chipsValue.value;
+          } else if (el && el.tagName === "SELECT") {
             value = el.value;
           } else if (el && el.type === "checkbox") {
             if (formConfig.checkbox?.[key]) {

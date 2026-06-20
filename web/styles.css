@@ -1023,3 +1023,62 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
 .wireguard-card-button:focus-visible { outline: 2px solid rgba(156, 236, 246, 0.9); outline-offset: 2px; }
 .wireguard-help-box, .wireguard-subsection-help { border-radius: 10px; border: 1px solid rgba(67, 230, 180, 0.24); background: rgba(67, 230, 180, 0.07); color: #c8f7ef; padding: 12px 14px; margin: 12px 0 18px; }
 .wireguard-subsection-help { border-color: rgba(0, 188, 212, 0.20); background: rgba(0, 188, 212, 0.06); color: #b8d6df; margin-top: -4px; }
+
+/* Editor de chips del modal genérico: solo se activa en campos opt-in del JSON de formularios. */
+/* Generic modal chips editor: only enabled for opt-in fields in the forms JSON. */
+.generic-chips-widget {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  cursor: text;
+}
+
+.generic-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #3d5266;
+  border-radius: 999px;
+  background: #172536;
+  color: #e5edf4;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.generic-chip-label {
+  overflow-wrap: anywhere;
+}
+
+.generic-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #2b3e50;
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.generic-chip-remove:hover {
+  background: #4b6075;
+}
+
+.generic-chips-input {
+  flex: 1 1 160px;
+  min-width: 120px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
