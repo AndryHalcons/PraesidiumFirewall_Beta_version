@@ -1,3 +1,8 @@
+# Aplicador WireGuard: copia configs validadas a /etc/wireguard y gestiona wg-quick.
+# WireGuard applier: copies validated configs to /etc/wireguard and manages wg-quick.
+# Solo toca interfaces marcadas como gestionadas por Praesidium y mantiene rollback.
+# It only touches interfaces marked as Praesidium-managed and keeps rollback.
+
 import json
 import shutil
 import subprocess
@@ -39,8 +44,13 @@ def _run_allow_failure(cmd):
 # Carga el manifest generado y valida que contiene la lista de interfaces gestionadas.
 # Loads the generated manifest and validates the managed interface list.
 def _load_manifest(date):
+    # Fase 1: comprobar que el generador dejó manifest antes de tocar /etc.
+    # Phase 1: check that the generator left a manifest before touching /etc.
     if not MANIFEST.exists():
         _fail(date, 'wireguard_apply_manifest_exist')
+
+    # Fase 2: parsear manifest y rechazar cualquier estructura inesperada.
+    # Phase 2: parse the manifest and reject any unexpected structure.
     try:
         data = json.loads(MANIFEST.read_text(encoding='utf-8'))
     except json.JSONDecodeError:
@@ -73,10 +83,14 @@ def _active_managed_interfaces():
 # Crea backup de configuraciones activas antes de tocar /etc/wireguard.
 # Creates a backup of active configurations before touching /etc/wireguard.
 def _backup_active(date, interfaces):
+    # Fase 1: preparar carpeta rollback asociada al commit actual.
+    # Phase 1: prepare a rollback folder tied to the current commit.
     backup_dir = OUTPUT_DIR / f'rollback_{date}'
     backup_dir.mkdir(parents=True, exist_ok=True)
     metadata = {}
     try:
+        # Fase 2: copiar configs activas gestionadas y anotar cuáles no existían.
+        # Phase 2: copy active managed configs and record which ones were missing.
         for iface in interfaces:
             active = ACTIVE_DIR / f'{iface}.conf'
             if active.exists():
@@ -84,6 +98,8 @@ def _backup_active(date, interfaces):
                 metadata[iface] = 'present'
             else:
                 metadata[iface] = 'missing'
+        # Fase 3: guardar metadata para que rollback sepa restaurar o eliminar.
+        # Phase 3: save metadata so rollback knows whether to restore or remove.
         (backup_dir / 'metadata.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
         _success(date, 'wireguard_backup_config')
         return backup_dir, metadata
@@ -96,6 +112,8 @@ def _backup_active(date, interfaces):
 # Restores previous configurations if the WireGuard apply step fails.
 def _rollback(date, backup_dir, metadata, interfaces):
     try:
+        # Fase 1: detener interfaces tocadas antes de restaurar archivos.
+        # Phase 1: stop touched interfaces before restoring files.
         for iface in interfaces:
             _run_allow_failure(['sudo', 'systemctl', 'stop', f'wg-quick@{iface}'])
             if metadata.get(iface) == 'present' and backup_dir and (backup_dir / f'{iface}.conf').exists():
@@ -114,6 +132,8 @@ def _rollback(date, backup_dir, metadata, interfaces):
 # Revalidates a staging configuration before copying it to the system.
 def _verify_conf(date, conf_path):
     try:
+        # Fase única: validar sintaxis wg-quick antes de copiar al sistema.
+        # Single phase: validate wg-quick syntax before copying to the system.
         _run(['wg-quick', 'strip', str(conf_path)])
         task_update_json(date, f'wireguard_apply_verify_{conf_path.stem}', 'success')
     except subprocess.CalledProcessError:
@@ -128,6 +148,8 @@ def apply_wireguard_config(user, date):
     # Read the generated manifest to know the desired state.
     interfaces = _load_manifest(date)
     desired = {item['name']: Path(item['source']) for item in interfaces if isinstance(item, dict) and item.get('name') and item.get('source')}
+    # Fase 2: detectar qué interfaces gestionadas existen actualmente en /etc/wireguard.
+    # Phase 2: detect which managed interfaces currently exist in /etc/wireguard.
     active_managed = _active_managed_interfaces()
     all_managed = sorted(set(desired.keys()) | active_managed)
 

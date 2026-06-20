@@ -1,3 +1,8 @@
+# Generador WireGuard: valida el running JSON y crea configs wg-quick en staging.
+# WireGuard generator: validates the running JSON and creates wg-quick staging configs.
+# Este archivo no aplica servicios; solo prepara archivos y manifest seguros para apply.
+# This file does not apply services; it only prepares safe files and manifest for apply.
+
 import ipaddress
 import json
 import re
@@ -43,14 +48,21 @@ def _as_dict(value):
 # Carga y comprueba la estructura base de /var/www/config_running/wireguard.json.
 # Loads and checks the base structure of /var/www/config_running/wireguard.json.
 def _load_json(date):
+    # Fase 1: comprobar que existe el running JSON que viene del commit candidate->running.
+    # Phase 1: check that the running JSON produced by candidate->running exists.
     if not WIREGUARD_JSON.exists():
         _fail(date, 'wireguard_json_exist')
+
+    # Fase 2: parsear JSON y convertir cualquier error en fallo registrado del commit.
+    # Phase 2: parse JSON and convert any error into a recorded commit failure.
     try:
         data = json.loads(WIREGUARD_JSON.read_text(encoding='utf-8'))
     except json.JSONDecodeError:
         _fail(date, 'wireguard_json_format')
     if not isinstance(data, dict) or not EXPECTED_SECTIONS.issubset(data.keys()):
         _fail(date, 'wireguard_json_format')
+    # Fase 3: normalizar secciones vacías para que validadores y renderizadores usen dicts.
+    # Phase 3: normalize empty sections so validators and renderers use dictionaries.
     try:
         normalized = {
             'site_to_site': _as_dict(data.get('site_to_site')),
@@ -212,6 +224,8 @@ def _validate_unique_listener(seen_interfaces, seen_ports, name, iface, port):
 # Valida una entrada sede-a-sede antes de renderizar su archivo .conf.
 # Validates a site-to-site entry before rendering its .conf file.
 def _validate_site_to_site(name, rule, seen_interfaces, seen_ports):
+    # Fase 1: validar nombre y estado para saber si esta entrada generará interfaz.
+    # Phase 1: validate name and state to know whether this entry will generate an interface.
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
     if enabled:
@@ -246,6 +260,8 @@ def _validate_site_to_site(name, rule, seen_interfaces, seen_ports):
 # Valida un servidor de acceso remoto y su red VPN asociada.
 # Validates a remote-access server and its associated VPN network.
 def _validate_remote_access(name, rule, seen_interfaces, seen_ports):
+    # Fase 1: validar nombre/estado del servidor de acceso remoto.
+    # Phase 1: validate the remote-access server name/state.
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
     if enabled:
@@ -275,6 +291,8 @@ def _validate_remote_access(name, rule, seen_interfaces, seen_ports):
 # Valida un cliente remoto y su relación con un servidor VPN existente.
 # Validates a remote client and its relation to an existing VPN server.
 def _validate_remote_client(name, rule, servers, seen_client_ips, seen_client_keys):
+    # Fase 1: validar nombre/estado y localizar el servidor VPN referenciado.
+    # Phase 1: validate name/state and locate the referenced VPN server.
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
     if enabled:
