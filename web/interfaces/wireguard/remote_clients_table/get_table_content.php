@@ -1,4 +1,7 @@
 <?php
+// Endpoint WireGuard: devuelve el contenido candidate enmascarando secretos.
+// WireGuard endpoint: returns candidate content while masking secrets.
+
 session_start();
 if (!isset($_SESSION['username'])) { echo json_encode(['error' => wireguard_t('unauthorized')], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit; }
 header('Content-Type: application/json');

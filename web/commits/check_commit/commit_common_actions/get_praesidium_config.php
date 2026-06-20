@@ -58,6 +58,8 @@ $blockedPathFragments = [
     '/conf.d/certs/',
 ];
 
+// Filtra archivos del comparador para mostrar solo configuración segura.
+// Filters comparator files so only safe configuration is displayed.
 function praesidium_config_is_safe_file(string $filePath, string $root, array $allowedExtensions, array $blockedExtensions, array $blockedPathFragments): bool
 {
     $realPath = realpath($filePath);
@@ -87,6 +89,8 @@ function praesidium_config_is_safe_file(string $filePath, string $root, array $a
 }
 
 
+// Redacta secretos dentro de JSON antes de mostrarlos en el comparador.
+// Redacts secrets inside JSON before showing them in the comparator.
 function praesidium_config_redact_json_secrets($value)
 {
     if (is_array($value)) {
@@ -104,11 +108,15 @@ function praesidium_config_redact_json_secrets($value)
     return $value;
 }
 
+// Redacta secretos en texto plano, especialmente configs WireGuard .conf.
+// Redacts secrets in plain text, especially WireGuard .conf configs.
 function praesidium_config_redact_text_secrets(string $content): string
 {
     return preg_replace('/^(\s*(?:PrivateKey|private_key|key\.private)\s*=\s*).+$/mi', '$1********', $content);
 }
 
+// Formatea un archivo seguro del comparador con JSON bonito y secretos ocultos.
+// Formats a safe comparator file with pretty JSON and hidden secrets.
 function praesidium_config_format_file(string $filePath, string $root): string
 {
     $relative = ltrim(substr(realpath($filePath), strlen($root)), DIRECTORY_SEPARATOR);

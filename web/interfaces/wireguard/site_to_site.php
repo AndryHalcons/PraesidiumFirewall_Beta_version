@@ -1,4 +1,6 @@
 <?php
+// Página hija WireGuard: configuración de túneles sede-a-sede.
+// WireGuard child page: site-to-site tunnel configuration.
 session_start();
 if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 $language = $_SESSION['language'] ?? 'es';

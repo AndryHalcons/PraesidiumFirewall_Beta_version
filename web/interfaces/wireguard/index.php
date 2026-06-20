@@ -1,4 +1,6 @@
 <?php
+// Página padre WireGuard: muestra las dos tarjetas de navegación principales.
+// WireGuard parent page: shows the two main navigation cards.
 session_start();
 if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 $language = $_SESSION['language'] ?? 'es';
@@ -42,6 +44,8 @@ $L = require $langFile;
   </div>
   <script>
     window.LANG = <?= json_encode($L) ?>;
+    // Carga una página hija WireGuard dentro del contenedor principal.
+    // Loads a WireGuard child page inside the main container.
     function loadWireGuardChild(page) {
       fetch(page)
         .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.text(); })

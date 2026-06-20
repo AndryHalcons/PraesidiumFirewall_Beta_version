@@ -17,15 +17,21 @@ ENDPOINT_RE = re.compile(r'^(\[[0-9A-Fa-f:.]+\]|[^:\s]+):(\d{1,5})$')
 EXPECTED_SECTIONS = {'site_to_site', 'remote_access', 'remote_clients'}
 
 
+# Registra un fallo del proceso WireGuard en el historial del commit y detiene el commit.
+# Records a WireGuard process failure in the commit history and stops the commit.
 def _fail(date, task):
     task_update_json(date, task, 'fail')
     raise SystemExit(1)
 
 
+# Registra un paso WireGuard correcto en el historial del commit.
+# Records a successful WireGuard step in the commit history.
 def _success(date, task):
     task_update_json(date, task, 'success')
 
 
+# Normaliza secciones vacías del JSON para tratarlas siempre como diccionarios.
+# Normalizes empty JSON sections so they are always handled as dictionaries.
 def _as_dict(value):
     if value in ({}, [], None):
         return {}
@@ -34,6 +40,8 @@ def _as_dict(value):
     return value
 
 
+# Carga y comprueba la estructura base de /var/www/config_running/wireguard.json.
+# Loads and checks the base structure of /var/www/config_running/wireguard.json.
 def _load_json(date):
     if not WIREGUARD_JSON.exists():
         _fail(date, 'wireguard_json_exist')
@@ -56,6 +64,8 @@ def _load_json(date):
     return normalized
 
 
+# Convierte cadenas true/false del candidate en booleanos reales para el generador.
+# Converts candidate true/false strings into real booleans for the generator.
 def _bool(value, field):
     value = str(value or '').strip().lower()
     if value not in ('true', 'false'):
@@ -63,12 +73,16 @@ def _bool(value, field):
     return value == 'true'
 
 
+# Verifica campos obligatorios antes de generar una configuración activa.
+# Checks required fields before generating an active configuration.
 def _required(rule, fields):
     for field in fields:
         if str(rule.get(field, '')).strip() == '':
             raise ValueError(f'{field} is required')
 
 
+# Valida nombres lógicos usados como claves dentro de wireguard.json.
+# Validates logical names used as keys inside wireguard.json.
 def _name(value, field='name'):
     value = str(value or '').strip()
     if not re.match(r'^[A-Za-z0-9_.-]{1,64}$', value):
@@ -76,6 +90,8 @@ def _name(value, field='name'):
     return value
 
 
+# Valida nombres de interfaz Linux antes de crear archivos wg-quick.
+# Validates Linux interface names before creating wg-quick files.
 def _iface(value):
     value = str(value or '').strip()
     if not IFACE_RE.match(value):
@@ -83,6 +99,8 @@ def _iface(value):
     return value
 
 
+# Valida puertos TCP/UDP dentro del rango permitido por el sistema.
+# Validates TCP/UDP ports inside the range allowed by the system.
 def _port(value):
     value = str(value or '').strip()
     if not value.isdigit() or not (1 <= int(value) <= 65535):
@@ -90,6 +108,8 @@ def _port(value):
     return int(value)
 
 
+# Valida enteros acotados como MTU o PersistentKeepalive.
+# Validates bounded integers such as MTU or PersistentKeepalive.
 def _int_range(value, field, minimum, maximum, default=None):
     value = str(value or '').strip()
     if value == '' and default is not None:
@@ -99,6 +119,8 @@ def _int_range(value, field, minimum, maximum, default=None):
     return int(value)
 
 
+# Valida el formato base64 esperado para claves WireGuard.
+# Validates the expected base64 format for WireGuard keys.
 def _key(value, field):
     value = str(value or '').strip()
     if not KEY_RE.match(value):
@@ -106,10 +128,14 @@ def _key(value, field):
     return value
 
 
+# Divide campos separados por comas eliminando espacios y valores vacíos.
+# Splits comma-separated fields while removing spaces and empty values.
 def _csv(value):
     return [x.strip() for x in str(value or '').split(',') if x.strip()]
 
 
+# Convierte listas CIDR en objetos ip_interface para direcciones con máscara.
+# Converts CIDR lists into ip_interface objects for addresses with prefix length.
 def _cidrs(value, field, required=False):
     items = _csv(value)
     if required and not items:
@@ -123,6 +149,8 @@ def _cidrs(value, field, required=False):
     return nets
 
 
+# Convierte listas de redes en objetos ip_network para validar solapes.
+# Converts network lists into ip_network objects to validate overlaps.
 def _networks(value, field, required=False):
     items = _csv(value)
     if required and not items:
@@ -136,6 +164,8 @@ def _networks(value, field, required=False):
     return nets
 
 
+# Valida listas simples de direcciones IP, usadas por ejemplo en DNS.
+# Validates simple IP address lists, used for example by DNS.
 def _ips(value, field):
     ips = []
     for item in _csv(value):
@@ -146,6 +176,8 @@ def _ips(value, field):
     return ips
 
 
+# Valida endpoints remotos en formato host:puerto o [IPv6]:puerto.
+# Validates remote endpoints in host:port or [IPv6]:port format.
 def _endpoint(value):
     value = str(value or '').strip()
     match = ENDPOINT_RE.match(value)
@@ -160,10 +192,14 @@ def _endpoint(value):
     return value
 
 
+# Comprueba si dos grupos de redes se solapan entre sí.
+# Checks whether two groups of networks overlap with each other.
 def _overlap(left, right):
     return any(a.version == b.version and a.overlaps(b) for a in left for b in right)
 
 
+# Evita que dos túneles activos usen la misma interfaz o puerto de escucha.
+# Prevents two active tunnels from using the same interface or listen port.
 def _validate_unique_listener(seen_interfaces, seen_ports, name, iface, port):
     if iface in seen_interfaces:
         raise ValueError(f'duplicate WireGuard interface {iface}')
@@ -173,6 +209,8 @@ def _validate_unique_listener(seen_interfaces, seen_ports, name, iface, port):
     seen_ports[port] = name
 
 
+# Valida una entrada sede-a-sede antes de renderizar su archivo .conf.
+# Validates a site-to-site entry before rendering its .conf file.
 def _validate_site_to_site(name, rule, seen_interfaces, seen_ports):
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
@@ -205,6 +243,8 @@ def _validate_site_to_site(name, rule, seen_interfaces, seen_ports):
     return {'name': name, 'enabled': enabled, 'rule': rule, 'interface': iface, 'port': port, 'mtu': mtu}
 
 
+# Valida un servidor de acceso remoto y su red VPN asociada.
+# Validates a remote-access server and its associated VPN network.
 def _validate_remote_access(name, rule, seen_interfaces, seen_ports):
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
@@ -232,6 +272,8 @@ def _validate_remote_access(name, rule, seen_interfaces, seen_ports):
     return {'name': name, 'enabled': enabled, 'rule': rule, 'interface': iface, 'port': port, 'mtu': mtu, 'vpn_networks': vpn_networks}
 
 
+# Valida un cliente remoto y su relación con un servidor VPN existente.
+# Validates a remote client and its relation to an existing VPN server.
 def _validate_remote_client(name, rule, servers, seen_client_ips, seen_client_keys):
     _name(name)
     enabled = _bool(rule.get('enabled', 'false'), 'enabled')
@@ -263,6 +305,8 @@ def _validate_remote_client(name, rule, servers, seen_client_ips, seen_client_ke
     return {'name': name, 'enabled': enabled, 'rule': rule, 'vpn': vpn}
 
 
+# Valida el modelo completo de WireGuard y cruza relaciones entre secciones.
+# Validates the full WireGuard model and cross-checks relations between sections.
 def _validate_model(date, data):
     try:
         seen_interfaces = {}
@@ -287,10 +331,14 @@ def _validate_model(date, data):
     return site_to_site, remote_access, remote_clients
 
 
+# Formatea listas separadas por comas para escribir directivas wg-quick.
+# Formats comma-separated lists to write wg-quick directives.
 def _line_csv(value):
     return ', '.join(_csv(value))
 
 
+# Renderiza una configuración wg-quick para un túnel sede-a-sede.
+# Renders a wg-quick configuration for a site-to-site tunnel.
 def _render_site_to_site(item):
     r = item['rule']
     lines = [
@@ -315,6 +363,8 @@ def _render_site_to_site(item):
     return '\n'.join(lines)
 
 
+# Renderiza una configuración wg-quick de servidor con sus peers cliente.
+# Renders a wg-quick server configuration with its client peers.
 def _render_remote_access(server, clients):
     r = server['rule']
     lines = [
@@ -337,6 +387,8 @@ def _render_remote_access(server, clients):
     return '\n'.join(lines)
 
 
+# Verifica la sintaxis de un archivo WireGuard generado antes del apply.
+# Verifies the syntax of a generated WireGuard file before apply.
 def _verify_generated_config(date, conf_path):
     try:
         subprocess.run(['wg-quick', 'strip', str(conf_path)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -346,12 +398,18 @@ def _verify_generated_config(date, conf_path):
         raise SystemExit(1)
 
 
+# Genera los archivos staging y el manifest consumido por el apply.
+# Generates staging files and the manifest consumed by the apply step.
 def _generate(date, site_to_site, remote_access, remote_clients):
+    # Limpiar la salida anterior para que no queden túneles obsoletos en staging.
+    # Clean previous output so stale tunnels are not kept in staging.
     if GENERATED_DIR.exists():
         shutil.rmtree(GENERATED_DIR)
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     manifest = {'managed_interfaces': []}
 
+    # Generar una configuración por cada túnel sede-a-sede activo.
+    # Generate one configuration for each active site-to-site tunnel.
     for item in site_to_site.values():
         if not item['enabled']:
             continue
@@ -361,6 +419,8 @@ def _generate(date, site_to_site, remote_access, remote_clients):
         _verify_generated_config(date, conf)
         manifest['managed_interfaces'].append({'name': item['interface'], 'source': str(conf), 'scenario': 'site_to_site'})
 
+    # Generar una configuración por cada servidor de acceso remoto activo.
+    # Generate one configuration for each active remote-access server.
     for server in remote_access.values():
         if not server['enabled']:
             continue
@@ -371,11 +431,23 @@ def _generate(date, site_to_site, remote_access, remote_clients):
         _verify_generated_config(date, conf)
         manifest['managed_interfaces'].append({'name': server['interface'], 'source': str(conf), 'scenario': 'remote_access'})
 
+    # Guardar el manifest que luego usará el apply para saber qué interfaces gestionar.
+    # Save the manifest later used by apply to know which interfaces to manage.
     MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
     _success(date, 'wireguard_generate_config')
 
 
+# Punto de entrada del commit para validar y generar configuración WireGuard.
+# Commit entry point to validate and generate WireGuard configuration.
 def gen_wireguard_config(user, date):
+    # Cargar el running JSON ya promovido por el commit.
+    # Load the running JSON already promoted by the commit.
     data = _load_json(date)
+
+    # Validar relaciones entre túneles, servidores y clientes antes de generar nada.
+    # Validate relations between tunnels, servers and clients before generating anything.
     site_to_site, remote_access, remote_clients = _validate_model(date, data)
+
+    # Generar archivos staging y manifest solo si todo el modelo es correcto.
+    # Generate staging files and manifest only if the whole model is correct.
     _generate(date, site_to_site, remote_access, remote_clients)

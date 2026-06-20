@@ -993,6 +993,8 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
    Tarjetas y ayudas de escenarios WireGuard - praesidium-style
 #############################################################################
 */
+/* Estilos visuales WireGuard siguiendo praesidium-style.
+   WireGuard visual styles following praesidium-style. */
 .wireguard-hero,
 .wireguard-section-header {
     border: 1px solid rgba(0, 188, 212, 0.28);

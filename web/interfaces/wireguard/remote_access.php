@@ -1,4 +1,6 @@
 <?php
+// Página hija WireGuard: configuración de servidores y clientes de acceso remoto.
+// WireGuard child page: remote-access server and client configuration.
 session_start();
 if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 $language = $_SESSION['language'] ?? 'es';

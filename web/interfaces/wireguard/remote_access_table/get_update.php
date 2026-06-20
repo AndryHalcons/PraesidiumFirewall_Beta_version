@@ -1,4 +1,7 @@
 <?php
+// Endpoint WireGuard: valida y guarda una entrada en el candidate JSON.
+// WireGuard endpoint: validates and saves one entry into the candidate JSON.
+
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';

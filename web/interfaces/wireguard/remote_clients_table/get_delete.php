@@ -1,4 +1,7 @@
 <?php
+// Endpoint WireGuard: valida dependencias y borra una entrada del candidate JSON.
+// WireGuard endpoint: validates dependencies and deletes one entry from the candidate JSON.
+
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
