@@ -425,6 +425,12 @@ return [
     'client_vpn_ip' => 'IP VPN cliente',
     'client_public_key' => 'Clave pública cliente',
     'allowed_ips' => 'IPs permitidas',
+    'public_endpoint' => 'Endpoint público',
+    'client_private_key' => 'Clave privada cliente',
+    'download_config' => 'Descargar config',
+    'download_qr' => 'Descargar QR',
+    'wireguard_download_client_config' => 'Descargar archivo configuración',
+    'wireguard_download_client_qr' => 'Descargar QR',
 
     'wireguard_site_to_site_long_desc' => 'Use esta sección para unir dos redes remotas mediante un túnel WireGuard entre sedes. La validación exige IPs de túnel coherentes, redes sin solapamientos y endpoint remoto correcto.',
     'wireguard_remote_access_long_desc' => 'Use esta sección para permitir que usuarios remotos accedan de forma segura a redes internas mediante servidores WireGuard y clientes asociados.',
@@ -472,4 +478,8 @@ return [
     'wireguard_error_unknown_field' => 'El campo "{field}" no pertenece a este formulario WireGuard.',
     'wireguard_error_field_too_long' => 'El campo "{field}" es demasiado largo.',
     'wireguard_error_delete_server_has_clients' => 'No se puede borrar esta VPN porque todavía tiene clientes asociados. Borre o reasigne primero los clientes.',
+    'wireguard_error_key_generation' => 'No se pudieron generar claves WireGuard para el cliente.',
+    'wireguard_error_client_export_not_found' => 'No se encontró el cliente VPN solicitado.',
+    'wireguard_error_client_export_incomplete' => 'No se puede exportar la configuración porque faltan datos del cliente o del servidor VPN.',
+    'wireguard_error_qr_tool_missing' => 'No se pudo generar el QR. Falta la herramienta qrencode o falló la generación.',
 ];

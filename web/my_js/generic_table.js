@@ -1,3 +1,59 @@
+
+// Devuelve el nombre real de una columna, sea string antiguo u objeto nuevo.
+// Returns the real column name, whether it is an old string or a new object.
+function genericColumnField(column) {
+  return typeof column === "object" && column !== null ? column.field : column;
+}
+
+// Comprueba si una columna declarada por JSON debe pintarse como botón por fila.
+// Checks whether a JSON-declared column must be rendered as a per-row button.
+function genericIsButtonColumn(column) {
+  return typeof column === "object" && column !== null && column.type === "button";
+}
+
+// Devuelve solo columnas de datos para formularios y envíos al backend.
+// Returns only data columns for forms and backend submissions.
+function genericDataColumns(columns) {
+  return columns.filter(column => !genericIsButtonColumn(column)).map(column => genericColumnField(column));
+}
+
+// Resuelve la etiqueta visible de una columna usando LANG si existe.
+// Resolves the visible column label using LANG when available.
+function genericColumnLabel(column) {
+  const labelKey = typeof column === "object" && column !== null ? (column.label || column.field) : column;
+  return typeof LANG !== "undefined" && LANG[labelKey] ? LANG[labelKey] : labelKey;
+}
+
+// Construye la URL de un botón por fila sin modificar el resto de tablas.
+// Builds a per-row button URL without changing the rest of the tables.
+function genericButtonUrl(column, rule) {
+  const paramName = column.param || "name";
+  const valueField = column.value_field || paramName;
+  const value = rule[valueField] !== undefined ? rule[valueField] : "";
+  const separator = column.endpoint.includes("?") ? "&" : "?";
+  return `${column.endpoint}${separator}${encodeURIComponent(paramName)}=${encodeURIComponent(value)}`;
+}
+
+// Pinta un botón declarado en JSON y ligado únicamente a su fila.
+// Renders a JSON-declared button bound only to its own row.
+function genericRenderButtonCell(column, rule) {
+  const td = document.createElement("td");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = column.class || "table-action-button";
+  button.textContent = genericColumnLabel(column);
+  button.onclick = () => {
+    const url = genericButtonUrl(column, rule);
+    if (column.target === "blank") {
+      window.open(url, "_blank", "noopener");
+    } else {
+      window.location.href = url;
+    }
+  };
+  td.appendChild(button);
+  return td;
+}
+
 function renderTableGeneric(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete) {
   const endpoint = path_get_table_structure;
   const param = `table=${currentAlias}`;
@@ -48,10 +104,11 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
       actionsTh.textContent = typeof LANG !== "undefined" && LANG["actions"] ? LANG["actions"] : "Acciones";
       headerRow.appendChild(actionsTh);
 
-      // Columnas normales
+      // Columnas declaradas por JSON, compatibles con strings antiguos y objetos nuevos.
+      // JSON-declared columns, compatible with old strings and new objects.
       columns.forEach(col => {
         const th = document.createElement("th");
-        th.textContent = typeof LANG !== "undefined" && LANG[col] ? LANG[col] : col;
+        th.textContent = genericColumnLabel(col);
         headerRow.appendChild(th);
       });
 
@@ -159,8 +216,14 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
 
             tr.appendChild(actionsTd);
 
-            // Rellenar columnas con inputs visuales
-            columns.forEach(key => {
+            // Rellenar columnas visibles; las columnas botón se pintan como acciones por fila.
+            // Fill visible columns; button columns are rendered as per-row actions.
+            columns.forEach(column => {
+              if (genericIsButtonColumn(column)) {
+                tr.appendChild(genericRenderButtonCell(column, rule));
+                return;
+              }
+              const key = genericColumnField(column);
               const td = document.createElement("td");
               const value = rule[key] !== undefined ? rule[key] : "";
 
@@ -207,6 +270,7 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
 function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_update, rule, columns, onSuccess) {
   const endpoint = path_get_forms_from_table;
   const param = `table=${currentAlias}`;
+  const dataColumns = genericDataColumns(columns);
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
@@ -223,7 +287,7 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
 
       const form = document.createElement("form");
 
-      columns.forEach(key => {
+      dataColumns.forEach(key => {
         const fieldWrapper = document.createElement("div");
         fieldWrapper.className = "modal-input-group";
 
@@ -284,8 +348,8 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
       saveBtn.onclick = () => {
         const updatedRule = {};
 
-        columns.forEach(key => {
-          const fieldWrapper = form.querySelectorAll(".modal-input-group")[columns.indexOf(key)];
+        dataColumns.forEach(key => {
+          const fieldWrapper = form.querySelectorAll(".modal-input-group")[dataColumns.indexOf(key)];
 
           if (formConfig.not_editable?.[key]) {
             const span = fieldWrapper.querySelector("span");
@@ -341,6 +405,7 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
 function add_Generic(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table,path_get_update,path_get_delete, columns) {
   const endpoint = path_get_forms_from_table;
   const param = `table=${currentAlias}`;
+  const dataColumns = genericDataColumns(columns);
 
   fetch(`${endpoint}?${param}`)
     .then(response => response.json())
@@ -357,7 +422,7 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
 
       const form = document.createElement("form");
 
-      columns.forEach(key => {
+      dataColumns.forEach(key => {
         const fieldWrapper = document.createElement("div");
         fieldWrapper.className = "modal-input-group";
 
@@ -417,8 +482,8 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
       saveBtn.onclick = () => {
         const updatedRule = {};
 
-        columns.forEach(key => {
-          const fieldWrapper = form.querySelectorAll(".modal-input-group")[columns.indexOf(key)];
+        dataColumns.forEach(key => {
+          const fieldWrapper = form.querySelectorAll(".modal-input-group")[dataColumns.indexOf(key)];
           const el = fieldWrapper.querySelector("select") || fieldWrapper.querySelector("input");
 
           let value = "";

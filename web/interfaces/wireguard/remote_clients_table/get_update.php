@@ -21,8 +21,17 @@ if ($name === '' || $name === 'Auto') { $name = wireguard_make_name($config, 're
 wireguard_validate_entry_name($name, 'name');
 unset($rule['name']);
 
-if (($rule['private_key'] ?? '') === '********' && isset($config['remote_clients'][$name]['private_key'])) {
-    $rule['private_key'] = $config['remote_clients'][$name]['private_key'];
+if (($rule['client_private_key'] ?? '') === '********' && isset($config['remote_clients'][$name]['client_private_key'])) {
+    $rule['client_private_key'] = $config['remote_clients'][$name]['client_private_key'];
+}
+if (($rule['client_public_key'] ?? '') === '********' && isset($config['remote_clients'][$name]['client_public_key'])) {
+    $rule['client_public_key'] = $config['remote_clients'][$name]['client_public_key'];
+}
+if (trim((string)($rule['client_private_key'] ?? '')) === '' || trim((string)($rule['client_public_key'] ?? '')) === '') {
+    $pair = wireguard_generate_keypair();
+    if ($pair === null) wireguard_error(wireguard_t('wireguard_error_key_generation'), 'client_private_key');
+    if (trim((string)($rule['client_private_key'] ?? '')) === '') $rule['client_private_key'] = $pair['private'];
+    if (trim((string)($rule['client_public_key'] ?? '')) === '') $rule['client_public_key'] = $pair['public'];
 }
 
 $rule = wireguard_validate_rule('wireguard_remote_clients', $rule, $config, $name);

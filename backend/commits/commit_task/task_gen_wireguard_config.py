@@ -294,6 +294,8 @@ def _validate_remote_client(name, rule, servers, seen_client_ips, seen_client_ke
         seen_client_ips.add(raw_ip)
         if vpn and servers[vpn]['vpn_networks'] and not any(client_ips[0].ip.version == net.version and client_ips[0].ip in net for net in servers[vpn]['vpn_networks']):
             raise ValueError('client_vpn_ip must belong to selected server vpn_network')
+    if str(rule.get('client_private_key', '')).strip():
+        _key(rule.get('client_private_key'), 'client_private_key')
     if str(rule.get('client_public_key', '')).strip():
         key = _key(rule.get('client_public_key'), 'client_public_key')
         if key in seen_client_keys:

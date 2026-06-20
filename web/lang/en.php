@@ -434,6 +434,12 @@ return [
     'client_vpn_ip' => 'Client VPN IP',
     'client_public_key' => 'Client public key',
     'allowed_ips' => 'Allowed IPs',
+    'public_endpoint' => 'Public endpoint',
+    'client_private_key' => 'Client private key',
+    'download_config' => 'Download config',
+    'download_qr' => 'Download QR',
+    'wireguard_download_client_config' => 'Download config file',
+    'wireguard_download_client_qr' => 'Download QR',
 
     'wireguard_site_to_site_long_desc' => 'Use this section to join two remote networks with a WireGuard tunnel between sites. Validation enforces coherent tunnel IPs, non-overlapping networks and a valid remote endpoint.',
     'wireguard_remote_access_long_desc' => 'Use this section to let remote users securely access internal networks through WireGuard servers and associated clients.',
@@ -481,4 +487,8 @@ return [
     'wireguard_error_unknown_field' => 'Field "{field}" does not belong to this WireGuard form.',
     'wireguard_error_field_too_long' => 'Field "{field}" is too long.',
     'wireguard_error_delete_server_has_clients' => 'This VPN cannot be deleted because it still has associated clients. Delete or reassign the clients first.',
+    'wireguard_error_key_generation' => 'WireGuard client keys could not be generated.',
+    'wireguard_error_client_export_not_found' => 'The requested VPN client was not found.',
+    'wireguard_error_client_export_incomplete' => 'The configuration cannot be exported because client or VPN server data is missing.',
+    'wireguard_error_qr_tool_missing' => 'The QR could not be generated. qrencode is missing or generation failed.',
 ];

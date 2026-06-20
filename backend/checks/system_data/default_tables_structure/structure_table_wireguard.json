@@ -1,38 +1,56 @@
 {
-  "wireguard_site_to_site": [
-    "name",
-    "enabled",
-    "interface",
-    "local_tunnel_ip",
-    "remote_tunnel_ip",
-    "local_networks",
-    "remote_networks",
-    "listen_port",
-    "remote_endpoint",
-    "private_key",
-    "remote_public_key",
-    "keepalive",
-    "mtu"
-  ],
-  "wireguard_remote_access": [
-    "name",
-    "enabled",
-    "interface",
-    "server_vpn_ip",
-    "vpn_network",
-    "listen_port",
-    "internal_networks",
-    "dns",
-    "private_key",
-    "mtu"
-  ],
-  "wireguard_remote_clients": [
-    "name",
-    "enabled",
-    "vpn",
-    "client_vpn_ip",
-    "client_public_key",
-    "allowed_ips",
-    "keepalive"
-  ]
+    "wireguard_site_to_site": [
+        "name",
+        "enabled",
+        "interface",
+        "local_tunnel_ip",
+        "remote_tunnel_ip",
+        "local_networks",
+        "remote_networks",
+        "listen_port",
+        "remote_endpoint",
+        "private_key",
+        "remote_public_key",
+        "keepalive",
+        "mtu"
+    ],
+    "wireguard_remote_access": [
+        "name",
+        "enabled",
+        "interface",
+        "server_vpn_ip",
+        "vpn_network",
+        "listen_port",
+        "public_endpoint",
+        "internal_networks",
+        "dns",
+        "private_key",
+        "mtu"
+    ],
+    "wireguard_remote_clients": [
+        "name",
+        "enabled",
+        "vpn",
+        "client_vpn_ip",
+        "client_private_key",
+        "client_public_key",
+        "allowed_ips",
+        "keepalive",
+        {
+            "field": "download_config",
+            "label": "wireguard_download_client_config",
+            "type": "button",
+            "endpoint": "/interfaces/wireguard/remote_clients_table/get_client_config.php",
+            "param": "name",
+            "value_field": "name"
+        },
+        {
+            "field": "download_qr",
+            "label": "wireguard_download_client_qr",
+            "type": "button",
+            "endpoint": "/interfaces/wireguard/remote_clients_table/get_client_qr.php",
+            "param": "name",
+            "value_field": "name"
+        }
+    ]
 }

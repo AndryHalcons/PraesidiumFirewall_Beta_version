@@ -112,7 +112,7 @@ function praesidium_config_redact_json_secrets($value)
 // Redacts secrets in plain text, especially WireGuard .conf configs.
 function praesidium_config_redact_text_secrets(string $content): string
 {
-    return preg_replace('/^(\s*(?:PrivateKey|private_key|key\.private)\s*=\s*).+$/mi', '$1********', $content);
+    return preg_replace('/^(\s*(?:PrivateKey|private_key|client_private_key|key\.private)\s*=\s*).+$/mi', '$1********', $content);
 }
 
 // Formatea un archivo seguro del comparador con JSON bonito y secretos ocultos.
