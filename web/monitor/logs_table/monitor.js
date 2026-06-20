@@ -1,3 +1,10 @@
+// Monitor de tráfico: inicializa filtros/logs de forma idempotente en páginas parciales.
+// Traffic monitor: initializes filters/logs idempotently inside dynamically loaded partial pages.
+window.PraesidiumMonitor = window.PraesidiumMonitor || {};
+window.PraesidiumMonitor.lastLogRows = [];
+window.PraesidiumMonitor.lastLogColumns = [];
+window.PraesidiumMonitor.lastFilters = {};
+
 function setMonitorStatus(message, type = "info") {
   const container = document.getElementById("tabla-monitorLogs");
   if (!container) return;
@@ -21,9 +28,8 @@ function setMonitorSearchLoading(isLoading) {
   button.textContent = isLoading ? "Buscando..." : "Search";
 }
 
-let monitorLastLogRows = [];
-let monitorLastLogColumns = [];
-let monitorLastFilters = {};
+// El estado mutable vive en window.PraesidiumMonitor para evitar redeclaraciones al recargar.
+// Mutable state lives in window.PraesidiumMonitor to avoid redeclarations on reload.
 
 function getMonitorExportButton() {
   return document.querySelector("#tabla-monitorOptions .export-monitor-csv");
@@ -46,15 +52,15 @@ function escapeCsvValue(value) {
 }
 
 function buildMonitorCsv() {
-  const header = monitorLastLogColumns.map(escapeCsvValue).join(",");
-  const rows = monitorLastLogRows.map(row =>
-    monitorLastLogColumns.map(column => escapeCsvValue(row[column])).join(",")
+  const header = window.PraesidiumMonitor.lastLogColumns.map(escapeCsvValue).join(",");
+  const rows = window.PraesidiumMonitor.lastLogRows.map(row =>
+    window.PraesidiumMonitor.lastLogColumns.map(column => escapeCsvValue(row[column])).join(",")
   );
 
   const filterLines = [
     ["Praesidium Firewall - Traffic monitor export"],
     ["Exported_At", new Date().toISOString()],
-    ["Filters_JSON", JSON.stringify(monitorLastFilters)],
+    ["Filters_JSON", JSON.stringify(window.PraesidiumMonitor.lastFilters)],
     []
   ].map(line => line.map(escapeCsvValue).join(","));
 
@@ -62,7 +68,7 @@ function buildMonitorCsv() {
 }
 
 function exportMonitorLogsCsv() {
-  if (!monitorLastLogRows.length || !monitorLastLogColumns.length) {
+  if (!window.PraesidiumMonitor.lastLogRows.length || !window.PraesidiumMonitor.lastLogColumns.length) {
     setMonitorStatus("No hay logs filtrados para exportar. Pulse Search primero.", "error");
     return;
   }
@@ -272,16 +278,16 @@ function view_logs_table_Structure(dataLogs) {
   container.innerHTML = "";
 
   if (dataLogs && typeof dataLogs === "object" && dataLogs.error) {
-    monitorLastLogRows = [];
-    monitorLastLogColumns = [];
+    window.PraesidiumMonitor.lastLogRows = [];
+    window.PraesidiumMonitor.lastLogColumns = [];
     setMonitorExportAvailable(false);
     setMonitorStatus(`Error al buscar logs: ${dataLogs.error}`, "error");
     return;
   }
 
   if (dataLogs && typeof dataLogs === "object" && dataLogs.info) {
-    monitorLastLogRows = [];
-    monitorLastLogColumns = [];
+    window.PraesidiumMonitor.lastLogRows = [];
+    window.PraesidiumMonitor.lastLogColumns = [];
     setMonitorExportAvailable(false);
     setMonitorStatus(dataLogs.info, "info");
     return;
@@ -318,8 +324,8 @@ function view_logs_table_Structure(dataLogs) {
       // Body
       const tbody = document.createElement("tbody");
       const rows = dataLogs && typeof dataLogs === "object" ? Object.values(dataLogs) : [];
-      monitorLastLogColumns = columns;
-      monitorLastLogRows = rows;
+      window.PraesidiumMonitor.lastLogColumns = columns;
+      window.PraesidiumMonitor.lastLogRows = rows;
       setMonitorExportAvailable(rows.length > 0);
 
       if (rows.length === 0) {
@@ -385,11 +391,11 @@ function searchMonitorLogs(event) {
 
   // Añadimos el usuario autenticado publicado por monitor.php.
   // Add the authenticated user published by monitor.php.
-  filters.user = (typeof USERNAME !== "undefined" && USERNAME) ? USERNAME : "";
+  filters.user = (window.PraesidiumMonitor && window.PraesidiumMonitor.USERNAME) ? window.PraesidiumMonitor.USERNAME : "";
 
-  monitorLastFilters = { ...filters };
-  monitorLastLogRows = [];
-  monitorLastLogColumns = [];
+  window.PraesidiumMonitor.lastFilters = { ...filters };
+  window.PraesidiumMonitor.lastLogRows = [];
+  window.PraesidiumMonitor.lastLogColumns = [];
   setMonitorExportAvailable(false);
   window.__monitorSearchInFlight = true;
   setMonitorSearchLoading(true);
@@ -417,4 +423,6 @@ function searchMonitorLogs(event) {
     });
 }
 
+// Reinicia la estructura cada vez que el loader dinámico inserta este script.
+// Reinitializes the structure every time the dynamic loader inserts this script.
 renderMonitorTableStructure();

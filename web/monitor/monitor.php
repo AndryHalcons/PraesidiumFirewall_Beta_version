@@ -15,8 +15,11 @@ $L = require $langFile;
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
-    const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
+    // Publica datos del monitor en window para que la página parcial pueda recargarse.
+    // Publishes monitor data on window so the partial page can be loaded repeatedly.
+    window.PraesidiumMonitor = window.PraesidiumMonitor || {};
+    window.PraesidiumMonitor.LANG = <?= json_encode($L) ?>;
+    window.PraesidiumMonitor.USERNAME = <?= json_encode($username) ?>;
   </script>
   <meta charset="UTF-8">
   <title><?= htmlspecialchars($L['menu_monitor']) ?></title>
