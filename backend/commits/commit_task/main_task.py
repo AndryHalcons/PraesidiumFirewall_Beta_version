@@ -5,12 +5,14 @@ from task_gen_nftables_policies import gen_nftables_policies
 from task_gen_bpfilter_policies import gen_bpfilter_policies
 from task_gen_squid_policy import gen_squid_config
 from task_gen_dhcp_config import gen_dhcp_config
+from task_gen_wireguard_config import gen_wireguard_config
 from task_apply_nftables_policies import apply_nftables_policies
 from task_apply_bpfilter_policies import apply_bpfilter_policies
 from task_apply_interface_config import apply_interface_config
 from task_apply_squid_policy import apply_squid_config
 from task_apply_dhcp_config import apply_dhcp_config
 from task_apply_system_logging import apply_system_logging
+from task_apply_wireguard_config import apply_wireguard_config
 
 
 def start_commit_process(user, date):
@@ -49,6 +51,10 @@ def start_commit_process(user, date):
     # Generate DHCP/dnsmasq configuration
     gen_dhcp_config(user, date)
 
+    # Genera y valida la configuración WireGuard
+    # Generate and validate WireGuard configuration
+    gen_wireguard_config(user, date)
+
     ################################################################################################################################
     ###################################### Section APPLY ###########################################################################
     ################################################################################################################################
@@ -80,6 +86,10 @@ def start_commit_process(user, date):
     # aplica la configuración de logs del sistema
     # apply system logging configuration
     apply_system_logging(user,date)
+
+    # aplica la configuración WireGuard gestionada por Praesidium
+    # apply Praesidium-managed WireGuard configuration
+    apply_wireguard_config(user,date)
 
     
 

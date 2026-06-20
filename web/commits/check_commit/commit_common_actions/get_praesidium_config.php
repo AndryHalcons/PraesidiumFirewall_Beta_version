@@ -86,6 +86,29 @@ function praesidium_config_is_safe_file(string $filePath, string $root, array $a
     return in_array($extension, $allowedExtensions, true);
 }
 
+
+function praesidium_config_redact_json_secrets($value)
+{
+    if (is_array($value)) {
+        $redacted = [];
+        foreach ($value as $key => $item) {
+            $keyString = strtolower((string)$key);
+            if (in_array($keyString, ['private_key', 'privatekey', 'key.private'], true)) {
+                $redacted[$key] = '********';
+            } else {
+                $redacted[$key] = praesidium_config_redact_json_secrets($item);
+            }
+        }
+        return $redacted;
+    }
+    return $value;
+}
+
+function praesidium_config_redact_text_secrets(string $content): string
+{
+    return preg_replace('/^(\s*(?:PrivateKey|private_key|key\.private)\s*=\s*).+$/mi', '$1********', $content);
+}
+
 function praesidium_config_format_file(string $filePath, string $root): string
 {
     $relative = ltrim(substr(realpath($filePath), strlen($root)), DIRECTORY_SEPARATOR);
@@ -99,8 +122,11 @@ function praesidium_config_format_file(string $filePath, string $root): string
     if ($extension === 'json') {
         $decoded = json_decode($content, true);
         if (json_last_error() === JSON_ERROR_NONE) {
+            $decoded = praesidium_config_redact_json_secrets($decoded);
             $content = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
+    } else {
+        $content = praesidium_config_redact_text_secrets($content);
     }
 
     return "### {$relative}\n{$content}\n";
