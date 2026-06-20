@@ -1011,6 +1011,15 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
 .wireguard-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, #00bcd4, #43e6b4, transparent); }
 .wireguard-card-icon { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; border-radius: 12px; color: #d9fbff; background: rgba(0, 188, 212, 0.14); border: 1px solid rgba(0, 188, 212, 0.28); font-size: 1.3rem; }
 .wireguard-card h2, .wireguard-section-header h1 { margin-top: 0; }
-.wireguard-card ul { margin: 14px 0 18px 18px; padding: 0; color: #b8c7d1; line-height: 1.55; }
+/* Fuerza contraste claro en todo el contenido textual de las tarjetas WireGuard.
+   Forces light contrast across all textual content inside WireGuard cards. */
+.wireguard-card h2 { color: #f8fafc; }
+.wireguard-card p { color: #e5edf4; line-height: 1.55; }
+.wireguard-card li { color: #d7e3ec; }
+.wireguard-card ul { margin: 14px 0 18px 18px; padding: 0; color: #d7e3ec; line-height: 1.55; }
+/* Reutiliza el patrón de botón Praesidium y lo ajusta al fondo oscuro de la tarjeta.
+   Reuses the Praesidium button pattern and tunes it for the dark card background. */
+.wireguard-card-button { display: inline-flex; align-items: center; justify-content: center; min-width: 92px; margin-top: auto; }
+.wireguard-card-button:focus-visible { outline: 2px solid rgba(156, 236, 246, 0.9); outline-offset: 2px; }
 .wireguard-help-box, .wireguard-subsection-help { border-radius: 10px; border: 1px solid rgba(67, 230, 180, 0.24); background: rgba(67, 230, 180, 0.07); color: #c8f7ef; padding: 12px 14px; margin: 12px 0 18px; }
 .wireguard-subsection-help { border-color: rgba(0, 188, 212, 0.20); background: rgba(0, 188, 212, 0.06); color: #b8d6df; margin-top: -4px; }

@@ -35,7 +35,7 @@ $L = require $langFile;
         <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_1'] ?? 'wireguard_site_to_site_hint_1') ?></li>
         <li><?= htmlspecialchars($L['wireguard_site_to_site_hint_2'] ?? 'wireguard_site_to_site_hint_2') ?></li>
       </ul>
-      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/site_to_site.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
+      <button type="button" class="boton-generic wireguard-card-button" onclick="loadWireGuardChild('interfaces/wireguard/site_to_site.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
     </article>
     <article class="praesidium-card wireguard-card">
       <div class="wireguard-card-icon">◉</div>
@@ -45,7 +45,7 @@ $L = require $langFile;
         <li><?= htmlspecialchars($L['wireguard_remote_access_hint_1'] ?? 'wireguard_remote_access_hint_1') ?></li>
         <li><?= htmlspecialchars($L['wireguard_remote_access_hint_2'] ?? 'wireguard_remote_access_hint_2') ?></li>
       </ul>
-      <button type="button" onclick="loadWireGuardChild('interfaces/wireguard/remote_access.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
+      <button type="button" class="boton-generic wireguard-card-button" onclick="loadWireGuardChild('interfaces/wireguard/remote_access.php')"><?= htmlspecialchars($L['open'] ?? 'open') ?></button>
     </article>
   </div>
   <script>
