@@ -13,6 +13,7 @@ from task_apply_squid_policy import apply_squid_config
 from task_apply_dhcp_config import apply_dhcp_config
 from task_apply_system_logging import apply_system_logging
 from task_apply_wireguard_config import apply_wireguard_config
+from task_apply_services import apply_services_config
 
 
 def start_commit_process(user, date):
@@ -86,6 +87,10 @@ def start_commit_process(user, date):
     # aplica la configuración de logs del sistema
     # apply system logging configuration
     apply_system_logging(user,date)
+
+    # aplica el estado deseado de los servicios del sistema
+    # apply the desired state for system services
+    apply_services_config(user,date)
 
     # aplica la configuración WireGuard gestionada por Praesidium
     # apply Praesidium-managed WireGuard configuration
