@@ -40,12 +40,15 @@ for rel in tracked_files():
     if not sensitive_or_mutating:
         continue
     checked += 1
-    has_admin = bool(re.search(r'require_admin|is_admin|require_role|require_login|\$_SESSION\[[\'\"]role[\'\"]\]|admin', text, re.I))
+    has_login = bool(re.search(r'require_login|require_admin|require_role|isset\(\$_SESSION\[[\'\"]username[\'\"]\]|empty\(\$_SESSION\[[\'\"]username[\'\"]\]', text, re.I))
+    has_admin = bool(re.search(r'require_admin|is_admin|require_role|\$_SESSION\[[\'\"]role[\'\"]\]|admin', text, re.I))
     has_csrf = 'csrf' in text.lower()
     # Descargas sensibles pueden usar controles admin/login y cabeceras no-store sin CSRF.
     is_download = 'download' in rel.lower() or 'get_client_config' in rel or 'get_client_qr' in rel
-    if not has_admin:
-        errors.append(f'{rel}: endpoint sensible/mutante sin control auth/admin visible')
+    if not has_login:
+        errors.append(f'{rel}: endpoint sensible/mutante sin control de sesión visible')
+    if not is_download and not has_admin:
+        errors.append(f'{rel}: endpoint mutante sin control admin/role visible')
     if not has_csrf and not is_download and ('php://input' in text or 'file_put_contents' in text or 'unlink(' in text):
         errors.append(f'{rel}: endpoint mutante sin CSRF visible')
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Dar permisos de ejecución / Make scripts executable
 echo "Dando permisos a los scripts... / Granting execution permissions..."

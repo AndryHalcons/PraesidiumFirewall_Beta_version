@@ -65,6 +65,7 @@ require __DIR__ . '/validation_user.php';
 // This function receives the rule and returns the full updated JSON
 function validation_user(array $rule, array $rulesJson): array {
     $rule = check_user_id($rule);
+    $rule = validate_user_fields($rule);
     $rule = hash_pass($rule);
     $rulesJson = update_or_add_user($rule,$rulesJson);
 

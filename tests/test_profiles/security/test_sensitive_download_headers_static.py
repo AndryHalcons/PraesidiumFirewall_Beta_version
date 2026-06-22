@@ -26,7 +26,7 @@ files = ['web/certificates/certificates_table/get_download_certificate.php', 'we
 errors = []
 for rel in files:
     text = (root / rel).read_text(encoding='utf-8', errors='ignore').lower()
-    if 'readfile' not in text and 'qr' not in rel:
+    if 'readfile' not in text and 'get_client_config' not in rel and 'qr' not in rel:
         errors.append(f'{rel}: descarga sin readfile visible')
     if 'no-store' not in text and 'no-cache' not in text:
         errors.append(f'{rel}: sin cabecera no-store/no-cache visible')

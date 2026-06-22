@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Directorio de destino
 DEST_DIR="/var/www/backend"

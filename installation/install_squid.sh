@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Elimina Squid si está instalado
 apt purge -y squid squid-common squid-langpack squid-openssl

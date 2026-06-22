@@ -72,6 +72,9 @@ header('Content-Disposition: attachment; filename="' . $fileName . '"');
 header('Content-Length: ' . filesize($filePath));
 // Set content length
 header('Content-Encoding: none');
+header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 // Prevent compression interference
 readfile($filePath);
 // Output file content

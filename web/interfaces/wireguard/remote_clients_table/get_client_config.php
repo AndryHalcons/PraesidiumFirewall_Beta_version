@@ -25,5 +25,7 @@ if ($clientConfig === null) { http_response_code(400); echo wireguard_t('wiregua
 header('Content-Type: application/octet-stream');
 header('Content-Disposition: attachment; filename="' . wireguard_download_filename($name, 'conf') . '"');
 header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 echo $clientConfig;
 ?>

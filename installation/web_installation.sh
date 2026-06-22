@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Borrar contenido anterior / Delete previous content
 rm -rf /var/www/html/*

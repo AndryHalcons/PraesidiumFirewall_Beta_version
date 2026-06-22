@@ -16,6 +16,7 @@ return [
     'language'              => 'Idioma',
     // Top menu
     'menu_home'             => 'Inicio',
+    'menu_interfaces'       => 'Interfaces',
     'menu_monitor'          => 'Monitor',
     'menu_users'            => 'Usuarios',
     'menu_logout'           => 'Cerrar sesión',
@@ -30,6 +31,7 @@ return [
     'sidebar_tunnels'       => 'Tuneles',
     'sidebar_wireguard'     => 'WireGuard',
     'sidebar_wifis'         => 'Wi-Fi',
+    'sidebar_rules'         => 'Políticas',
     'sidebar_XDP_policies'  => 'Reglas XDP',
     'sidebar_TC_Egress'     => 'Reglas TC Egress',
     'sidebar_TC_Ingress'    => 'Reglas TC Ingress',

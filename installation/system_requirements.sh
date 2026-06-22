@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Función para instalar dependencias del sistema
 # Function to install system dependencies

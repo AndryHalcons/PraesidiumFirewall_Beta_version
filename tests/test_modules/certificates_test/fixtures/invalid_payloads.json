@@ -2,10 +2,10 @@
   "path_traversal_download": {
     "file": "../../etc/shadow"
   },
-  "bad_days": {
-    "days": -1
-  },
   "bad_name": {
     "name": "../evil"
+  },
+  "bad_type": {
+    "type": "not-a-certificate-type"
   }
 }

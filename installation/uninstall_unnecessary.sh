@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Desinstalando ifupdown / Uninstalling ifupdown
 if dpkg -l | grep -q "^ii  ifupdown "; then
