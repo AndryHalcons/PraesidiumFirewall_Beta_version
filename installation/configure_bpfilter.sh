@@ -1,69 +1,80 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# Verifica que el script se ejecute como root / Ensure the script is run as root
-if [ "$EUID" -ne 0 ]; then
-    echo "Este script debe ejecutarse como root. Usa: sudo ./nombre_script.sh"
-    echo "This script must be run as root. Use: sudo ./script_name.sh"
+# Configura bpfilter como servicio systemd para que el instalador no quede bloqueado.
+# Configure bpfilter as a systemd service so the installer does not block.
+
+SERVICE_FILE="/etc/systemd/system/bpfilter.service"
+BPFILTER_BIN="${BPFILTER_BIN:-/usr/local/bin/bpfilter}"
+VERBOSE_LEVEL="${BPFILTER_VERBOSE_LEVEL:-debug}"
+
+fail() {
+    echo "ERROR: $*" >&2
     exit 1
-fi
-
-# Verifica que el binario bpfilter esté disponible / Check that the bpfilter binary is available
-if ! command -v bpfilter >/dev/null 2>&1; then
-    echo "El binario 'bpfilter' no está disponible en el PATH. ¿Está instalado correctamente?"
-    echo "The 'bpfilter' binary is not available in the PATH. Is it installed correctly?"
-    exit 1
-fi
-
-# Inicia el daemon de bpfilter con configuración personalizada / Start the bpfilter daemon with custom configuration
-start_bpfilter_daemon() {
-    echo "Iniciando daemon de bpfilter..."
-    echo "Starting bpfilter daemon..."
-
-    # Rutas de configuración / Configuration paths
-    local BPFFS_PATH="/sys/fs/bpf"                         # Ruta del sistema de archivos BPF / BPF filesystem path
-    local BPFILTER_PIN_PATH="$BPFFS_PATH/bpfilter"         # Ruta para pinnear objetos BPF / Path to pin BPF objects
-    local RUN_PATH="/run/bpfilter"                         # Ruta para datos de ejecución / Runtime data path
-
-    # Flags de configuración / Configuration flags
-    local USE_TRANSIENT=false                              # Si es true, no se guarda nada en disco / If true, nothing is saved to disk
-    local USE_BPF_TOKEN=true                               # Usa tokens BPF (requiere kernel ≥ 6.9) / Use BPF tokens (requires kernel ≥ 6.9)
-    local VERBOSE_FLAG="debug"                             # Nivel de verbosidad / Verbosity level
-
-    # Montar bpffs si no está montado / Mount bpffs if not already mounted
-    if ! mountpoint -q "$BPFFS_PATH"; then
-        echo "Montando bpffs en $BPFFS_PATH..."
-        echo "Mounting bpffs at $BPFFS_PATH..."
-        mount -t bpf bpf "$BPFFS_PATH"
-    else
-        echo "bpffs ya está montado en $BPFFS_PATH"
-        echo "bpffs is already mounted at $BPFFS_PATH"
-    fi
-
-    # Crear directorios necesarios / Create required directories
-    echo "Preparando directorios..."
-    echo "Preparing directories..."
-    mkdir -p "$BPFILTER_PIN_PATH"
-    mkdir -p "$RUN_PATH"
-
-
-    # Construir comando del daemon / Build daemon command
-    local DAEMON_CMD="bpfilter"  # Comando base / Base command
-    #  Desactivar soporte para iptables y nftables / Disable iptables and nftables support
-    DAEMON_CMD+=" --no-iptables --no-nftables"
-    # Activar logs detallados para depuración / Enable verbose logging for debugging
-    DAEMON_CMD+=" --verbose=$VERBOSE_FLAG"
-
-
-    echo "Comando generado:"
-    echo "Generated command:"
-    echo "   $DAEMON_CMD"
-
-    # Ejecutar daemon / Run daemon
-    echo "Ejecutando daemon..."
-    echo "Running daemon..."
-    $DAEMON_CMD
 }
 
-# Llamar a la función principal / Call main function
-start_bpfilter_daemon
+# Verifica permisos y binario instalado.
+# Verify privileges and installed binary.
+check_prerequisites() {
+    if [ "$EUID" -ne 0 ]; then
+        fail "Este script debe ejecutarse como root. Usa: sudo ./configure_bpfilter.sh / This script must be run as root. Use: sudo ./configure_bpfilter.sh"
+    fi
+
+    [ -x "$BPFILTER_BIN" ] || fail "El binario bpfilter no existe o no es ejecutable en $BPFILTER_BIN. Ejecuta install_bpfilter.sh primero. / The bpfilter binary does not exist or is not executable at $BPFILTER_BIN. Run install_bpfilter.sh first."
+}
+
+# Prepara bpffs y directorios de runtime antes de arrancar el daemon.
+# Prepare bpffs and runtime directories before starting the daemon.
+prepare_runtime() {
+    mkdir -p /sys/fs/bpf
+    if ! mountpoint -q /sys/fs/bpf; then
+        mount -t bpf bpf /sys/fs/bpf
+    fi
+
+    mkdir -p /sys/fs/bpf/bpfilter
+    mkdir -p /run/bpfilter
+}
+
+# Escribe una unidad systemd persistente para bpfilter.
+# Write a persistent systemd unit for bpfilter.
+write_service() {
+    cat > "$SERVICE_FILE" <<EOF
+[Unit]
+Description=PraesidiumFirewall bpfilter daemon
+Documentation=https://github.com/AndryHalcons/bpfilter
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sh -c 'mkdir -p /sys/fs/bpf; mountpoint -q /sys/fs/bpf || mount -t bpf bpf /sys/fs/bpf; mkdir -p /sys/fs/bpf/bpfilter /run/bpfilter'
+ExecStart=$BPFILTER_BIN --no-iptables --no-nftables --verbose=$VERBOSE_LEVEL
+Restart=on-failure
+RestartSec=3
+RuntimeDirectory=bpfilter
+
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
+# Recarga systemd, arranca el servicio y verifica que queda activo.
+# Reload systemd, start the service and verify it remains active.
+start_service() {
+    systemctl daemon-reload
+    systemctl reset-failed bpfilter.service 2>/dev/null || true
+    systemctl enable bpfilter.service
+    systemctl restart bpfilter.service
+    systemctl is-active --quiet bpfilter.service
+    systemctl --no-pager --full status bpfilter.service | sed -n '1,25p'
+}
+
+main() {
+    check_prerequisites
+    prepare_runtime
+    write_service
+    start_service
+    echo "bpfilter configurado como servicio systemd. / bpfilter configured as a systemd service."
+}
+
+main "$@"

@@ -54,6 +54,7 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_bpfilter_repo_url_is_unchanged.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_test_readmes_complete.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_required_project_docs.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_installer_bpfilter_service.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_installer_dnsmasq_dhcp_only.py
     finish_profile
 }
