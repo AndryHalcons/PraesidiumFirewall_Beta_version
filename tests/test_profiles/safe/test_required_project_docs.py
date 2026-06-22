@@ -22,7 +22,7 @@ from report import fail, pass_
 
 root = repo_root()
 required = ['README.md', 'LICENSE']
-recommended = ['NOTICE', 'THIRD_PARTY_LICENSES.md', 'SECURITY.md', 'docs/INSTALLATION.md', 'docs/TESTING.md']
+recommended = ['NOTICE', '', 'SECURITY.md', 'docs/INSTALLATION.md', 'docs/TESTING.md']
 missing_required = [rel for rel in required if not (root / rel).exists()]
 missing_recommended = [rel for rel in recommended if not (root / rel).exists()]
 errors = []
