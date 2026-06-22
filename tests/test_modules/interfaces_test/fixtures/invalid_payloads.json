@@ -1,0 +1,11 @@
+{
+  "bad_iface": {
+    "name": "../../eth0"
+  },
+  "bad_mtu": {
+    "mtu": 999999
+  },
+  "bad_address": {
+    "address": "999.999.999.999/99"
+  }
+}

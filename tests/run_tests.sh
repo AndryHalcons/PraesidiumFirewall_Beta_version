@@ -48,21 +48,51 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_json_parse.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_language_keys.py
     run_cmd tests/test_profiles/safe/test_repo_hygiene.sh
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_no_test_bytecode_tracked.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_readme_beta_repo_url.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_no_old_praesidium_repo_refs.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_bpfilter_repo_url_is_unchanged.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_test_readmes_complete.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_required_project_docs.py
     finish_profile
 }
 
 run_validation() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/validation/test_common_invalid_payloads.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/validation/test_invalid_fixture_catalog.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/validation/test_common_attack_strings_nonempty.py
     finish_profile
 }
 
 run_web() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_generic_table_contract.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_endpoint_inventory.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_generic_table_js_contract.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_php_json_endpoints_no_closing_html_noise.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_http_login_smoke.py
     finish_profile
 }
 
 run_security() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_static_auth_csrf_matrix.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_no_destructive_profiles_without_guard.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_installer_shell_safety_static.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_sudoers_static_scope.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_shell_exec_escape_static.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_sensitive_download_headers_static.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_http_mutating_endpoints_reject_without_csrf.py
+    finish_profile
+}
+
+
+run_profile_dir() {
+    profile_dir="$1"
+    while IFS= read -r test_file; do
+        case "$test_file" in
+            *.py) run_cmd "$PYTHON_BIN" "$test_file" ;;
+            *.sh) run_cmd "$test_file" ;;
+        esac
+    done < <(find "$profile_dir" -maxdepth 1 -type f \( -name 'test_*.py' -o -name 'test_*.sh' \) | sort)
     finish_profile
 }
 
@@ -103,10 +133,10 @@ case "$profile" in
     web) run_web ;;
     security) run_security ;;
     all-safe) run_safe; run_validation; run_web; run_security ;;
-    commit) require_destructive; echo "Perfil commit pendiente de implementar tests destructivos reales."; exit 0 ;;
-    e2e) require_destructive; echo "Perfil e2e pendiente de implementar Playwright."; exit 0 ;;
-    installer) require_destructive; echo "Perfil installer pendiente de VM desechable."; exit 0 ;;
-    all-lab) require_destructive; run_safe; run_validation; run_web; run_security; echo "Perfiles lab pendientes." ;;
+    commit) require_destructive; run_profile_dir tests/test_profiles/commit ;;
+    e2e) require_destructive; run_profile_dir tests/test_profiles/e2e ;;
+    installer) require_destructive; run_profile_dir tests/test_profiles/installer ;;
+    all-lab) require_destructive; run_safe; run_validation; run_web; run_security; run_profile_dir tests/test_profiles/commit; run_profile_dir tests/test_profiles/e2e; run_profile_dir tests/test_profiles/installer ;;
     module) shift; run_module "${1:-}" ;;
     *)
         cat >&2 <<'USAGE'

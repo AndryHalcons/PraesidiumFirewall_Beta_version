@@ -1,0 +1,8 @@
+{
+  "bad_filter": {
+    "protocol": "<script>"
+  },
+  "bad_date": {
+    "date": "not-a-date"
+  }
+}

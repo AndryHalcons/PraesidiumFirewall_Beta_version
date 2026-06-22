@@ -1,0 +1,8 @@
+{
+  "bad_rotate": {
+    "rotate": -1
+  },
+  "bad_choice": {
+    "storage": "banana"
+  }
+}

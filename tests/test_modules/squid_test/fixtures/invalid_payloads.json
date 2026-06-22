@@ -1,0 +1,11 @@
+{
+  "bad_domain": {
+    "domain": "http://;rm"
+  },
+  "bad_file": {
+    "file": "../../etc/passwd"
+  },
+  "bad_port": {
+    "port": -1
+  }
+}

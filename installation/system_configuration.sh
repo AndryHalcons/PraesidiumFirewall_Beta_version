@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Enable permanent IP forwarding on Debian 13
 # Activar reenvío de IP permanente en Debian 13
 

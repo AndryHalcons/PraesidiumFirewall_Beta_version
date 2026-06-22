@@ -1,0 +1,11 @@
+{
+  "bad_role": {
+    "role": "root"
+  },
+  "empty_password": {
+    "password": ""
+  },
+  "bad_language": {
+    "language": "xx"
+  }
+}

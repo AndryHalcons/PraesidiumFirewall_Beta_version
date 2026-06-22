@@ -1,0 +1,11 @@
+{
+  "bad_ip": {
+    "address": "999.999.999.999"
+  },
+  "bad_port": {
+    "port": 70000
+  },
+  "bad_name": {
+    "name": "../evil"
+  }
+}

@@ -52,5 +52,7 @@ if ($code !== 0 || $png === '') { http_response_code(500); echo wireguard_t('wir
 header('Content-Type: image/png');
 header('Content-Disposition: attachment; filename="' . wireguard_download_filename($name, 'png') . '"');
 header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 echo $png;
 ?>

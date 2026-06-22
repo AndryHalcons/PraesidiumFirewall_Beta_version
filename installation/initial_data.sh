@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Directorios de destino / Destination directories
 DEST_CONFIG="/var/www/config"

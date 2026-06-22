@@ -104,6 +104,38 @@ function get_next_id(): string {
     return (string)$id;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    fields validation section  ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Valida rol e idioma de usuario contra listas permitidas antes de guardar.
+// Validates user role and language against allowlists before saving.
+function validate_user_fields(array $rule): array {
+    $allowedRoles = ['admin', 'viewer'];
+    $allowedLanguages = ['en', 'es'];
+
+    if (!isset($rule['user_name']) || trim((string)$rule['user_name']) === '') {
+        echo json_encode(['error' => 'Nombre de usuario inválido']);
+        // Invalid username
+        exit;
+    }
+
+    if (!isset($rule['user_role']) || !in_array((string)$rule['user_role'], $allowedRoles, true)) {
+        echo json_encode(['error' => 'Rol de usuario inválido']);
+        // Invalid user role
+        exit;
+    }
+
+    if (!isset($rule['user_language']) || !in_array((string)$rule['user_language'], $allowedLanguages, true)) {
+        echo json_encode(['error' => 'Idioma de usuario inválido']);
+        // Invalid user language
+        exit;
+    }
+
+    return $rule;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    Hash   section  //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
