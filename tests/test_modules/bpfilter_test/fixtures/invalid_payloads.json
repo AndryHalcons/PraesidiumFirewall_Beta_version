@@ -1,0 +1,11 @@
+{
+  "invalid_hook": {
+    "hook": "BAD"
+  },
+  "invalid_iface": {
+    "interface": "../../eth0"
+  },
+  "invalid_port": {
+    "port": 99999
+  }
+}

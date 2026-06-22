@@ -48,6 +48,7 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_json_parse.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_language_keys.py
     run_cmd tests/test_profiles/safe/test_repo_hygiene.sh
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_no_test_bytecode_tracked.py
     finish_profile
 }
 
@@ -58,11 +59,13 @@ run_validation() {
 
 run_web() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_generic_table_contract.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/web/test_endpoint_inventory.py
     finish_profile
 }
 
 run_security() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_static_auth_csrf_matrix.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_no_destructive_profiles_without_guard.py
     finish_profile
 }
 

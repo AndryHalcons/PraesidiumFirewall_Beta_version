@@ -1,0 +1,11 @@
+{
+  "bad_key": {
+    "private_key": "not-a-key"
+  },
+  "bad_allowed_ips": {
+    "allowed_ips": "999.999.999.999/99"
+  },
+  "bad_port": {
+    "listen_port": 70000
+  }
+}

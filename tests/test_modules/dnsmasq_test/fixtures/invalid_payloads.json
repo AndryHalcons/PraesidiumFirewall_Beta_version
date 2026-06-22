@@ -1,0 +1,12 @@
+{
+  "invalid_ip": {
+    "ip": "999.999.999.999"
+  },
+  "range_reversed": {
+    "start": "192.168.1.200",
+    "end": "192.168.1.10"
+  },
+  "bad_lease": {
+    "lease": "forever;rm"
+  }
+}

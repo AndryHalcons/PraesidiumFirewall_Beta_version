@@ -1,0 +1,12 @@
+{
+  "bad_bool": {
+    "desired_enabled": "yes please"
+  },
+  "monitor_only": {
+    "service_name": "ssh",
+    "desired_enabled": false
+  },
+  "unknown_service": {
+    "service_name": "../../evil"
+  }
+}

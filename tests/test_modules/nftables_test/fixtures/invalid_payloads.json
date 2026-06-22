@@ -1,0 +1,17 @@
+{
+  "invalid_port_high": {
+    "dst_port": 70000
+  },
+  "invalid_port_negative": {
+    "src_port": -1
+  },
+  "invalid_protocol": {
+    "protocol": "badproto"
+  },
+  "invalid_cidr": {
+    "src_ip": "999.999.999.999/99"
+  },
+  "injection_comment": {
+    "comment": "; rm -rf /"
+  }
+}
