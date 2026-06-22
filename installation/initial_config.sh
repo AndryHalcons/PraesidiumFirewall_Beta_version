@@ -7,6 +7,7 @@ echo "Generando configuración inicial del sistema... / Generating initial syste
 
 INTERFACES_CHECK="/var/www/backend/checks/check_interfaces/main_interfaces_check.py"
 INTERFACES_JSON="/var/www/config/interfaces.json"
+RUNNING_INTERFACES_JSON="/var/www/config_running/interfaces.json"
 ALL_INTERFACES_JSON="/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json"
 PHYSICAL_INTERFACES_JSON="/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json"
 DATA_INTERFACES_DIR="/var/www/backend/checks/system_data/data_interfaces"
@@ -20,6 +21,11 @@ python3 "$INTERFACES_CHECK"
 python3 -m json.tool "$INTERFACES_JSON" >/dev/null
 python3 -m json.tool "$ALL_INTERFACES_JSON" >/dev/null
 python3 -m json.tool "$PHYSICAL_INTERFACES_JSON" >/dev/null
+
+# Sincroniza el estado running inicial con las interfaces reales detectadas.
+# Synchronizes the initial running state with the detected real interfaces.
+cp "$INTERFACES_JSON" "$RUNNING_INTERFACES_JSON"
+python3 -m json.tool "$RUNNING_INTERFACES_JSON" >/dev/null
 
 # Asegura permisos de escritura para Apache en los datos generados.
 # Ensures Apache has write permissions on generated data.
