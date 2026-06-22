@@ -22,10 +22,16 @@ from repo_paths import repo_root, tracked_files
 from report import fail, pass_
 
 root = repo_root()
-needles = ['https://github.com/AndryHalcons/PraesidiumFirewall.git', 'git@github.com:AndryHalcons/PraesidiumFirewall.git']
+needles = [
+    'https://github.com/AndryHalcons/' + 'PraesidiumFirewall.git',
+    'git@github.com:AndryHalcons/' + 'PraesidiumFirewall.git',
+]
 findings = []
 for rel in tracked_files():
-    if rel.startswith('.git/') or rel.endswith('.pyc'):
+    if rel.startswith('.git/') or rel.endswith('.pyc') or rel in {
+        'tests/test_profiles/safe/test_no_old_praesidium_repo_refs.py',
+        'tests/test_profiles/safe/test_readme_beta_repo_url.py',
+    }:
         continue
     path = root / rel
     try:

@@ -25,7 +25,7 @@ from report import fail, pass_
 readme = (repo_root() / 'README.md').read_text(encoding='utf-8', errors='ignore')
 errors = []
 new = 'https://github.com/AndryHalcons/PraesidiumFirewall_Beta_version.git'
-old = 'https://github.com/AndryHalcons/PraesidiumFirewall.git'
+old = 'https://github.com/AndryHalcons/' + 'PraesidiumFirewall.git'
 if new not in readme:
     errors.append('README no contiene la URL beta literal')
 if old in readme:
