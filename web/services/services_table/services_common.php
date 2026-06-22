@@ -117,15 +117,15 @@ function services_catalog(): array {
             'configurable' => 'false',
             'default_enabled' => 'true'
         ],
-        // bpfilter requiere checker/applier especial porque no es una unidad systemd.
-        // bpfilter requires a special checker/applier because it is not a systemd unit.
+        // bpfilter ahora se instala como unidad systemd propia de Praesidium.
+        // bpfilter is now installed as Praesidium's own systemd unit.
         'bpfilter' => [
             'service_name' => 'bpfilter',
             'unit' => 'bpfilter',
-            'checker' => 'bpfilter_daemon',
+            'checker' => 'systemctl',
             'display_name' => 'bpfilter',
             'configurable' => 'true',
-            'default_enabled' => 'false'
+            'default_enabled' => 'true'
         ],
         // Dependencias de red/administración visibles para diagnóstico, no configurables.
         // Network/administration dependencies visible for diagnostics, not configurable.
@@ -247,37 +247,6 @@ function services_systemctl_runtime_status(string $unit): string {
 
 /*
 #############################################################################
-   Comprueba bpfilter como daemon: binarios, proceso y socket runtime
-   Checks bpfilter as a daemon: binaries, process and runtime socket
-#############################################################################
-*/
-function services_bpfilter_runtime_status(): string {
-    // Fase 1: confirmar que los binarios instalados por Praesidium existen.
-    // Phase 1: confirm the binaries installed by Praesidium exist.
-    if (!is_executable('/usr/local/bin/bpfilter') || !is_executable('/usr/local/bin/bfcli')) {
-        return 'not-found';
-    }
-
-    // Fase 2: confirmar que el daemon está vivo por nombre exacto de proceso.
-    // Phase 2: confirm the daemon is alive by exact process name.
-    $output = [];
-    $code = 0;
-    exec('/usr/bin/pgrep -x bpfilter 2>/dev/null', $output, $code);
-    if ($code !== 0 || empty($output)) {
-        return 'inactive';
-    }
-
-    // Fase 3: confirmar que el socket CLI existe; es lo que usa bfcli.
-    // Phase 3: confirm the CLI socket exists; this is what bfcli uses.
-    if (!file_exists('/run/bpfilter/daemon.sock') || filetype('/run/bpfilter/daemon.sock') !== 'socket') {
-        return 'inactive';
-    }
-
-    return 'active';
-}
-
-/*
-#############################################################################
    Consulta sysctl para saber si una opción forwarding está activa
    Queries sysctl to know whether a forwarding option is active
 #############################################################################
@@ -320,10 +289,6 @@ function services_runtime_status(array $definition): string {
     // Selecciona el checker runtime declarado por cada entrada del catálogo.
     // Selects the runtime checker declared by each catalog entry.
     $checker = (string)($definition['checker'] ?? 'systemctl');
-
-    if ($checker === 'bpfilter_daemon') {
-        return services_bpfilter_runtime_status();
-    }
 
     if ($checker === 'sysctl') {
         return services_sysctl_runtime_status((string)$definition['unit']);

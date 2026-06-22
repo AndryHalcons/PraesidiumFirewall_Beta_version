@@ -19,7 +19,7 @@
             "desired_enabled": "true"
         },
         "bpfilter": {
-            "desired_enabled": "false"
+            "desired_enabled": "true"
         },
         "wg-quick@wgpf1": {
             "desired_enabled": "true"

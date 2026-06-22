@@ -5,10 +5,10 @@
    Services runtime refresh endpoint
 
    Lo usa el botón Actualizar estado. Ejecuta los mismos checkers en vivo que
-   la carga inicial de tabla: systemctl, bpfilter_daemon o sysctl.
+   la carga inicial de tabla: systemctl o sysctl.
 
    Used by the Refresh status button. It runs the same live checkers as the
-   initial table load: systemctl, bpfilter_daemon or sysctl.
+   initial table load: systemctl or sysctl.
 #############################################################################
 */
 session_start();
