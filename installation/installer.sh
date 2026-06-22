@@ -11,6 +11,7 @@ chmod +x install_backend.sh
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
+chmod +x initial_config.sh
 chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
 chmod +x configure_logs.sh
@@ -61,6 +62,10 @@ echo "Generando permisos de ejecucion / Generating execution permissions..."
 ./permissions.sh
 echo "Instalación permissions.sh completada / Installation permissions.sh completed"
 
+# Ejecutar initial_config.sh / Run initial_config.sh
+echo "Generando configuración inicial... / Generating initial configuration..."
+./initial_config.sh
+echo "Instalación initial_config.sh completada / Installation initial_config.sh completed"
 
 
 # Ejecutar install_bpfilter.sh / Run install_bpfilter.sh
