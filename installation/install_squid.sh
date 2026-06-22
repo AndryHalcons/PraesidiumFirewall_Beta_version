@@ -50,7 +50,14 @@ apt update
 apt install -y squid-openssl squid-common libecap3 libecap3-dev
 
 
-# Inicializa el almacén de certificados dinámicos SOLO si Squid está instalado y el directorio no existe
+# Inicializa el almacén de certificados dinámicos SOLO si Squid está instalado y el directorio no existe.
+# Initialize the dynamic certificate store only when Squid is installed and the directory is missing.
 if dpkg -l | grep -q squid-openssl && [ ! -d /var/lib/ssl_db ]; then
     sudo /usr/lib/squid/security_file_certgen -s /var/lib/ssl_db -M 4MB -c
 fi
+
+# Habilita y arranca Squid solo después de instalar su unidad systemd.
+# Enable and start Squid only after installing its systemd unit.
+systemctl enable squid
+systemctl restart squid
+systemctl is-active --quiet squid

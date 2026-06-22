@@ -38,11 +38,11 @@ instalar_php_yaml() {
     echo "Extensión YAML instalada y activada correctamente."
 }
 enable_services() {
+    # Habilita solo servicios base instalados por este script.
+    # Enables only base services installed by this script.
     echo "Habilitando y arrancando el servicio nftables..."
     sudo systemctl enable nftables
     sudo systemctl start nftables
-    sudo systemctl enable squid
-    sudo systemctl start squid
 }
 
 # Ejecutar la función
