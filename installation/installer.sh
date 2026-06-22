@@ -15,6 +15,7 @@ chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
 chmod +x configure_logs.sh
 chmod +x install_squid.sh
+chmod +x configure_dnsmasq.sh
 # install_kea.sh is legacy; DHCP service is dnsmasq.
 
 
@@ -28,6 +29,11 @@ echo "Desinstalando uninstall_unnecessary.shcompletada / uninstall uninstall_unn
 echo "Instalando dependencias del sistema... / Installing system dependencies..."
 ./system_requirements.sh
 echo "Instalación system_requirements.sh completada / Installation system_requirements.sh completed"
+
+# Ejecutar configure_dnsmasq.sh / Run configure_dnsmasq.sh
+echo "Configurando dnsmasq solo para DHCP... / Configuring dnsmasq for DHCP only..."
+./configure_dnsmasq.sh
+echo "Instalación configure_dnsmasq.sh completada / Installation configure_dnsmasq.sh completed"
 
 # Ejecutar web_installation.sh / Run web_installation.sh
 echo "Instalando archivos web... / Installing web files..."
