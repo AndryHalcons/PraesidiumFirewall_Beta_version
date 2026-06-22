@@ -49,6 +49,11 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_language_keys.py
     run_cmd tests/test_profiles/safe/test_repo_hygiene.sh
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_no_test_bytecode_tracked.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_readme_beta_repo_url.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_no_old_praesidium_repo_refs.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_bpfilter_repo_url_is_unchanged.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_test_readmes_complete.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_required_project_docs.py
     finish_profile
 }
 
@@ -66,6 +71,8 @@ run_web() {
 run_security() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_static_auth_csrf_matrix.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_no_destructive_profiles_without_guard.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_installer_shell_safety_static.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_sudoers_static_scope.py
     finish_profile
 }
 
