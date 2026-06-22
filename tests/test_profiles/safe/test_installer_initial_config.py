@@ -38,6 +38,13 @@ else:
         'python3 -m json.tool "$INTERFACES_JSON"',
         'python3 -m json.tool "$RUNNING_INTERFACES_JSON"',
         'cp "$INTERFACES_JSON" "$RUNNING_INTERFACES_JSON"',
+        'BPFILTER_RULES_JSON="/var/www/config/rules_bpfilter_human_viewer.json"',
+        'MANAGEMENT_INTERFACE="$(ip -o -4 route show default',
+        'Only adapt old default rules bound to ens21.',
+        "rule['interface'] = management_interface",
+        "rule['chain'] = f'{management_interface}_{hook}'",
+        'already_adapted = any(',
+        'python3 -m json.tool "$BPFILTER_RULES_JSON"',
         'all_interfaces_list.json',
         'physical_interfaces_list.json',
         'chown -R :www-data',
@@ -71,6 +78,20 @@ try:
             errors.append(f'data_running/interfaces.json conserva dato demo: {stale}')
 except Exception as exc:
     errors.append(f'data_running/interfaces.json inválido: {exc}')
+
+
+bpfilter = root / 'data' / 'rules_bpfilter_human_viewer.json'
+try:
+    data = json.loads(bpfilter.read_text(encoding='utf-8'))
+    default_rules = [item.get('rule', {}) for item in data.get('bpfilter', [])]
+    ens21_rules = [rule for rule in default_rules if rule.get('interface') == 'ens21']
+    if not ens21_rules:
+        errors.append('data/rules_bpfilter_human_viewer.json debe conservar reglas default ens21 para que initial_config.sh las adapte')
+    enabled_ens21 = [rule for rule in ens21_rules if rule.get('enable') == 'true']
+    if len(enabled_ens21) < 2:
+        errors.append('se esperan al menos dos reglas bpfilter default enable=true para bootstrap de desarrollo')
+except Exception as exc:
+    errors.append(f'data/rules_bpfilter_human_viewer.json inválido: {exc}')
 
 if errors:
     fail('installer initial config bootstrap', errors)
