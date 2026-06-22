@@ -6,11 +6,11 @@ Requirements:
 ```bash
 # 1. Clone the repository
 # 1. Clona el repositorio
-git clone https://github.com/AndryHalcons/PraesidiumFirewall_Beta_version.git PraesidiumFirewall
+git clone https://github.com/AndryHalcons/PraesidiumFirewall_Beta_version.git
 
 # 2. Enter the installer directory
 # 2. Entra al directorio del instalador
-cd PraesidiumFirewall/installation
+cd PraesidiumFirewall_Beta_version/installation
 
 # 3. Give execution permissions to the installer
 # 3. Da permisos de ejecución al instalador
