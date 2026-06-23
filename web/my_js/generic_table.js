@@ -142,6 +142,12 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
   const selectedValues = genericParseMultiSelectValue(currentValue);
   wrapper.dataset.values = selectedValues.join(",");
 
+  const contentPane = document.createElement("div");
+  contentPane.className = "object-multiselect-content-pane";
+
+  const selectorPane = document.createElement("div");
+  selectorPane.className = "object-multiselect-selector-pane";
+
   const search = document.createElement("input");
   search.type = "text";
   search.className = "modal-input object-multiselect-search";
@@ -151,7 +157,7 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
   dropdown.className = "object-multiselect-dropdown";
 
   const chips = document.createElement("div");
-  chips.className = "modal-multiselect-chips";
+  chips.className = "modal-multiselect-chips object-multiselect-selected";
 
   const syncChips = () => {
     wrapper.dataset.values = selectedValues.join(",");
@@ -192,9 +198,11 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
   search.onclick = () => renderOptions(search.value);
   search.oninput = () => renderOptions(search.value);
 
-  wrapper.appendChild(search);
-  wrapper.appendChild(dropdown);
-  wrapper.appendChild(chips);
+  contentPane.appendChild(chips);
+  selectorPane.appendChild(search);
+  selectorPane.appendChild(dropdown);
+  wrapper.appendChild(contentPane);
+  wrapper.appendChild(selectorPane);
   syncChips();
   renderOptions("");
   return wrapper;

@@ -648,9 +648,23 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
 
 .modal-object-multiselect {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr);
+    gap: 12px;
+    align-items: start;
+}
+
+.object-multiselect-content-pane,
+.object-multiselect-selector-pane {
+    min-width: 0;
+}
+
+.object-multiselect-selected {
+    min-height: 38px;
+    padding: 6px;
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-sm);
+    background: #f8fafc;
 }
 
 .object-multiselect-dropdown {
@@ -659,6 +673,7 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
     gap: 4px;
     max-height: 240px;
     overflow-y: auto;
+    margin-top: 6px;
 }
 
 .object-multiselect-option {
