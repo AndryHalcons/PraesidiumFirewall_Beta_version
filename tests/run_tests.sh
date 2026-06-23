@@ -62,6 +62,7 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_generic_multiselect_js_behavior.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_alias_object_multiselect_static.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_object_multiselect_js_behavior.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_generic_send_save_error_behavior.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_nftables_object_multiselect_static.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_bpfilter_object_multiselect_static.py
     finish_profile

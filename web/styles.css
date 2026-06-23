@@ -1123,3 +1123,13 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
 .wireguard-card-button:focus-visible { outline: 2px solid rgba(156, 236, 246, 0.9); outline-offset: 2px; }
 .wireguard-help-box, .wireguard-subsection-help { border-radius: 10px; border: 1px solid rgba(67, 230, 180, 0.24); background: rgba(67, 230, 180, 0.07); color: #c8f7ef; padding: 12px 14px; margin: 12px 0 18px; }
 .wireguard-subsection-help { border-color: rgba(0, 188, 212, 0.20); background: rgba(0, 188, 212, 0.06); color: #b8d6df; margin-top: -4px; }
+
+.modal-save-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: 8px;
+  color: #fecaca;
+  font-size: 0.9rem;
+  margin: 12px 0;
+  padding: 10px 12px;
+}

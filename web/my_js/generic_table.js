@@ -620,6 +620,11 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
         form.appendChild(fieldWrapper);
       });
 
+      const errorBox = document.createElement("div");
+      errorBox.className = "modal-save-error";
+      errorBox.style.display = "none";
+      form.appendChild(errorBox);
+
       const actions = document.createElement("div");
       actions.className = "modal-actions";
 
@@ -662,10 +667,12 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
           updatedRule[key] = value;
         });
 
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
         send_Generic(currentAlias, path_get_update, updatedRule, columns, () => {
           document.body.removeChild(modal);
           if (typeof onSuccess === "function") onSuccess();
-        });
+        }, message => genericShowModalSaveError(errorBox, message));
       };
       actions.appendChild(saveBtn);
 
@@ -778,6 +785,11 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
         form.appendChild(fieldWrapper);
       });
 
+      const errorBox = document.createElement("div");
+      errorBox.className = "modal-save-error";
+      errorBox.style.display = "none";
+      form.appendChild(errorBox);
+
       const actions = document.createElement("div");
       actions.className = "modal-actions";
 
@@ -819,10 +831,12 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
           updatedRule[key] = value;
         });
 
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
         send_Generic(currentAlias, path_get_update, updatedRule, columns, () => {
           document.body.removeChild(modal);
           loadTableContentGeneric(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
-        });
+        }, message => genericShowModalSaveError(errorBox, message));
       };
       actions.appendChild(saveBtn);
 
@@ -843,9 +857,22 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
     });
 }
 
+// Muestra errores de guardado dentro del modal sin cerrarlo.
+// Shows save errors inside the modal without closing it.
+function genericShowModalSaveError(errorBox, backendMessage) {
+  if (!errorBox) {
+    return;
+  }
+  const detail = String(backendMessage || "").trim();
+  errorBox.textContent = detail
+    ? `Datos inválidos, no se puede guardar. ${detail}`
+    : "Datos inválidos, no se puede guardar.";
+  errorBox.style.display = "block";
+}
+
 // Envía al backend una regla creada o editada desde la tabla genérica.
 // Sends a created or edited rule from the generic table to the backend.
-function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuccess) {
+function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuccess, onError) {
   const endpoint = path_get_update;
   const payload = {
     table: currentAlias,
@@ -871,20 +898,46 @@ function send_Generic(currentAlias, path_get_update, updatedRule, columns, onSuc
 
         if (result.error) {
           console.error(" Error al guardar en el backend:", result.error);
-          alert(JSON.stringify(result, null, 2)); // Ventana emergente con el JSON completo
-        } else {
+          if (typeof onError === "function") {
+            onError(result.error);
+          } else {
+            alert("Datos inválidos, no se puede guardar.\n\n" + result.error);
+          }
+          return;
+        }
+
+        if (result.success === true) {
           if (typeof onSuccess === "function") {
             onSuccess();
           }
+          return;
+        }
+
+        const unexpectedMessage = "Respuesta inesperada del backend";
+        console.error(unexpectedMessage, result);
+        if (typeof onError === "function") {
+          onError(unexpectedMessage);
+        } else {
+          alert(unexpectedMessage);
         }
       } catch (e) {
         console.error(" No se pudo parsear JSON:", e);
-        alert("Error al parsear la respuesta del servidor:\n\n" + text); // Si no se puede parsear
+        const parseMessage = "Error al parsear la respuesta del servidor";
+        if (typeof onError === "function") {
+          onError(parseMessage);
+        } else {
+          alert(parseMessage + ":\n\n" + text);
+        }
       }
     })
     .catch(error => {
       console.error("Error de conexión al guardar:", error);
-      alert("Error de conexión al guardar:\n\n" + error); // Si falla la conexión
+      const connectionMessage = "Error de conexión al guardar";
+      if (typeof onError === "function") {
+        onError(connectionMessage);
+      } else {
+        alert(connectionMessage + ":\n\n" + error);
+      }
     });
 }
 
