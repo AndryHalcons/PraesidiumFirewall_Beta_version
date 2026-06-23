@@ -154,11 +154,11 @@ function get_bonds_form() {
                 $names = array_merge($names, $ifaceData["ethernets"]);
             }
 
-            // Insertar las interfaces Ethernet en el campo select del formulario
-            // Insert Ethernet interfaces into the form's select field
-            if (isset($json["bonds"]["select"]["interfaces"])) {
-                $json["bonds"]["select"]["interfaces"] = array_merge(
-                    $json["bonds"]["select"]["interfaces"],
+            // Insertar las interfaces Ethernet en el campo multiselect del formulario.
+            // Insert Ethernet interfaces into the form's multiselect field.
+            if (isset($json["bonds"]["multiselect"]["interfaces"])) {
+                $json["bonds"]["multiselect"]["interfaces"] = array_merge(
+                    $json["bonds"]["multiselect"]["interfaces"],
                     $names
                 );
             }

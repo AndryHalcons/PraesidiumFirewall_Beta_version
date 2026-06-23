@@ -79,7 +79,7 @@ function get_ethernets($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
 
     // Extraer el nombre de la interfaz y eliminarlo del array
     // Extract the interface name and remove it from the array
@@ -133,7 +133,7 @@ function get_bridges($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
     $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
@@ -196,7 +196,7 @@ function get_bonds($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
     $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
@@ -258,7 +258,7 @@ function get_vlans($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
     $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
@@ -321,7 +321,7 @@ function get_wireguard($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
     $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
@@ -386,7 +386,7 @@ function get_wifis($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
@@ -447,7 +447,7 @@ function get_tunnels($chain) {
     ////////////////////////////////////////////////////////////////////
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule);
+    validation_form_field_review($rule, $chain);
     $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'

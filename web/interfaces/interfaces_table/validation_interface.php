@@ -87,14 +87,21 @@ function import_config_interfaces_json() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //revisa los campos que contienen formularios
 //check the fields that contain forms
-function validation_form_field_review(array $rule): void {
-    $formConfig = import_forms_interfaces_json();
-    if (!$formConfig) {
+function validation_form_field_review(array $rule, ?string $chain = null): void {
+    $allFormConfig = import_forms_interfaces_json();
+    if (!$allFormConfig) {
         echo json_encode(["error" => "No se pudo cargar la configuración del formulario interfaces"]);
         exit;
     }
 
-    // Añadir interfaces del sistema
+    // Selecciona la configuración de la sección actual cuando se informa desde get_update_interface.
+    // Select the current section configuration when get_update_interface provides it.
+    $formConfig = ($chain !== null && isset($allFormConfig[$chain]) && is_array($allFormConfig[$chain]))
+        ? $allFormConfig[$chain]
+        : $allFormConfig;
+
+    // Añadir interfaces del sistema a los campos que usan selección de interfaces.
+    // Add system interfaces to fields that select interfaces.
     $interfaces = import_all_interfaces();
     if (isset($formConfig['select']['interfaces'])) {
         $formConfig['select']['interfaces'] = array_merge($formConfig['select']['interfaces'], $interfaces);
@@ -102,8 +109,12 @@ function validation_form_field_review(array $rule): void {
     if (isset($formConfig['select']['link'])) {
         $formConfig['select']['link'] = array_merge($formConfig['select']['link'], $interfaces);
     }
+    if (isset($formConfig['multiselect']['interfaces'])) {
+        $formConfig['multiselect']['interfaces'] = array_merge($formConfig['multiselect']['interfaces'], $interfaces);
+    }
 
-    // Validar select
+    // Validar select simple.
+    // Validate simple select fields.
     if (isset($formConfig['select'])) {
         foreach ($formConfig['select'] as $key => $validValues) {
             if (isset($rule[$key])) {
@@ -120,7 +131,28 @@ function validation_form_field_review(array $rule): void {
         }
     }
 
-    // Validar checkbox
+    // Validar multiselect CSV: cada elemento debe existir y no se permiten duplicados.
+    // Validate multiselect CSV: each item must exist and duplicates are rejected.
+    if (isset($formConfig['multiselect'])) {
+        foreach ($formConfig['multiselect'] as $key => $validValues) {
+            if (isset($rule[$key])) {
+                $items = array_values(array_filter(array_map('trim', explode(',', (string)$rule[$key])), 'strlen'));
+                if (count($items) !== count(array_unique($items))) {
+                    echo json_encode(["error" => "duplicate value in validation_form_field_review_multiselect '{$key}'"]);
+                    exit;
+                }
+                foreach ($items as $value) {
+                    if (!in_array($value, $validValues, true)) {
+                        echo json_encode(["error" => "value in validation_form_field_review_multiselect '{$value}' not found"]);
+                        exit;
+                    }
+                }
+            }
+        }
+    }
+
+    // Validar checkbox.
+    // Validate checkbox fields.
     if (isset($formConfig['checkbox'])) {
         foreach ($formConfig['checkbox'] as $key => $options) {
             if (isset($rule[$key])) {
@@ -137,13 +169,18 @@ function validation_form_field_review(array $rule): void {
         }
     }
 
-    // Validar not_editable (excepto id)
+    // Validar not_editable (excepto id).
+    // Validate not_editable fields (except id).
     if (isset($formConfig['not_editable'])) {
         foreach ($formConfig['not_editable'] as $key => $validValues) {
             if ($key === 'id') continue;
             if (isset($rule[$key])) {
-                $value = $rule[$key];
-                if (!in_array($value, $validValues, true)) {
+                $value = trim((string)$rule[$key]);
+                if ($value === '') {
+                    $rule[$key] = "";
+                    continue;
+                }
+                if (!empty($validValues) && !in_array($value, $validValues, true)) {
                     echo json_encode(["error" => "alias port validation_form_field_review_not_editable '{$value}' not found"]);
                     exit;
                 }

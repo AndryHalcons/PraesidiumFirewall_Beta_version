@@ -18,6 +18,108 @@ function genericIsButtonColumn(column) {
   // This prevents the change from accidentally affecting the rest of the firewall tables.
   return typeof column === "object" && column !== null && column.type === "button";
 }
+function genericIsMultiSelectField(formConfig, key) {
+  // El multiselect es opt-in por JSON y no altera los select existentes.
+  // Multiselect is opt-in through JSON and does not alter existing select fields.
+  return Array.isArray(formConfig?.multiselect?.[key]);
+}
+
+function genericParseMultiSelectValue(value) {
+  // El backend actual espera CSV; el modal lo presenta como chips editables.
+  // The current backend expects CSV; the modal presents it as editable chips.
+  if (Array.isArray(value)) {
+    return value.map(item => String(item).trim()).filter(Boolean);
+  }
+  return String(value || "")
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function genericRenderMultiSelectChips(container, selectedValues, onChange) {
+  // Redibuja los chips seleccionados y permite quitarlos con la X.
+  // Redraws selected chips and allows removing them with the X button.
+  container.innerHTML = "";
+  selectedValues.forEach(value => {
+    const chip = document.createElement("span");
+    chip.className = "multiselect-chip";
+    chip.textContent = value;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "multiselect-chip-remove";
+    removeBtn.textContent = "×";
+    removeBtn.onclick = () => {
+      const idx = selectedValues.indexOf(value);
+      if (idx !== -1) {
+        selectedValues.splice(idx, 1);
+        if (typeof onChange === "function") onChange();
+        genericRenderMultiSelectChips(container, selectedValues, onChange);
+      }
+    };
+
+    chip.appendChild(removeBtn);
+    container.appendChild(chip);
+  });
+}
+
+function genericCreateMultiSelectControl(options, currentValue) {
+  // Crea un control compuesto: select + botón añadir + chips seleccionados.
+  // Creates a compound control: select + add button + selected chips.
+  const wrapper = document.createElement("div");
+  wrapper.className = "modal-multiselect";
+  const selectedValues = genericParseMultiSelectValue(currentValue);
+  wrapper.dataset.values = selectedValues.join(",");
+
+  const selectorRow = document.createElement("div");
+  selectorRow.className = "modal-multiselect-row";
+
+  const select = document.createElement("select");
+  select.className = "modal-input modal-multiselect-select";
+  options.forEach(opt => {
+    const option = document.createElement("option");
+    option.value = opt;
+    option.textContent = opt === "" ? " --- " : opt;
+    select.appendChild(option);
+  });
+
+  const addBtn = document.createElement("button");
+  addBtn.type = "button";
+  addBtn.className = "modal-button multiselect-add";
+  addBtn.textContent = "+";
+
+  const chips = document.createElement("div");
+  chips.className = "modal-multiselect-chips";
+
+  const syncChips = () => {
+    wrapper.dataset.values = selectedValues.join(",");
+    genericRenderMultiSelectChips(chips, selectedValues, syncChips);
+  };
+
+  addBtn.onclick = () => {
+    const value = select.value.trim();
+    if (!value || selectedValues.includes(value)) {
+      return;
+    }
+    selectedValues.push(value);
+    syncChips();
+  };
+
+  selectorRow.appendChild(select);
+  selectorRow.appendChild(addBtn);
+  wrapper.appendChild(selectorRow);
+  wrapper.appendChild(chips);
+  syncChips();
+  return wrapper;
+}
+
+function genericReadMultiSelectControl(fieldWrapper) {
+  // Lee el CSV que entiende el backend desde el control multiselect.
+  // Reads the CSV understood by the backend from the multiselect control.
+  const wrapper = fieldWrapper.querySelector(".modal-multiselect");
+  return wrapper ? (wrapper.dataset.values || "") : "";
+}
+
 
 // Devuelve solo columnas de datos para formularios y envíos al backend.
 // Returns only data columns for forms and backend submissions.
@@ -268,7 +370,9 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
               const td = document.createElement("td");
               const value = rule[key] !== undefined ? rule[key] : "";
 
-              if (formConfig.select?.[key]) {
+              if (genericIsMultiSelectField(formConfig, key)) {
+                td.textContent = genericParseMultiSelectValue(value).join(", ");
+              } else if (formConfig.select?.[key]) {
                 const select = document.createElement("select");
                 select.disabled = true;
                 formConfig.select[key].forEach(opt => {
@@ -352,6 +456,13 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
           return;
         }
 
+        if (genericIsMultiSelectField(formConfig, key)) {
+          const multiselect = genericCreateMultiSelectControl(formConfig.multiselect[key], rule[key] || "");
+          fieldWrapper.appendChild(multiselect);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
         if (formConfig.select?.[key]) {
           const select = document.createElement("select");
           select.className = "modal-input";
@@ -410,7 +521,9 @@ function editModal_Generic(currentAlias, path_get_forms_from_table, path_get_upd
 
           let value = "";
 
-          if (el && el.tagName === "SELECT") {
+          if (genericIsMultiSelectField(formConfig, key)) {
+            value = genericReadMultiSelectControl(fieldWrapper);
+          } else if (el && el.tagName === "SELECT") {
             value = el.value;
           } else if (el && el.type === "checkbox") {
             value = el.checked
@@ -493,6 +606,13 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
           return;
         }
 
+        if (genericIsMultiSelectField(formConfig, key)) {
+          const multiselect = genericCreateMultiSelectControl(formConfig.multiselect[key], "");
+          fieldWrapper.appendChild(multiselect);
+          form.appendChild(fieldWrapper);
+          return;
+        }
+
         if (formConfig.select && Array.isArray(formConfig.select[key])) {
           const select = document.createElement("select");
           select.className = "modal-input";
@@ -545,7 +665,9 @@ function add_Generic(currentAlias,path_get_table_structure,path_get_table_conten
             return;
           }
 
-          if (el && el.tagName === "SELECT") {
+          if (genericIsMultiSelectField(formConfig, key)) {
+            value = genericReadMultiSelectControl(fieldWrapper);
+          } else if (el && el.tagName === "SELECT") {
             value = el.value;
           } else if (el && el.type === "checkbox") {
             if (formConfig.checkbox?.[key]) {

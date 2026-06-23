@@ -593,6 +593,60 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
     box-shadow: 0 0 0 3px rgba(15, 111, 179, 0.14);
 }
 
+.modal-multiselect {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-multiselect-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.modal-multiselect-select {
+    min-width: 180px;
+}
+
+.multiselect-add {
+    margin-left: 0;
+    min-width: 40px;
+    padding: 8px 12px;
+}
+
+.modal-multiselect-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.multiselect-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--praesidium-border-strong);
+    background: #eef6ff;
+    color: var(--praesidium-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.multiselect-chip-remove {
+    border: 0;
+    background: transparent;
+    color: #9b1c1c;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+
 .users-table input:disabled {
     background-color: #f3f6fa;
     color: var(--praesidium-text-soft);

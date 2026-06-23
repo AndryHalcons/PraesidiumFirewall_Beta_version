@@ -134,7 +134,8 @@
           }
       },
       "bonds": {
-          "select": {
+          "select": {},
+          "multiselect": {
               "interfaces":[""]
           },
           "checkbox": {
