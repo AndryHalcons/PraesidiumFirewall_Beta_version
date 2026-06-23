@@ -178,9 +178,10 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
   const renderOptions = term => {
     const cleanTerm = String(term || "").trim().toLowerCase();
     dropdown.innerHTML = "";
-    const source = cleanTerm.length >= 3
-      ? options.filter(item => item.toLowerCase().includes(cleanTerm))
-      : options;
+    if (cleanTerm.length < 3) {
+      return;
+    }
+    const source = options.filter(item => item.toLowerCase().includes(cleanTerm));
     source
       .filter(item => !selectedValues.includes(item))
       .slice(0, 10)

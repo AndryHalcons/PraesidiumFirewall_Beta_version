@@ -24,7 +24,7 @@ assert "function genericIsObjectMultiSelectField" in generic_js
 assert "function genericCreateObjectMultiSelectControl" in generic_js
 assert "function genericReadObjectMultiSelectControl" in generic_js
 assert "slice(0, 10)" in generic_js
-assert "cleanTerm.length >= 3" in generic_js
+assert "cleanTerm.length < 3" in generic_js
 
 assert "object_multiselect" not in forms["alias_address"]
 assert "object_multiselect" not in forms["alias_service"]

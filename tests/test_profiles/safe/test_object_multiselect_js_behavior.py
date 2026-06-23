@@ -4,13 +4,14 @@ Test: test_object_multiselect_js_behavior.py
 
 Objetivo:
     Ejecutar generic_table.js con un DOM mínimo simulado y comprobar el selector
-    de objetos: muestra 10 al abrir, no filtra hasta 3 caracteres, filtra con
-    3+ caracteres, añade chips, evita duplicados y la X sincroniza el CSV.
+    de objetos: no muestra resultados hasta 3 caracteres, filtra con 3+
+    caracteres, limita a 10 resultados, añade chips, evita duplicados y la X
+    sincroniza el CSV.
 
 Objective:
     Run generic_table.js with a minimal simulated DOM and verify the object
-    selector: shows 10 on open, does not filter until 3 characters, filters with
-    3+ characters, adds chips, prevents duplicates, and X syncs the CSV.
+    selector: shows no results until 3 characters, filters with 3+ characters,
+    limits to 10 results, adds chips, prevents duplicates, and X syncs the CSV.
 """
 import subprocess
 from pathlib import Path
@@ -71,14 +72,19 @@ const options = [
 const control = genericCreateObjectMultiSelectControl(options, 'alpha-one,beta-one');
 const dropdown = control.querySelector('.object-multiselect-dropdown');
 let shown = dropdown.querySelectorAll('.object-multiselect-option').map(o => o.textContent);
-if (shown.length !== 10) throw new Error('initial options must be limited to 10: ' + shown.length);
-if (shown.includes('alpha-one') || shown.includes('beta-one')) throw new Error('selected values shown again: ' + shown.join(','));
+if (shown.length !== 0) throw new Error('initial options must stay empty before 3 chars: ' + shown.length);
 
 const search = control.querySelector('.object-multiselect-search');
 search.value = 'ga';
 search.oninput();
 shown = dropdown.querySelectorAll('.object-multiselect-option').map(o => o.textContent);
-if (shown.length !== 10 || shown.includes('gamma-one')) throw new Error('2 chars must not filter: ' + shown.join(','));
+if (shown.length !== 0) throw new Error('2 chars must show no options: ' + shown.join(','));
+
+search.value = 'alp';
+search.oninput();
+shown = dropdown.querySelectorAll('.object-multiselect-option').map(o => o.textContent);
+if (shown.length !== 10) throw new Error('3 chars must show at most 10 options: ' + shown.length);
+if (shown.includes('alpha-one') || shown.includes('beta-one')) throw new Error('selected values shown again: ' + shown.join(','));
 
 search.value = 'gam';
 search.oninput();
