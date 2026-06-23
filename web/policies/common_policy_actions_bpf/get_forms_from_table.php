@@ -36,6 +36,62 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     exit;
 }
 
+
+// Devuelve nombres de objetos Alias para poblar selectores buscables de bpfilter.
+// Returns Alias object names used to populate bpfilter searchable selectors.
+function get_alias_object_names_for_bpf(array $sourceKeys): array {
+    $aliasPath = '/var/www/config/alias.json';
+    if (!file_exists($aliasPath)) {
+        return [];
+    }
+
+    $aliasRaw = file_get_contents($aliasPath);
+    $aliasData = json_decode($aliasRaw, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($aliasData)) {
+        return [];
+    }
+
+    $names = [];
+    foreach ($sourceKeys as $sourceKey) {
+        if (!isset($aliasData[$sourceKey]) || !is_array($aliasData[$sourceKey])) {
+            continue;
+        }
+        foreach ($aliasData[$sourceKey] as $entry) {
+            if (isset($entry['name']) && is_string($entry['name'])) {
+                $names[] = $entry['name'];
+            }
+        }
+    }
+
+    return array_values(array_unique($names));
+}
+
+// Rellena los campos object_multiselect con objetos de dirección o servicio.
+// Fills object_multiselect fields with address or service objects.
+function populate_bpf_object_multiselect_options(array $formData): array {
+    $addressFields = ['source', 'destination'];
+    $serviceFields = ['sport', 'dport'];
+    $addressObjects = get_alias_object_names_for_bpf(['alias_address', 'alias_addr_group']);
+    $serviceObjects = get_alias_object_names_for_bpf(['alias_service', 'alias_service_group']);
+
+    if (!isset($formData['object_multiselect']) || !is_array($formData['object_multiselect'])) {
+        $formData['object_multiselect'] = [];
+    }
+
+    foreach ($addressFields as $field) {
+        if (array_key_exists($field, $formData['object_multiselect'])) {
+            $formData['object_multiselect'][$field] = $addressObjects;
+        }
+    }
+    foreach ($serviceFields as $field) {
+        if (array_key_exists($field, $formData['object_multiselect'])) {
+            $formData['object_multiselect'][$field] = $serviceObjects;
+        }
+    }
+
+    return $formData;
+}
+
 // Carga el archivo con la lista de interfaces de red
 // Load the file with the list of network interfaces
 $ifacePath = '/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json';
@@ -84,6 +140,8 @@ if (file_exists($chainPath)) {
 
 
 
+
+$formData = populate_bpf_object_multiselect_options($formData);
 
 // Funciones específicas por tipo de tabla (actualmente idénticas)
 // Table-specific functions (currently identical)
