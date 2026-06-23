@@ -114,30 +114,22 @@ try:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         rules = tmp_path / 'rules_bpfilter_human_viewer.json'
-        mapping_file = tmp_path / 'vmbr_bridge_map.json'
         rules.write_text(json.dumps({'bpfilter': [
             {'rule': {'interface': 'ens21', 'hook': 'BF_HOOK_XDP', 'chain': 'ens21_bf_hook_xdp'}},
             {'rule': {'interface': 'other0', 'hook': 'BF_HOOK_XDP', 'chain': 'other0_bf_hook_xdp'}},
         ]}), encoding='utf-8')
-        mapping_file.write_text(json.dumps({'ethernet_to_bridge': {'ens18': 'vmbr0'}}), encoding='utf-8')
         old_rules = bp.BPFILTER_RULES_JSON
-        old_mapping = bp.VMBR_MAPPING_JSON
         try:
             bp.BPFILTER_RULES_JSON = rules
-            bp.VMBR_MAPPING_JSON = mapping_file
-            management = bp.bridge_for_interface('ens18')
-            if management != 'vmbr0':
-                errors.append(f'bridge_for_interface no devolvió vmbr0: {management}')
-            bp.adapt_bpfilter_rules(management)
+            bp.adapt_bpfilter_rules('ens18')
             written = json.loads(rules.read_text(encoding='utf-8'))
             rule = written['bpfilter'][0]['rule']
-            if rule.get('interface') != 'vmbr0':
-                errors.append('bpfilter no adaptó interface a vmbr0')
-            if rule.get('chain') != 'vmbr0_bf_hook_xdp':
-                errors.append(f"bpfilter no adaptó chain a vmbr0: {rule.get('chain')}")
+            if rule.get('interface') != 'ens18':
+                errors.append('bpfilter no conservó la interfaz física ens18')
+            if rule.get('chain') != 'ens18_bf_hook_xdp':
+                errors.append(f"bpfilter no adaptó chain física ens18: {rule.get('chain')}")
         finally:
             bp.BPFILTER_RULES_JSON = old_rules
-            bp.VMBR_MAPPING_JSON = old_mapping
 
 except Exception as exc:
     errors.append(f'excepción durante test: {exc}')

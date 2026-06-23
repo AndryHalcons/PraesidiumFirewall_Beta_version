@@ -9,10 +9,6 @@ from typing import Any
 
 INTERFACES_JSON = Path(os.environ.get('PRAESIDIUM_INTERFACES_JSON', '/var/www/config/interfaces.json'))
 BPFILTER_RULES_JSON = Path(os.environ.get('PRAESIDIUM_BPFILTER_RULES_JSON', '/var/www/config/rules_bpfilter_human_viewer.json'))
-VMBR_MAPPING_JSON = Path(os.environ.get(
-    'PRAESIDIUM_VMBR_MAPPING_JSON',
-    '/var/www/backend/checks/system_data/data_interfaces/vmbr_bridge_map.json',
-))
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -49,27 +45,13 @@ def first_ethernet() -> str:
     return next(iter(ethernets), '')
 
 
-def bridge_for_interface(interface: str) -> str:
-    if not interface or not VMBR_MAPPING_JSON.exists():
-        return interface
-    try:
-        mapping = load_json(VMBR_MAPPING_JSON).get('ethernet_to_bridge', {})
-    except Exception:
-        return interface
-    if isinstance(mapping, dict):
-        mapped = str(mapping.get(interface, '')).strip()
-        if mapped:
-            return mapped
-    return interface
-
-
 def detect_management_interface() -> str:
-    route_iface = default_route_interface()
-    candidate = route_iface or first_ethernet()
-    candidate = bridge_for_interface(candidate)
-    if not candidate:
+    # BPFilter trabaja sobre interfaces físicas; no traduce ethernets a vmbr.
+    # BPFilter works on physical interfaces; do not translate ethernets to vmbr.
+    management_interface = default_route_interface() or first_ethernet()
+    if not management_interface:
         raise SystemExit('No se pudo detectar la interfaz de gestión. / Could not detect management interface.')
-    return candidate
+    return management_interface
 
 
 def adapt_bpfilter_rules(management_interface: str) -> None:

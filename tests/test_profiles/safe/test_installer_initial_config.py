@@ -95,11 +95,14 @@ if bpfilter.exists():
         "rule['interface'] = management_interface",
         "rule['chain'] = f'{management_interface}_{hook}'",
         'already_adapted = any(',
-        'bridge_for_interface',
-        'vmbr_bridge_map.json',
+        'BPFilter works on physical interfaces; do not translate ethernets to vmbr.',
     ]:
         if expected not in text:
             errors.append(f'05_adapt_bpfilter_management.py falta: {expected}')
+    forbidden = ['bridge_for_interface', 'VMBR_MAPPING_JSON', 'vmbr_bridge_map.json']
+    for text_forbidden in forbidden:
+        if text_forbidden in text:
+            errors.append(f'05_adapt_bpfilter_management.py no debe depender de vmbr para BPFilter: {text_forbidden}')
 
 perms = initial_dir / '06_fix_initial_config_permissions.sh'
 if perms.exists():
