@@ -20,6 +20,10 @@
         {
             "action": [""]
         },
+      "object_multiselect":
+        {
+            "content": []
+        },
       "checkbox":
           {
             "enable": {
@@ -51,6 +55,10 @@
       "select":
         {
             "action": [""]
+        },
+      "object_multiselect":
+        {
+            "content": []
         },
       "checkbox":
           {

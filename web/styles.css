@@ -646,6 +646,37 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
     padding: 0 2px;
 }
 
+.modal-object-multiselect {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.object-multiselect-dropdown {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.object-multiselect-option {
+    text-align: left;
+    padding: 7px 10px;
+    border: 1px solid var(--praesidium-border);
+    border-radius: var(--praesidium-radius-sm);
+    background: #ffffff;
+    color: var(--praesidium-text);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.object-multiselect-option:hover {
+    background: #eef6ff;
+    border-color: var(--praesidium-border-strong);
+}
+
 
 .users-table input:disabled {
     background-color: #f3f6fa;
