@@ -135,8 +135,8 @@ function genericObjectOptionsForField(formConfig, key) {
 }
 
 function genericCreateObjectMultiSelectControl(options, currentValue) {
-  // Crea un selector buscable de objetos: muestra 10 al abrir y filtra con 3+ caracteres.
-  // Creates a searchable object selector: shows 10 on open and filters with 3+ characters.
+  // Crea un selector buscable de objetos y permite valores manuales confirmados con coma.
+  // Creates a searchable object selector and allows manual values confirmed with comma.
   const wrapper = document.createElement("div");
   wrapper.className = "modal-object-multiselect";
   const selectedValues = genericParseMultiSelectValue(currentValue);
@@ -164,15 +164,31 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
     genericRenderMultiSelectChips(chips, selectedValues, syncChips);
   };
 
-  const addValue = value => {
+  const addValue = (value, clearSearch = true) => {
     const cleanValue = String(value || "").trim();
     if (!cleanValue || selectedValues.includes(cleanValue)) {
       return;
     }
     selectedValues.push(cleanValue);
-    search.value = "";
+    if (clearSearch) {
+      search.value = "";
+    }
     syncChips();
-    renderOptions("");
+    renderOptions(clearSearch ? "" : search.value);
+  };
+
+  const addManualValuesFromInput = () => {
+    // La coma confirma valores manuales sin validar formato; el backend valida al guardar.
+    // Comma confirms manual values without format validation; backend validates on save.
+    if (!search.value.includes(",")) {
+      return false;
+    }
+    const parts = search.value.split(",");
+    const pendingText = parts.pop();
+    parts.forEach(part => addValue(part, false));
+    search.value = pendingText;
+    renderOptions(search.value);
+    return true;
   };
 
   const renderOptions = term => {
@@ -197,7 +213,12 @@ function genericCreateObjectMultiSelectControl(options, currentValue) {
 
   search.onfocus = () => renderOptions(search.value);
   search.onclick = () => renderOptions(search.value);
-  search.oninput = () => renderOptions(search.value);
+  search.oninput = () => {
+    if (addManualValuesFromInput()) {
+      return;
+    }
+    renderOptions(search.value);
+  };
 
   contentPane.appendChild(chips);
   selectorPane.appendChild(search);

@@ -5,13 +5,14 @@ Test: test_object_multiselect_js_behavior.py
 Objetivo:
     Ejecutar generic_table.js con un DOM mínimo simulado y comprobar el selector
     de objetos: no muestra resultados hasta 3 caracteres, filtra con 3+
-    caracteres, limita a 10 resultados, añade chips, evita duplicados y la X
-    sincroniza el CSV.
+    caracteres, limita a 10 resultados, añade chips desde objetos y valores
+    manuales confirmados con coma, evita duplicados y la X sincroniza el CSV.
 
 Objective:
     Run generic_table.js with a minimal simulated DOM and verify the object
     selector: shows no results until 3 characters, filters with 3+ characters,
-    limits to 10 results, adds chips, prevents duplicates, and X syncs the CSV.
+    limits to 10 results, adds chips from objects and comma-confirmed manual
+    values, prevents duplicates, and X syncs the CSV.
 """
 import subprocess
 from pathlib import Path
@@ -99,9 +100,23 @@ search.oninput();
 shown = dropdown.querySelectorAll('.object-multiselect-option').map(o => o.textContent);
 if (shown.includes('gamma-one')) throw new Error('duplicate object option displayed');
 
+search.value = '1.1.1.1,';
+search.oninput();
+if (control.dataset.values !== 'alpha-one,beta-one,gamma-one,1.1.1.1') throw new Error('manual IP comma add failed: ' + control.dataset.values);
+if (search.value !== '') throw new Error('manual comma should clear exact completed input: ' + search.value);
+
+search.value = '443,8000-9000,partial';
+search.oninput();
+if (control.dataset.values !== 'alpha-one,beta-one,gamma-one,1.1.1.1,443,8000-9000') throw new Error('multiple manual comma add failed: ' + control.dataset.values);
+if (search.value !== 'partial') throw new Error('pending text after manual comma not preserved: ' + search.value);
+
+search.value = '443,';
+search.oninput();
+if (control.dataset.values !== 'alpha-one,beta-one,gamma-one,1.1.1.1,443,8000-9000') throw new Error('duplicate manual value added: ' + control.dataset.values);
+
 const remove = control.querySelector('.multiselect-chip-remove');
 remove.onclick();
-if (control.dataset.values !== 'beta-one,gamma-one') throw new Error('remove did not sync CSV: ' + control.dataset.values);
+if (control.dataset.values !== 'beta-one,gamma-one,1.1.1.1,443,8000-9000') throw new Error('remove did not sync CSV: ' + control.dataset.values);
 
 console.log('PASS object multiselect JS behavior');
 '''
