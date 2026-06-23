@@ -57,6 +57,7 @@ run_safe() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_installer_bpfilter_service.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_services_bpfilter_systemd_contract.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_installer_initial_config.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_initial_config_vmbr_transform.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_installer_dnsmasq_dhcp_only.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_interfaces_multiselect_static.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/safe/test_interfaces_object_multiselect_static.py
