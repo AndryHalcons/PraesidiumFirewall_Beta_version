@@ -3,6 +3,14 @@
       "select": {
         "ipv6-privacy":["disabled", "enabled", "preferred"]
       },
+      "object_multiselect": {
+          "addresses": [],
+          "gateway4": [],
+          "gateway6": [],
+          "nameservers.addresses": [],
+          "routes.to": [],
+          "routes.via": []
+      },
       "checkbox": {
           "dhcp4": {
             "checked":"True",
@@ -56,6 +64,14 @@
     "bridges": {
         "select": {
             "interfaces": [""]
+        },
+        "object_multiselect": {
+            "addresses": [],
+            "gateway4": [],
+            "gateway6": [],
+            "nameservers.addresses": [],
+            "routes.to": [],
+            "routes.via": []
         },
         "checkbox": {
             "dhcp4": {
@@ -119,6 +135,14 @@
           "select": {
               "link":[""]
           },
+          "object_multiselect": {
+              "addresses": [],
+              "gateway4": [],
+              "gateway6": [],
+              "nameservers.addresses": [],
+              "routes.to": [],
+              "routes.via": []
+          },
           "checkbox": {
             "dhcp4": {
               "checked":"True",
@@ -138,6 +162,14 @@
           "multiselect": {
               "interfaces":[""]
           },
+          "object_multiselect": {
+              "addresses": [],
+              "gateway4": [],
+              "gateway6": [],
+              "nameservers.addresses": [],
+              "routes.to": [],
+              "routes.via": []
+          },
           "checkbox": {
             "dhcp4": {
               "checked":"True",
@@ -154,6 +186,13 @@
       },
       "wireguard": {
           "select": {},
+          "object_multiselect": {
+              "addresses": [],
+              "peers.allowed-ips": [],
+              "routes.to": [],
+              "routes.via": [],
+              "routing-policy.from": []
+          },
           "checkbox": {},
           "not_editable": {
               "name": []
@@ -161,6 +200,14 @@
       },
       "wifis": {
           "select": {},
+          "object_multiselect": {
+              "addresses": [],
+              "gateway4": [],
+              "gateway6": [],
+              "nameservers.addresses": [],
+              "routes.to": [],
+              "routes.via": []
+          },
           "checkbox": {},
           "not_editable": {
               "name": []
@@ -168,6 +215,16 @@
       },
       "tunnels": {
           "select": {},
+          "object_multiselect": {
+              "addresses": [],
+              "gateway4": [],
+              "gateway6": [],
+              "local": [],
+              "remote": [],
+              "nameservers.addresses": [],
+              "routes.to": [],
+              "routes.via": []
+          },
           "checkbox": {},
           "not_editable": {
               "name": []
