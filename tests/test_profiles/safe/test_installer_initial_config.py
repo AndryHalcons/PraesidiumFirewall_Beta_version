@@ -142,8 +142,14 @@ if './initial_config.sh' not in installer:
     errors.append('installer.sh no ejecuta initial_config.sh')
 if installer.find('./permissions.sh') > installer.find('./initial_config.sh'):
     errors.append('initial_config.sh debe ejecutarse después de permissions.sh')
-if installer.find('./initial_config.sh') > installer.find('./install_bpfilter.sh'):
-    errors.append('initial_config.sh debe ejecutarse antes de install_bpfilter.sh')
+for previous_step in [
+    './install_bpfilter.sh',
+    './configure_bpfilter.sh',
+    './configure_logs.sh',
+    './install_squid.sh',
+]:
+    if installer.find(previous_step) > installer.find('./initial_config.sh'):
+        errors.append(f'initial_config.sh debe ejecutarse después de {previous_step}')
 
 running_template = root / 'data_running/interfaces.json'
 try:

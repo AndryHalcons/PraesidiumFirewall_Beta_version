@@ -62,12 +62,6 @@ echo "Generando permisos de ejecucion / Generating execution permissions..."
 ./permissions.sh
 echo "Instalación permissions.sh completada / Installation permissions.sh completed"
 
-# Ejecutar initial_config.sh / Run initial_config.sh
-echo "Generando configuración inicial... / Generating initial configuration..."
-./initial_config.sh
-echo "Instalación initial_config.sh completada / Installation initial_config.sh completed"
-
-
 # Ejecutar install_bpfilter.sh / Run install_bpfilter.sh
 echo "instlaando bpfilter / Installing bpfilter"
 ./install_bpfilter.sh
@@ -90,6 +84,13 @@ echo "Instalación configure_logs.sh completada / Installation configure_logs.sh
 echo "Configurando install_squid.sh / Configuring install_squid.sh"
 ./install_squid.sh
 echo "Instalación install_squid.sh completada / Installation install_squid.sh completed"
+
+
+# Ejecutar initial_config.sh al final de toda la instalación.
+# Run initial_config.sh at the end of the whole installation.
+echo "Generando configuración inicial... / Generating initial configuration..."
+./initial_config.sh
+echo "Instalación initial_config.sh completada / Installation initial_config.sh completed"
 
 
 # DHCP uses dnsmasq; Kea installer intentionally not executed.
