@@ -33,4 +33,7 @@ run_initial_config_step "Adaptando BPFilter de gestión / Adapting management BP
 run_initial_config_step "Ajustando permisos / Fixing permissions" \
     bash "${INITIAL_CONFIG_DIR}/06_fix_initial_config_permissions.sh"
 
+run_initial_config_step "Commit inicial / Initial commit" \
+    bash "${INITIAL_CONFIG_DIR}/99_commit_initial_config.sh"
+
 echo "Configuración inicial completada. / Initial configuration completed."

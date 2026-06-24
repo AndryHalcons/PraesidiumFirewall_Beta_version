@@ -33,6 +33,7 @@ expected_scripts = [
     '04_sync_running_interfaces.sh',
     '05_adapt_bpfilter_management.py',
     '06_fix_initial_config_permissions.sh',
+    '99_commit_initial_config.sh',
 ]
 
 if not initial.exists():
@@ -111,6 +112,21 @@ if perms.exists():
         errors.append('06_fix_initial_config_permissions.sh no ajusta chown')
     if 'chmod -R g+rw' not in text:
         errors.append('06_fix_initial_config_permissions.sh no ajusta chmod')
+
+initial_commit = initial_dir / '99_commit_initial_config.sh'
+if initial_commit.exists():
+    text = initial_commit.read_text(encoding='utf-8')
+    for expected in [
+        '/var/www/backend/commits/commit_apply.py',
+        'PRAESIDIUM_INITIAL_COMMIT_USER',
+        'initial_config',
+        'date -u +%Y%m%d%H%M%S%3N',
+        'python3 "$COMMIT_APPLY" "$COMMIT_PAYLOAD"',
+        'chown -R :www-data',
+        'chmod -R g+rw',
+    ]:
+        if expected not in text:
+            errors.append(f'99_commit_initial_config.sh falta: {expected}')
 
 if 'chmod +x initial_config.sh' not in installer:
     errors.append('installer.sh no da permisos de ejecución a initial_config.sh')
