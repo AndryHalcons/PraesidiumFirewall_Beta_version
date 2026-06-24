@@ -174,38 +174,6 @@
       "access-points.<SSID>.channel"
     ],
 
-    "tunnels": [
-      "name",
-      "mode",
-      "local",
-      "remote",
-      "addresses",
-      "gateway4",
-      "gateway6",
-      "mtu",
-      "macaddress",
-      "nameservers.addresses",
-      "nameservers.search",
-      "optional",
-      "accept-ra",
-      "wakeonlan",
-      "routes.to",
-      "routes.via",
-      "routes.metric",
-      "ipv6-privacy",
-      "dhcp4-overrides.use-dns",
-      "dhcp4-overrides.use-routes",
-      "dhcp4-overrides.send-hostname",
-      "dhcp4-overrides.hostname",
-      "dhcp4-overrides.use-hostname",
-      "dhcp6-overrides.use-dns",
-      "dhcp6-overrides.use-routes",
-      "match.name",
-      "match.macaddress",
-      "match.driver",
-      "set-name"
-    ],
-
     "wireguard": [
       "name",
       "addresses",

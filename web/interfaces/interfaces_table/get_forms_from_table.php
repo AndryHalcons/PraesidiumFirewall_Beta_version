@@ -8,7 +8,7 @@ if (empty($_SESSION['username'])) {
 }
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis', 'tunnels'];
+$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro "table" inválido']);
@@ -23,7 +23,6 @@ switch ($chain) {
     case 'wireguard':  get_wireguard_form(); break;
     case 'vlans':      get_vlans_form(); break;
     case 'wifis':      get_wifis_form(); break;
-    case 'tunnels':    get_tunnels_form(); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
@@ -320,21 +319,3 @@ function get_wifis_form() {
 
 }
 
-function get_tunnels_form() {
-    $path = '/var/www/backend/checks/system_data/default_forms/forms_interfaces.json';
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        echo json_encode(['error' => 'No se pudo leer el archivo de configuración']);
-        return;
-    }
-
-    $json = json_decode($raw, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['tunnels'])) {
-        echo json_encode(['error' => 'Error al interpretar los datos de tunnels']);
-        return;
-    }
-
-    populate_interface_object_multiselect_options($json['tunnels']);
-    echo json_encode($json['tunnels'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-}

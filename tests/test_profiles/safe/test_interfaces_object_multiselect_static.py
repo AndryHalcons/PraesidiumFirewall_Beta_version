@@ -20,7 +20,6 @@ expected = {
     "bridges": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
     "vlans": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
     "wifis": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
-    "tunnels": {"addresses", "gateway4", "gateway6", "local", "remote", "nameservers.addresses", "routes.to", "routes.via"},
     "wireguard": {"addresses", "peers.allowed-ips", "routes.to", "routes.via", "routing-policy.from"},
 }
 

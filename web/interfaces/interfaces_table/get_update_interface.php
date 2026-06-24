@@ -16,7 +16,7 @@ if (empty($_SESSION['username'])) {
 $input = json_decode(file_get_contents('php://input'), true);
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? $input['table'] ?? $input['chain'] ?? '');
 
-$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis', 'tunnels'];
+$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro inválido o ausente']);
@@ -31,7 +31,6 @@ switch ($chain) {
     case 'wireguard': get_wireguard($chain); break;
     case 'vlans': get_vlans($chain); break;
     case 'wifis': get_wifis($chain); break;
-    case 'tunnels': get_tunnels($chain); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
@@ -403,68 +402,6 @@ function get_wifis($chain) {
     // Actualizar o añadir la interfaz en la sección 'wifis'
     // Update or add the interface in the 'wifis' section
     $json['network']['wifis'][$name] = $rule;
-
-    // Guardar el archivo actualizado
-    // Save the updated file
-    $saved = json_store_write($path, $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    if ($saved === false) {
-        echo json_encode(['error' => 'No se pudo guardar el archivo']); // Could not save the file
-        return;
-    }
-
-    // Confirmar éxito
-    // Confirm success
-    echo json_encode(['success' => true, 'updated' => $name]);
-}
-
-function get_tunnels($chain) {
-    $path = '/var/www/config/interfaces.json';
-
-    // Leer el archivo JSON actual
-    // Read the current JSON file
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        echo json_encode(['error' => 'No se pudo leer el archivo']); // Could not read the file
-        return;
-    }
-
-    // Decodificar el contenido JSON
-    // Decode the JSON content
-    $json = json_decode($raw, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['network']['tunnels'])) {
-        echo json_encode(['error' => 'Error al interpretar el JSON']); // Error parsing the JSON
-        return;
-    }
-
-    // Leer los datos enviados por POST
-    // Read the data sent via POST
-    $input = json_decode(file_get_contents('php://input'), true);
-    $rule = $input['rule'] ?? null;
-
-
-    ////////////////////////////////////////////////////////////////////
-    /////////////////validate and convert alias/////////////////////////
-    ////////////////////////////////////////////////////////////////////
-    require __DIR__ . '/validation_interface.php';
-    $rule = Main_convert_alias_object_to_network_object($rule);
-    validation_form_field_review($rule, $chain);
-    $rule = check_create_Name($rule, $chain);
-
-    // Validar que la entrada tenga el campo 'name'
-    // Validate that the input contains the 'name' field
-    if (!is_array($rule) || empty($rule['name'])) {
-        echo json_encode(['error' => 'Datos inválidos']); // Invalid data
-        return;
-    }
-
-    // Extraer el nombre de la interfaz y eliminarlo del array
-    // Extract the interface name and remove it from the array
-    $name = $rule['name'];
-    unset($rule['name']);
-
-    // Actualizar o añadir la interfaz en la sección 'tunnels'
-    // Update or add the interface in the 'tunnels' section
-    $json['network']['tunnels'][$name] = $rule;
 
     // Guardar el archivo actualizado
     // Save the updated file

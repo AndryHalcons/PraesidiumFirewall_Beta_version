@@ -44,7 +44,7 @@ def iface_compare_and_write(system_ifaces, iface_json):
 
     # Lista de todas las subsecciones que deben existir
     # List of all required subsections
-    required_sections = ["ethernets", "wifis", "bonds", "bridges", "vlans", "tunnels", "wireguard"]
+    required_sections = ["ethernets", "wifis", "bonds", "bridges", "vlans", "wireguard"]
 
     # Creamos cualquier subsección que falte
     # Create any missing subsection

@@ -51,7 +51,6 @@ try:
             'vlans': {},
             'bonds': {},
             'wifis': {},
-            'tunnels': {},
             'wireguard': {},
         }
     }

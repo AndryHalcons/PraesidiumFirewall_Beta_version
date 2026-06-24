@@ -212,22 +212,5 @@
           "not_editable": {
               "name": []
           }
-      },
-      "tunnels": {
-          "select": {},
-          "object_multiselect": {
-              "addresses": [],
-              "gateway4": [],
-              "gateway6": [],
-              "local": [],
-              "remote": [],
-              "nameservers.addresses": [],
-              "routes.to": [],
-              "routes.via": []
-          },
-          "checkbox": {},
-          "not_editable": {
-              "name": []
-          }
       }
 } 

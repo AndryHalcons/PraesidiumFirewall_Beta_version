@@ -157,7 +157,7 @@ try:
     network = data.get('network', {})
     if network.get('version') != '2':
         errors.append('data_running/interfaces.json debe mantener network.version=2')
-    for section in ['ethernets', 'wifis', 'bonds', 'bridges', 'vlans', 'tunnels', 'wireguard']:
+    for section in ['ethernets', 'wifis', 'bonds', 'bridges', 'vlans', 'wireguard']:
         if network.get(section) != {}:
             errors.append(f'data_running/interfaces.json debe arrancar vacío en {section}')
 except Exception as exc:

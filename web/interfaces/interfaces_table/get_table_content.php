@@ -8,7 +8,7 @@ if (empty($_SESSION['username'])) {
 }
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
-$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis', 'tunnels'];
+$allowedChains = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis'];
 
 if ($chain === '' || !in_array($chain, $allowedChains, true)) {
     echo json_encode(['error' => 'Parámetro inválido o ausente']);
@@ -23,7 +23,6 @@ switch ($chain) {
     case 'wireguard': get_wireguard(); break;
     case 'vlans': get_vlans(); break;
     case 'wifis': get_wifis(); break;
-    case 'tunnels': get_tunnels(); break;
     default:
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
@@ -161,22 +160,3 @@ function get_wireguard() {
 }
 
 
-function get_tunnels() {
-    $structure = @json_decode(@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_interfaces.json'), true);
-    $columns = $structure['tunnels'] ?? [];
-
-    $data = @json_decode(@file_get_contents('/var/www/config/interfaces.json'), true);
-    $block = $data['network']['tunnels'] ?? [];
-
-    $result = [];
-    foreach ($block as $name => $entry) {
-        $entry['name'] = $name;
-        $flat = [];
-        foreach ($columns as $col) {
-            $flat[$col] = $entry[$col] ?? "";
-        }
-        $result[] = $flat;
-    }
-
-    echo json_encode(['tunnels' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}

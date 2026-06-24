@@ -8,7 +8,7 @@ if (empty($_SESSION['username'])) {
 }
 
 $table = trim($_GET['table'] ?? '');
-$allowedTables = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis', 'tunnels'];
+$allowedTables = ['bonds', 'bridges', 'ethernets', 'wireguard', 'vlans', 'wifis'];
 
 if ($table === '' || !in_array($table, $allowedTables, true)) {
     echo json_encode(['error' => 'mi mensaje de errore es este mierda de parametro']);
@@ -23,7 +23,6 @@ switch ($table) {
     case 'wireguard': get_wireguard(); break;
     case 'vlans': get_vlans(); break;
     case 'wifis': get_wifis(); break;
-    case 'tunnels': get_tunnels(); break;
     default:
         echo json_encode(['error' => 'Tabla no soportada']);
         break;
@@ -109,15 +108,3 @@ function get_wifis() {
     echo json_encode(['wifis' => $json['wifis']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
-function get_tunnels() {
-    $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_interfaces.json';
-    $raw = file_get_contents($path);
-    $json = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($json['tunnels'])) {
-        echo json_encode(['error' => 'Error al cargar o interpretar la estructura de tunnels']);
-        return;
-    }
-
-    echo json_encode(['tunnels' => $json['tunnels']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}

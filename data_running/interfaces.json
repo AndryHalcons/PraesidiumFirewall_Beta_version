@@ -6,7 +6,6 @@
         "bonds": {},
         "bridges": {},
         "vlans": {},
-        "tunnels": {},
         "wireguard": {}
     }
 }

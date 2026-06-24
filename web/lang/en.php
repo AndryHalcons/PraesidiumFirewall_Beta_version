@@ -30,7 +30,6 @@ return [
     'sidebar_bridges'       => 'Bridges',
     'sidebar_vlans'         => 'VLANs',
     'sidebar_bonds'         => 'Bonds',
-    'sidebar_tunnels'       => 'Tunnels',
     'sidebar_wireguard'     => 'WireGuard',
     'sidebar_wifis'         => 'Wi-Fi',
     'sidebar_rules'         => 'Policies',

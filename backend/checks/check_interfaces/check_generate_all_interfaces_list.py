@@ -30,7 +30,6 @@ def classify_interfaces(interfaces):
         "bonds":     [i for i in interfaces if i.startswith("bond")],
         "wireguard": [i for i in interfaces if i.startswith("wg")],
         "wifis":     [i for i in interfaces if i.startswith(("wl", "ath"))],
-        "tunnels":   [i for i in interfaces if i.startswith(("tun", "tap"))],
     }
 
 def save_interfaces_to_json(path, interfaces, categories):

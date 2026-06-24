@@ -463,7 +463,6 @@ function check_create_Name(array $rule, string $chain): array {
             'wireguard'  => 'wg',
             'vlans'      => 'vlan',
             'wifis'      => 'wlan',
-            'tunnels'    => 'tun'
         ];
 
         // Verifica que el tipo de interfaz tenga un prefijo definido
