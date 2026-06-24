@@ -44,9 +44,9 @@ def start_commit_process(user, date):
     # Generate the bpfilter rules: verifies, flushes, and then applies.
     gen_bpfilter_policies(user, date)
 
-    # Genera las reglas de squid, verifica, limpia y aplica.
-    # Generates Squid rules, copies certificates, and verifies
-    gen_squid_config(user, date)
+    # Squid queda aislado temporalmente del commit inicial hasta corregir su flujo de certificados.
+    # Squid is temporarily isolated from commit/apply until its certificate flow is corrected.
+    # gen_squid_config(user, date)
 
     # Genera la configuración DHCP/dnsmasq
     # Generate DHCP/dnsmasq configuration
@@ -76,9 +76,9 @@ def start_commit_process(user, date):
     #apply the rules of bpfilter,
     apply_bpfilter_policies(user,date)
 
-    #aplica las reglas de squid,
-    #apply the rules of squid,
-    apply_squid_config(user,date)
+    # Squid queda aislado temporalmente del commit/apply hasta corregir su flujo de certificados.
+    # Squid is temporarily isolated from commit/apply until its certificate flow is corrected.
+    # apply_squid_config(user,date)
 
     # aplica la configuración DHCP/dnsmasq
     # apply DHCP/dnsmasq configuration
