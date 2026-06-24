@@ -6,10 +6,12 @@ La transformación es idempotente:
 - no duplica bridges si una ethernet ya pertenece a un bridge existente;
 - conserva bridges existentes;
 - mueve la configuración IP/rutas/DNS/DHCP de la ethernet al bridge;
-- deja la ethernet como puerto físico limpio del bridge.
+- conserva campos físicos como match.* y set-name en la ethernet;
+- deja la ethernet como puerto físico del bridge sin configuración L3.
 """
 from __future__ import annotations
 
+import ast
 import json
 import os
 from pathlib import Path
@@ -93,6 +95,54 @@ def vmbr_name_for_index(index: int, bridges: dict[str, Any], reserved: set[str])
         candidate_index += 1
 
 
+def normalize_routes(config: dict[str, Any]) -> None:
+    # Normaliza rutas heredadas del conversor Netplan inicial.
+    # Normalize routes inherited from the initial Netplan-to-JSON converter.
+    raw_routes = config.pop('routes', None)
+    if not raw_routes or config.get('routes.to') or config.get('routes.via'):
+        return
+
+    parsed: Any = None
+    if isinstance(raw_routes, dict):
+        parsed = raw_routes
+    elif isinstance(raw_routes, list) and raw_routes:
+        parsed = raw_routes[0]
+    elif isinstance(raw_routes, str):
+        try:
+            parsed = ast.literal_eval(raw_routes)
+        except Exception:
+            parsed = None
+
+    if isinstance(parsed, list) and parsed:
+        parsed = parsed[0]
+    if not isinstance(parsed, dict):
+        return
+
+    route_to = parsed.get('to')
+    route_via = parsed.get('via')
+    if route_to and route_via:
+        config['routes.to'] = str(route_to)
+        config['routes.via'] = str(route_via)
+    if parsed.get('metric') not in (None, ''):
+        config['routes.metric'] = str(parsed['metric'])
+
+
+def split_ethernet_for_bridge(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    # Separa campos físicos de campos que deben vivir en el bridge.
+    # Split physical-interface fields from fields that should live on the bridge.
+    physical_config: dict[str, Any] = {}
+    bridge_config: dict[str, Any] = {}
+
+    for key, value in config.items():
+        if key.startswith('match.') or key == 'set-name':
+            physical_config[key] = value
+        else:
+            bridge_config[key] = value
+
+    normalize_routes(bridge_config)
+    return physical_config, bridge_config
+
+
 def transform(data: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
     network = data.setdefault('network', {})
     network.setdefault('version', '2')
@@ -116,10 +166,10 @@ def transform(data: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
             continue
 
         bridge_name = vmbr_name_for_index(index, bridges, reserved_bridges)
-        bridge_config = dict(ethernet_config)
+        physical_config, bridge_config = split_ethernet_for_bridge(ethernet_config)
         bridge_config['interfaces'] = ethernet_name
         bridges[bridge_name] = bridge_config
-        ethernets[ethernet_name] = {}
+        ethernets[ethernet_name] = physical_config
         mapping[ethernet_name] = bridge_name
 
     return data, mapping

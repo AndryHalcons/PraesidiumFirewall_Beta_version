@@ -76,7 +76,15 @@ if validate.exists():
 vmbr = initial_dir / '03_generate_vmbr_bridges.py'
 if vmbr.exists():
     text = vmbr.read_text(encoding='utf-8')
-    for expected in ['vmbr_bridge_map.json', 'ethernet_to_bridge', "bridge_config['interfaces'] = ethernet_name", "ethernets[ethernet_name] = {}"]:
+    for expected in [
+        'vmbr_bridge_map.json',
+        'ethernet_to_bridge',
+        "bridge_config['interfaces'] = ethernet_name",
+        'split_ethernet_for_bridge',
+        "key.startswith('match.') or key == 'set-name'",
+        'normalize_routes',
+        "ethernets[ethernet_name] = physical_config",
+    ]:
         if expected not in text:
             errors.append(f'03_generate_vmbr_bridges.py falta contrato: {expected}')
 

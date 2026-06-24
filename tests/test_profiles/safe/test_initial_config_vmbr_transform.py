@@ -38,6 +38,9 @@ try:
                     'addresses': '192.168.10.2/24',
                     'gateway4': '192.168.10.1',
                     'nameservers.addresses': '1.1.1.1,8.8.8.8',
+                    'match.macaddress': 'aa:bb:cc:dd:ee:ff',
+                    'set-name': 'ens18',
+                    'routes': "{'to': 'default', 'via': '192.168.10.1', 'metric': 100}",
                 },
                 'ens19': {
                     'dhcp4': 'False',
@@ -56,8 +59,10 @@ try:
     net = transformed['network']
     if mapping != {'ens18': 'vmbr0', 'ens19': 'vmbr1'}:
         errors.append(f'mapping inesperado: {mapping}')
-    if net['ethernets']['ens18'] != {} or net['ethernets']['ens19'] != {}:
-        errors.append('las ethernets no quedaron limpias')
+    if net['ethernets']['ens18'] != {'match.macaddress': 'aa:bb:cc:dd:ee:ff', 'set-name': 'ens18'}:
+        errors.append(f"ens18 no conservó solo campos físicos: {net['ethernets']['ens18']}")
+    if net['ethernets']['ens19'] != {}:
+        errors.append('ens19 no quedó limpia')
     if net['bridges']['vmbr0'].get('interfaces') != 'ens18':
         errors.append('vmbr0 no referencia ens18')
     if net['bridges']['vmbr0'].get('addresses') != '192.168.10.2/24':
@@ -66,6 +71,34 @@ try:
         errors.append('vmbr0 no preserva gateway4')
     if net['bridges']['vmbr1'].get('mtu') != '9000':
         errors.append('vmbr1 no preserva mtu')
+    if 'match.macaddress' in net['bridges']['vmbr0'] or 'set-name' in net['bridges']['vmbr0']:
+        errors.append('vmbr0 contiene campos físicos inválidos para bridge')
+    if net['bridges']['vmbr0'].get('routes.to') != 'default':
+        errors.append('vmbr0 no normaliza routes.to')
+    if net['bridges']['vmbr0'].get('routes.via') != '192.168.10.1':
+        errors.append('vmbr0 no normaliza routes.via')
+    if net['bridges']['vmbr0'].get('routes.metric') != '100':
+        errors.append('vmbr0 no normaliza routes.metric')
+    if 'routes' in net['bridges']['vmbr0']:
+        errors.append('vmbr0 conserva routes raw en vez de routes.to/routes.via')
+
+    gen_script = root / 'backend/commits/commit_task/task_gen_interface_config.py'
+    sys.path.insert(0, str(gen_script.parent))
+    spec_gen = importlib.util.spec_from_file_location('task_gen_interface_config', gen_script)
+    gen = importlib.util.module_from_spec(spec_gen)
+    assert spec_gen and spec_gen.loader
+    spec_gen.loader.exec_module(gen)
+    netplan = gen.convert(transformed)
+    eth0_config = netplan['network']['ethernets']['ens18']
+    vmbr0_config = netplan['network']['bridges']['vmbr0']
+    if eth0_config.get('match', {}).get('macaddress') != 'aa:bb:cc:dd:ee:ff':
+        errors.append('Netplan no conserva match.macaddress en ethernet física')
+    if eth0_config.get('set-name') != 'ens18':
+        errors.append('Netplan no conserva set-name en ethernet física')
+    if 'match' in vmbr0_config or 'set-name' in vmbr0_config:
+        errors.append('Netplan generado contiene match/set-name dentro del bridge')
+    if vmbr0_config.get('routes') != [{'to': 'default', 'via': '192.168.10.1', 'metric': 100}]:
+        errors.append(f"Netplan no preserva ruta default en bridge: {vmbr0_config.get('routes')}")
 
     second, second_mapping = mod.transform(json.loads(json.dumps(transformed)))
     if second != transformed:
@@ -100,6 +133,10 @@ try:
             written_mapping = json.loads(mapping_path.read_text(encoding='utf-8'))
             if written['network']['bridges']['vmbr0']['interfaces'] != 'ens18':
                 errors.append('main() no escribió vmbr0')
+            if 'match.macaddress' in written['network']['bridges']['vmbr0']:
+                errors.append('main() escribió match.macaddress en bridge')
+            if written['network']['bridges']['vmbr0'].get('routes.via') != '192.168.10.1':
+                errors.append('main() no preservó ruta default normalizada')
             if written_mapping.get('ethernet_to_bridge') != {'ens18': 'vmbr0', 'ens19': 'vmbr1'}:
                 errors.append('main() no escribió mapping correcto')
         finally:
