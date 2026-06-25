@@ -158,7 +158,12 @@
           }
       },
       "bonds": {
-          "select": {},
+          "select": {
+              "parameters.mode": ["", "balance-rr", "active-backup", "balance-xor", "broadcast", "802.3ad", "balance-tlb", "balance-alb"],
+              "parameters.lacp-rate": ["", "slow", "fast"],
+              "parameters.transmit-hash-policy": ["", "layer2", "layer3+4", "layer2+3", "encap2+3", "encap3+4"],
+              "ipv6-privacy": ["", "true", "false"]
+          },
           "multiselect": {
               "interfaces":[""]
           },

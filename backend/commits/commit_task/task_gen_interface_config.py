@@ -103,8 +103,8 @@ def parser_bonds(data, netplan):
             bond["accept-ra"] = True
         if config.get("wakeonlan", "false").lower() == "true":
             bond["wakeonlan"] = True
-        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
-            bond["ipv6-privacy"] = config["ipv6-privacy"]
+        if config.get("ipv6-privacy") in ["true", "false"]:
+            bond["ipv6-privacy"] = config["ipv6-privacy"].lower() == "true"
 
         # Rutas  
         # Routes

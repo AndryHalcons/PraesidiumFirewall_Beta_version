@@ -4,11 +4,11 @@ Test: test_interfaces_multiselect_static.py
 
 Objetivo:
     Proteger el soporte opt-in de campos multiselect en la tabla genérica.
-    Asegurar que Bonds usa multiselect para interfaces sin cambiar los select existentes.
+    Asegurar que Bonds usa multiselect para interfaces y selects acotados para parámetros de bond.
 
 Objective:
     Protect opt-in multiselect field support in the generic table.
-    Ensure Bonds uses multiselect for interfaces without changing existing select fields.
+    Ensure Bonds uses multiselect for interfaces and bounded selects for bond parameters.
 """
 import json
 from pathlib import Path
@@ -27,7 +27,14 @@ assert "function genericReadMultiSelectControl" in generic_js
 assert "formConfig?.multiselect?.[key]" in generic_js
 assert "genericIsMultiSelectField(formConfig, key)" in generic_js
 
-assert forms["bonds"].get("select", {}) == {}
+expected_bond_selects = {
+    "parameters.mode": ["", "balance-rr", "active-backup", "balance-xor", "broadcast", "802.3ad", "balance-tlb", "balance-alb"],
+    "parameters.lacp-rate": ["", "slow", "fast"],
+    "parameters.transmit-hash-policy": ["", "layer2", "layer3+4", "layer2+3", "encap2+3", "encap3+4"],
+    "ipv6-privacy": ["", "true", "false"],
+}
+assert forms["bonds"].get("select", {}) == expected_bond_selects
+assert all(values[0] == "" for values in forms["bonds"]["select"].values())
 assert forms["bonds"]["multiselect"]["interfaces"] == [""]
 assert '$json["bonds"]["multiselect"]["interfaces"]' in forms_php
 assert "validation_form_field_review(array $rule, ?string $chain = null)" in validation_php
