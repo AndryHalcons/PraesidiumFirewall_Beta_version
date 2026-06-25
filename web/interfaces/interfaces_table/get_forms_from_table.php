@@ -237,38 +237,38 @@ function get_vlans_form() {
         return;
     }
 
-    // Ruta del archivo con la lista de interfaces clasificadas
-    // Path to the file containing the classified interface list
-    $ifacePath = '/var/www/backend/checks/system_data/data_interfaces/all_interfaces_list.json';
+    // Ruta del archivo candidate de interfaces gestionado por Praesidium.
+    // Path to the Praesidium-managed candidate interfaces file.
+    $ifacePath = '/var/www/config/interfaces.json';
     if (file_exists($ifacePath)) {
-        // Leer el archivo de interfaces
-        // Read the interface file
+        // Leer candidate, no runtime: VLAN debe poder enlazar con bonds creados en el mismo commit.
+        // Read candidate, not runtime: VLAN must link to bonds created in the same commit.
         $ifaceRaw = file_get_contents($ifacePath);
         $ifaceData = json_decode($ifaceRaw, true);
 
-        if (json_last_error() === JSON_ERROR_NONE) {
-            // Inicializar lista de interfaces válidas para VLANs (bonds + bridges)
-            // Initialize list of valid interfaces for VLANs (bonds + bridges)
+        if (json_last_error() === JSON_ERROR_NONE && isset($ifaceData["network"])) {
+            // Inicializar links válidos para VLANs desde la intención candidate (ethernets + bonds).
+            // Initialize valid VLAN links from candidate intent (ethernets + bonds).
             $links = [];
 
-            if (isset($ifaceData["bonds"])) {
-                // Añadir interfaces Bond
-                // Add Bond interfaces
-                $links = array_merge($links, $ifaceData["bonds"]);
+            if (isset($ifaceData["network"]["ethernets"]) && is_array($ifaceData["network"]["ethernets"])) {
+                // Añadir interfaces Ethernet definidas en candidate.
+                // Add Ethernet interfaces defined in candidate.
+                $links = array_merge($links, array_keys($ifaceData["network"]["ethernets"]));
             }
-            if (isset($ifaceData["bridge"])) {
-                // Añadir interfaces Bridge
-                // Add Bridge interfaces
-                $links = array_merge($links, $ifaceData["bridge"]);
+            if (isset($ifaceData["network"]["bonds"]) && is_array($ifaceData["network"]["bonds"])) {
+                // Añadir interfaces Bond definidas en candidate, aunque aún no existan en runtime.
+                // Add Bond interfaces defined in candidate, even if they do not exist in runtime yet.
+                $links = array_merge($links, array_keys($ifaceData["network"]["bonds"]));
             }
 
-            // Insertar las interfaces en el campo select.link del formulario
-            // Insert interfaces into the form's select.link field
+            // Insertar links deduplicados en select.link preservando la opción vacía inicial.
+            // Insert deduplicated links into select.link while preserving the initial empty option.
             if (isset($json["vlans"]["select"]["link"])) {
-                $json["vlans"]["select"]["link"] = array_merge(
+                $json["vlans"]["select"]["link"] = array_values(array_unique(array_merge(
                     $json["vlans"]["select"]["link"],
                     $links
-                );
+                )));
             }
         }
     }

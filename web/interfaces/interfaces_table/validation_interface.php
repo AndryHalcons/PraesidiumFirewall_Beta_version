@@ -82,6 +82,27 @@ function import_config_interfaces_json() {
 }
 
 
+function import_candidate_vlan_links(): array {
+    // Carga links válidos desde candidate para permitir dependencias en el mismo commit.
+    // Load valid links from candidate to allow same-commit dependencies.
+    $config = import_config_interfaces_json();
+    if (!$config || !isset($config['network']) || !is_array($config['network'])) {
+        return [];
+    }
+
+    // VLAN link debe aceptar físicas y bonds definidos por Praesidium en candidate.
+    // VLAN link should accept physical interfaces and bonds defined by Praesidium in candidate.
+    $links = [];
+    foreach (['ethernets', 'bonds'] as $section) {
+        if (isset($config['network'][$section]) && is_array($config['network'][$section])) {
+            $links = array_merge($links, array_keys($config['network'][$section]));
+        }
+    }
+
+    return array_values(array_unique(array_filter($links, 'strlen')));
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +128,14 @@ function validation_form_field_review(array $rule, ?string $chain = null): void 
         $formConfig['select']['interfaces'] = array_merge($formConfig['select']['interfaces'], $interfaces);
     }
     if (isset($formConfig['select']['link'])) {
-        $formConfig['select']['link'] = array_merge($formConfig['select']['link'], $interfaces);
+        // Para VLAN link se añaden también físicas/bonds de candidate, no solo runtime.
+        // For VLAN link, also add candidate physical interfaces/bonds, not only runtime.
+        $candidateLinks = import_candidate_vlan_links();
+        $formConfig['select']['link'] = array_values(array_unique(array_merge(
+            $formConfig['select']['link'],
+            $interfaces,
+            $candidateLinks
+        )));
     }
     if (isset($formConfig['multiselect']['interfaces'])) {
         $formConfig['multiselect']['interfaces'] = array_merge($formConfig['multiselect']['interfaces'], $interfaces);
