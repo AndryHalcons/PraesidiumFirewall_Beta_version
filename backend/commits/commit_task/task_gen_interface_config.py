@@ -719,6 +719,10 @@ def parser_vlans(data, netplan):
 # Processes wifi-type interfaces and adds them to the Netplan object  
 def parser_wifis(data, netplan):
     for name, config in data.items():
+        # Normaliza entradas Wi-Fi vacías heredadas como [] para evitar fallos al generar Netplan.
+        # Normalize legacy empty Wi-Fi entries stored as [] to avoid Netplan generation failures.
+        if not isinstance(config, dict):
+            config = {}
         wifi = {}
 
         # Configura DHCP  
@@ -733,12 +737,10 @@ def parser_wifis(data, netplan):
         if config.get("addresses"):
             wifi["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace  
-        # Gateways  
-        if config.get("gateway4"):
-            wifi["gateway4"] = config["gateway4"]
-        if config.get("gateway6"):
-            wifi["gateway6"] = config["gateway6"]
+        # Las puertas de enlace gateway4/gateway6 están deprecated en Netplan.
+        # The gateway4/gateway6 keys are deprecated in Netplan.
+        # No se emiten aquí; si existen valores heredados, se migran a rutas default más abajo.
+        # They are not emitted here; legacy values are migrated to default routes below.
 
         # MTU  
         # MTU  
@@ -775,11 +777,17 @@ def parser_wifis(data, netplan):
             wifi["accept-ra"] = True
         if config.get("wakeonlan", "false").lower() == "true":
             wifi["wakeonlan"] = True
-        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
-            wifi["ipv6-privacy"] = config["ipv6-privacy"]
+        # Netplan espera ipv6-privacy como booleano; la WebGUI lo guarda como texto "true"/"false".
+        # Netplan expects ipv6-privacy as a boolean; the WebGUI stores it as text "true"/"false".
+        ipv6_privacy = str(config.get("ipv6-privacy", "")).lower()
+        if ipv6_privacy in ["true", "enabled", "preferred"]:
+            wifi["ipv6-privacy"] = True
+        elif ipv6_privacy in ["false", "disabled"]:
+            wifi["ipv6-privacy"] = False
 
         # Rutas  
         # Routes
+        routes = []
         if config.get("routes.to") and config.get("routes.via"):
             route = {"to": config["routes.to"], "via": config["routes.via"]}
             if config.get("routes.metric"):
@@ -787,7 +795,33 @@ def parser_wifis(data, netplan):
                     route["metric"] = int(config["routes.metric"])
                 except ValueError:
                     pass
-            wifi["routes"] = [route]
+            routes.append(route)
+
+        # Migra rutas heredadas guardadas como string/dict/list bajo "routes".
+        # Migrate legacy routes stored as string/dict/list under "routes".
+        if not routes and config.get("routes"):
+            legacy_routes = config.get("routes")
+            if isinstance(legacy_routes, str):
+                try:
+                    legacy_routes = ast.literal_eval(legacy_routes)
+                except (ValueError, SyntaxError):
+                    legacy_routes = None
+            if isinstance(legacy_routes, dict) and legacy_routes.get("to") and legacy_routes.get("via"):
+                routes.append({"to": legacy_routes["to"], "via": legacy_routes["via"]})
+            elif isinstance(legacy_routes, list):
+                for legacy_route in legacy_routes:
+                    if isinstance(legacy_route, dict) and legacy_route.get("to") and legacy_route.get("via"):
+                        routes.append({"to": legacy_route["to"], "via": legacy_route["via"]})
+
+        # Migra valores heredados gateway4/gateway6 a rutas default para no emitir claves deprecated.
+        # Migrate legacy gateway4/gateway6 values to default routes to avoid emitting deprecated keys.
+        if not routes:
+            if config.get("gateway4"):
+                routes.append({"to": "default", "via": config["gateway4"]})
+            if config.get("gateway6"):
+                routes.append({"to": "default", "via": config["gateway6"]})
+        if routes:
+            wifi["routes"] = routes
 
         # Overrides DHCPv4  
         # DHCPv4 overrides
@@ -811,20 +845,10 @@ def parser_wifis(data, netplan):
         if dhcp6_overrides:
             wifi["dhcp6-overrides"] = dhcp6_overrides
 
-        # Bloque match  
-        # Match block
-        match = {}
-        for key in ["name", "macaddress", "driver"]:
-            full_key = f"match.{key}"
-            if config.get(full_key):
-                match[key] = config[full_key]
-        if match:
-            wifi["match"] = match
-
-        # set-name  
-        # Set-name
-        if config.get("set-name"):
-            wifi["set-name"] = config["set-name"]
+        # En Praesidium se usa el backend networkd; Netplan no acepta match.* en wifis con networkd.
+        # Praesidium uses the networkd backend; Netplan does not accept match.* on wifis with networkd.
+        # set-name depende de match.*, así que tampoco se emite para evitar YAML inválido.
+        # set-name depends on match.*, so it is not emitted either to avoid invalid YAML.
 
         # Puntos de acceso WiFi  
         # WiFi access points  

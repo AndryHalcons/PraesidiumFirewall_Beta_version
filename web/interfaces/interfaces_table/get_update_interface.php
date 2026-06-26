@@ -386,6 +386,9 @@ function get_wifis($chain) {
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
     validation_form_field_review($rule, $chain);
+    // Genera nombre automático para Wi-Fi cuando la WebGUI envía "Nombre Auto" sin campo name.
+    // Generate an automatic Wi-Fi name when the WebGUI sends "Auto Name" without a name field.
+    $rule = check_create_Name($rule, $chain);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field
