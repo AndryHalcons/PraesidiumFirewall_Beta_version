@@ -158,8 +158,6 @@
           },
           "object_multiselect": {
               "addresses": [],
-              "gateway4": [],
-              "gateway6": [],
               "nameservers.addresses": [],
               "routes.to": [],
               "routes.via": []
