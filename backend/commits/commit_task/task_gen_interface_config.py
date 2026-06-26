@@ -428,6 +428,22 @@ def parser_ethernets(data, netplan):
                     pass
             routes.append(route)
 
+        # Migra rutas heredadas guardadas como string/dict/list bajo "routes".
+        # Migrate legacy routes stored as string/dict/list under "routes".
+        if not routes and config.get("routes"):
+            legacy_routes = config.get("routes")
+            if isinstance(legacy_routes, str):
+                try:
+                    legacy_routes = ast.literal_eval(legacy_routes)
+                except (ValueError, SyntaxError):
+                    legacy_routes = None
+            if isinstance(legacy_routes, dict) and legacy_routes.get("to") and legacy_routes.get("via"):
+                routes.append({"to": legacy_routes["to"], "via": legacy_routes["via"]})
+            elif isinstance(legacy_routes, list):
+                for legacy_route in legacy_routes:
+                    if isinstance(legacy_route, dict) and legacy_route.get("to") and legacy_route.get("via"):
+                        routes.append({"to": legacy_route["to"], "via": legacy_route["via"]})
+
         # Migra valores heredados gateway4/gateway6 a rutas default para no emitir claves deprecated.
         # Migrate legacy gateway4/gateway6 values to default routes to avoid emitting deprecated keys.
         if not routes:
