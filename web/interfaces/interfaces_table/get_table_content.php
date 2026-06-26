@@ -31,6 +31,59 @@ switch ($chain) {
 // Funciones autónomas por tipo
 
 
+// Expone rutas heredadas guardadas bajo "routes" como columnas planas routes.to/routes.via.
+// Expose legacy routes stored under "routes" as flat routes.to/routes.via columns.
+function normalize_legacy_routes_for_table(array $entry): array {
+    if ((!empty($entry['routes.to']) && !empty($entry['routes.via'])) || empty($entry['routes'])) {
+        return $entry;
+    }
+
+    $routes = $entry['routes'];
+
+    // Algunos candidates antiguos guardan routes como string tipo "{'to':'default','via':'1.2.3.4'}".
+    // Some old candidates store routes as a string like "{'to':'default','via':'1.2.3.4'}".
+    if (is_string($routes)) {
+        $candidate = json_decode($routes, true);
+        if (!is_array($candidate)) {
+            $candidate = json_decode(str_replace("'", '"', $routes), true);
+        }
+        $routes = is_array($candidate) ? $candidate : null;
+    }
+
+    if (!is_array($routes)) {
+        return $entry;
+    }
+
+    // Acepta tanto {to,via} como [{to,via}, ...]; la WebGUI actual solo muestra una ruta plana.
+    // Accept both {to,via} and [{to,via}, ...]; the current WebGUI only displays one flat route.
+    $route = null;
+    if (isset($routes['to']) || isset($routes['via'])) {
+        $route = $routes;
+    } else {
+        foreach ($routes as $item) {
+            if (is_array($item) && (isset($item['to']) || isset($item['via']))) {
+                $route = $item;
+                break;
+            }
+        }
+    }
+
+    if (is_array($route)) {
+        if (empty($entry['routes.to']) && isset($route['to'])) {
+            $entry['routes.to'] = $route['to'];
+        }
+        if (empty($entry['routes.via']) && isset($route['via'])) {
+            $entry['routes.via'] = $route['via'];
+        }
+        if (empty($entry['routes.metric']) && isset($route['metric'])) {
+            $entry['routes.metric'] = $route['metric'];
+        }
+    }
+
+    return $entry;
+}
+
+
 function get_ethernets() {
     $structure = @json_decode(@file_get_contents('/var/www/backend/checks/system_data/default_tables_structure/structure_table_interfaces.json'), true);
     $columns = $structure['ethernets'] ?? [];
@@ -41,6 +94,7 @@ function get_ethernets() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
@@ -65,6 +119,7 @@ function get_bridges() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
@@ -86,6 +141,7 @@ function get_vlans() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
@@ -107,6 +163,7 @@ function get_bonds() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
@@ -128,6 +185,7 @@ function get_wifis() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
@@ -149,6 +207,7 @@ function get_wireguard() {
     $result = [];
     foreach ($block as $name => $entry) {
         $entry['name'] = $name;
+        $entry = normalize_legacy_routes_for_table($entry);
         $flat = [];
         foreach ($columns as $col) {
             $flat[$col] = $entry[$col] ?? "";
