@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import os
 import json
+import ast
 from task_update_json import task_update_json
 
 
@@ -163,6 +164,10 @@ def parser_bonds(data, netplan):
 # Processes bridge-type interfaces and adds them to the Netplan object  
 def parser_bridges(data, netplan):
     for name, config in data.items():
+        # Normaliza entradas bridge vacías heredadas como [] para evitar fallos al generar Netplan.
+        # Normalize legacy empty bridge entries stored as [] to avoid Netplan generation failures.
+        if not isinstance(config, dict):
+            config = {}
         bridge = {}
 
         # Asigna las interfaces esclavas  
@@ -182,12 +187,10 @@ def parser_bridges(data, netplan):
         if config.get("addresses"):
             bridge["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace  
-        # Gateways
-        if config.get("gateway4"):
-            bridge["gateway4"] = config["gateway4"]
-        if config.get("gateway6"):
-            bridge["gateway6"] = config["gateway6"]
+        # Las puertas de enlace gateway4/gateway6 están deprecated en Netplan.
+        # The gateway4/gateway6 keys are deprecated in Netplan.
+        # No se emiten aquí; si existen valores heredados, se migran a rutas default más abajo.
+        # They are not emitted here; legacy values are migrated to default routes below.
 
         # MTU  
         # MTU
@@ -219,10 +222,19 @@ def parser_bridges(data, netplan):
         # Parámetros específicos del bridge  
         # Bridge-specific parameters
         parameters = {}
+        integer_bridge_parameters = {"priority", "forward-delay", "hello-time", "max-age", "ageing-time"}
         for key, value in config.items():
-            if key.startswith("parameters.") and value:
+            if key.startswith("parameters.") and value != "":
                 param_name = key.split(".", 1)[1]
-                parameters[param_name] = value
+                if param_name == "stp":
+                    parameters[param_name] = str(value).lower() == "true"
+                elif param_name in integer_bridge_parameters:
+                    try:
+                        parameters[param_name] = int(value)
+                    except (TypeError, ValueError):
+                        pass
+                else:
+                    parameters[param_name] = value
         if parameters:
             bridge["parameters"] = parameters
 
@@ -232,13 +244,17 @@ def parser_bridges(data, netplan):
             bridge["optional"] = True
         if config.get("accept-ra", "false").lower() == "true":
             bridge["accept-ra"] = True
-        if config.get("wakeonlan", "false").lower() == "true":
-            bridge["wakeonlan"] = True
-        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
-            bridge["ipv6-privacy"] = config["ipv6-privacy"]
+        # Netplan espera ipv6-privacy como booleano; la WebGUI lo guarda como texto "true"/"false".
+        # Netplan expects ipv6-privacy as a boolean; the WebGUI stores it as text "true"/"false".
+        ipv6_privacy = str(config.get("ipv6-privacy", "")).lower()
+        if ipv6_privacy in ["true", "enabled", "preferred"]:
+            bridge["ipv6-privacy"] = True
+        elif ipv6_privacy in ["false", "disabled"]:
+            bridge["ipv6-privacy"] = False
 
         # Configura rutas  
         # Configure routes
+        routes = []
         if config.get("routes.to") and config.get("routes.via"):
             route = {"to": config["routes.to"], "via": config["routes.via"]}
             if config.get("routes.metric"):
@@ -246,7 +262,33 @@ def parser_bridges(data, netplan):
                     route["metric"] = int(config["routes.metric"])
                 except ValueError:
                     pass
-            bridge["routes"] = [route]
+            routes.append(route)
+
+        # Migra rutas heredadas guardadas como string/dict bajo "routes".
+        # Migrate legacy routes stored as string/dict under "routes".
+        if not routes and config.get("routes"):
+            legacy_routes = config.get("routes")
+            if isinstance(legacy_routes, str):
+                try:
+                    legacy_routes = ast.literal_eval(legacy_routes)
+                except (ValueError, SyntaxError):
+                    legacy_routes = None
+            if isinstance(legacy_routes, dict) and legacy_routes.get("to") and legacy_routes.get("via"):
+                routes.append({"to": legacy_routes["to"], "via": legacy_routes["via"]})
+            elif isinstance(legacy_routes, list):
+                for legacy_route in legacy_routes:
+                    if isinstance(legacy_route, dict) and legacy_route.get("to") and legacy_route.get("via"):
+                        routes.append({"to": legacy_route["to"], "via": legacy_route["via"]})
+
+        # Migra valores heredados gateway4/gateway6 a rutas default para no emitir claves deprecated.
+        # Migrate legacy gateway4/gateway6 values to default routes to avoid emitting deprecated keys.
+        if not routes:
+            if config.get("gateway4"):
+                routes.append({"to": "default", "via": config["gateway4"]})
+            if config.get("gateway6"):
+                routes.append({"to": "default", "via": config["gateway6"]})
+        if routes:
+            bridge["routes"] = routes
 
         # Configura overrides DHCPv4  
         # Configure DHCPv4 overrides
@@ -270,20 +312,8 @@ def parser_bridges(data, netplan):
         if dhcp6_overrides:
             bridge["dhcp6-overrides"] = dhcp6_overrides
 
-        # Configura bloque match  
-        # Configure match block
-        match = {}
-        for key in ["name", "macaddress", "driver"]:
-            full_key = f"match.{key}"
-            if config.get(full_key):
-                match[key] = config[full_key]
-        if match:
-            bridge["match"] = match
-
-        # Configura set-name  
-        # Configure set-name
-        if config.get("set-name"):
-            bridge["set-name"] = config["set-name"]
+        # Bridges son interfaces virtuales: match.* y set-name no son claves válidas aquí en Netplan.
+        # Bridges are virtual interfaces: match.* and set-name are not valid Netplan keys here.
 
         # Añade la interfaz bridge al bloque Netplan  
         # Add the bridge interface to the Netplan block

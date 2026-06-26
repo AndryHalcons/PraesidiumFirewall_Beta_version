@@ -61,12 +61,11 @@
       },
     "bridges": {
         "select": {
-            "interfaces": [""]
+            "interfaces": [""],
+            "ipv6-privacy": ["", "true", "false"]
         },
         "object_multiselect": {
             "addresses": [],
-            "gateway4": [],
-            "gateway6": [],
             "nameservers.addresses": [],
             "routes.to": [],
             "routes.via": []
@@ -85,14 +84,6 @@
               "unchecked": "False"
             },
             "accept-ra": {
-              "checked": "True",
-              "unchecked": "False"
-            },
-            "wakeonlan": {
-              "checked": "True",
-              "unchecked": "False"
-            },
-            "ipv6-privacy": {
               "checked": "True",
               "unchecked": "False"
             },
