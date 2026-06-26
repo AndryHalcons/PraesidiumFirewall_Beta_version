@@ -293,6 +293,10 @@ def parser_bridges(data, netplan):
 # Processes ethernet-type interfaces and adds them to the Netplan object  
 def parser_ethernets(data, netplan):
     for name, config in data.items():
+        # Normaliza entradas ethernet vacías heredadas como [] para evitar fallos al generar Netplan.
+        # Normalize legacy empty Ethernet entries stored as [] to avoid Netplan generation failures.
+        if not isinstance(config, dict):
+            config = {}
         ethernet = {}
 
         # Configura DHCP  
@@ -307,12 +311,10 @@ def parser_ethernets(data, netplan):
         if config.get("addresses"):
             ethernet["addresses"] = [a.strip() for a in config["addresses"].split(",") if a.strip()]
 
-        # Puertas de enlace  
-        # Gateways
-        if config.get("gateway4"):
-            ethernet["gateway4"] = config["gateway4"]
-        if config.get("gateway6"):
-            ethernet["gateway6"] = config["gateway6"]
+        # Las puertas de enlace gateway4/gateway6 están deprecated en Netplan.
+        # The gateway4/gateway6 keys are deprecated in Netplan.
+        # No se emiten aquí; si existen valores heredados, se migran a rutas default más abajo.
+        # They are not emitted here; legacy values are migrated to default routes below.
 
         # MTU  
         # MTU
@@ -349,11 +351,17 @@ def parser_ethernets(data, netplan):
             ethernet["accept-ra"] = True
         if config.get("wakeonlan", "false").lower() == "true":
             ethernet["wakeonlan"] = True
-        if config.get("ipv6-privacy") in ["disabled", "enabled"]:
-            ethernet["ipv6-privacy"] = config["ipv6-privacy"]
+        # Netplan espera ipv6-privacy como booleano; la WebGUI lo guarda como texto "true"/"false".
+        # Netplan expects ipv6-privacy as a boolean; the WebGUI stores it as text "true"/"false".
+        ipv6_privacy = str(config.get("ipv6-privacy", "")).lower()
+        if ipv6_privacy in ["true", "enabled", "preferred"]:
+            ethernet["ipv6-privacy"] = True
+        elif ipv6_privacy in ["false", "disabled"]:
+            ethernet["ipv6-privacy"] = False
 
         # Configura rutas  
         # Configure routes
+        routes = []
         if config.get("routes.to") and config.get("routes.via"):
             route = {"to": config["routes.to"], "via": config["routes.via"]}
             if config.get("routes.metric"):
@@ -361,7 +369,17 @@ def parser_ethernets(data, netplan):
                     route["metric"] = int(config["routes.metric"])
                 except ValueError:
                     pass
-            ethernet["routes"] = [route]
+            routes.append(route)
+
+        # Migra valores heredados gateway4/gateway6 a rutas default para no emitir claves deprecated.
+        # Migrate legacy gateway4/gateway6 values to default routes to avoid emitting deprecated keys.
+        if not routes:
+            if config.get("gateway4"):
+                routes.append({"to": "default", "via": config["gateway4"]})
+            if config.get("gateway6"):
+                routes.append({"to": "default", "via": config["gateway6"]})
+        if routes:
+            ethernet["routes"] = routes
 
         # Configura overrides DHCPv4  
         # Configure DHCPv4 overrides

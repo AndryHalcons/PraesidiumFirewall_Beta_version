@@ -4,8 +4,6 @@
         "dhcp4",
         "dhcp6",
         "addresses",
-        "gateway4",
-        "gateway6",
         "mtu",
         "macaddress",
         "nameservers.addresses",
