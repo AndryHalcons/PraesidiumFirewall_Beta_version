@@ -98,15 +98,12 @@
       "dhcp4",
       "dhcp6",
       "addresses",
-      "gateway4",
-      "gateway6",
       "mtu",
       "macaddress",
       "nameservers.addresses",
       "nameservers.search",
       "optional",
       "accept-ra",
-      "wakeonlan",
       "routes.to",
       "routes.via",
       "routes.metric",
@@ -117,11 +114,7 @@
       "dhcp4-overrides.hostname",
       "dhcp4-overrides.use-hostname",
       "dhcp6-overrides.use-dns",
-      "dhcp6-overrides.use-routes",
-      "match.name",
-      "match.macaddress",
-      "match.driver",
-      "set-name"
+      "dhcp6-overrides.use-routes"
     ],
     "wifis": [
       "name",
