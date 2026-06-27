@@ -90,10 +90,10 @@ function import_candidate_vlan_links(): array {
         return [];
     }
 
-    // VLAN link debe aceptar físicas y bonds definidos por Praesidium en candidate.
-    // VLAN link should accept physical interfaces and bonds defined by Praesidium in candidate.
+    // VLAN link debe aceptar físicas, bonds y bridges definidos por Praesidium en candidate.
+    // VLAN link should accept physical interfaces, bonds and bridges defined by Praesidium in candidate.
     $links = [];
-    foreach (['ethernets', 'bonds'] as $section) {
+    foreach (['ethernets', 'bonds', 'bridges'] as $section) {
         if (isset($config['network'][$section]) && is_array($config['network'][$section])) {
             $links = array_merge($links, array_keys($config['network'][$section]));
         }
@@ -128,8 +128,8 @@ function validation_form_field_review(array $rule, ?string $chain = null): void 
         $formConfig['select']['interfaces'] = array_merge($formConfig['select']['interfaces'], $interfaces);
     }
     if (isset($formConfig['select']['link'])) {
-        // Para VLAN link se añaden también físicas/bonds de candidate, no solo runtime.
-        // For VLAN link, also add candidate physical interfaces/bonds, not only runtime.
+        // Para VLAN link se añaden también físicas/bonds/bridges de candidate, no solo runtime.
+        // For VLAN link, also add candidate physical interfaces/bonds/bridges, not only runtime.
         $candidateLinks = import_candidate_vlan_links();
         $formConfig['select']['link'] = array_values(array_unique(array_merge(
             $formConfig['select']['link'],
@@ -462,6 +462,65 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// create Name & validate ID  ///////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Valida y normaliza una VLAN sin afectar al resto de secciones.
+// Validates and normalizes one VLAN without affecting the rest of the sections.
+function validate_and_normalize_vlan_rule(array $rule, array $config): array {
+    $rawId = trim((string)($rule['id'] ?? ''));
+    if ($rawId === '') {
+        echo json_encode(['error' => 'VLAN id obligatorio']);
+        exit;
+    }
+
+    if (!preg_match('/^\d+$/', $rawId)) {
+        echo json_encode(['error' => 'VLAN id debe ser numérico']);
+        exit;
+    }
+
+    $id = (int)$rawId;
+    if ($id < 1 || $id > 4094) {
+        echo json_encode(['error' => 'VLAN id debe estar entre 1 y 4094']);
+        exit;
+    }
+
+    $link = trim((string)($rule['link'] ?? ''));
+    if ($link === '') {
+        echo json_encode(['error' => 'VLAN link obligatorio']);
+        exit;
+    }
+
+    $expectedName = 'vlan' . $id;
+    $currentName = trim((string)($rule['name'] ?? ''));
+    if ($currentName === '' || strcasecmp($currentName, 'Auto') === 0) {
+        $rule['name'] = $expectedName;
+    } elseif ($currentName !== $expectedName) {
+        echo json_encode(['error' => "VLAN name debe ser '{$expectedName}'"]);
+        exit;
+    }
+
+    $vlans = $config['network']['vlans'] ?? [];
+    if (!is_array($vlans)) {
+        echo json_encode(['error' => 'No se pudo cargar la configuración de VLANs']);
+        exit;
+    }
+
+    foreach ($vlans as $existingName => $existingRule) {
+        if ($existingName === $rule['name'] || !is_array($existingRule)) {
+            continue;
+        }
+
+        $existingId = trim((string)($existingRule['id'] ?? ''));
+        $existingLink = trim((string)($existingRule['link'] ?? ''));
+        if ($existingId === (string)$id && $existingLink === $link) {
+            echo json_encode(['error' => "Ya existe VLAN id {$id} sobre link {$link}"]);
+            exit;
+        }
+    }
+
+    $rule['id'] = (string)$id;
+    return $rule;
+}
 
 
 //Genera automáticamente un nombre para la interfaz si el campo 'name' está vacío.

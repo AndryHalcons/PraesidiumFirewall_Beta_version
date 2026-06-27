@@ -247,19 +247,14 @@ function get_vlans_form() {
         $ifaceData = json_decode($ifaceRaw, true);
 
         if (json_last_error() === JSON_ERROR_NONE && isset($ifaceData["network"])) {
-            // Inicializar links válidos para VLANs desde la intención candidate (ethernets + bonds).
-            // Initialize valid VLAN links from candidate intent (ethernets + bonds).
+            // Inicializar links válidos para VLANs desde la intención candidate (ethernets + bonds + bridges).
+            // Initialize valid VLAN links from candidate intent (ethernets + bonds + bridges).
             $links = [];
 
-            if (isset($ifaceData["network"]["ethernets"]) && is_array($ifaceData["network"]["ethernets"])) {
-                // Añadir interfaces Ethernet definidas en candidate.
-                // Add Ethernet interfaces defined in candidate.
-                $links = array_merge($links, array_keys($ifaceData["network"]["ethernets"]));
-            }
-            if (isset($ifaceData["network"]["bonds"]) && is_array($ifaceData["network"]["bonds"])) {
-                // Añadir interfaces Bond definidas en candidate, aunque aún no existan en runtime.
-                // Add Bond interfaces defined in candidate, even if they do not exist in runtime yet.
-                $links = array_merge($links, array_keys($ifaceData["network"]["bonds"]));
+            foreach (["ethernets", "bonds", "bridges"] as $section) {
+                if (isset($ifaceData["network"][$section]) && is_array($ifaceData["network"][$section])) {
+                    $links = array_merge($links, array_keys($ifaceData["network"][$section]));
+                }
             }
 
             // Insertar links deduplicados en select.link preservando la opción vacía inicial.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Convierte ethernets físicas en bridges vmbrN durante la configuración inicial.
+Convierte ethernets físicas en bridges brN durante la configuración inicial.
 
 La transformación es idempotente:
 - no duplica bridges si una ethernet ya pertenece a un bridge existente;
@@ -23,8 +23,8 @@ PHYSICAL_INTERFACES_JSON = Path(os.environ.get(
     '/var/www/backend/checks/system_data/data_interfaces/physical_interfaces_list.json',
 ))
 MAPPING_JSON = Path(os.environ.get(
-    'PRAESIDIUM_VMBR_MAPPING_JSON',
-    '/var/www/backend/checks/system_data/data_interfaces/vmbr_bridge_map.json',
+    'PRAESIDIUM_BR_MAPPING_JSON',
+    '/var/www/backend/checks/system_data/data_interfaces/br_bridge_map.json',
 ))
 
 
@@ -85,10 +85,10 @@ def bridge_members(bridges: dict[str, Any]) -> dict[str, str]:
     return members
 
 
-def vmbr_name_for_index(index: int, bridges: dict[str, Any], reserved: set[str]) -> str:
+def br_name_for_index(index: int, bridges: dict[str, Any], reserved: set[str]) -> str:
     candidate_index = index
     while True:
-        candidate = f'vmbr{candidate_index}'
+        candidate = f'br{candidate_index}'
         if candidate not in bridges and candidate not in reserved:
             reserved.add(candidate)
             return candidate
@@ -165,7 +165,7 @@ def transform(data: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
             mapping[ethernet_name] = existing_members[ethernet_name]
             continue
 
-        bridge_name = vmbr_name_for_index(index, bridges, reserved_bridges)
+        bridge_name = br_name_for_index(index, bridges, reserved_bridges)
         physical_config, bridge_config = split_ethernet_for_bridge(ethernet_config)
         bridge_config['interfaces'] = ethernet_name
         bridges[bridge_name] = bridge_config

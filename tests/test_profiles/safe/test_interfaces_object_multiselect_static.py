@@ -15,11 +15,13 @@ forms = json.loads((repo / "backend/checks/system_data/default_forms/forms_inter
 php = (repo / "web/interfaces/interfaces_table/get_forms_from_table.php").read_text()
 
 expected = {
-    "ethernets": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
-    "bonds": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
-    "bridges": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
-    "vlans": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
-    "wifis": {"addresses", "gateway4", "gateway6", "nameservers.addresses", "routes.to", "routes.via"},
+    # gateway4/gateway6 son campos legacy de Netplan y ya no deben exponerse como selectores de objetos.
+    # gateway4/gateway6 are legacy Netplan fields and must no longer be exposed as object selectors.
+    "ethernets": {"addresses", "nameservers.addresses", "routes.to", "routes.via"},
+    "bonds": {"addresses", "nameservers.addresses", "routes.to", "routes.via"},
+    "bridges": {"addresses", "nameservers.addresses", "routes.to", "routes.via"},
+    "vlans": {"addresses", "nameservers.addresses", "routes.to", "routes.via"},
+    "wifis": {"addresses", "nameservers.addresses", "routes.to", "routes.via"},
     "wireguard": {"addresses", "peers.allowed-ips", "routes.to", "routes.via", "routing-policy.from"},
 }
 

@@ -21,8 +21,8 @@ run_initial_config_step "Refrescando interfaces / Refreshing interfaces" \
 run_initial_config_step "Validando JSON de interfaces / Validating interfaces JSON" \
     bash "${INITIAL_CONFIG_DIR}/02_validate_interfaces_json.sh"
 
-run_initial_config_step "Generando bridges vmbr / Generating vmbr bridges" \
-    python3 "${INITIAL_CONFIG_DIR}/03_generate_vmbr_bridges.py"
+run_initial_config_step "Generando bridges br / Generating br bridges" \
+    python3 "${INITIAL_CONFIG_DIR}/03_generate_bridges.py"
 
 run_initial_config_step "Sincronizando config_running / Syncing config_running" \
     bash "${INITIAL_CONFIG_DIR}/04_sync_running_interfaces.sh"

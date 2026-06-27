@@ -46,8 +46,8 @@ def first_ethernet() -> str:
 
 
 def detect_management_interface() -> str:
-    # BPFilter trabaja sobre interfaces físicas; no traduce ethernets a vmbr.
-    # BPFilter works on physical interfaces; do not translate ethernets to vmbr.
+    # BPFilter trabaja sobre interfaces físicas; no traduce ethernets a bridge.
+    # BPFilter works on physical interfaces; do not translate ethernets to bridge.
     management_interface = default_route_interface() or first_ethernet()
     if not management_interface:
         raise SystemExit('No se pudo detectar la interfaz de gestión. / Could not detect management interface.')

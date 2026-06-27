@@ -258,7 +258,7 @@ function get_vlans($chain) {
     require __DIR__ . '/validation_interface.php';
     $rule = Main_convert_alias_object_to_network_object($rule);
     validation_form_field_review($rule, $chain);
-    $rule = check_create_Name($rule, $chain);
+    $rule = validate_and_normalize_vlan_rule($rule, $json);
 
     // Validar que la entrada tenga el campo 'name'
     // Validate that the input contains the 'name' field

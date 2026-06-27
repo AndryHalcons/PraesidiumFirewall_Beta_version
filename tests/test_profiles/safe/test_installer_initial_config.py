@@ -29,7 +29,7 @@ errors = []
 expected_scripts = [
     '01_refresh_interfaces.sh',
     '02_validate_interfaces_json.sh',
-    '03_generate_vmbr_bridges.py',
+    '03_generate_bridges.py',
     '04_sync_running_interfaces.sh',
     '05_adapt_bpfilter_management.py',
     '06_fix_initial_config_permissions.sh',
@@ -73,11 +73,11 @@ if validate.exists():
         if expected not in text:
             errors.append(f'02_validate_interfaces_json.sh no valida {expected}')
 
-vmbr = initial_dir / '03_generate_vmbr_bridges.py'
-if vmbr.exists():
-    text = vmbr.read_text(encoding='utf-8')
+bridge_gen = initial_dir / '03_generate_bridges.py'
+if bridge_gen.exists():
+    text = bridge_gen.read_text(encoding='utf-8')
     for expected in [
-        'vmbr_bridge_map.json',
+        'br_bridge_map.json',
         'ethernet_to_bridge',
         "bridge_config['interfaces'] = ethernet_name",
         'split_ethernet_for_bridge',
@@ -86,7 +86,7 @@ if vmbr.exists():
         "ethernets[ethernet_name] = physical_config",
     ]:
         if expected not in text:
-            errors.append(f'03_generate_vmbr_bridges.py falta contrato: {expected}')
+            errors.append(f'03_generate_bridges.py falta contrato: {expected}')
 
 sync = initial_dir / '04_sync_running_interfaces.sh'
 if sync.exists():
@@ -104,14 +104,14 @@ if bpfilter.exists():
         "rule['interface'] = management_interface",
         "rule['chain'] = f'{management_interface}_{hook}'",
         'already_adapted = any(',
-        'BPFilter works on physical interfaces; do not translate ethernets to vmbr.',
+        'BPFilter works on physical interfaces; do not translate ethernets to bridge.',
     ]:
         if expected not in text:
             errors.append(f'05_adapt_bpfilter_management.py falta: {expected}')
-    forbidden = ['bridge_for_interface', 'VMBR_MAPPING_JSON', 'vmbr_bridge_map.json']
+    forbidden = ['bridge_for_interface', 'BR_MAPPING_JSON', 'br_bridge_map.json']
     for text_forbidden in forbidden:
         if text_forbidden in text:
-            errors.append(f'05_adapt_bpfilter_management.py no debe depender de vmbr para BPFilter: {text_forbidden}')
+            errors.append(f'05_adapt_bpfilter_management.py no debe depender de bridge mapping para BPFilter: {text_forbidden}')
 
 perms = initial_dir / '06_fix_initial_config_permissions.sh'
 if perms.exists():
