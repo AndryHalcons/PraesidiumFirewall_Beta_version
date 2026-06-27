@@ -271,6 +271,105 @@ function renderMonitorTableContent(columns) {
     });
 }
 
+
+// Estado de filtros secundarios de la tabla de resultados del Monitor.
+// Secondary filter state for the Monitor results table.
+window.PraesidiumMonitor = window.PraesidiumMonitor || {};
+window.PraesidiumMonitor.resultFilters = window.PraesidiumMonitor.resultFilters || {};
+
+// Devuelve el texto filtrable de una celda de log, normalizado para búsqueda tipo %like%.
+// Returns normalized filterable text for one log cell, using %like%-style matching.
+function monitorLogFilterValue(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  return String(value).toLowerCase();
+}
+
+// Comprueba si una fila de log cumple todos los filtros secundarios activos.
+// Checks whether one log row matches every active secondary filter.
+function monitorLogRowMatchesFilters(row, columns, activeFilters) {
+  return columns.every(column => {
+    const expected = String(activeFilters[column] || "").trim().toLowerCase();
+    if (!expected) {
+      return true;
+    }
+    return monitorLogFilterValue(row[column]).includes(expected);
+  });
+}
+
+// Aplica los filtros secundarios sobre los resultados ya extraídos del backend.
+// Applies secondary filters to rows already extracted by the backend.
+function monitorApplyLogResultFilters(rows, columns) {
+  const activeFilters = window.PraesidiumMonitor.resultFilters || {};
+  return rows.filter(row => monitorLogRowMatchesFilters(row, columns, activeFilters));
+}
+
+// Pinta las filas visibles de logs sin volver a consultar ni reextraer logs.
+// Renders visible log rows without querying or extracting logs again.
+function monitorRenderLogRows(tbody, rows, columns) {
+  tbody.innerHTML = "";
+  const filteredRows = monitorApplyLogResultFilters(rows, columns);
+
+  if (rows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = columns.length;
+    td.textContent = "No hay logs para los filtros seleccionados.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  if (filteredRows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = columns.length;
+    td.className = "generic-table-no-results";
+    td.textContent = "No hay logs que coincidan con los filtros de la tabla.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  filteredRows.forEach(row => {
+    const tr = document.createElement("tr");
+    columns.forEach(colName => {
+      const td = document.createElement("td");
+      td.textContent = row[colName] ?? "";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// Crea una segunda cabecera con filtros por columna para los logs ya mostrados.
+// Creates a second header row with per-column filters for already displayed logs.
+function monitorCreateLogFilterRow(columns, repaintRows) {
+  const filterRow = document.createElement("tr");
+  filterRow.className = "generic-table-filter-row monitor-log-filter-row";
+
+  columns.forEach(col => {
+    const th = document.createElement("th");
+    const input = document.createElement("input");
+    input.type = "search";
+    input.className = "generic-table-filter-input monitor-log-filter-input";
+    input.placeholder = "Filtrar";
+    input.value = window.PraesidiumMonitor.resultFilters[col] || "";
+    input.dataset.key = col;
+    input.addEventListener("input", () => {
+      // Sólo repinta la tabla visible; no reextrae logs ni cambia los filtros principales.
+      // Only repaints the visible table; it does not re-extract logs or change main filters.
+      window.PraesidiumMonitor.resultFilters[col] = input.value;
+      repaintRows();
+    });
+    th.appendChild(input);
+    filterRow.appendChild(th);
+  });
+
+  return filterRow;
+}
+
 function view_logs_table_Structure(dataLogs) {
   const container = document.getElementById("tabla-monitorLogs");
   if (!container) return;
@@ -307,8 +406,8 @@ function view_logs_table_Structure(dataLogs) {
       const table = document.createElement("table");
       table.className = "interfaz";
 
-      // Cabecera
-      // Header
+      // Cabecera principal y segunda fila de filtros sobre los logs ya extraídos.
+      // Main header and second filter row over already extracted logs.
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       columns.forEach(col => {
@@ -318,7 +417,6 @@ function view_logs_table_Structure(dataLogs) {
         headerRow.appendChild(th);
       });
       thead.appendChild(headerRow);
-      table.appendChild(thead);
 
       // Cuerpo
       // Body
@@ -328,24 +426,10 @@ function view_logs_table_Structure(dataLogs) {
       window.PraesidiumMonitor.lastLogRows = rows;
       setMonitorExportAvailable(rows.length > 0);
 
-      if (rows.length === 0) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = columns.length;
-        td.textContent = "No hay logs para los filtros seleccionados.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-      } else {
-        rows.forEach(row => {
-          const tr = document.createElement("tr");
-          columns.forEach(colName => {
-            const td = document.createElement("td");
-            td.textContent = row[colName] ?? "";
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-      }
+      const filterRow = monitorCreateLogFilterRow(columns, () => monitorRenderLogRows(tbody, rows, columns));
+      thead.appendChild(filterRow);
+      table.appendChild(thead);
+      monitorRenderLogRows(tbody, rows, columns);
 
       table.appendChild(tbody);
       container.appendChild(table);
