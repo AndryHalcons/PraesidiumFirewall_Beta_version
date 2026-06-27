@@ -30,7 +30,9 @@ shell_exec("sudo $script5 2>&1");
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_ethernets']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_ethernets']) ?></h1>
+  </section>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableGeneric(

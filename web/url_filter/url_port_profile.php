@@ -27,7 +27,9 @@ $path_get_delete = "/url_filter/url_filter_table/get_delete_url_filter.php";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_url_port_profile']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_url_port_profile']) ?></h1>
+  </section>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
     <script>
      renderTableGeneric(

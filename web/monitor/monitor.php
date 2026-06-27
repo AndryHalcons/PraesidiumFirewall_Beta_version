@@ -25,7 +25,9 @@ $L = require $langFile;
   <title><?= htmlspecialchars($L['menu_monitor']) ?></title>
 </head>
 <body>
-  <h2><?= htmlspecialchars($L['menu_monitor']) ?></h2>
+  <section class="cajita-cabecera">
+    <h2><?= htmlspecialchars($L['menu_monitor']) ?></h2>
+  </section>
   <div id="tabla-monitorOptions"></div>
   <div id="tabla-monitorLogs"></div>
   <script src="/monitor/logs_table/monitor.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/monitor/logs_table/monitor.js') ?>"></script>

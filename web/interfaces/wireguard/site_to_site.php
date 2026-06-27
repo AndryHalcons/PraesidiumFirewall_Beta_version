@@ -19,7 +19,7 @@ $currentAlias = "wireguard_site_to_site";
 <body>
   <!-- Fase 3: pintar contenido visual usando solo claves de idioma. -->
   <!-- Phase 3: render visual content using only language keys. -->
-  <section class="wireguard-section-header">
+  <section class="cajita-cabecera">
     <h1><?= htmlspecialchars($L['wireguard_site_to_site'] ?? 'wireguard_site_to_site') ?></h1>
     <p><?= htmlspecialchars($L['wireguard_site_to_site_long_desc'] ?? ($L['wireguard_site_to_site_desc'] ?? 'wireguard_site_to_site_desc')) ?></p>
   </section>

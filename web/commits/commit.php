@@ -21,7 +21,9 @@ $L = require $langFile;
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h2><?= htmlspecialchars($L['menu_commit']) ?></h2>
+  <section class="cajita-cabecera">
+    <h2><?= htmlspecialchars($L['menu_commit']) ?></h2>
+  </section>
   <div id="commit-table"></div>
   <script src="/commits/commit.js"></script>
 

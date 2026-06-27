@@ -28,7 +28,9 @@ $path_get_delete = "/policies/common_policy_actions_nft/get_delete_policy.php";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></h1>
+  </section>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableGeneric(

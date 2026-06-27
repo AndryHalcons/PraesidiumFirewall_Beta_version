@@ -71,8 +71,9 @@ $path_get_runtime_status = "/services/services_table/get_runtime_status.php";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_services']) ?></h1>
-
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_services']) ?></h1>
+  </section>
   <div class="services-toolbar">
     <button type="button" class="boton-generic" id="services-refresh-runtime">
       <?= htmlspecialchars($L['services_refresh_runtime_status'] ?? 'Actualizar estado') ?>

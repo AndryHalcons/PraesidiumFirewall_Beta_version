@@ -30,7 +30,9 @@ shell_exec("sudo $script5 2>&1");
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">
-   <h1><?= htmlspecialchars($L['sidebar_certificates']) ?></h1>
+   <section class="cajita-cabecera">
+     <h1><?= htmlspecialchars($L['sidebar_certificates']) ?></h1>
+   </section>
 </head>
 <div id="upload_container"></div>
     <script>

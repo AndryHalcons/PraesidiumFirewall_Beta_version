@@ -21,7 +21,9 @@ $L = require $langFile;
   <section class="wireguard-hero">
     <div>
       <span class="wireguard-kicker"><?= htmlspecialchars($L['wireguard_kicker']) ?></span>
-      <h1><?= htmlspecialchars($L['sidebar_wireguard'] ?? 'sidebar_wireguard') ?></h1>
+      <section class="cajita-cabecera">
+        <h1><?= htmlspecialchars($L['sidebar_wireguard'] ?? 'sidebar_wireguard') ?></h1>
+      </section>
       <p><?= htmlspecialchars($L['wireguard_overview_description'] ?? 'wireguard_overview_description') ?></p>
     </div>
   </section>

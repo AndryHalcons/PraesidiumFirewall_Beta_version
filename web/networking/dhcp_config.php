@@ -26,7 +26,9 @@ $path_get_delete = "/networking/dhcp_table/get_delete_dhcp.php";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_dhcp'] ?? 'DHCP') ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_dhcp'] ?? 'DHCP') ?></h1>
+  </section>
   <p class="section-description"><?= htmlspecialchars($L['dhcp_description'] ?? 'Configure dnsmasq DHCP server scopes or relay entries.') ?></p>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>

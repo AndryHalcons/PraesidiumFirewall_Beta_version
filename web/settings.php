@@ -28,7 +28,9 @@ $path_get_delete = "/system/logging/system_logging_table/get_delete_system_loggi
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_settings']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_settings']) ?></h1>
+  </section>
   <p><?= htmlspecialchars($L['system_logging_description'] ?? '') ?></p>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>

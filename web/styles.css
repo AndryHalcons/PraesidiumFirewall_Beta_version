@@ -1093,10 +1093,10 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
    Tarjetas y ayudas de escenarios WireGuard - praesidium-style
 #############################################################################
 */
-/* Estilos visuales WireGuard siguiendo praesidium-style.
-   WireGuard visual styles following praesidium-style. */
+/* Cajita cabecera estándar siguiendo praesidium-style.
+   Standard header box following praesidium-style. */
 .wireguard-hero,
-.wireguard-section-header {
+.cajita-cabecera {
     border: 1px solid rgba(0, 188, 212, 0.28);
     border-left: 4px solid #00bcd4;
     border-radius: 12px;
@@ -1110,7 +1110,7 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
 .wireguard-card { position: relative; overflow: hidden; min-height: 255px; border: 1px solid rgba(0, 188, 212, 0.22); border-radius: 14px; padding: 22px; background: linear-gradient(180deg, rgba(18, 32, 48, 0.96), rgba(10, 16, 24, 0.96)); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32); }
 .wireguard-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, #00bcd4, #43e6b4, transparent); }
 .wireguard-card-icon { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; border-radius: 12px; color: #d9fbff; background: rgba(0, 188, 212, 0.14); border: 1px solid rgba(0, 188, 212, 0.28); font-size: 1.3rem; }
-.wireguard-card h2, .wireguard-section-header h1 { margin-top: 0; }
+.wireguard-card h2, .cajita-cabecera h1 { margin-top: 0; }
 /* Fuerza contraste claro en todo el contenido textual de las tarjetas WireGuard.
    Forces light contrast across all textual content inside WireGuard cards. */
 .wireguard-card h2 { color: #f8fafc; }
@@ -1121,8 +1121,8 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
    Reuses the Praesidium button pattern and tunes it for the dark card background. */
 .wireguard-card-button { display: inline-flex; align-items: center; justify-content: center; min-width: 92px; margin-top: auto; }
 .wireguard-card-button:focus-visible { outline: 2px solid rgba(156, 236, 246, 0.9); outline-offset: 2px; }
-.wireguard-help-box, .wireguard-subsection-help { border-radius: 10px; border: 1px solid rgba(67, 230, 180, 0.24); background: rgba(67, 230, 180, 0.07); color: #c8f7ef; padding: 12px 14px; margin: 12px 0 18px; }
-.wireguard-subsection-help { border-color: rgba(0, 188, 212, 0.20); background: rgba(0, 188, 212, 0.06); color: #b8d6df; margin-top: -4px; }
+.wireguard-help-box, .wireguard-subsection-help { border-radius: 10px; border: 1px solid rgba(0, 188, 212, 0.22); background: rgba(0, 188, 212, 0.08); color: #17212b; padding: 12px 14px; margin: 12px 0 18px; }
+.wireguard-subsection-help { border-color: rgba(0, 188, 212, 0.18); background: rgba(0, 188, 212, 0.05); color: #23313d; margin-top: -4px; }
 
 .modal-save-error {
   background: rgba(239, 68, 68, 0.12);

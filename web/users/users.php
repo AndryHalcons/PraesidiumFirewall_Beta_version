@@ -29,7 +29,9 @@ $path_get_delete = "/users/users_table/get_delete_user.php";
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['menu_users']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['menu_users']) ?></h1>
+  </section>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableGeneric(

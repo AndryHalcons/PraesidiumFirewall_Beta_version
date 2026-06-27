@@ -18,7 +18,7 @@ $L = require $langFile;
 <body>
   <!-- Fase 3: pintar contenido visual usando solo claves de idioma. -->
   <!-- Phase 3: render visual content using only language keys. -->
-  <section class="wireguard-section-header">
+  <section class="cajita-cabecera">
     <h1><?= htmlspecialchars($L['wireguard_remote_access'] ?? 'wireguard_remote_access') ?></h1>
     <p><?= htmlspecialchars($L['wireguard_remote_access_long_desc'] ?? ($L['wireguard_remote_access_desc'] ?? 'wireguard_remote_access_desc')) ?></p>
   </section>
@@ -26,12 +26,16 @@ $L = require $langFile;
     <?= htmlspecialchars($L['wireguard_remote_access_form_help'] ?? 'wireguard_remote_access_form_help') ?>
   </div>
 
-  <h2><?= htmlspecialchars($L['wireguard_remote_servers'] ?? 'wireguard_remote_servers') ?></h2>
-  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_servers_help'] ?? 'wireguard_remote_servers_help') ?></p>
+  <section class="cajita-cabecera">
+    <h2><?= htmlspecialchars($L['wireguard_remote_servers'] ?? 'wireguard_remote_servers') ?></h2>
+    <p><?= htmlspecialchars($L['wireguard_remote_servers_help'] ?? 'wireguard_remote_servers_help') ?></p>
+  </section>
   <div id="wireguard_remote_access_table"></div>
 
-  <h2><?= htmlspecialchars($L['wireguard_remote_clients'] ?? 'wireguard_remote_clients') ?></h2>
-  <p class="wireguard-subsection-help"><?= htmlspecialchars($L['wireguard_remote_clients_help'] ?? 'wireguard_remote_clients_help') ?></p>
+  <section class="cajita-cabecera">
+    <h2><?= htmlspecialchars($L['wireguard_remote_clients'] ?? 'wireguard_remote_clients') ?></h2>
+    <p><?= htmlspecialchars($L['wireguard_remote_clients_help'] ?? 'wireguard_remote_clients_help') ?></p>
+  </section>
   <div id="wireguard_remote_clients_table"></div>
 
   <script>

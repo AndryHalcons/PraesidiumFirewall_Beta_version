@@ -17,6 +17,10 @@ $L = require $langFile;
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+    <section class="cajita-cabecera">
+        <h2><?= htmlspecialchars($L['routing_title'] ?? 'routing_title') ?></h2>
+    </section>
+
     <section id="routing-table-container">
         <div id="routing-table">
             <p><?= htmlspecialchars($L['loading_routes'] ?? 'Cargando rutas...') ?></p>

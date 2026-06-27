@@ -27,7 +27,9 @@ $path_get_delete = "/alias/common_alias_actions/delete_alias.php";
   <meta charset="UTF-8">
 </head>
 <body>
-  <h1><?= htmlspecialchars($L['sidebar_address_alias']) ?></h1>
+  <section class="cajita-cabecera">
+    <h1><?= htmlspecialchars($L['sidebar_address_alias']) ?></h1>
+  </section>
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
   <script>
     renderTableGeneric(

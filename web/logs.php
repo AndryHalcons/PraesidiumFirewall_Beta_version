@@ -22,7 +22,9 @@ $L = require $langFile;
   <title><?= htmlspecialchars($L['sidebar_logs']) ?></title>
 </head>
 <body>
-  <h2><?= htmlspecialchars($L['sidebar_logs']) ?></h2>
+  <section class="cajita-cabecera">
+    <h2><?= htmlspecialchars($L['sidebar_logs']) ?></h2>
+  </section>
   <div id="tabla-monitorOptions"></div>
   <div id="tabla-monitorLogs"></div>
   <script src="/monitor/logs_table/monitor.js"></script>

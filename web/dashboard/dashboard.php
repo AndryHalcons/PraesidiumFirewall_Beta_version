@@ -12,7 +12,7 @@ if (!file_exists($langFile)) {
 $L = require $langFile;
 ?>
 <section class="dashboard-shell" id="praesidium-dashboard">
-  <div class="dashboard-header">
+  <div class="dashboard-header cajita-cabecera">
     <div>
       <h2><?= htmlspecialchars($L['sidebar_dashboard']) ?></h2>
       <p><?= htmlspecialchars($L['dashboard_subtitle'] ?? '') ?></p>
