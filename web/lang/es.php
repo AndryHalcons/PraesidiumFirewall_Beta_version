@@ -87,6 +87,13 @@ return [
     'dashboard_ram_used_label' => 'Usada',
     'dashboard_ram_free_label' => 'Libre',
     'dashboard_ram_cached_label' => 'Reservada',
+
+    'dashboard_disk_usage' => 'Disco',
+    'dashboard_disk_total' => 'Total',
+    'dashboard_disk_used' => 'Usado',
+    'dashboard_disk_available' => 'Disponible',
+    'dashboard_disk_mount' => 'Montaje',
+    'dashboard_disk_no_mounts' => 'Sin montajes de almacenamiento',
     'cpu_total' => 'CPU Total',
     'cpu_average' => 'CPU Promedio',
     'ram_total' => 'Total',

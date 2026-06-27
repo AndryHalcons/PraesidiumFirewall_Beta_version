@@ -129,14 +129,6 @@ function services_catalog(): array {
         ],
         // Dependencias de red/administración visibles para diagnóstico, no configurables.
         // Network/administration dependencies visible for diagnostics, not configurable.
-        'wg-quick@wgpf1' => [
-            'service_name' => 'wg-quick@wgpf1',
-            'unit' => 'wg-quick@wgpf1',
-            'checker' => 'systemctl',
-            'display_name' => 'WireGuard',
-            'configurable' => 'false',
-            'default_enabled' => 'true'
-        ],
         'systemd-networkd' => [
             'service_name' => 'systemd-networkd',
             'unit' => 'systemd-networkd',

@@ -89,6 +89,13 @@ return [
     'dashboard_ram_used_label' => 'Used',
     'dashboard_ram_free_label' => 'Free',
     'dashboard_ram_cached_label' => 'Cached',
+
+    'dashboard_disk_usage' => 'Disk',
+    'dashboard_disk_total' => 'Total',
+    'dashboard_disk_used' => 'Used',
+    'dashboard_disk_available' => 'Available',
+    'dashboard_disk_mount' => 'Mount',
+    'dashboard_disk_no_mounts' => 'No storage mounts',
     'cpu_total' => 'CPU Total',
     'cpu_average' => 'CPU Average',
     'ram_total' => 'Total',

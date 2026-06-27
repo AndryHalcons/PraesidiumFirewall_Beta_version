@@ -44,6 +44,20 @@ $L = require $langFile;
       </div>
     </article>
 
+    <article class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h3><?= htmlspecialchars($L['dashboard_disk_usage'] ?? 'Disco') ?></h3>
+        <span id="dashboard-disk-used-percent">--%</span>
+      </div>
+      <div class="dashboard-metric-list">
+        <div><span><?= htmlspecialchars($L['dashboard_disk_total'] ?? 'Total') ?></span><strong id="disk-total">--</strong></div>
+        <div><span><?= htmlspecialchars($L['dashboard_disk_used'] ?? 'Usado') ?></span><strong id="disk-used">--</strong></div>
+        <div><span><?= htmlspecialchars($L['dashboard_disk_available'] ?? 'Disponible') ?></span><strong id="disk-available">--</strong></div>
+      </div>
+      <div class="dashboard-disk-bar" aria-hidden="true"><span id="dashboard-disk-used-bar"></span></div>
+      <div class="dashboard-disk-mounts" id="dashboard-disk-mounts"></div>
+    </article>
+
     <article class="dashboard-card dashboard-card-wide">
       <div class="dashboard-card-header">
         <h3><?= htmlspecialchars($L['dashboard_bandwidth_by_interface'] ?? 'Ancho de banda por interfaz') ?></h3>
@@ -78,6 +92,11 @@ $L = require $langFile;
     cpuPercentLabel: <?= json_encode($L['dashboard_cpu_percent_label'] ?? 'CPU %') ?>,
     ramUsedLabel: <?= json_encode($L['dashboard_ram_used_label'] ?? 'Usada') ?>,
     ramFreeLabel: <?= json_encode($L['dashboard_ram_free_label'] ?? 'Libre') ?>,
-    ramCachedLabel: <?= json_encode($L['dashboard_ram_cached_label'] ?? 'Reservada') ?>
+    ramCachedLabel: <?= json_encode($L['dashboard_ram_cached_label'] ?? 'Reservada') ?>,
+    diskMountLabel: <?= json_encode($L['dashboard_disk_mount'] ?? 'Montaje') ?>,
+    diskTotalLabel: <?= json_encode($L['dashboard_disk_total'] ?? 'Total') ?>,
+    diskUsedLabel: <?= json_encode($L['dashboard_disk_used'] ?? 'Usado') ?>,
+    diskAvailableLabel: <?= json_encode($L['dashboard_disk_available'] ?? 'Disponible') ?>,
+    diskNoMounts: <?= json_encode($L['dashboard_disk_no_mounts'] ?? 'Sin montajes de almacenamiento') ?>
   };
 </script>

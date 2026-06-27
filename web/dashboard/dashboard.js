@@ -169,6 +169,57 @@
         ramChart.update();
     };
 
+    const updateDisk = async () => {
+        const data = await getJson('/dashboard/disk_stats.php');
+        const summary = data.summary || {};
+        const mounts = Array.isArray(data.mounts) ? data.mounts : [];
+        const percent = Math.max(0, Math.min(100, Number(summary.used_percent || 0)));
+
+        const totalEl = document.getElementById('disk-total');
+        const usedEl = document.getElementById('disk-used');
+        const availableEl = document.getElementById('disk-available');
+        const percentEl = document.getElementById('dashboard-disk-used-percent');
+        const barEl = document.getElementById('dashboard-disk-used-bar');
+        const mountsEl = document.getElementById('dashboard-disk-mounts');
+
+        if (totalEl) totalEl.textContent = formatBytes(summary.total || 0);
+        if (usedEl) usedEl.textContent = formatBytes(summary.used || 0);
+        if (availableEl) availableEl.textContent = formatBytes(summary.available || 0);
+        if (percentEl) percentEl.textContent = `${percent.toFixed(1)}%`;
+        if (barEl) {
+            barEl.style.width = `${percent > 0 ? percent : 1}%`;
+            barEl.dataset.status = percent >= 90 ? 'critical' : (percent >= 80 ? 'warning' : 'ok');
+        }
+
+        if (!mountsEl) return;
+        if (!mounts.length) {
+            mountsEl.innerHTML = `<div class="dashboard-disk-empty">${i18n.diskNoMounts || 'No storage mounts'}</div>`;
+            return;
+        }
+
+        mountsEl.innerHTML = mounts.map(mount => {
+            const usedPercent = Math.max(0, Math.min(100, Number(mount.used_percent || 0)));
+            const status = mount.status || (usedPercent >= 90 ? 'critical' : (usedPercent >= 80 ? 'warning' : 'ok'));
+            return `
+                <div class="dashboard-disk-mount" data-status="${status}">
+                    <div class="dashboard-disk-mount-top">
+                        <strong>${mount.mountpoint || '-'}</strong>
+                        <span>${usedPercent.toFixed(1)}%</span>
+                    </div>
+                    <div class="dashboard-disk-mount-meta">
+                        <span>${mount.fstype || ''}</span>
+                    </div>
+                    <div class="dashboard-disk-mount-values">
+                        <div><span>${i18n.diskTotalLabel || 'Total'}</span><strong>${formatBytes(mount.total || 0)}</strong></div>
+                        <div><span>${i18n.diskUsedLabel || 'Used'}</span><strong>${formatBytes(mount.used || 0)}</strong></div>
+                        <div><span>${i18n.diskAvailableLabel || 'Available'}</span><strong>${formatBytes(mount.available || 0)}</strong></div>
+                    </div>
+                    <div class="dashboard-disk-mount-bar" aria-hidden="true"><span style="width: ${usedPercent > 0 ? usedPercent : 1}%"></span></div>
+                </div>
+            `;
+        }).join('');
+    };
+
     const updateNetwork = async () => {
         const sample = await getJson('/dashboard/net_stats.php');
         const tbody = document.querySelector('#bandwidth-table tbody');
@@ -205,7 +256,7 @@
     const refresh = async () => {
         if (stopped) return;
         try {
-            await Promise.all([updateCpu(), updateRam(), updateNetwork()]);
+            await Promise.all([updateCpu(), updateRam(), updateDisk(), updateNetwork()]);
             setStatus(`${i18n.updated || 'Updated'} ${new Date().toLocaleTimeString()}`);
         } catch (error) {
             setStatus(i18n.error || 'Error', 'error');
