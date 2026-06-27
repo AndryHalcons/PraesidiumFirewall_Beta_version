@@ -1,19 +1,11 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
+
 
 // Verifica si el usuario está autenticado
 // Check if the user is authenticated
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+
 
 // Obtiene el parámetro 'table' desde la URL
 // Get 'table' parameter from URL

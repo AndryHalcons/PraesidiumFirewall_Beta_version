@@ -1,12 +1,9 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../../common/security/auth.php';
+require_login_json();
 
 // Verificar si el usuario está autenticado
-if (!isset($_SESSION['username'])) {
-    http_response_code(401); // Código de estado HTTP para "No autorizado"
-    exit(json_encode(["error" => "No autorizado"]));
-}
+
 
 // Generar fecha en formato YYYYMMDDHHMMSS
 $dateStr = date('YmdHis');

@@ -1,22 +1,15 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 //$table = trim($_GET['table'] ?? '');
 $input = json_decode(file_get_contents('php://input'), true);
 $table = trim($input['table'] ?? '');
 $allowedTables = ['certificates'];
-
 
 
 if ($table === '' || !in_array($table, $allowedTables, true)) {
@@ -31,7 +24,6 @@ switch ($table) {
         echo json_encode(['error' => 'Tabla no soportada']);
         break;
 }
-
 
 
 function get_delete_certificates(): void {

@@ -1,12 +1,9 @@
 <?php
-require_once __DIR__ . '/common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/common/security/auth.php';
+require_login_page();
 require_once __DIR__ . '/common/security/csrf.php';
 
-if (!isset($_SESSION['username'])) {
-    header('Location: index.php');
-    exit;
-}
+
 $username = $_SESSION['username'];
 $role     = $_SESSION['role'];
 $language = $_SESSION['language'] ?? 'es';

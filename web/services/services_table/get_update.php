@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
 /*
 #############################################################################
    Endpoint de actualización candidate para Servicios
@@ -12,7 +11,6 @@ require_once __DIR__ . '/../../common/security/session.php';
    stop or apply services; that belongs to the commit/apply flow.
 #############################################################################
 */
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';

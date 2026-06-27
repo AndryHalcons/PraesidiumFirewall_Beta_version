@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
@@ -10,10 +8,7 @@ header('Content-Type: application/json');
 
 // Verifica si el usuario tiene sesión activa
 // Check if the user has an active session
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']); // Not authorized
-    exit;
-}
+
 
 // Leer el cuerpo de la solicitud (JSON enviado por el frontend)
 // Read the request body (JSON sent from frontend)

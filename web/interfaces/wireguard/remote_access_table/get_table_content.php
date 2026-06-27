@@ -1,15 +1,13 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
+require_once __DIR__ . '/../../../common/security/auth.php';
 // Endpoint WireGuard: devuelve el contenido candidate enmascarando secretos.
 // WireGuard endpoint: returns candidate content while masking secrets.
 
 // Fase 1: abrir sesión y cargar helper común antes del control de acceso.
 // Phase 1: open the session and load the common helper before access control.
-praesidium_session_start();
+require_login_json();
 require_once __DIR__ . '/../common/wireguard_store.php';
-if (!isset($_SESSION['username'])) { // Fase 5: devolver filas bajo el alias que espera renderTableGeneric.
-// Phase 5: return rows under the alias expected by renderTableGeneric.
-echo json_encode(['error' => wireguard_t('unauthorized')], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit; }
+
 header('Content-Type: application/json');
 // Fase 2: leer columnas declaradas y candidate JSON actual.
 // Phase 2: read declared columns and the current candidate JSON.

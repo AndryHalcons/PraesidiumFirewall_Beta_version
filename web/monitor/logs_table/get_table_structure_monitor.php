@@ -1,11 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 // Verificar si el usuario está autenticado
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+
 header('Content-Type: application/json');
 // Ruta al archivo JSON
 $jsonPath = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_monitor.json';

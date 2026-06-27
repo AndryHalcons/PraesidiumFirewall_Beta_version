@@ -1,13 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $table = trim($_GET['table'] ?? $_GET['chain'] ?? '');
 if ($table !== 'dhcp') {

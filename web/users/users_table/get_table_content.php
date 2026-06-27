@@ -1,10 +1,7 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado"); 
-}
 
 header('Content-Type: application/json');
 

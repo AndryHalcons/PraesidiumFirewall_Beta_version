@@ -1,12 +1,7 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
-
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,8 +212,6 @@ function validation_form_field_review(array $rule, ?string $chain = null): void 
         }
     }
 }
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -457,7 +450,6 @@ function Main_convert_alias_object_to_network_object(array $rule): array {
     // Devuelve la regla original sin modificar
     return $rule;
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

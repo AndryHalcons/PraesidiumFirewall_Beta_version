@@ -1,16 +1,10 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+
 header('Content-Type: application/json');
 
 

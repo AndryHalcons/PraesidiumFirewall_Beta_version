@@ -1,9 +1,7 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
-}
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
+
 header('Content-Type: application/json');
 
 // Tablas permitidas

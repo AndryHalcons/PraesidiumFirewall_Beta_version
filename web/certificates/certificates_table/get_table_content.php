@@ -1,12 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
 $allowedChains = ['certificates'];
@@ -26,7 +22,6 @@ switch ($chain) {
 }
 
 // Funciones autónomas por tipo
-
 
 
 function get_certificates() {
@@ -54,8 +49,5 @@ function get_certificates() {
     
     echo json_encode(['certificates' => $data['certificates']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-
-
 
 

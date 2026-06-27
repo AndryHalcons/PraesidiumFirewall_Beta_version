@@ -1,12 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $allowedTables = [
     'BF_HOOK_XDP',

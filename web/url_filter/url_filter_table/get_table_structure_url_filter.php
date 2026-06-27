@@ -1,12 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
 $allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile','url_port_profile','url_network_list','url_networks_list_profile'];
@@ -58,7 +54,6 @@ function get_url_profile() {
 }
 
 
-
 function get_networks_list_profile() {
     $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
     $raw = file_get_contents($path);
@@ -99,7 +94,6 @@ function get_url_listen_ports() {
 }
 
 
-
 function get_url_list() {
     $path = '/var/www/backend/checks/system_data/default_tables_structure/structure_table_squid.json';
     $raw = file_get_contents($path);
@@ -112,7 +106,6 @@ function get_url_list() {
 
     echo json_encode(['url_list' => $json['url_list']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
 
 
 function get_url_network_list() {

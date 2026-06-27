@@ -1,9 +1,7 @@
 <?php
-require_once __DIR__ . '/../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
-}
+require_once __DIR__ . '/../common/security/auth.php';
+require_login_page();
+
 $username = $_SESSION['username'];
 $language = $_SESSION['language'] ?? 'es';
 $langFile = __DIR__ . "/../lang/{$language}.php";

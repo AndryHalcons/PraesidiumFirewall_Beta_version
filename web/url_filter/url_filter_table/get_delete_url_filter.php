@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
@@ -8,10 +6,6 @@ require_admin_json();
 csrf_validate_or_exit();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $input = json_decode(file_get_contents('php://input'), true);
 $chain = trim($input['table'] ?? '');
@@ -89,7 +83,6 @@ function get_url_profile_delete($chain) {
         echo json_encode(['error' => 'No se pudo leer el archivo']);
         return;
     }
-
 
 
     $json = json_decode($raw, true);
@@ -186,7 +179,6 @@ function get_url_networks_list_profile_delete($chain) {
 }
 
 
-
 function get_url_port_profile_delete($chain) {
     require __DIR__ . '/validation_url_filter.php';
     $path = '/var/www/config/squid_config/squid_policies.json';
@@ -195,7 +187,6 @@ function get_url_port_profile_delete($chain) {
         echo json_encode(['error' => 'No se pudo leer el archivo']);
         return;
     }
-
 
 
     $json = json_decode($raw, true);

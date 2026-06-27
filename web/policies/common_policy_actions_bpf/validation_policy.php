@@ -1,11 +1,6 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +61,6 @@ function import_forms_bpf_json() {
 
     return $aliasJsonData;
 }
-
 
 
 //importa la lista de interfaces en array 
@@ -139,9 +133,6 @@ function gen_chain_name(array $rule): array {
 }
 
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,8 +200,6 @@ function validation_form_field_review(array $rule): void {
         }
     }
 }
-
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +289,6 @@ function get_id(): string {
         $id++;
     }
 }
-
 
 
 //convierte el campo name y el campo id en partes del campo comment de bpfilter
@@ -1078,15 +1066,5 @@ function reorderPosition($rulesJson, $id, $position, $hook, $chain) {
     $rulesJson['bpfilter'] = array_merge($others, $block);
     return $rulesJson;
 }
-
-
-
-
-
-
-
-
-
-
 
 

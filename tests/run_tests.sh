@@ -89,6 +89,7 @@ run_web() {
 run_security() {
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_static_auth_csrf_matrix.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_session_centralization_static.py
+    run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_auth_centralization_static.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_no_destructive_profiles_without_guard.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_installer_shell_safety_static.py
     run_cmd "$PYTHON_BIN" tests/test_profiles/security/test_sudoers_static_scope.py

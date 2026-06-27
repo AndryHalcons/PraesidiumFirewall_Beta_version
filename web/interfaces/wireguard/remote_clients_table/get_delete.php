@@ -1,11 +1,9 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
 // Endpoint WireGuard: valida dependencias y borra una entrada del candidate JSON.
 // WireGuard endpoint: validates dependencies and deletes one entry from the candidate JSON.
 
 // Fase 1: abrir sesión, exigir admin y validar CSRF antes de borrar.
 // Phase 1: open session, require admin, and validate CSRF before deleting.
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';

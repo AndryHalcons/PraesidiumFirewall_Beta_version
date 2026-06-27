@@ -1,14 +1,10 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
 // Verifica si el usuario tiene sesión activa
 // Check if the user has an active session
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']); // Not authorized
-    exit;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +161,6 @@ function hash_pass(array $rule): array {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 // Actualiza un usuario existente por ID o lo añade si no existe
 // Updates an existing user by ID or adds it if not found
 function update_or_add_user(array $rule, array $rulesJson): array {
@@ -199,7 +194,5 @@ function update_or_add_user(array $rule, array $rulesJson): array {
     return $rulesJson; // Devolvemos el JSON actualizado sin alterar el orden
     // Return the updated JSON without altering the order
 }
-
-
 
 

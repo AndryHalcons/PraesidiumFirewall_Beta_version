@@ -1,11 +1,7 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    http_response_code(403);
-    echo json_encode(["error" => "No autorizado"]);
-    exit;
-}
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
+
 
 $routesFile = "/var/www/config/routes.json";
 

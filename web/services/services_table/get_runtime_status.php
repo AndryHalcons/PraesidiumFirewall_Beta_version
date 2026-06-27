@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
+require_once __DIR__ . '/../../common/security/auth.php';
 /*
 #############################################################################
    Endpoint de refresco runtime de Servicios
@@ -12,13 +12,9 @@ require_once __DIR__ . '/../../common/security/session.php';
    initial table load: systemctl or sysctl.
 #############################################################################
 */
-praesidium_session_start();
+require_login_json();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $table = $_GET['table'] ?? '';
 if ($table !== 'services') {

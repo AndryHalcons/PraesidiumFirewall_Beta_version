@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
+require_once __DIR__ . '/../../common/security/auth.php';
 /*
 #############################################################################
    Endpoint de contenido de tabla para Servicios
@@ -12,13 +12,9 @@ require_once __DIR__ . '/../../common/security/session.php';
    read runtime from JSON; it checks it live through services_build_rows().
 #############################################################################
 */
-praesidium_session_start();
+require_login_json();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 // Solo la tabla services puede consumir este endpoint genérico.
 // Only the services table may consume this generic endpoint.

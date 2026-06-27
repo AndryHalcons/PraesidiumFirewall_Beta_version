@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
+require_once __DIR__ . '/../../common/security/auth.php';
 /*
 #############################################################################
    Endpoint de estructura de tabla para Servicios
@@ -14,13 +14,9 @@ require_once __DIR__ . '/../../common/security/session.php';
    with get_update.php and the stable Services catalog.
 #############################################################################
 */
-praesidium_session_start();
+require_login_json();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 // Acepta únicamente la tabla fija services para evitar exposición de estructuras ajenas.
 // Accepts only the fixed services table to avoid exposing unrelated structures.

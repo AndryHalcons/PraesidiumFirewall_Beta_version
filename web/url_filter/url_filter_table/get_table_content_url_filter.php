@@ -1,12 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
 $allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile','url_port_profile','url_network_list','url_networks_list_profile'];
@@ -88,7 +84,6 @@ function get_url_networks_list_profile() {
 
     echo json_encode(['url_networks_list_profile' => $result], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
 
 
 function get_url_url_port_profile_form() {

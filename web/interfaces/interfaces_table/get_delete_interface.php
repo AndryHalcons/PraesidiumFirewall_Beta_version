@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
@@ -8,10 +6,6 @@ require_admin_json();
 csrf_validate_or_exit();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $input = json_decode(file_get_contents('php://input'), true);
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? $input['table'] ?? $input['chain'] ?? '');
@@ -34,11 +28,6 @@ switch ($chain) {
         echo json_encode(['error' => 'Cadena no soportada']);
         break;
 }
-
-
-
-
-
 
 
 function get_ethernets_form() {

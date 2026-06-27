@@ -1,13 +1,9 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 // Verifica si el usuario está autenticado
 // Check if the user is authenticated
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+
 
 // Obtiene el parámetro 'table' desde la URL
 // Get 'table' parameter from URL
@@ -119,7 +115,6 @@ if (file_exists($ifacePath)) {
 }
 
 
-
 // Carga las cadenas chain disponibles al formulario segun el "bpfName" recibido como parametro
 // Loads the available chain strings to the form according to the "bpfName" received as a parameter
 $chainPath = '/var/www/config/rules_bpfilter_chain.json';
@@ -138,8 +133,6 @@ if (file_exists($chainPath)) {
         }
     }
 }
-
-
 
 
 $formData = populate_bpf_object_multiselect_options($formData);

@@ -1,9 +1,7 @@
 <?php
-require_once __DIR__ . '/../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
-}
+require_once __DIR__ . '/../common/security/auth.php';
+require_login_page();
+
 $language = $_SESSION['language'] ?? 'es';
 $langFile = __DIR__ . "/../lang/{$language}.php";
 if (!file_exists($langFile)) {
@@ -45,6 +43,5 @@ $path_get_delete = "/policies/common_policy_actions_nft/get_delete_policy.php";
   </script>
 </body>
 </html>
-
 
 

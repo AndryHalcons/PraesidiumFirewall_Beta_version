@@ -1,21 +1,15 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
 
 // Verificar si el usuario está autenticado
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
-}
+
 
 // Función para obtener el JSON del commit
 function getCommitJson() {
-    if (!isset($_SESSION['username'])) {
-        return json_encode(["error" => "No autorizado"]);
-    }
+
 
     $dateStr = date('YmdHis');
     $commit = [
@@ -31,7 +25,7 @@ function getCommitJson() {
 
 // Función para iniciar el commit llamando al script Python
 function starting_commit() {
-    
+
     $json = getCommitJson();
 
     // Ruta al script Python

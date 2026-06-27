@@ -1,12 +1,8 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 $chain = trim($_GET['table'] ?? $_GET['chain'] ?? '');
 $allowedChains = ['url_policies', 'url_list', 'url_listen_ports','url_profile','url_port_profile','url_network_list','url_networks_list_profile'];
@@ -56,7 +52,6 @@ function import_alias_json() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    function for type //////// ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 // Funciones autónomas por tipo
@@ -119,7 +114,6 @@ function get_url_policies_form() {
             }
         }
     }
-
 
 
     // Insertar todo en el mismo select
@@ -215,7 +209,6 @@ function get_url_networks_list_profile() {
 }
 
 
-
 // Funciones autónomas por tipo
 // Standalone functions by type
 function get_url_port_profile_form() {
@@ -243,9 +236,6 @@ function get_url_port_profile_form() {
     // Return the updated JSON
     echo json_encode($json['url_port_profile'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-
-
-
 
 
 function get_url_listen_ports_form() {

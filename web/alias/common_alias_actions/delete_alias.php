@@ -1,15 +1,10 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado"); 
 
-}
 
 $aliasFile = '/var/www/config/alias.json'; 
 
@@ -18,11 +13,9 @@ $aliasFile = '/var/www/config/alias.json';
 require_once __DIR__ . '/validation_alias.php';
 
 
-
 // Leer el cuerpo del request como JSON
 // Read the request body as JSON
 $input = json_decode(file_get_contents('php://input'), true);
-
 
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -73,8 +66,6 @@ if (!$aliasData || !is_array($aliasData)) {
 //revision global previa a las particulares
 
 
-
-
 // Función para eliminar una entrada de alias_address
 // Function to delete an entry from alias_address
 function deleteAliasAddress(&$data, $id,$name) {
@@ -121,7 +112,6 @@ function deleteAliasServiceGroup(&$data, $id,$name) {
         fn($item) => intval($item['id']) !== intval($id)
     ));
 }
-
 
 
 // Determinar qué función ejecutar según el parámetro recibido

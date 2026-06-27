@@ -1,11 +1,6 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
-if (!isset($_SESSION['username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+require_once __DIR__ . '/../../common/security/auth.php';
+require_login_json();
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,10 +111,6 @@ function validationFamiliy($data, $rule)
     }
 
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    form field review        /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,9 +180,6 @@ function validation_form_field_review(array $rule): void {
         }
     }
 }
-
-
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +269,6 @@ function get_id(): string {
         $id++;
     }
 }
-
 
 
 //convierte el campo name y el campo id en partes del campo comment de nftables
@@ -408,7 +395,6 @@ function validate_nft_rule_protocols(array $rule): void {
 }
 
 
-
 // Verificación de mezcla de IPv4 e IPv6 en source y destination
 function contains_mixed_ip_versions_nft(string $ipSaddr = '', string $ipDaddr = '', string $snatAddr = '', string $dnatAddr = ''): bool {
     $allVersions = [];
@@ -439,8 +425,6 @@ function contains_mixed_ip_versions_nft(string $ipSaddr = '', string $ipDaddr = 
     // Si hay más de un tipo de IP -> mezcla -> no se permite
     return count(array_unique($allVersions)) === 1;
 }
-
-
 
 
 function detect_ip_version(string $input): string {
@@ -1036,12 +1020,5 @@ function reorderPosition($rulesJson, $id, $position, $family, $table, $chain) {
     $rulesJson['nftables'] = array_merge($others, $block);
     return $rulesJson;
 }
-
-
-
-
-
-
-
 
 

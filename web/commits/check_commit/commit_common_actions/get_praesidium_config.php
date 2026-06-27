@@ -1,7 +1,4 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
-praesidium_session_start();
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 
 /*

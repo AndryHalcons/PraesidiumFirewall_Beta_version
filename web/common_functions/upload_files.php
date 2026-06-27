@@ -1,21 +1,11 @@
 <?php
-require_once __DIR__ . '/../common/security/session.php';
 require_once __DIR__ . "/validation_uploads.php";
 
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
-if (!isset($_SESSION['username'])) {
-    http_response_code(403);
-    header('Content-Type: application/json');
-    echo json_encode([
-        "status" => "error",
-        "message" => "No autorizado"
-    ]);
-    exit;
-}
+
 
 header('Content-Type: application/json'); // Asegurar respuesta JSON
 $alias = $_POST['alias'] ?? null;
@@ -169,7 +159,6 @@ function upload_files_squid_url_network_list(array $fileData): void {
 }
 
 
-
 // Función para validar y guardar el archivo subido
 // Function to validate and save the uploaded file
 function upload_files_squid(array $fileData): void {
@@ -285,7 +274,6 @@ function upload_files_squid(array $fileData): void {
     ]);
     exit;
 }
-
 
 
 function upload_certificates(array $fileData): void {

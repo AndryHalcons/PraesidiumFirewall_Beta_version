@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
+require_once __DIR__ . '/../../common/security/auth.php';
 /*
 #############################################################################
    Endpoint de metadatos de formulario para Servicios
@@ -14,13 +14,9 @@ require_once __DIR__ . '/../../common/security/session.php';
    fixed-catalog model.
 #############################################################################
 */
-praesidium_session_start();
+require_login_json();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['username'])) {
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
 
 // Solo la tabla services puede solicitar este formulario.
 // Only the services table may request this form metadata.

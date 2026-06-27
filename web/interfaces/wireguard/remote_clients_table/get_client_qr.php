@@ -1,9 +1,7 @@
 <?php
-require_once __DIR__ . '/../../../common/security/session.php';
 // Endpoint WireGuard: descarga un QR PNG con la configuración completa del cliente.
 // WireGuard endpoint: downloads a PNG QR containing the full client configuration.
 
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once __DIR__ . '/../common/wireguard_store.php';
 require_admin_json();

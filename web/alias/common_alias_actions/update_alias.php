@@ -1,14 +1,10 @@
 <?php
-require_once __DIR__ . '/../../common/security/session.php';
-praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/file/json_store.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();
 csrf_validate_or_exit();
-if (!isset($_SESSION['username'])) {
-    exit("No autorizado");
-}
+
 $path = '/var/www/config/alias.json';
 // Ruta local del archivo JSON de configuración
 // Local path to the alias configuration JSON file
@@ -69,11 +65,6 @@ function saveAliasData($path, $data) {
     $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     json_store_write_raw($path, $json);
 }
-
-
-
-
-
 
 
 // Actualiza una entrada del tipo alias_address
@@ -153,9 +144,6 @@ $inputData = json_decode($requestBody, true);    // Decodifica el JSON recibido
 
 $aliasData = loadAliasData($path); // Carga los datos actuales del archivo
                                    // Load current data from file
-
-
-
 
 
                                    
