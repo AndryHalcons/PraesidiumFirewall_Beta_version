@@ -289,9 +289,22 @@ function genericFilterableValue(value) {
   return String(value).toLowerCase();
 }
 
+// Devuelve el texto filtrable de una celda con contexto de formulario.
+// Returns the filterable text for one cell with form-context awareness.
+function genericFilterableCellValue(value, formConfig, key) {
+  // Para checkbox, el filtro debe representar el estado visual: true marcado, false desmarcado.
+  // For checkboxes, the filter must represent visual state: true checked, false unchecked.
+  // Cualquier valor que no sea exactamente el configured checked cuenta como false.
+  // Any value not exactly matching configured checked counts as false.
+  if (formConfig?.checkbox?.[key]) {
+    return value === formConfig.checkbox[key].checked ? 'true' : 'false';
+  }
+  return genericFilterableValue(value);
+}
+
 // Comprueba si una fila cumple todos los filtros activos de su tabla.
 // Checks whether one row matches every active filter for its table.
-function genericRuleMatchesFilters(rule, columns, activeFilters) {
+function genericRuleMatchesFilters(rule, columns, activeFilters, formConfig) {
   // La columna Acciones no participa: sólo se recorren columnas de datos visibles.
   // The Actions column is ignored: only visible data columns are evaluated.
   return columns.every(column => {
@@ -303,17 +316,17 @@ function genericRuleMatchesFilters(rule, columns, activeFilters) {
     if (!expected) {
       return true;
     }
-    return genericFilterableValue(rule[key]).includes(expected);
+    return genericFilterableCellValue(rule[key], formConfig, key).includes(expected);
   });
 }
 
 // Aplica los filtros activos sobre las filas descargadas del backend.
 // Applies active filters to rows already downloaded from the backend.
-function genericApplyTableFilters(currentAlias, rules, columns) {
+function genericApplyTableFilters(currentAlias, rules, columns, formConfig) {
   // El filtrado es sólo cliente: no cambia JSON, endpoints ni estado candidato.
   // Filtering is client-side only: it does not change JSON, endpoints or candidate state.
   const activeFilters = genericGetTableFilterState(currentAlias);
-  return rules.filter(rule => genericRuleMatchesFilters(rule, columns, activeFilters));
+  return rules.filter(rule => genericRuleMatchesFilters(rule, columns, activeFilters, formConfig));
 }
 
 // Construye la segunda fila de cabecera con un filtro por campo de datos.
@@ -368,7 +381,7 @@ function genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig,
   // This function centralizes rendering so filtering can reuse it without repeating fetch().
   tbody.innerHTML = '';
 
-  const filteredRules = genericApplyTableFilters(currentAlias, rules, columns);
+  const filteredRules = genericApplyTableFilters(currentAlias, rules, columns, formConfig);
   if (!Array.isArray(filteredRules) || filteredRules.length === 0) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');

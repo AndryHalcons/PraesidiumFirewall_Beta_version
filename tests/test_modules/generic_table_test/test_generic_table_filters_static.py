@@ -43,6 +43,7 @@ def main() -> None:
     for fn in [
         "genericGetTableFilterState",
         "genericFilterableValue",
+        "genericFilterableCellValue",
         "genericRuleMatchesFilters",
         "genericApplyTableFilters",
         "genericCreateFilterRow",
@@ -61,6 +62,8 @@ def main() -> None:
     # Actions and button columns are excluded from filtering.
     require(js, "generic-table-filter-actions", "empty actions filter cell")
     require(js, "if (genericIsButtonColumn(column)) {\n      return true;", "button columns ignored in filter")
+    require(js, "return value === formConfig.checkbox[key].checked ? 'true' : 'false';", "checkbox visual true/false filter")
+    require(js, "genericFilterableCellValue(rule[key], formConfig, key)", "filter uses formConfig-aware value")
     require(js, "if (!genericIsButtonColumn(column))", "no input for button columns")
 
     # El input debe repintar con cache, no disparar fetch() por pulsación.
@@ -87,6 +90,8 @@ def main() -> None:
     require(js, "// In-memory state for generic table filters", "English filter state comment")
     require(js, "// Convierte cualquier valor de celda", "Spanish value comment")
     require(js, "// Converts any cell value", "English value comment")
+    require(js, "// Para checkbox, el filtro debe representar el estado visual", "Spanish checkbox filter comment")
+    require(js, "// For checkboxes, the filter must represent visual state", "English checkbox filter comment")
 
     print("PASS: generic table filters static contract")
 
