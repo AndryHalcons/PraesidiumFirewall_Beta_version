@@ -157,3 +157,9 @@ Total files to migrate: 136
 - Backup directory: `/home/ubuntu/praesidium_backups/session_centralization_20260627_213913`
 - Backup tar: `/home/ubuntu/praesidium_backups/session_centralization_20260627_213913.tar.gz`
 - Files migrated in this batch: 136
+
+
+## System logging page relocation note
+
+- `web/settings.php` is now a compatibility wrapper.
+- Real module page: `web/system/logging/system_logging.php`.

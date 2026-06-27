@@ -164,3 +164,9 @@ Backup tar: `/home/ubuntu/praesidium_backups/auth_centralization_20260627_220024
 
 - Files changed: 115
 - auth.php extended with page/text/download helpers.
+
+
+## System logging page relocation note
+
+- `web/settings.php` is now a compatibility wrapper.
+- Real module page: `web/system/logging/system_logging.php`.
