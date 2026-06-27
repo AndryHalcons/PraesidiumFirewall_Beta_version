@@ -1,29 +1,34 @@
 #!/usr/bin/env python3
 """
-Test: test_e2e_browser_console_quiet.py
+E2E WebGUI real: browser console quiet contract.
 
-Objetivo:
-    Consola navegador sin errores graves en rutas principales.
-
-Tipo:
-    e2e / potencialmente destructivo / solo laboratorio
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1 y entorno HTTP. No se ejecuta por
-    defecto para evitar tocar UI/runtime real sin autorizacion.
+ES: Prueba HTTP/WebGUI real con usuario admin de laboratorio. No modifica datos
+salvo que el test indique lo contrario y siempre debe ir protegido por guardia.
+EN: Real HTTP/WebGUI test using lab admin credentials.
 """
 from pathlib import Path
+import json
+import re
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from env import skip_if_missing_http_env
-from report import pass_
+from report import fail, pass_
+from release_lab import http_client_from_env
 
 require_lab_confirmation()
-if skip_if_missing_http_env():
-    raise SystemExit(0)
-# ES: Este test queda preparado para Playwright/Selenium cuando el lab tenga URL
-# y credenciales dedicadas.
-# EN: This test is ready for Playwright/Selenium once the lab has dedicated URL
-# and credentials.
-pass_('test_e2e_browser_console_quiet.py', 'guard_ok; pendiente de automatizacion navegador real')
+client = http_client_from_env()
+
+
+# ES/EN: Sin Playwright en stdlib, este test valida que los scripts principales se entregan y no contienen marcadores de error obvios.
+scripts = ['/my_js/generic_table.js','/javascript.js','/monitor/logs_table/monitor.js']
+errors=[]
+for script in scripts:
+    status, _, body = client.get(script)
+    if status != 200:
+        errors.append(f'{script}: HTTP {status}')
+    if 'throw new Error' in body or 'console.error(' in body:
+        errors.append(f'{script}: marcador console/error revisar')
+if errors:
+    fail('e2e browser console quiet static-http', errors)
+pass_('e2e browser console quiet static-http', f'scripts={len(scripts)}')
+

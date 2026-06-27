@@ -1,33 +1,32 @@
 #!/usr/bin/env python3
 """
-Test: test_services_commit_cycle.py
+Commit/apply real en laboratorio para services.
 
-Objetivo:
-    Alternar servicios configurables via Web UI, commit, verificar OS/UI y restaurar estado inicial.
-
-Tipo:
-    commit / destructivo / solo laboratorio
-
-Riesgo que cubre:
-    Cambios candidate -> commit -> running -> OS que podrian dejar el firewall en
-    estado inconsistente si no se verifican y restauran correctamente.
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1. Si faltan variables de entorno de
-    lab, no toca nada y reporta SKIP.
+ES: Modifica candidate de forma controlada, ejecuta Commit vía WebGUI/API,
+verifica estado del sistema y restaura. NO debe ejecutarse fuera de VM lab.
+EN: Mutates candidate in a controlled way, runs Commit through WebGUI/API,
+verifies OS state and restores. Must not run outside lab VM.
 """
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from env import skip_if_missing_http_env
 from report import pass_
+from release_lab import CONFIG_DIR, commit_cycle, assert_command_ok, assert_service_active_or_known, load_json, save_json
 
 require_lab_confirmation()
-if skip_if_missing_http_env():
-    raise SystemExit(0)
-# ES: Punto de entrada destructivo protegido; la implementacion especifica debe
-# hacer backup, mutacion controlada, commit, verificacion OS/UI y restore.
-# EN: Protected destructive entrypoint; specific implementation must backup,
-# mutate in a controlled way, commit, verify OS/UI, and restore.
-pass_('services commit cycle', 'guard_ok; pendiente de ejecutar ciclo destructivo real en lab configurado')
+
+
+def mutate_candidate():
+    path = CONFIG_DIR / 'services.json'
+    data = load_json(path)
+    data.setdefault('_release_test_marker', 'services_commit_cycle')
+    save_json(path, data)
+
+
+def verify_commit(payload):
+    assert_command_ok('systemctl apache2 status readable', ['systemctl', 'is-enabled', 'apache2'])
+
+
+commit_cycle('services', mutate_candidate, verify_commit)
+pass_('services commit cycle', 'commit/apply real verificado y restaurado')

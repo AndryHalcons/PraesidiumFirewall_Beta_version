@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
 """
-Test: test_e2e_localisation_es_en.py
+E2E WebGUI real: localisation ES/EN.
 
-Objetivo:
-    Usuarios ES/EN muestran claves de idioma correctas.
-
-Tipo:
-    e2e / potencialmente destructivo / solo laboratorio
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1 y entorno HTTP. No se ejecuta por
-    defecto para evitar tocar UI/runtime real sin autorizacion.
+ES: Prueba HTTP/WebGUI real con usuario admin de laboratorio. No modifica datos
+salvo que el test indique lo contrario y siempre debe ir protegido por guardia.
+EN: Real HTTP/WebGUI test using lab admin credentials.
 """
 from pathlib import Path
+import json
+import re
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from env import skip_if_missing_http_env
-from report import pass_
+from report import fail, pass_
+from release_lab import http_client_from_env
 
 require_lab_confirmation()
-if skip_if_missing_http_env():
-    raise SystemExit(0)
-# ES: Este test queda preparado para Playwright/Selenium cuando el lab tenga URL
-# y credenciales dedicadas.
-# EN: This test is ready for Playwright/Selenium once the lab has dedicated URL
-# and credentials.
-pass_('test_e2e_localisation_es_en.py', 'guard_ok; pendiente de automatizacion navegador real')
+client = http_client_from_env()
+
+
+status, _, body = client.get('/mainpage.php')
+if status != 200:
+    fail('e2e localisation', [f'HTTP {status}'])
+if not any(token in body for token in ['Bienvenido', 'Welcome']):
+    fail('e2e localisation', ['no se encontro texto de bienvenida ES/EN'])
+pass_('e2e localisation ES/EN', 'shell contiene texto localizado')
+

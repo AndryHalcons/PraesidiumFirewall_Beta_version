@@ -1,26 +1,35 @@
 #!/usr/bin/env python3
 """
-Test: test_installer_post_install_permissions.py
+Installer release test: post install permissions.
 
-Objetivo:
-    Permisos finales web/backend/config/sudoers tras instalar.
-
-Tipo:
-    installer / destructivo / VM desechable
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1. Debe ejecutarse solo en VM limpia o
-    entorno disposable.
+ES: Ejecuta comprobaciones reales sobre una VM disposable indicada por variables
+PRAESIDIUM_INSTALLER_VM_SSH y, cuando procede, PRAESIDIUM_INSTALLER_REPO_URL.
+EN: Runs real checks on a disposable VM specified through environment variables.
 """
 from pathlib import Path
+import os
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from report import pass_
+from report import fail, pass_
+from release_lab import env_required, ssh_command
 
 require_lab_confirmation()
-# ES: Punto de entrada preparado para orquestar VM limpia; no ejecuta instalacion
-# si no se invoca dentro de un harness de VM.
-# EN: Entry point prepared for clean-VM orchestration; it does not run installer
-# unless invoked inside a VM harness.
-pass_('test_installer_post_install_permissions.py', 'guard_ok; pendiente de harness VM disposable')
+
+env = env_required(['PRAESIDIUM_INSTALLER_VM_SSH'])
+host = env['PRAESIDIUM_INSTALLER_VM_SSH']
+repo_url = os.environ.get('PRAESIDIUM_INSTALLER_REPO_URL', 'https://github.com/AndryHalcons/PraesidiumFirewall_Beta_version.git')
+
+
+cmd = '''set -euo pipefail
+sudo test -d /var/www/config
+sudo test -d /var/www/backend
+sudo -n true
+stat -c '%U:%G %a %n' /var/www/config /var/www/backend
+sudo grep -R "commit_apply.py" /etc/sudoers /etc/sudoers.d 2>/dev/null
+'''
+res = ssh_command(host, cmd)
+if res.returncode != 0:
+    fail('installer post-install permissions', [res.stdout, res.stderr])
+pass_('installer post-install permissions', res.stdout[-1200:])
+

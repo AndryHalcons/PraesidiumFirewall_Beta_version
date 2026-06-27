@@ -1,26 +1,39 @@
 #!/usr/bin/env python3
 """
-Test: test_installer_clean_ubuntu_vm.py
+Installer release test: clean Ubuntu VM install.
 
-Objetivo:
-    Instalacion limpia desde repo publico en VM desechable.
-
-Tipo:
-    installer / destructivo / VM desechable
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1. Debe ejecutarse solo en VM limpia o
-    entorno disposable.
+ES: Ejecuta comprobaciones reales sobre una VM disposable indicada por variables
+PRAESIDIUM_INSTALLER_VM_SSH y, cuando procede, PRAESIDIUM_INSTALLER_REPO_URL.
+EN: Runs real checks on a disposable VM specified through environment variables.
 """
 from pathlib import Path
+import os
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from report import pass_
+from report import fail, pass_
+from release_lab import env_required, ssh_command
 
 require_lab_confirmation()
-# ES: Punto de entrada preparado para orquestar VM limpia; no ejecuta instalacion
-# si no se invoca dentro de un harness de VM.
-# EN: Entry point prepared for clean-VM orchestration; it does not run installer
-# unless invoked inside a VM harness.
-pass_('test_installer_clean_ubuntu_vm.py', 'guard_ok; pendiente de harness VM disposable')
+
+env = env_required(['PRAESIDIUM_INSTALLER_VM_SSH'])
+host = env['PRAESIDIUM_INSTALLER_VM_SSH']
+repo_url = os.environ.get('PRAESIDIUM_INSTALLER_REPO_URL', 'https://github.com/AndryHalcons/PraesidiumFirewall_Beta_version.git')
+
+
+cmd = f'''set -euo pipefail
+rm -rf /tmp/praesidium-release-install
+mkdir -p /tmp/praesidium-release-install
+cd /tmp/praesidium-release-install
+git clone {repo_url!r} repo
+cd repo/installation
+chmod +x installer.sh
+sudo ./installer.sh
+curl -fsS http://127.0.0.1/ >/dev/null
+systemctl is-active apache2 >/dev/null
+'''
+res = ssh_command(host, cmd, timeout=3600)
+if res.returncode != 0:
+    fail('installer clean Ubuntu VM', [res.stdout[-4000:], res.stderr[-4000:]])
+pass_('installer clean Ubuntu VM', 'instalacion limpia completada y WebGUI responde')
+

@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
 """
-Test: test_e2e_dynamic_page_reentry.py
+E2E WebGUI real: dynamic page reentry.
 
-Objetivo:
-    Entrar/salir/volver a paginas dinamicas sin redeclaraciones JS.
-
-Tipo:
-    e2e / potencialmente destructivo / solo laboratorio
-
-Seguridad:
-    Requiere PRAESIDIUM_ALLOW_DESTRUCTIVE=1 y entorno HTTP. No se ejecuta por
-    defecto para evitar tocar UI/runtime real sin autorizacion.
+ES: Prueba HTTP/WebGUI real con usuario admin de laboratorio. No modifica datos
+salvo que el test indique lo contrario y siempre debe ir protegido por guardia.
+EN: Real HTTP/WebGUI test using lab admin credentials.
 """
 from pathlib import Path
+import json
+import re
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'lib'))
 from destructive_guard import require_lab_confirmation
-from env import skip_if_missing_http_env
-from report import pass_
+from report import fail, pass_
+from release_lab import http_client_from_env
 
 require_lab_confirmation()
-if skip_if_missing_http_env():
-    raise SystemExit(0)
-# ES: Este test queda preparado para Playwright/Selenium cuando el lab tenga URL
-# y credenciales dedicadas.
-# EN: This test is ready for Playwright/Selenium once the lab has dedicated URL
-# and credentials.
-pass_('test_e2e_dynamic_page_reentry.py', 'guard_ok; pendiente de automatizacion navegador real')
+client = http_client_from_env()
+
+
+page='/alias/address_alias_group.php'
+for i in range(3):
+    status, _, body = client.get(page)
+    if status != 200 or 'alias_addr_group' not in body:
+        fail('e2e dynamic page reentry', [f'iter={i} status={status}', body[:500]])
+pass_('e2e dynamic page reentry', 'misma pagina dinamica carga repetidamente')
+
