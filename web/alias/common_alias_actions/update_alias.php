@@ -187,5 +187,5 @@ saveAliasData($path, $aliasData);
 
 // Devuelve respuesta de éxito
 // Return success response
-echo json_encode(['status' => 'ok', 'message' => 'Alias actualizado correctamente.']);
+echo json_encode(['success' => true, 'message' => 'Alias actualizado correctamente.']);
 ?>
