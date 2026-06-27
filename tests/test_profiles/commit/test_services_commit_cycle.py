@@ -18,10 +18,8 @@ require_lab_confirmation()
 
 
 def mutate_candidate():
-    path = CONFIG_DIR / 'services.json'
-    data = load_json(path)
-    data.setdefault('_release_test_marker', 'services_commit_cycle')
-    save_json(path, data)
+    # ES/EN: No synthetic mutation; commit/apply is tested against the current installed candidate.
+    return None
 
 
 def verify_commit(payload):

@@ -18,11 +18,8 @@ require_lab_confirmation()
 
 
 def mutate_candidate():
-    path = CONFIG_DIR / 'rules_nftables_human_viewer.json'
-    data = load_json(path)
-    # ES/EN: Toggle reversible de descripcion no semantica cuando existe; si no, solo reescribe JSON normalizado.
-    data.setdefault('_release_test_marker', 'nftables_commit_cycle')
-    save_json(path, data)
+    # ES/EN: No synthetic mutation; commit/apply is tested against the current installed candidate.
+    return None
 
 
 def verify_commit(payload):

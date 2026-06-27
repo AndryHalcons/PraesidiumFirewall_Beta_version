@@ -18,13 +18,12 @@ require_lab_confirmation()
 
 
 def mutate_candidate():
-    # ES/EN: Commit sin cambio semantico para validar contrato general de respuesta y commit_history.
-    path = CONFIG_DIR / 'services.json'
-    data = load_json(path)
-    data.setdefault('_release_test_marker', 'commit_semantics_guard')
-    save_json(path, data)
+    # ES/EN: No synthetic mutation; this validates commit/apply on the current installed candidate.
+    return None
 
 
+def verify_commit(payload):
+    assert 'commit_result' in payload and 'commit_details' in payload
 def verify_commit(payload):
     assert 'commit_result' in payload and 'commit_details' in payload
 

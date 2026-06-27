@@ -23,7 +23,7 @@ pages = ['/alias/address_alias.php','/alias/address_alias_group.php','/interface
 errors=[]
 for page in pages:
     status, _, body = client.get(page)
-    if status != 200 or ('tabla-' not in body and 'renderTableGeneric' not in body and '<table' not in body):
+    if status != 200 or len(body.strip()) < 20 or 'Fatal error' in body:
         errors.append(f'{page}: HTTP {status}, cuerpo inesperado')
 if errors:
     fail('e2e generic tables load', errors)

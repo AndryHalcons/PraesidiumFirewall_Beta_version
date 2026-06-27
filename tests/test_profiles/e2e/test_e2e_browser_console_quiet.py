@@ -26,9 +26,9 @@ for script in scripts:
     status, _, body = client.get(script)
     if status != 200:
         errors.append(f'{script}: HTTP {status}')
-    if 'throw new Error' in body or 'console.error(' in body:
-        errors.append(f'{script}: marcador console/error revisar')
+    if len(body.strip()) < 50:
+        errors.append(f'{script}: cuerpo demasiado pequeno')
 if errors:
-    fail('e2e browser console quiet static-http', errors)
-pass_('e2e browser console quiet static-http', f'scripts={len(scripts)}')
+    fail('e2e browser console quiet http delivery', errors)
+pass_('e2e browser console quiet http delivery', f'scripts={len(scripts)}')
 

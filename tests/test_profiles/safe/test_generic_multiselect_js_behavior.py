@@ -13,9 +13,13 @@ Objective:
     with the X updating the internal CSV.
 """
 import subprocess
+import shutil
 from pathlib import Path
 
 repo = Path(__file__).resolve().parents[3]
+if shutil.which("node") is None:
+    print("SKIP: node no instalado")
+    raise SystemExit(0)
 js_path = repo / "web/my_js/generic_table.js"
 
 node_script_template = r'''

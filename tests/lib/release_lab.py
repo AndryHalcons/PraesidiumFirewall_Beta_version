@@ -15,6 +15,7 @@ import subprocess
 import time
 from pathlib import Path
 from urllib.parse import quote
+import tempfile
 
 from http_client import PraesidiumHttpClient
 from repo_paths import repo_root
@@ -54,19 +55,42 @@ def backup_paths(label: str, paths: list[Path]) -> Path:
     backup_dir = TEST_BACKUP_ROOT / f'{label}-{int(time.time())}'
     backup_dir.mkdir(parents=True, exist_ok=False)
     manifest = []
+    uid = str(os.getuid())
+    gid = str(os.getgid())
     for path in paths:
         if not path.exists():
             manifest.append(f'MISSING {path}')
             continue
         target = backup_dir / path.as_posix().lstrip('/')
         target.parent.mkdir(parents=True, exist_ok=True)
-        if path.is_dir():
-            shutil.copytree(path, target, dirs_exist_ok=True)
-        else:
-            shutil.copy2(path, target)
+        try:
+            if path.is_dir():
+                shutil.copytree(path, target, dirs_exist_ok=True)
+            else:
+                shutil.copy2(path, target)
+        except (PermissionError, shutil.Error):
+            run_cmd(['rm', '-rf', str(target)], sudo=True, check=True)
+            run_cmd(['mkdir', '-p', str(target.parent)], sudo=True, check=True)
+            run_cmd(['cp', '-a', str(path), str(target)], sudo=True, check=True)
+            run_cmd(['chown', '-R', f'{uid}:{gid}', str(target)], sudo=True, check=True)
+            run_cmd(['chmod', '-R', 'u+rwX', str(target)], sudo=True, check=True)
         manifest.append(f'COPIED {path} -> {target}')
     (backup_dir / 'MANIFEST.txt').write_text('\n'.join(manifest) + '\n', encoding='utf-8')
     return backup_dir
+
+
+def _install_file_preserving_metadata(src: Path, dst: Path) -> None:
+    try:
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        return
+    except PermissionError:
+        pass
+    run_cmd(['mkdir', '-p', str(dst.parent)], sudo=True, check=True)
+    if dst.exists():
+        run_cmd(['cp', '--preserve=mode,ownership,timestamps', str(src), str(dst)], sudo=True, check=True)
+    else:
+        run_cmd(['cp', str(src), str(dst)], sudo=True, check=True)
 
 
 def restore_paths(backup_dir: Path) -> None:
@@ -74,16 +98,27 @@ def restore_paths(backup_dir: Path) -> None:
         if stored.is_dir() or stored.name == 'MANIFEST.txt':
             continue
         original = Path('/') / stored.relative_to(backup_dir)
-        original.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(stored, original)
-
+        _install_file_preserving_metadata(stored, original)
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding='utf-8'))
 
 
 def save_json(path: Path, data) -> None:
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+    text = json.dumps(data, indent=2, ensure_ascii=False) + '\n'
+    try:
+        path.write_text(text, encoding='utf-8')
+        return
+    except PermissionError:
+        pass
+    fd, tmp_name = tempfile.mkstemp(prefix='praesidium-json-', suffix='.json')
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        _install_file_preserving_metadata(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def call_commit(client: PraesidiumHttpClient) -> dict:
