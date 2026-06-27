@@ -509,6 +509,45 @@ table.interfaz tbody td span.valor[contenteditable="true"] {
     padding: 5px;
 }
 
+/* Fila de filtros para tablas genéricas.
+   Generic-table filter row.
+   Mantiene el filtro dentro del thead para comportarse como una segunda cabecera.
+   Keeps filters inside the thead so it behaves like a second header row. */
+table.interfaz thead tr.generic-table-filter-row th {
+    padding: 7px 9px;
+    background: #edf4fb;
+    border-bottom: 1px solid var(--praesidium-border-strong);
+}
+
+table.interfaz th.generic-table-filter-actions {
+    min-width: 92px;
+}
+
+table.interfaz input.generic-table-filter-input {
+    width: 100%;
+    min-width: 92px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--praesidium-radius-sm);
+    color: #17212b;
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+table.interfaz input.generic-table-filter-input:focus {
+    outline: none;
+    border-color: var(--praesidium-accent);
+    box-shadow: 0 0 0 2px rgba(15, 111, 179, 0.16);
+}
+
+table.interfaz .generic-table-no-results {
+    color: #526173;
+    font-style: italic;
+}
+
 
 
 /* 

@@ -248,6 +248,219 @@ function genericDataColumns(columns) {
   return columns.filter(column => !genericIsButtonColumn(column)).map(column => genericColumnField(column));
 }
 
+
+// Estado en memoria para filtros de tablas genéricas, separado por alias de tabla.
+// In-memory state for generic table filters, separated by table alias.
+window.PraesidiumGenericTableFilters = window.PraesidiumGenericTableFilters || {};
+
+// Rutas backend cacheadas por tabla para que el repintado de filtros pueda reutilizar callbacks.
+// Backend routes cached per table so filter repainting can reuse callbacks.
+window.PraesidiumGenericTablePaths = window.PraesidiumGenericTablePaths || {};
+
+// Cache de datos ya descargados por tabla; permite filtrar sin repetir llamadas al backend.
+// Cache of already downloaded table data; allows filtering without repeating backend calls.
+window.PraesidiumGenericTableCache = window.PraesidiumGenericTableCache || {};
+
+// Devuelve el contenedor de estado de filtros de una tabla y lo crea si falta.
+// Returns the filter-state container for one table and creates it when missing.
+function genericGetTableFilterState(currentAlias) {
+  // Cada tabla conserva sus filtros por alias para que navegar/repintar no mezcle secciones.
+  // Each table keeps filters by alias so navigation/repaint does not mix sections.
+  if (!window.PraesidiumGenericTableFilters[currentAlias]) {
+    window.PraesidiumGenericTableFilters[currentAlias] = {};
+  }
+  return window.PraesidiumGenericTableFilters[currentAlias];
+}
+
+// Convierte cualquier valor de celda en texto filtrable estable.
+// Converts any cell value into stable text suitable for filtering.
+function genericFilterableValue(value) {
+  // Normalizamos arrays, nulos y booleanos para que checkbox/multiselect/select filtren igual.
+  // Normalize arrays, nulls and booleans so checkbox/multiselect/select filter consistently.
+  if (Array.isArray(value)) {
+    return value.map(item => genericFilterableValue(item)).join(' ');
+  }
+  if (value === null || value === undefined) {
+    return '';
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'true yes si sí on 1' : 'false no off 0';
+  }
+  return String(value).toLowerCase();
+}
+
+// Comprueba si una fila cumple todos los filtros activos de su tabla.
+// Checks whether one row matches every active filter for its table.
+function genericRuleMatchesFilters(rule, columns, activeFilters) {
+  // La columna Acciones no participa: sólo se recorren columnas de datos visibles.
+  // The Actions column is ignored: only visible data columns are evaluated.
+  return columns.every(column => {
+    if (genericIsButtonColumn(column)) {
+      return true;
+    }
+    const key = genericColumnField(column);
+    const expected = String(activeFilters[key] || '').trim().toLowerCase();
+    if (!expected) {
+      return true;
+    }
+    return genericFilterableValue(rule[key]).includes(expected);
+  });
+}
+
+// Aplica los filtros activos sobre las filas descargadas del backend.
+// Applies active filters to rows already downloaded from the backend.
+function genericApplyTableFilters(currentAlias, rules, columns) {
+  // El filtrado es sólo cliente: no cambia JSON, endpoints ni estado candidato.
+  // Filtering is client-side only: it does not change JSON, endpoints or candidate state.
+  const activeFilters = genericGetTableFilterState(currentAlias);
+  return rules.filter(rule => genericRuleMatchesFilters(rule, columns, activeFilters));
+}
+
+// Construye la segunda fila de cabecera con un filtro por campo de datos.
+// Builds the second header row with one filter per data field.
+function genericCreateFilterRow(currentAlias, columns, repaintRows) {
+  // Esta fila imita la cabecera: primera celda vacía para Acciones y luego inputs por columna.
+  // This row mirrors the header: first cell is empty for Actions and then inputs per column.
+  const filterState = genericGetTableFilterState(currentAlias);
+  const filterRow = document.createElement('tr');
+  filterRow.className = 'generic-table-filter-row';
+
+  const actionsFilterTh = document.createElement('th');
+  actionsFilterTh.className = 'generic-table-filter-actions';
+  actionsFilterTh.setAttribute('aria-label', LANG['actions'] || 'Actions');
+  filterRow.appendChild(actionsFilterTh);
+
+  columns.forEach(column => {
+    const th = document.createElement('th');
+    th.className = 'generic-table-filter-cell';
+
+    if (!genericIsButtonColumn(column)) {
+      const key = genericColumnField(column);
+      const input = document.createElement('input');
+      input.type = 'search';
+      input.className = 'generic-table-filter-input';
+      input.placeholder = LANG['filter'] || 'Filter';
+      input.value = filterState[key] || '';
+      input.setAttribute('aria-label', `${LANG['filter'] || 'Filter'} ${genericColumnLabel(column)}`);
+
+      input.addEventListener('input', () => {
+        // Al teclear sólo repintamos el tbody con los datos ya cargados, sin llamada backend.
+        // While typing we only repaint tbody with already loaded data, without backend calls.
+        filterState[key] = input.value;
+        if (typeof repaintRows === 'function') {
+          repaintRows();
+        }
+      });
+
+      th.appendChild(input);
+    }
+
+    filterRow.appendChild(th);
+  });
+
+  return filterRow;
+}
+
+// Pinta las filas visibles de una tabla genérica usando datos y configuración ya cargados.
+// Renders visible rows for a generic table using already loaded data and configuration.
+function genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig, reloadRows) {
+  // Esta función concentra el pintado para poder reutilizarlo al filtrar sin repetir fetch().
+  // This function centralizes rendering so filtering can reuse it without repeating fetch().
+  tbody.innerHTML = '';
+
+  const filteredRules = genericApplyTableFilters(currentAlias, rules, columns);
+  if (!Array.isArray(filteredRules) || filteredRules.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = columns.length + 1;
+    td.className = 'generic-table-no-results';
+    td.textContent = Array.isArray(rules) && rules.length > 0
+      ? (LANG['filter_no_results'] || LANG['no_data'] || 'No results')
+      : (LANG['no_data'] || 'No hay datos');
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  filteredRules.forEach(rule => {
+    const tr = document.createElement('tr');
+
+    // Columna Acciones: se mantiene sin filtro y con los mismos botones existentes.
+    // Actions column: remains unfiltered and keeps the same existing buttons.
+    const actionsTd = document.createElement('td');
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = LANG['edit'] || 'Editar';
+    editBtn.onclick = () => editModal_Generic(
+      currentAlias,
+      window.PraesidiumGenericTablePaths[currentAlias].forms,
+      window.PraesidiumGenericTablePaths[currentAlias].update,
+      rule,
+      columns,
+      reloadRows
+    );
+
+    actionsTd.appendChild(editBtn);
+
+    if (!formConfig.disable_delete) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = LANG['delete'] || 'Eliminar';
+      deleteBtn.onclick = () => delete_Generic(
+        currentAlias,
+        window.PraesidiumGenericTablePaths[currentAlias].structure,
+        window.PraesidiumGenericTablePaths[currentAlias].content,
+        window.PraesidiumGenericTablePaths[currentAlias].forms,
+        window.PraesidiumGenericTablePaths[currentAlias].update,
+        window.PraesidiumGenericTablePaths[currentAlias].delete,
+        rule,
+        columns
+      );
+      actionsTd.appendChild(deleteBtn);
+    }
+
+    tr.appendChild(actionsTd);
+
+    // Columnas de datos: se respeta el render existente para botones, selects y checkboxes.
+    // Data columns: preserve the existing renderer for buttons, selects and checkboxes.
+    columns.forEach(column => {
+      if (genericIsButtonColumn(column)) {
+        tr.appendChild(genericRenderButtonCell(column, rule));
+        return;
+      }
+      const key = genericColumnField(column);
+      const td = document.createElement('td');
+      const value = rule[key] !== undefined ? rule[key] : '';
+
+      if (genericIsMultiSelectField(formConfig, key) || genericIsObjectMultiSelectField(formConfig, key)) {
+        td.textContent = genericParseMultiSelectValue(value).join(', ');
+      } else if (formConfig.select?.[key]) {
+        const select = document.createElement('select');
+        select.disabled = true;
+        formConfig.select[key].forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          if (opt === value) option.selected = true;
+          select.appendChild(option);
+        });
+        td.appendChild(select);
+      } else if (formConfig.checkbox?.[key]) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.disabled = true;
+        checkbox.checked = value === formConfig.checkbox[key].checked;
+        td.appendChild(checkbox);
+      } else {
+        td.textContent = value;
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
 // Resuelve la etiqueta visible de una columna usando LANG si existe.
 // Resolves the visible column label using LANG when available.
 function genericColumnLabel(column) {
@@ -311,8 +524,8 @@ function genericRenderButtonCell(column, rule) {
 function renderTableGeneric(currentAlias, path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete) {
   // Fase 1: pedir al backend la estructura declarativa de la tabla.
   // Phase 1: ask the backend for the declarative table structure.
-  // Importante: este script lo usa todo el firewall; los cambios deben ser opt-in por JSON.
-  // Important: the whole firewall uses this script; changes must be opt-in through JSON.
+  // Importante: este script lo usa todo el firewall; los cambios deben ser mínimos y reversibles.
+  // Important: the whole firewall uses this script; changes must be minimal and reversible.
   const endpoint = path_get_table_structure;
   const param = `table=${currentAlias}`;
 
@@ -371,12 +584,33 @@ function renderTableGeneric(currentAlias, path_get_table_structure,path_get_tabl
       });
 
       thead.appendChild(headerRow);
+
+      // Segunda fila de cabecera: filtros por columna, sin filtro en Acciones.
+      // Second header row: per-column filters, with no filter in Actions.
+      const filterRow = genericCreateFilterRow(currentAlias, columns, () => {
+        const tbody = document.querySelector(`#${currentAlias}_table table tbody`);
+        const cached = window.PraesidiumGenericTableCache?.[currentAlias];
+        if (tbody && cached) {
+          genericRenderTableRows(currentAlias, tbody, cached.rules, columns, cached.formConfig, cached.reloadRows);
+        }
+      });
+      thead.appendChild(filterRow);
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
       table.appendChild(tbody);
 
       container.appendChild(table);
+
+      // Guardar rutas para callbacks de editar/eliminar usados por el repintado filtrado.
+      // Store routes for edit/delete callbacks used by filtered repainting.
+      window.PraesidiumGenericTablePaths[currentAlias] = {
+        structure: path_get_table_structure,
+        content: path_get_table_content,
+        forms: path_get_forms_from_table,
+        update: path_get_update,
+        delete: path_get_delete
+      };
 
       // Cargar contenido de la tabla
       loadTableContentGeneric(currentAlias,path_get_table_structure,path_get_table_content,path_get_forms_from_table, path_get_update,path_get_delete, columns);
@@ -416,7 +650,7 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
       }
 
       const rules = data[currentAlias];
-      if (!Array.isArray(rules) || rules.length === 0) {
+      if (!Array.isArray(rules)) {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
         td.colSpan = columns.length + 1;
@@ -430,91 +664,19 @@ function loadTableContentGeneric(currentAlias, path_get_table_structure, path_ge
       fetch(`${formEndpoint}?table=${currentAlias}`)
         .then(res => res.json())
         .then(formConfig => {
-          rules.forEach(rule => {
-            const tr = document.createElement("tr");
-
-            // Columna de acciones
-            const actionsTd = document.createElement("td");
-
-            const editBtn = document.createElement("button");
-            editBtn.textContent = LANG["edit"] || "Editar";
-            editBtn.onclick = () => editModal_Generic(
-              
-              currentAlias,
-              path_get_forms_from_table,
-              path_get_update,
-              rule,
-              columns,
-              () => loadTableContentGeneric(
-                currentAlias,
-                path_get_table_structure,
-                path_get_table_content,
-                path_get_forms_from_table,
-                path_get_update,
-                path_get_delete,
-                columns
-              )
-            );
-
-            actionsTd.appendChild(editBtn);
-
-            if (!formConfig.disable_delete) {
-              const deleteBtn = document.createElement("button");
-              deleteBtn.textContent = LANG["delete"] || "Eliminar";
-              deleteBtn.onclick = () => delete_Generic(
-                currentAlias,
-                path_get_table_structure,
-                path_get_table_content,
-                path_get_forms_from_table,
-                path_get_update,
-                path_get_delete,
-                rule,
-                columns
-              );
-              actionsTd.appendChild(deleteBtn);
-            }
-
-            tr.appendChild(actionsTd);
-
-            // Rellenar columnas visibles; las columnas botón se pintan como acciones por fila.
-            // Fill visible columns; button columns are rendered as per-row actions.
-            columns.forEach(column => {
-              if (genericIsButtonColumn(column)) {
-                tr.appendChild(genericRenderButtonCell(column, rule));
-                return;
-              }
-              const key = genericColumnField(column);
-              const td = document.createElement("td");
-              const value = rule[key] !== undefined ? rule[key] : "";
-
-              if (genericIsMultiSelectField(formConfig, key) || genericIsObjectMultiSelectField(formConfig, key)) {
-                td.textContent = genericParseMultiSelectValue(value).join(", ");
-              } else if (formConfig.select?.[key]) {
-                const select = document.createElement("select");
-                select.disabled = true;
-                formConfig.select[key].forEach(opt => {
-                  const option = document.createElement("option");
-                  option.value = opt;
-                  option.textContent = opt;
-                  if (opt === value) option.selected = true;
-                  select.appendChild(option);
-                });
-                td.appendChild(select);
-              } else if (formConfig.checkbox?.[key]) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.disabled = true;
-                checkbox.checked = value === formConfig.checkbox[key].checked;
-                td.appendChild(checkbox);
-              } else {
-                td.textContent = value;
-              }
-
-              tr.appendChild(td);
-            });
-
-            tbody.appendChild(tr);
-          });
+          // Cachear datos y configuración: los filtros repintan en cliente sin más fetch().
+          // Cache data and configuration: filters repaint client-side without extra fetch().
+          const reloadRows = () => loadTableContentGeneric(
+            currentAlias,
+            path_get_table_structure,
+            path_get_table_content,
+            path_get_forms_from_table,
+            path_get_update,
+            path_get_delete,
+            columns
+          );
+          window.PraesidiumGenericTableCache[currentAlias] = { rules, formConfig, reloadRows };
+          genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig, reloadRows);
         })
         .catch(err => {
           console.error("Error al cargar configuración visual:", err);

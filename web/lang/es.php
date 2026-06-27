@@ -218,6 +218,8 @@ return [
     "user_role" => "Rol",
     "user_language" => "Idioma",
     "actions" => "Acciones",
+    'filter' => 'Filtrar',
+    'filter_no_results' => 'No hay resultados para el filtro',
     "confirm_delete" => "¿Seguro que deseas eliminar al usuario?",
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////

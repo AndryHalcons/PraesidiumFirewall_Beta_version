@@ -221,6 +221,8 @@ return [
     "user_role" => "Role",
     "user_language" => "Language",
     "actions" => "Actions",
+    'filter' => 'Filter',
+    'filter_no_results' => 'No results match the filter',
     "confirm_delete" => "Are you sure you want to delete the user",
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
