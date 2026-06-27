@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../common/security/session.php';
+praesidium_session_start();
 // Verifica si el usuario está autenticado
 // Check if the user is authenticated
 if (!isset($_SESSION['username'])) {

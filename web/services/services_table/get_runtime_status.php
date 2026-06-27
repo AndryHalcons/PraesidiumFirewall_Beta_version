@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../common/security/session.php';
 /*
 #############################################################################
    Endpoint de refresco runtime de Servicios
@@ -11,7 +12,7 @@
    initial table load: systemctl or sysctl.
 #############################################################################
 */
-session_start();
+praesidium_session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['username'])) {

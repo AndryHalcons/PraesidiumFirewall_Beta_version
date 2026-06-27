@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__ . '/../common/security/session.php';
 require_once __DIR__ . "/validation_uploads.php";
 
-session_start();
+praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/csrf.php';
 require_admin_json();

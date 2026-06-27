@@ -1,10 +1,11 @@
 <?php
+require_once __DIR__ . '/../../../common/security/session.php';
 // Endpoint WireGuard: devuelve el contenido candidate enmascarando secretos.
 // WireGuard endpoint: returns candidate content while masking secrets.
 
 // Fase 1: abrir sesión y cargar helper común antes del control de acceso.
 // Phase 1: open the session and load the common helper before access control.
-session_start();
+praesidium_session_start();
 require_once __DIR__ . '/../common/wireguard_store.php';
 if (!isset($_SESSION['username'])) { // Fase 5: devolver filas bajo el alias que espera renderTableGeneric.
 // Phase 5: return rows under the alias expected by renderTableGeneric.

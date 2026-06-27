@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../common/security/session.php';
 /*
 #############################################################################
    Parcial de la pantalla Servicios
@@ -13,7 +14,7 @@
    shared generic renderer.
 #############################################################################
 */
-session_start();
+praesidium_session_start();
 if (!isset($_SESSION['username'])) {
     exit("No autorizado");
 }

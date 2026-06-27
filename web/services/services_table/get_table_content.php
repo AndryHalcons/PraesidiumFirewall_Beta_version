@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../common/security/session.php';
 /*
 #############################################################################
    Endpoint de contenido de tabla para Servicios
@@ -11,7 +12,7 @@
    read runtime from JSON; it checks it live through services_build_rows().
 #############################################################################
 */
-session_start();
+praesidium_session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['username'])) {

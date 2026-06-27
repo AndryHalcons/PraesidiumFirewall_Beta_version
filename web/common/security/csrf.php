@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/session.php';
 /*
 #############################################################################
 #############################################################################
@@ -21,7 +22,7 @@
 */
 function csrf_get_token(): string {
     if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+        praesidium_session_start();
     }
 
     if (empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
@@ -61,7 +62,7 @@ function csrf_get_request_token(): string {
 */
 function csrf_validate_or_exit(): void {
     if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+        praesidium_session_start();
     }
 
     $sessionToken = $_SESSION['csrf_token'] ?? '';

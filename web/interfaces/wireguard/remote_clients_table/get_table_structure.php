@@ -1,10 +1,11 @@
 <?php
+require_once __DIR__ . '/../../../common/security/session.php';
 // Endpoint WireGuard: devuelve la estructura de columnas para la tabla genérica.
 // WireGuard endpoint: returns the column structure for the generic table.
 
 // Fase 1: abrir sesión y cargar helpers antes de usar textos traducidos.
 // Phase 1: open the session and load helpers before using translated text.
-session_start();
+praesidium_session_start();
 require_once __DIR__ . '/../common/wireguard_store.php';
 if (!isset($_SESSION['username'])) { echo json_encode(['error' => wireguard_t('unauthorized')], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit; }
 // Fase 2: devolver al render genérico la estructura declarada de columnas.

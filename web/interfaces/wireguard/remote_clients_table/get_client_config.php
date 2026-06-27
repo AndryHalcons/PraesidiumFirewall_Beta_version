@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../../../common/security/session.php';
 // Endpoint WireGuard: descarga el archivo .conf completo para un cliente VPN.
 // WireGuard endpoint: downloads the full .conf file for one VPN client.
 
-session_start();
+praesidium_session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/auth.php';
 require_once __DIR__ . '/../common/wireguard_store.php';
 require_admin_json();

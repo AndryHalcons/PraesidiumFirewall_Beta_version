@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/session.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/audit.php';
 /*
 #############################################################################
@@ -22,7 +23,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/common/security/audit.php';
 */
 function auth_ensure_session_started(): void {
     if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+        praesidium_session_start();
     }
 }
 

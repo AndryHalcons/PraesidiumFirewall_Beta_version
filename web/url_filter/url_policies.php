@@ -1,6 +1,7 @@
 
 <?php
-session_start();
+require_once __DIR__ . '/../common/security/session.php';
+praesidium_session_start();
 if (!isset($_SESSION['username'])) {
     exit("No autorizado");
 }

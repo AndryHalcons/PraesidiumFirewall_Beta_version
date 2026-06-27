@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . '/../../common/security/session.php';
 // Página hija WireGuard: configuración de túneles sede-a-sede.
 // WireGuard child page: site-to-site tunnel configuration.
 // Fase 1: abrir sesión y bloquear acceso no autenticado antes de renderizar HTML.
 // Phase 1: open the session and block unauthenticated access before rendering HTML.
-session_start();
+praesidium_session_start();
 if (!isset($_SESSION['username'])) { exit(htmlspecialchars($L['unauthorized'] ?? 'unauthorized', ENT_QUOTES, 'UTF-8')); }
 // Fase 2: cargar el idioma activo para que todo texto visible salga de web/lang.
 // Phase 2: load the active language so every visible text comes from web/lang.
