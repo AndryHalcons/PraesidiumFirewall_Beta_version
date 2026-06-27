@@ -20,7 +20,7 @@ from repo_paths import repo_root
 from report import fail, pass_
 
 root = repo_root()
-common = (root / 'web/services/services_table/services_common.php').read_text(encoding='utf-8')
+common = (root / 'web/system/services/services_table/services_common.php').read_text(encoding='utf-8')
 apply = (root / 'backend/commits/commit_task/task_apply_services.py').read_text(encoding='utf-8')
 errors = []
 

@@ -6,8 +6,8 @@ Tests del modulo `services` de PraesidiumFirewall.
 
 ## Archivos del producto relacionados
 
-- `web/services/services.php`
-- `web/services/services_table`
+- `web/system/services/services.php`
+- `web/system/services/services_table`
 - `backend/checks/system_data/default_forms/forms_services.json`
 - `backend/checks/system_data/default_tables_structure/structure_table_services.json`
 - `data/services.json`

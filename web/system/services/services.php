@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/security/auth.php';
+require_once __DIR__ . '/../../common/security/auth.php';
 /*
 #############################################################################
    Parcial de la pantalla Servicios
@@ -24,9 +24,9 @@ require_login_page();
 #############################################################################
 */
 $language = $_SESSION['language'] ?? 'es';
-$langFile = __DIR__ . "/../lang/{$language}.php";
+$langFile = __DIR__ . "/../../lang/{$language}.php";
 if (!file_exists($langFile)) {
-    $langFile = __DIR__ . "/../lang/es.php";
+    $langFile = __DIR__ . "/../../lang/es.php";
 }
 $L = require $langFile;
 /*
@@ -36,12 +36,12 @@ $L = require $langFile;
 #############################################################################
 */
 $currentAlias = "services";
-$path_get_table_structure = "/services/services_table/get_table_structure.php";
-$path_get_table_content = "/services/services_table/get_table_content.php";
-$path_get_forms_from_table = "/services/services_table/get_forms_from_table.php";
-$path_get_update = "/services/services_table/get_update.php";
-$path_get_delete = "/services/services_table/get_delete.php";
-$path_get_runtime_status = "/services/services_table/get_runtime_status.php";
+$path_get_table_structure = "/system/services/services_table/get_table_structure.php";
+$path_get_table_content = "/system/services/services_table/get_table_content.php";
+$path_get_forms_from_table = "/system/services/services_table/get_forms_from_table.php";
+$path_get_update = "/system/services/services_table/get_update.php";
+$path_get_delete = "/system/services/services_table/get_delete.php";
+$path_get_runtime_status = "/system/services/services_table/get_runtime_status.php";
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($language) ?>">
@@ -67,7 +67,7 @@ $path_get_runtime_status = "/services/services_table/get_runtime_status.php";
     };
   </script>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <section class="cajita-cabecera">
@@ -82,7 +82,7 @@ $path_get_runtime_status = "/services/services_table/get_runtime_status.php";
 
   <div id="<?= htmlspecialchars($currentAlias) ?>_table"></div>
 
-  <script src="/services/services_table/services.js?v=<?= filemtime(__DIR__ . "/services_table/services.js") ?>"></script>
+  <script src="/system/services/services_table/services.js?v=<?= filemtime(__DIR__ . "/services_table/services.js") ?>"></script>
   <script>
     /*
     ###########################################################################

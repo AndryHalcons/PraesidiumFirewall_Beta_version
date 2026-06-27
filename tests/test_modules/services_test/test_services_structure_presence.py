@@ -24,7 +24,7 @@ from repo_paths import repo_root
 from report import fail, pass_
 
 root = repo_root()
-expected = ['web/services/services.php', 'web/services/services_table', 'backend/checks/system_data/default_forms/forms_services.json', 'backend/checks/system_data/default_tables_structure/structure_table_services.json', 'data/services.json', 'data_running/services.json', 'backend/commits/commit_task/task_apply_services.py']
+expected = ['web/system/services/services.php', 'web/system/services/services_table', 'backend/checks/system_data/default_forms/forms_services.json', 'backend/checks/system_data/default_tables_structure/structure_table_services.json', 'data/services.json', 'data_running/services.json', 'backend/commits/commit_task/task_apply_services.py']
 missing = [rel for rel in expected if not (root / rel).exists()]
 if missing:
     fail('services structure presence', missing)

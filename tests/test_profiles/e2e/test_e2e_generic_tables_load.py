@@ -19,7 +19,7 @@ require_lab_confirmation()
 client = http_client_from_env()
 
 
-pages = ['/alias/address_alias.php','/alias/address_alias_group.php','/interfaces/ethernets.php','/policies/policies_nftables_input.php','/services/services.php']
+pages = ['/alias/address_alias.php','/alias/address_alias_group.php','/interfaces/ethernets.php','/policies/policies_nftables_input.php','/system/services/services.php']
 errors=[]
 for page in pages:
     status, _, body = client.get(page)

@@ -23,7 +23,7 @@ if skip_if_missing_http_env():
 client = PraesidiumHttpClient(base_url())
 if not client.login(admin_user(), admin_pass()):
     fail('HTTP CSRF reject', ['login fallo'])
-endpoints = ['/web/services/services_table/get_update.php', '/services/services_table/get_update.php']
+endpoints = ['/web/system/services/services_table/get_update.php', '/system/services/services_table/get_update.php']
 accepted = []
 for endpoint in endpoints:
     status, _, body = client.post_json(endpoint, json.dumps({'invalid': True}), csrf=False)

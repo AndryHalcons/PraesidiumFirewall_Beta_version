@@ -19,10 +19,10 @@ require_lab_confirmation()
 client = http_client_from_env()
 
 
-status, _, body = client.get('/services/services.php')
+status, _, body = client.get('/system/services/services.php')
 if status != 200 or 'services' not in body.lower():
     fail('e2e services UI cycle', [f'HTTP {status}', body[:800]])
-status, _, body = client.get('/services/services_table/get_table_content.php')
+status, _, body = client.get('/system/services/services_table/get_table_content.php')
 if status != 200:
     fail('e2e services table content', [f'HTTP {status}', body[:800]])
 pass_('e2e services UI read cycle', 'pagina y contenido de servicios accesibles')

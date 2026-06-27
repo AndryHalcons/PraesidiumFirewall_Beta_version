@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../common/security/auth.php';
+require_once __DIR__ . '/../../../common/security/auth.php';
 /*
 #############################################################################
    Endpoint de metadatos de formulario para Servicios
