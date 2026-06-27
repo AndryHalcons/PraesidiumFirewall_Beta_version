@@ -333,6 +333,7 @@ body:has(.login-container) {
     width: 238px;
     height: calc(100% - 140px);
     overflow-y: auto;
+    z-index: 1001;
     background: linear-gradient(180deg, var(--praesidium-bg-sidebar) 0%, #0f1c2f 100%);
     color: var(--praesidium-text-light);
     padding: 14px 10px 22px;
