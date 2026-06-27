@@ -20,7 +20,7 @@ client = http_client_from_env()
 
 
 # ES/EN: Sin Playwright en stdlib, este test valida que los scripts principales se entregan y no contienen marcadores de error obvios.
-scripts = ['/my_js/generic_table.js','/javascript.js','/monitor/logs_table/monitor.js']
+scripts = ['/my_js/generic_table.js','/my_js/mainpage.js','/monitor/logs_table/monitor.js']
 errors=[]
 for script in scripts:
     status, _, body = client.get(script)

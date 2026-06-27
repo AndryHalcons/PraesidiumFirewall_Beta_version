@@ -22,7 +22,7 @@ $csrfToken = csrf_get_token();
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <title><?= htmlspecialchars($L['title']) ?></title>
     <link rel="stylesheet" href="styles.css">
-    <script src="javascript.js"></script>
+    <script src="/my_js/mainpage.js"></script>
     <script src="/my_js/generic_table.js"></script>
     <script src="/libraries/chart.umd.js"></script>
     <script src="/my_js/url_file_list.js"></script>
