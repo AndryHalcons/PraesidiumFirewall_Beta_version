@@ -80,7 +80,7 @@ Total files to migrate: 136
 | 63 | MIGRATED | `web/interfaces/wireguard/site_to_site_table/get_update.php` | uses web/common/security/session.php |
 | 64 | MIGRATED | `web/login.php` | uses web/common/security/session.php |
 | 65 | MIGRATED | `web/logout.php` | uses web/common/security/session.php |
-| 66 | MIGRATED | `web/logs.php` | uses web/common/security/session.php |
+| 66 | MIGRATED | `web/system/system-logs.php` | uses web/common/security/session.php |
 | 67 | MIGRATED | `web/mainpage.php` | uses web/common/security/session.php |
 | 68 | MIGRATED | `web/monitor/get_logs/get_logs.php` | uses web/common/security/session.php |
 | 69 | MIGRATED | `web/monitor/logs_table/get_table_content_monitor.php` | uses web/common/security/session.php |

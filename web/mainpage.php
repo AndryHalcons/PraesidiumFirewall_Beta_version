@@ -107,7 +107,7 @@ $csrfToken = csrf_get_token();
       </details>
       <details>
         <summary><?= htmlspecialchars($L['sidebar_system']) ?></summary>
-        <a href="#" data-page="logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
+        <a href="#" data-page="/system/system-logs.php"><?= htmlspecialchars($L['sidebar_logs']) ?></a>
         <a href="#" data-page="/system/logging/system_logging.php"><?= htmlspecialchars($L['sidebar_settings']) ?></a>
         <a href="#" data-page="/system/services/services.php"><?= htmlspecialchars($L['sidebar_services']) ?></a>
       </details>

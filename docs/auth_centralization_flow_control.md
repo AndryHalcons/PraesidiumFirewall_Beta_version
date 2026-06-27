@@ -86,7 +86,7 @@ Backup tar: `/home/ubuntu/praesidium_backups/auth_centralization_20260627_220024
 | 70 | REVIEW | `web/lang/es.php` | mixed | review_only | NO_SESSION_HELPER_OR_PUBLIC |
 | 71 | REVIEW | `web/login.php` | mixed | review_only | PUBLIC_OR_SESSION_SPECIAL |
 | 72 | REVIEW | `web/logout.php` | mixed | review_only | PUBLIC_OR_SESSION_SPECIAL |
-| 73 | MIGRATED | `web/logs.php` | html | require_login_page | MANUAL_AUTH |
+| 73 | MIGRATED | `web/system/system-logs.php` | html | require_login_page | MANUAL_AUTH |
 | 74 | MIGRATED | `web/mainpage.php` | html | require_login_page | MANUAL_AUTH |
 | 75 | MIGRATED | `web/monitor/get_logs/get_logs.php` | json | require_login_json | MANUAL_AUTH |
 | 76 | MIGRATED | `web/monitor/logs_table/get_table_content_monitor.php` | json | require_login_json | MANUAL_AUTH |
