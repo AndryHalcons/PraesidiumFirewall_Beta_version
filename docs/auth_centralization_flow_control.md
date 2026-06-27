@@ -131,7 +131,6 @@ Backup tar: `/home/ubuntu/praesidium_backups/auth_centralization_20260627_220024
 | 115 | MIGRATED | `web/services/services_table/get_table_structure.php` | json | require_login_json | MANUAL_AUTH |
 | 116 | REVIEW | `web/services/services_table/get_update.php` | json | keep_or_review | CENTRAL_AUTH_USED |
 | 117 | REVIEW | `web/services/services_table/services_common.php` | mixed | review_only | NO_SESSION_HELPER_OR_PUBLIC |
-| 118 | MIGRATED | `web/settings.php` | html | require_login_page | MANUAL_AUTH |
 | 119 | REVIEW | `web/system/logging/system_logging_table/get_delete_system_logging.php` | json | keep_or_review | CENTRAL_AUTH_USED |
 | 120 | MIGRATED | `web/system/logging/system_logging_table/get_forms_from_table.php` | json | require_login_json | MANUAL_AUTH |
 | 121 | MIGRATED | `web/system/logging/system_logging_table/get_table_content.php` | json | require_login_json | MANUAL_AUTH |
@@ -166,7 +165,5 @@ Backup tar: `/home/ubuntu/praesidium_backups/auth_centralization_20260627_220024
 - auth.php extended with page/text/download helpers.
 
 
-## System logging page relocation note
 
-- `web/settings.php` is now a compatibility wrapper.
 - Real module page: `web/system/logging/system_logging.php`.

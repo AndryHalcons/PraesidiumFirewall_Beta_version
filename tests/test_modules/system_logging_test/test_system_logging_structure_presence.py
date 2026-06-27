@@ -42,8 +42,4 @@ mainpage = (root / 'web/mainpage.php').read_text(errors='ignore')
 if '/system/logging/system_logging.php' not in mainpage:
     fail('system_logging menu route', ['mainpage.php no apunta a /system/logging/system_logging.php'])
 
-legacy = (root / 'web/settings.php').read_text(errors='ignore')
-if '/system/logging/system_logging.php' not in legacy:
-    fail('system_logging legacy wrapper', ['settings.php no conserva wrapper hacia la ruta nueva'])
-
 pass_('system_logging structure presence', f'checked={len(expected)}')

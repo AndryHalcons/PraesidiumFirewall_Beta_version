@@ -123,7 +123,6 @@ Total files to migrate: 136
 | 106 | MIGRATED | `web/services/services_table/get_table_content.php` | uses web/common/security/session.php |
 | 107 | MIGRATED | `web/services/services_table/get_table_structure.php` | uses web/common/security/session.php |
 | 108 | MIGRATED | `web/services/services_table/get_update.php` | uses web/common/security/session.php |
-| 109 | MIGRATED | `web/settings.php` | uses web/common/security/session.php |
 | 110 | MIGRATED | `web/system/logging/system_logging_table/get_delete_system_logging.php` | uses web/common/security/session.php |
 | 111 | MIGRATED | `web/system/logging/system_logging_table/get_forms_from_table.php` | uses web/common/security/session.php |
 | 112 | MIGRATED | `web/system/logging/system_logging_table/get_table_content.php` | uses web/common/security/session.php |
@@ -159,7 +158,5 @@ Total files to migrate: 136
 - Files migrated in this batch: 136
 
 
-## System logging page relocation note
 
-- `web/settings.php` is now a compatibility wrapper.
 - Real module page: `web/system/logging/system_logging.php`.
