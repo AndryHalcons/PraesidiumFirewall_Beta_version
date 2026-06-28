@@ -51,7 +51,6 @@ return [
     'sidebar_address_group_alias'     => 'Address Groups',
     'sidebar_services_objects'        => 'Service Aliases',
     'sidebar_services_group_objects'  => 'Service Groups',
-    'sidebar_url_filtering'  => 'URL filter',
     'sidebar_url_list'  => 'URL List',
     'sidebar_url_network_list'  => 'Network List',
     'sidebar_url_network_list_profile'  => 'Network List Profile',

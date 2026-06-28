@@ -146,7 +146,6 @@ for previous_step in [
     './install_bpfilter.sh',
     './configure_bpfilter.sh',
     './configure_logs.sh',
-    './install_squid.sh',
 ]:
     if installer.find(previous_step) > installer.find('./initial_config.sh'):
         errors.append(f'initial_config.sh debe ejecutarse después de {previous_step}')

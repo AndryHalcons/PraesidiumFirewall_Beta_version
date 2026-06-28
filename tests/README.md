@@ -9,7 +9,7 @@ La estructura separa los tests por perfil de riesgo y por modulo funcional.
 
 - `run_tests.sh`: runner principal.
 - `test_profiles/`: suites transversales por tipo de riesgo: safe, validation, web, security, commit, e2e e installer.
-- `test_modules/`: suites por modulo funcional: nftables, bpfilter, dnsmasq, services, wireguard, squid, users, certificates, interfaces, monitor, system_logging y alias.
+- `test_modules/`: suites por modulo funcional: nftables, bpfilter, dnsmasq, services, wireguard, users, certificates, interfaces, monitor, system_logging y alias.
 - `fixtures/`: payloads y allowlists reutilizables.
 - `lib/`: helpers comunes para Python/Bash.
 - `reports/`: salida generada por ejecuciones locales; no deberia versionar resultados reales.

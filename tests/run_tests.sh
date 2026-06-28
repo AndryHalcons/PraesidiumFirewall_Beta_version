@@ -123,7 +123,6 @@ run_module() {
         dnsmasq|dhcp) module_dir="tests/test_modules/dnsmasq_test" ;;
         services) module_dir="tests/test_modules/services_test" ;;
         wireguard) module_dir="tests/test_modules/wireguard_test" ;;
-        squid|url_filter) module_dir="tests/test_modules/squid_test" ;;
         users) module_dir="tests/test_modules/users_test" ;;
         certificates) module_dir="tests/test_modules/certificates_test" ;;
         interfaces) module_dir="tests/test_modules/interfaces_test" ;;
@@ -161,7 +160,7 @@ Uso:
   ./tests/run_tests.sh web
   ./tests/run_tests.sh security
   ./tests/run_tests.sh all-safe
-  ./tests/run_tests.sh module <nftables|bpfilter|dnsmasq|services|wireguard|squid|users|certificates|interfaces|monitor|system_logging|alias>
+  ./tests/run_tests.sh module <nftables|bpfilter|dnsmasq|services|wireguard|users|certificates|interfaces|monitor|system_logging|alias>
   PRAESIDIUM_ALLOW_DESTRUCTIVE=1 ./tests/run_tests.sh commit
 USAGE
         exit 2

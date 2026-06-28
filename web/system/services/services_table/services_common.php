@@ -75,14 +75,6 @@ function services_catalog(): array {
             'configurable' => 'true',
             'default_enabled' => 'true'
         ],
-        'squid' => [
-            'service_name' => 'squid',
-            'unit' => 'squid',
-            'checker' => 'systemctl',
-            'display_name' => 'squid',
-            'configurable' => 'true',
-            'default_enabled' => 'true'
-        ],
         'nftables' => [
             'service_name' => 'nftables',
             'unit' => 'nftables',

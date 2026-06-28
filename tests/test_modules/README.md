@@ -12,7 +12,6 @@ Cada subcarpeta tiene su propio README con mapa de archivos del producto, tests 
 - `dnsmasq_test`
 - `services_test`
 - `wireguard_test`
-- `squid_test`
 - `users_test`
 - `certificates_test`
 - `interfaces_test`
