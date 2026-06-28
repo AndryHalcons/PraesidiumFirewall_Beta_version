@@ -15,7 +15,6 @@ chmod +x initial_config.sh
 chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
 chmod +x configure_logs.sh
-chmod +x install_squid.sh
 chmod +x configure_dnsmasq.sh
 # install_kea.sh is legacy; DHCP service is dnsmasq.
 
@@ -79,11 +78,6 @@ echo "Configurando configure_logs.sh / Configuring configure_logs.sh"
 ./configure_logs.sh
 echo "Instalación configure_logs.sh completada / Installation configure_logs.sh completed"
 
-
-# Ejecutar install_squid.sh / Run install_squid.sh
-echo "Configurando install_squid.sh / Configuring install_squid.sh"
-./install_squid.sh
-echo "Instalación install_squid.sh completada / Installation install_squid.sh completed"
 
 
 # Ejecutar initial_config.sh al final de toda la instalación.

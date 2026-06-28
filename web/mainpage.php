@@ -80,16 +80,6 @@ $csrfToken = csrf_get_token();
         <a href="#" data-page="policies/policies_nftables_output.php"><?= htmlspecialchars($L['sidebar_nftables_output']) ?></a>
       </details>
       <details>
-        <summary><?= htmlspecialchars($L['sidebar_url_filtering']) ?></summary>
-        <a href="#" data-page="/url_filter/url_policies.php"><?= htmlspecialchars($L['sidebar_url_policies']) ?></a>
-        <a href="#" data-page="/url_filter/url_profile.php"><?= htmlspecialchars($L['sidebar_url_profile']) ?></a>
-        <a href="#" data-page="/url_filter/url_port_profile.php"><?= htmlspecialchars($L['sidebar_url_port_profile']) ?></a>
-        <a href="#" data-page="/url_filter/url_networks_list_profile.php"><?= htmlspecialchars($L['sidebar_url_network_list_profile']) ?></a>
-        <a href="#" data-page="/url_filter/url_list.php"><?= htmlspecialchars($L['sidebar_url_list']) ?></a>
-        <a href="#" data-page="/url_filter/url_network_list.php"><?= htmlspecialchars($L['sidebar_url_network_list']) ?></a>
-        <a href="#" data-page="/url_filter/url_listen_ports.php"><?= htmlspecialchars($L['sidebar_url_listen_ports']) ?></a>
-      </details>
-      <details>
         <summary><?= htmlspecialchars($L['sidebar_AliasObjects']) ?></summary>
         <a href="#" data-page="/alias/address_alias.php"><?= htmlspecialchars($L['sidebar_address_alias']) ?></a>
         <a href="#" data-page="/alias/address_alias_group.php"><?= htmlspecialchars($L['sidebar_address_group_alias']) ?></a>

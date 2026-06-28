@@ -3,9 +3,6 @@
         "dnsmasq": {
             "desired_enabled": "true"
         },
-        "squid": {
-            "desired_enabled": "true"
-        },
         "nftables": {
             "desired_enabled": "true"
         },

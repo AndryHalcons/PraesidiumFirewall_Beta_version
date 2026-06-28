@@ -15,7 +15,6 @@ SERVICES_JSON = '/var/www/config_running/services.json'
 # Systemd units the user can control from Services.
 CONFIGURABLE_UNITS = {
     'dnsmasq': 'dnsmasq',
-    'squid': 'squid',
     'nftables': 'nftables',
     'rsyslog': 'rsyslog',
     'bpfilter': 'bpfilter',
