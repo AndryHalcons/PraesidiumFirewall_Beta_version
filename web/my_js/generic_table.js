@@ -397,6 +397,10 @@ function genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig,
 
   filteredRules.forEach(rule => {
     const tr = document.createElement('tr');
+    const rowAction = String(rule.action || '').toLowerCase();
+    if (rowAction === 'drop' || rowAction === 'reject') {
+      tr.classList.add('generic-table-row-deny');
+    }
 
     // Columna Acciones: se mantiene sin filtro y con los mismos botones existentes.
     // Actions column: remains unfiltered and keeps the same existing buttons.
@@ -445,7 +449,10 @@ function genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig,
       const value = rule[key] !== undefined ? rule[key] : '';
 
       if (genericIsMultiSelectField(formConfig, key) || genericIsObjectMultiSelectField(formConfig, key)) {
-        td.textContent = genericParseMultiSelectValue(value).join(', ');
+        const valueBadge = document.createElement('span');
+        valueBadge.className = 'generic-table-value';
+        valueBadge.textContent = genericParseMultiSelectValue(value).join(', ');
+        td.appendChild(valueBadge);
       } else if (formConfig.select?.[key]) {
         const select = document.createElement('select');
         select.disabled = true;
@@ -464,7 +471,10 @@ function genericRenderTableRows(currentAlias, tbody, rules, columns, formConfig,
         checkbox.checked = value === formConfig.checkbox[key].checked;
         td.appendChild(checkbox);
       } else {
-        td.textContent = value;
+        const valueBadge = document.createElement('span');
+        valueBadge.className = 'generic-table-value';
+        valueBadge.textContent = value;
+        td.appendChild(valueBadge);
       }
 
       tr.appendChild(td);
