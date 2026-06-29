@@ -683,11 +683,11 @@ table.interfaz .generic-table-no-results {
 }
 
 .modal-window {
-    background: linear-gradient(180deg, #f8fbff 0%, #eef5fb 100%);
-    padding: 24px;
-    border: 1px solid var(--praesidium-border);
+    background: linear-gradient(180deg, #f3f8fd 0%, #e7f0f8 100%);
+    padding: 0 24px 24px;
+    border: 1px solid #c9d8e8;
     border-radius: var(--praesidium-radius-lg);
-    box-shadow: var(--praesidium-shadow-md);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.30);
     min-width: 340px;
     width: min(96vw, 1200px);
     max-width: 1200px;
@@ -698,8 +698,13 @@ table.interfaz .generic-table-no-results {
 
 .modal-window h2,
 .modal-window h3 {
-    margin-top: 0;
+    margin: 0 -24px 18px;
+    padding: 18px 24px;
     color: #132238;
+    background: linear-gradient(90deg, #e4eef8 0%, #f4f8fc 100%);
+    border-bottom: 1px solid #c9d8e8;
+    border-radius: var(--praesidium-radius-lg) var(--praesidium-radius-lg) 0 0;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.74);
 }
 
 /* Prueba visual: distribuye los campos del modal en columnas para evitar listas largas.
@@ -710,9 +715,10 @@ table.interfaz .generic-table-no-results {
     column-gap: 18px;
     row-gap: 10px;
     padding: 12px;
-    border: 1px solid #d9e3ee;
+    border: 1px solid #cddceb;
     border-radius: var(--praesidium-radius-md);
-    background: rgba(255, 255, 255, 0.46);
+    background: rgba(255, 255, 255, 0.38);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
 }
 
 .modal-window .modal-input-group:has(.modal-multiselect),
@@ -729,9 +735,15 @@ table.interfaz .generic-table-no-results {
     align-items: center;
     min-width: 0;
     padding: 8px;
-    border: 1px solid #d9e3ee;
+    border: 1px solid #d7e3ef;
     border-radius: var(--praesidium-radius-sm);
-    background: rgba(248, 251, 255, 0.88);
+    background: rgba(248, 251, 255, 0.90);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+
+.modal-input-group:nth-of-type(even) {
+    background: rgba(242, 247, 252, 0.92);
 }
 
 .modal-prefix {
@@ -740,10 +752,10 @@ table.interfaz .generic-table-no-results {
     box-sizing: border-box;
     overflow-wrap: anywhere;
     padding: 8px 10px;
-    background: #e8f0f8;
-    border: 1px solid #cfdbe8;
+    background: linear-gradient(180deg, #e9f2fa 0%, #dfeaf5 100%);
+    border: 1px solid #c6d5e5;
     border-radius: var(--praesidium-radius-sm);
-    color: #334155;
+    color: #26384f;
     font-weight: 700;
 }
 
@@ -754,6 +766,30 @@ table.interfaz .generic-table-no-results {
 .modal-window input[type="checkbox"] {
     min-width: 15px;
     flex: 0 0 auto;
+}
+
+
+.modal-window input,
+.modal-window select,
+.modal-window textarea,
+.modal-window .modal-input,
+.modal-window .modal-multiselect select,
+.modal-window .modal-object-multiselect input {
+    background: #fbfdff;
+    border-color: #b9cbe0;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.modal-window input:focus,
+.modal-window select:focus,
+.modal-window textarea:focus,
+.modal-window .modal-input:focus,
+.modal-window .modal-multiselect select:focus,
+.modal-window .modal-object-multiselect input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #4aa3df;
+    box-shadow: 0 0 0 3px rgba(74, 163, 223, 0.18);
 }
 
 .modal-input,
@@ -884,10 +920,17 @@ table.interfaz .generic-table-no-results {
 }
 
 .modal-actions {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid var(--praesidium-border);
-    text-align: right;
+    position: sticky;
+    bottom: -24px;
+    z-index: 2;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin: 12px -12px -12px;
+    padding: 14px 12px 12px;
+    background: linear-gradient(180deg, rgba(239, 246, 252, 0.82) 0%, rgba(226, 238, 248, 0.98) 100%);
+    border-top: 1px solid #cddceb;
+    backdrop-filter: blur(2px);
 }
 
 .modal-button {
