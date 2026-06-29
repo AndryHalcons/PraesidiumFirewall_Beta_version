@@ -10,7 +10,7 @@
 */
 
 :root {
-    --praesidium-bg-page: #eef3f8;
+    --praesidium-bg-page: #e7eef5;
     --praesidium-bg-panel: #ffffff;
     --praesidium-bg-soft: #f7f9fc;
     --praesidium-bg-dark: #0b1726;
@@ -51,7 +51,7 @@ body {
     color: var(--praesidium-text);
     background:
         radial-gradient(circle at top left, rgba(15, 111, 179, 0.10), transparent 34%),
-        linear-gradient(180deg, #f5f8fb 0%, var(--praesidium-bg-page) 100%);
+        linear-gradient(180deg, #edf3f8 0%, var(--praesidium-bg-page) 100%);
 }
 
 .boton-generic,
