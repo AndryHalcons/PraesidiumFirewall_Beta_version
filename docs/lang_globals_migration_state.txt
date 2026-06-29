@@ -1,0 +1,29 @@
+# LANG globals migration state
+
+Purpose: track partial PHP pages that still declare top-level JavaScript const globals such as LANG/USERNAME.
+Target pattern: const LANG/USERNAME -> window.LANG/window.USERNAME, WireGuard-style.
+
+## Checklist
+- [x] web/alias/address_alias.php (const LANG, const USERNAME)
+- [x] web/alias/address_alias_group.php (const LANG, const USERNAME)
+- [x] web/alias/service_alias.php (const LANG, const USERNAME)
+- [x] web/alias/service_alias_group.php (const LANG, const USERNAME)
+- [x] web/certificates/certificates.php (const LANG, const USERNAME)
+- [x] web/commits/commit.php (const LANG)
+- [x] web/interfaces/bonds.php (const LANG, const USERNAME)
+- [x] web/interfaces/bridges.php (const LANG, const USERNAME)
+- [x] web/interfaces/ethernets.php (const LANG, const USERNAME)
+- [x] web/interfaces/vlans.php (const LANG, const USERNAME)
+- [x] web/interfaces/wifis.php (const LANG, const USERNAME)
+- [x] web/networking/dhcp_config.php (const LANG)
+- [x] web/policies/policies_TC_egress.php (const LANG, const USERNAME)
+- [x] web/policies/policies_TC_ingress.php (const LANG, const USERNAME)
+- [x] web/policies/policies_nftables_forwarding.php (const LANG, const USERNAME)
+- [x] web/policies/policies_nftables_input.php (const LANG, const USERNAME)
+- [x] web/policies/policies_nftables_output.php (const LANG, const USERNAME)
+- [x] web/policies/policies_nftables_postrouting.php (const LANG, const USERNAME)
+- [x] web/policies/policies_nftables_prerouting.php (const LANG, const USERNAME)
+- [x] web/policies/policies_xdp.php (const LANG, const USERNAME)
+- [x] web/routing/routing.php (const LANG)
+- [x] web/system/system-logs.php (const LANG, const USERNAME)
+- [x] web/users/users.php (const LANG, const USERNAME)

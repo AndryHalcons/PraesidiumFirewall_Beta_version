@@ -20,8 +20,8 @@ $path_get_delete = "/alias/common_alias_actions/delete_alias.php";
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
-    const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
+    window.LANG = <?= json_encode($L) ?>;
+    window.USERNAME = <?= json_encode($username) ?>;
   </script>
   <meta charset="UTF-8">
 </head>

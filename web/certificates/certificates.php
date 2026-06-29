@@ -24,8 +24,8 @@ shell_exec("sudo $script5 2>&1");
 <html lang="<?= htmlspecialchars($language) ?>">
 <head>
   <script>
-    const LANG = <?= json_encode($L) ?>;
-    const USERNAME = <?= json_encode($username) ?>;
+    window.LANG = <?= json_encode($L) ?>;
+    window.USERNAME = <?= json_encode($username) ?>;
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">

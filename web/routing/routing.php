@@ -27,7 +27,7 @@ $L = require $langFile;
     </section>
 
     <script>
-        const LANG = <?= json_encode($L, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        window.LANG = <?= json_encode($L, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     </script>
     <script src="/routing/routing_table.php/routing_table.js"></script>
 </body>
