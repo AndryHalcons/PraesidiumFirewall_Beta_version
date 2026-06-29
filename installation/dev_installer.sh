@@ -11,6 +11,7 @@ chmod +x install_backend.sh
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
+chmod +x initial_config.sh
 chmod +x install_bpfilter.sh
 chmod +x configure_bpfilter.sh
 chmod +x configure_logs.sh
@@ -71,3 +72,9 @@ echo "Instalación install_bpfilter.sh completada / Installation install_bpfilte
 echo "Configurando configure_logs.sh / Configuring configure_logs.sh"
 ./configure_logs.sh
 echo "Instalación configure_logs.sh completada / Installation configure_logs.sh completed"
+
+# Ejecutar initial_config.sh al final para regenerar el estado runtime tras initial_data/install_backend.
+# Run initial_config.sh at the end to regenerate runtime state after initial_data/install_backend.
+echo "Generando configuración inicial de desarrollo... / Generating development initial configuration..."
+./initial_config.sh
+echo "Instalación initial_config.sh completada / Installation initial_config.sh completed"
