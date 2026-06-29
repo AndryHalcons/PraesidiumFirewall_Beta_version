@@ -22,7 +22,6 @@ $path_get_delete = "/alias/common_alias_actions/delete_alias.php";
   <script>
     window.LANG = <?= json_encode($L) ?>;
     window.USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
 </head>

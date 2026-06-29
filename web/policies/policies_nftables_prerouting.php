@@ -21,7 +21,6 @@ $path_get_delete = "/policies/common_policy_actions_nft/get_delete_policy.php";
   <script>
     window.LANG = <?= json_encode($L) ?>;
     window.USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">

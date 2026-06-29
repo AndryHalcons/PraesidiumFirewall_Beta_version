@@ -22,7 +22,6 @@ $path_get_delete = "/users/users_table/get_delete_user.php";
   <script>
     window.LANG = <?= json_encode($L) ?>;
     window.USERNAME = <?= json_encode($username) ?>;
-    const aliasName = <?= json_encode("alias_service") ?>;
   </script>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="../styles.css">
