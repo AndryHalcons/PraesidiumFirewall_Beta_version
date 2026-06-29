@@ -47,6 +47,7 @@ python3-pip
 python3-setuptools 
 python3-wheel
 nftables
+conntrack
 wireguard-tools
 docker.io
 dnsmasq

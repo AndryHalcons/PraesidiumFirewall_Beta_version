@@ -41,6 +41,7 @@ python3-sphinx
 sed
 xxd
 nftables
+conntrack
 wireguard-tools
 docker.io
 dnsmasq

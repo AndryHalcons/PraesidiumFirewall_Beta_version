@@ -326,6 +326,8 @@ return [
 
     //table log
     'menu_monitor' => 'Traffic Monitor',
+    'menu_monitor_sessions' => 'Session Monitor',
+    'monitor_sessions_description' => 'Basic view for active sessions tracked by conntrack.',
     'init_date' => 'Start Date',
     'init_time' => 'Start Time',
     'end_date' => 'End Date',

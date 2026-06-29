@@ -320,6 +320,8 @@ return [
     'search' => 'Buscar',
     //aux
     'menu_monitor' => 'Monitor de tráfico',
+    'menu_monitor_sessions' => 'Monitor de sesiones',
+    'monitor_sessions_description' => 'Consulta básica de las sesiones activas rastreadas por conntrack.',
     'init_date' => 'Fecha inicio',
     'init_time' => 'Hora inicio',
     'end_date' => 'Fecha fin',
