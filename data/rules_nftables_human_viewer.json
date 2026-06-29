@@ -452,6 +452,39 @@
                 "dnat.port": "",
                 "redirect": ""
             }
+        },
+        {
+            "rule": {
+                "family": "inet",
+                "table": "filter",
+                "chain": "FORWARDING",
+                "id": "14",
+                "position": 6,
+                "action": "drop",
+                "enable": "true",
+                "name": "",
+                "ip.protocol": "icmp",
+                "ip.saddr.op": "",
+                "ip.saddr": "",
+                "sport.op": "",
+                "sport": "",
+                "ip.daddr.op": "",
+                "ip.daddr": "",
+                "dport.op": "",
+                "dport": "",
+                "meta.iifname": "",
+                "meta.oifname": "",
+                "ct.state": "",
+                "packets": "",
+                "bytes": "",
+                "log": "true",
+                "snat.addr": "",
+                "masquerade": "",
+                "snat.port": "",
+                "dnat.addr": "",
+                "dnat.port": "",
+                "redirect": ""
+            }
         }
     ]
 }
