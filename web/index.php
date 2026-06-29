@@ -12,6 +12,7 @@ unset($_SESSION['error']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/logo/favicon.ico" sizes="any">
 </head>
 <body>
     <div class="login-container">
