@@ -51,6 +51,58 @@ function auth_current_role(): string {
 
 /*
 #############################################################################
+   Devuelve la URL canónica de login del WebGUI
+   Returns the canonical WebGUI login URL
+#############################################################################
+*/
+function auth_login_url(): string {
+    return '/index.php';
+}
+
+/*
+#############################################################################
+   Detecta peticiones AJAX/fetch que no deben recibir HTML de login
+   Detects AJAX/fetch requests that must not receive login HTML
+#############################################################################
+*/
+function auth_is_ajax_request(): bool {
+    $requestedWith = strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''));
+    if ($requestedWith === 'xmlhttprequest') {
+        return true;
+    }
+
+    $accept = strtolower((string)($_SERVER['HTTP_ACCEPT'] ?? ''));
+    if (strpos($accept, 'application/json') !== false) {
+        return true;
+    }
+
+    return false;
+}
+
+/*
+#############################################################################
+   Redirige al login para accesos directos sin sesión
+   Redirects direct unauthenticated access to login
+#############################################################################
+*/
+function auth_redirect_to_login(): void {
+    header('Location: ' . auth_login_url(), true, 302);
+    exit;
+}
+
+/*
+#############################################################################
+   Marca respuestas AJAX como sesión expirada sin romper JSON/texto
+   Marks AJAX responses as expired session without breaking JSON/text
+#############################################################################
+*/
+function auth_set_login_redirect_header(): void {
+    header('X-Praesidium-Auth: expired');
+    header('X-Praesidium-Login-Redirect: ' . auth_login_url());
+}
+
+/*
+#############################################################################
    Respuesta JSON estándar para errores de autenticación/autorización
    Standard JSON response for authentication/authorization errors
 #############################################################################
@@ -58,10 +110,19 @@ function auth_current_role(): string {
 function auth_json_error(int $statusCode, string $message): void {
     http_response_code($statusCode);
     header('Content-Type: application/json');
-    echo json_encode([
+
+    $payload = [
         'status' => 'error',
         'error' => $message
-    ]);
+    ];
+
+    if ($statusCode === 401) {
+        auth_set_login_redirect_header();
+        $payload['auth'] = 'expired';
+        $payload['redirect'] = auth_login_url();
+    }
+
+    echo json_encode($payload);
     exit;
 }
 
@@ -73,6 +134,9 @@ function auth_json_error(int $statusCode, string $message): void {
 */
 function require_login_json(): void {
     if (!auth_is_logged_in()) {
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_json_error(401, 'No autorizado');
     }
 }
@@ -86,6 +150,9 @@ function require_login_json(): void {
 function require_admin_json(): void {
     if (!auth_is_logged_in()) {
         audit_admin_event('admin_endpoint_not_authenticated');
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_json_error(401, 'No autorizado');
     }
 
@@ -106,6 +173,9 @@ function require_admin_json(): void {
 function auth_text_error(int $statusCode, string $message): void {
     http_response_code($statusCode);
     header('Content-Type: text/plain; charset=UTF-8');
+    if ($statusCode === 401) {
+        auth_set_login_redirect_header();
+    }
     echo $message;
     exit;
 }
@@ -118,6 +188,9 @@ function auth_text_error(int $statusCode, string $message): void {
 */
 function require_login_page(): void {
     if (!auth_is_logged_in()) {
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_text_error(401, 'No autorizado');
     }
 }
@@ -131,6 +204,9 @@ function require_login_page(): void {
 function require_admin_page(): void {
     if (!auth_is_logged_in()) {
         audit_admin_event('admin_page_not_authenticated');
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_text_error(401, 'No autorizado');
     }
 
@@ -150,6 +226,9 @@ function require_admin_page(): void {
 */
 function require_login_text(): void {
     if (!auth_is_logged_in()) {
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_text_error(401, 'No autorizado');
     }
 }
@@ -163,6 +242,9 @@ function require_login_text(): void {
 function require_admin_text(): void {
     if (!auth_is_logged_in()) {
         audit_admin_event('admin_text_endpoint_not_authenticated');
+        if (!auth_is_ajax_request()) {
+            auth_redirect_to_login();
+        }
         auth_text_error(401, 'No autorizado');
     }
 

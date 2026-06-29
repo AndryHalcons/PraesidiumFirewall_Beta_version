@@ -1,5 +1,51 @@
 /*
 #############################################################################
+   Redirige al login cuando una petición detecta sesión caducada
+   Redirects to login when a request detects an expired session
+#############################################################################
+*/
+function praesidiumRedirectToLogin(redirectUrl) {
+    const target = redirectUrl || "/index.php";
+    if (window.location.pathname !== target) {
+        window.location.href = target;
+    }
+}
+
+/*
+#############################################################################
+   Instala una guarda global para fetch sin tocar cada módulo de la WebGUI
+   Installs a global fetch guard without editing every WebGUI module
+#############################################################################
+*/
+(function installPraesidiumFetchAuthGuard() {
+    if (window.praesidiumFetchAuthGuardInstalled || typeof window.fetch !== "function") {
+        return;
+    }
+
+    window.praesidiumFetchAuthGuardInstalled = true;
+    const nativeFetch = window.fetch.bind(window);
+
+    window.fetch = async function praesidiumFetch(input, init = {}) {
+        const options = { ...init };
+        const headers = new Headers(options.headers || {});
+        if (!headers.has("X-Requested-With")) {
+            headers.set("X-Requested-With", "XMLHttpRequest");
+        }
+        options.headers = headers;
+
+        const response = await nativeFetch(input, options);
+        const redirectHeader = response.headers.get("X-Praesidium-Login-Redirect");
+
+        if (response.status === 401 || redirectHeader || (response.redirected && response.url.includes("/index.php"))) {
+            praesidiumRedirectToLogin(redirectHeader || "/index.php");
+        }
+
+        return response;
+    };
+})();
+
+/*
+#############################################################################
    Lee el token CSRF publicado por mainpage.php
    Reads the CSRF token published by mainpage.php
 #############################################################################
