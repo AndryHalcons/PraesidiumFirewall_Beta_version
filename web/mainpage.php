@@ -32,6 +32,7 @@ $csrfToken = csrf_get_token();
 <body>
 
     <div class="header-top">
+        <img src="/logo/praesidium_logo_transparent_mini.png" alt="Praesidium Logo" class="header-logo">
         <div class="header-left">
             <h1><?= htmlspecialchars($L['title']) ?></h1>
             <h2><?= htmlspecialchars($L['welcome']) ?>, <?= htmlspecialchars($username) ?>!</h2>
