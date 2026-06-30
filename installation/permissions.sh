@@ -3,12 +3,20 @@ set -euo pipefail
 
 EXCEPCIONES_FILE="/etc/sudoers.d/praesidium_excepciones"
 
+limpiar_excepciones_conntrack_poc() {
+    if [ -f "$EXCEPCIONES_FILE" ]; then
+        sed -i '\#/usr/sbin/conntrack -L#d;\#/usr/sbin/conntrack -S#d' "$EXCEPCIONES_FILE"
+        visudo -cf "$EXCEPCIONES_FILE"
+    fi
+}
+
 registrar_excepciones_python() {
     local excepciones=(
         "/var/www/backend/checks/check_routes/check_system_routes_running.py"
         "/var/www/backend/checks/check_interfaces/main_interfaces_check.py"
         "/var/www/backend/commits/commit_apply.py *"
         "/var/www/backend/checks/check_monitor_log_extract/extract_monitor_log_nftables_for_get_user.py *"
+        "/var/www/backend/checks/check_sessions_contrack/extract_session_contrack_xml.py *"
     )
 
     # Crear el archivo si no existe
@@ -42,6 +50,8 @@ registrar_excepciones_php() {
 
     visudo -cf "$EXCEPCIONES_FILE"
 }
+
+
 grant_apache_permissions() {
     local target_dir="/var/www/config"
 
@@ -103,10 +113,20 @@ grant_backend_permissions() {
     echo "Permissions successfully applied to $target_dir"
 }
 
+harden_conntrack_session_extractor() {
+    local script="/var/www/backend/checks/check_sessions_contrack/extract_session_contrack_xml.py"
+    if [ -f "$script" ]; then
+        chown root:root "$script"
+        chmod 755 "$script"
+    fi
+}
 
 
+
+limpiar_excepciones_conntrack_poc
 registrar_excepciones_python
 registrar_excepciones_php
 grant_apache_permissions
 grant_apache_permissions_running
 grant_backend_permissions
+harden_conntrack_session_extractor
