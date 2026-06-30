@@ -1,0 +1,36 @@
+{
+  "install_route": [
+        {
+          "source": "modern_format/modules/routing/backend/checks/default_forms/*",
+          "destination": "/var/www/backend/checks/system_data/default_forms/"
+        },
+        {
+          "source": "modern_format/modules/routing/backend/checks/default_tables_structure/*",
+          "destination": "/var/www/backend/checks/system_data/default_tables_structure/"
+        },
+        {
+          "source": "modern_format/modules/routing/backend/checks/check_routes/*",
+          "destination": "/var/www/backend/checks/check_routes/"
+        },
+        {
+          "source": "modern_format/modules/routing/backend/commits/commit_task/*",
+          "destination": "/var/www/backend/commits/commit_task/"
+        },
+        {
+          "source": "modern_format/modules/routing/initial_config/*",
+          "destination": "/var/www/config/"
+        },
+        {
+          "source": "modern_format/modules/routing/running_config/*",
+          "destination": "/var/www/config_running/"
+        },
+        {
+          "source": "modern_format/modules/routing/test/*",
+          "destination": "/var/www/test/"
+        },
+        {
+          "source": "modern_format/modules/routing/web/*",
+          "destination": "/var/www/html/"
+        }
+    ]
+}

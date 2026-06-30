@@ -1,0 +1,40 @@
+{
+  "install_route": [
+        {
+          "source": "modern_format/modules/system/backend/checks/check_system/*",
+          "destination": "/var/www/backend/checks/check_system/"
+        },
+        {
+          "source": "modern_format/modules/system/backend/checks/data_system/*",
+          "destination": "/var/www/backend/checks/system_data/data_system/"
+        },
+        {
+          "source": "modern_format/modules/system/backend/checks/default_forms/*",
+          "destination": "/var/www/backend/checks/system_data/default_forms/"
+        },
+        {
+          "source": "modern_format/modules/system/backend/checks/default_tables_structure/*",
+          "destination": "/var/www/backend/checks/system_data/default_tables_structure/"
+        },
+        {
+          "source": "modern_format/modules/system/backend/commits/commit_task/*",
+          "destination": "/var/www/backend/commits/commit_task/"
+        },
+        {
+          "source": "modern_format/modules/system/initial_config/*",
+          "destination": "/var/www/config/"
+        },
+        {
+          "source": "modern_format/modules/system/running_config/*",
+          "destination": "/var/www/config_running/"
+        },
+        {
+          "source": "modern_format/modules/system/test/*",
+          "destination": "/var/www/test/"
+        },
+        {
+          "source": "modern_format/modules/system/web/*",
+          "destination": "/var/www/html/"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+  "install_route": [
+        {
+          "source": "modern_format/modules/monitor/backend/checks/check_monitor_log_extract/*",
+          "destination": "/var/www/backend/checks/check_monitor_log_extract/"
+        },
+        {
+          "source": "modern_format/modules/monitor/backend/checks/default_forms/*",
+          "destination": "/var/www/backend/checks/system_data/default_forms/"
+        },
+        {
+          "source": "modern_format/modules/monitor/backend/checks/default_tables_structure/*",
+          "destination": "/var/www/backend/checks/system_data/default_tables_structure/"
+        },
+        {
+          "source": "modern_format/modules/monitor/initial_config/*",
+          "destination": "/var/www/config/"
+        },
+        {
+          "source": "modern_format/modules/monitor/running_config/*",
+          "destination": "/var/www/config_running/"
+        },
+        {
+          "source": "modern_format/modules/monitor/test/*",
+          "destination": "/var/www/test/"
+        },
+        {
+          "source": "modern_format/modules/monitor/web/*",
+          "destination": "/var/www/html/"
+        }
+    ]
+}
