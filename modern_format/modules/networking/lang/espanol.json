@@ -1,0 +1,21 @@
+{
+  "dhcp": "dhcp",
+  "dhcp_description": "Configura ámbitos DHCP server o relay de dnsmasq.",
+  "dns_primary": "DNS primario",
+  "dns_secondary": "DNS secundario",
+  "enable": "Habilitada",
+  "gateway": "Gateway",
+  "id": "ID",
+  "interface": "Interfaz",
+  "lease_time": "Tiempo lease",
+  "mode": "Modo",
+  "netmask": "Máscara",
+  "ntp_server": "Servidor NTP",
+  "range_end": "Fin rango",
+  "range_start": "Inicio rango",
+  "relay": "relay",
+  "relay_dest_server": "Servidor relay destino",
+  "relay_local_ip": "IP local relay",
+  "server": "server",
+  "sidebar_dhcp": "DHCP"
+}

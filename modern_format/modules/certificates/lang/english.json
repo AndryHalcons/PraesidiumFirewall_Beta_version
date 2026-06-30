@@ -1,0 +1,21 @@
+{
+  "algorithm": "algorithm",
+  "certificates": "certificates",
+  "client": "client",
+  "config": "config",
+  "csr": "csr",
+  "expires": "expires",
+  "file_name": "file name",
+  "id": "ID",
+  "intermediate": "intermediate",
+  "issuer": "issuer",
+  "key": "key",
+  "name": "Name",
+  "root": "root",
+  "serial": "serial",
+  "server": "server",
+  "sidebar_certificates": "Certificates",
+  "status": "status",
+  "subject": "subject",
+  "type": "Type"
+}

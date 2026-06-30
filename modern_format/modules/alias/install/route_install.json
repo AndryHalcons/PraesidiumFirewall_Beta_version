@@ -24,5 +24,11 @@
           "source": "modern_format/modules/alias/web/*",
           "destination": "/var/www/html/"
         }
+    ],
+      "permissions": [
+        {
+          "1": "modern_format/modules/alias/backend/checks/system_data/default_forms/*"
+        }
+
     ]
 }

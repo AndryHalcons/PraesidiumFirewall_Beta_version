@@ -1,0 +1,18 @@
+{
+  "action": "Action",
+  "destination": "Destination",
+  "gateway": "Gateway",
+  "interface": "Interface",
+  "ip_version": "IP Version",
+  "loading_routes": "Loading routes...",
+  "metric": "Metric",
+  "proto": "Protocol",
+  "reload_routes": "Reload system routes running",
+  "routing_title": "System Routing Table",
+  "rule_from": "From",
+  "rule_table": "Table",
+  "rules_title": "Routing Rules",
+  "scope": "Scope",
+  "src": "Source",
+  "table": "Table"
+}

@@ -9,19 +9,19 @@
           "destination": "/var/www/backend/checks/system_data/default_tables_structure/"
         },
         {
-          "source": "modern_format/modules/certificates/backend/checks/system_data/initial_config/*",
+          "source": "modern_format/modules/certificates/initial_config/*",
           "destination": "/var/www/config/"
         },
         {
-          "source": "modern_format/modules/certificates/backend/checks/system_data/running_config/*",
+          "source": "modern_format/modules/certificates/running_config*",
           "destination": "/var/www/config_running/"
         },
         {
-          "source": "modern_format/modules/certificates/backend/checks/system_data/test/*",
+          "source": "modern_format/modules/certificates/test*",
           "destination": "/var/www/test/"
         },
         {
-          "source": "/modern_format/modules/certificates/web/*",
+          "source": "modern_format/modules/certificates/web/*",
           "destination": "/var/www/html/"
         }
     ]

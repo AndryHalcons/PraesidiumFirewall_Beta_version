@@ -1,0 +1,2624 @@
+{
+  "alias": {
+    "count": 13,
+    "keys": [
+      "action",
+      "alias_addr_group",
+      "alias_address",
+      "alias_service",
+      "alias_service_group",
+      "content",
+      "enable",
+      "id",
+      "name",
+      "sidebar_address_alias",
+      "sidebar_address_group_alias",
+      "sidebar_services_group_objects",
+      "sidebar_services_objects"
+    ],
+    "missing_es": [
+      "alias_addr_group",
+      "alias_address",
+      "alias_service",
+      "alias_service_group"
+    ],
+    "missing_en": [
+      "alias_addr_group",
+      "alias_address",
+      "alias_service",
+      "alias_service_group"
+    ],
+    "evidence": {
+      "sidebar_address_alias": [
+        "modern_format/modules/alias/web/alias/address_alias.php"
+      ],
+      "sidebar_address_group_alias": [
+        "modern_format/modules/alias/web/alias/address_alias_group.php"
+      ],
+      "sidebar_services_objects": [
+        "modern_format/modules/alias/web/alias/service_alias.php"
+      ],
+      "sidebar_services_group_objects": [
+        "modern_format/modules/alias/web/alias/service_alias_group.php"
+      ],
+      "alias_address": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "action": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json"
+      ],
+      "enable": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json"
+      ],
+      "id": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "alias_addr_group": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "content": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "alias_service": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "alias_service_group": [
+        "modern_format/modules/alias/backend/checks/system_data/default_forms/forms_alias.json",
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ],
+      "name": [
+        "modern_format/modules/alias/backend/checks/system_data/default_tables_structure/structure_tables_alias.json"
+      ]
+    }
+  },
+  "certificates": {
+    "count": 19,
+    "keys": [
+      "algorithm",
+      "certificates",
+      "client",
+      "config",
+      "csr",
+      "expires",
+      "file_name",
+      "id",
+      "intermediate",
+      "issuer",
+      "key",
+      "name",
+      "root",
+      "serial",
+      "server",
+      "sidebar_certificates",
+      "status",
+      "subject",
+      "type"
+    ],
+    "missing_es": [
+      "algorithm",
+      "certificates",
+      "client",
+      "config",
+      "csr",
+      "expires",
+      "file_name",
+      "intermediate",
+      "issuer",
+      "key",
+      "root",
+      "serial",
+      "server",
+      "status",
+      "subject"
+    ],
+    "missing_en": [
+      "algorithm",
+      "certificates",
+      "client",
+      "config",
+      "csr",
+      "expires",
+      "file_name",
+      "intermediate",
+      "issuer",
+      "key",
+      "root",
+      "serial",
+      "server",
+      "status",
+      "subject"
+    ],
+    "evidence": {
+      "sidebar_certificates": [
+        "modern_format/modules/certificates/web/certificates/certificates.php"
+      ],
+      "certificates": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json",
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "type": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json",
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "root": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "intermediate": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "server": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "issuer": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json",
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "client": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "csr": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "key": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "serial": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "config": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "id": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json"
+      ],
+      "expires": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json",
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "status": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_forms/forms_certificates.json",
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "file_name": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "name": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "subject": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ],
+      "algorithm": [
+        "modern_format/modules/certificates/backend/checks/system_data/default_tables_structure/structure_table_certificates.json"
+      ]
+    }
+  },
+  "commits": {
+    "count": 4,
+    "keys": [
+      "apply_commit",
+      "compare_commit",
+      "config_audit",
+      "menu_commit"
+    ],
+    "missing_es": [],
+    "missing_en": [],
+    "evidence": {
+      "compare_commit": [
+        "modern_format/modules/commits/web/commits/commit.js"
+      ],
+      "apply_commit": [
+        "modern_format/modules/commits/web/commits/commit.js"
+      ],
+      "config_audit": [
+        "modern_format/modules/commits/web/commits/commit.js"
+      ],
+      "menu_commit": [
+        "modern_format/modules/commits/web/commits/commit.php"
+      ]
+    }
+  },
+  "dashboard": {
+    "count": 30,
+    "keys": [
+      "dashboard_bandwidth_by_interface",
+      "dashboard_core_label",
+      "dashboard_cpu_per_core",
+      "dashboard_cpu_percent_label",
+      "dashboard_disk_available",
+      "dashboard_disk_mount",
+      "dashboard_disk_no_mounts",
+      "dashboard_disk_total",
+      "dashboard_disk_usage",
+      "dashboard_disk_used",
+      "dashboard_error",
+      "dashboard_interface",
+      "dashboard_loading",
+      "dashboard_no_interfaces",
+      "dashboard_ram_cached_label",
+      "dashboard_ram_free_label",
+      "dashboard_ram_usage",
+      "dashboard_ram_used_label",
+      "dashboard_refresh_interval",
+      "dashboard_rx_rate",
+      "dashboard_rx_total",
+      "dashboard_subtitle",
+      "dashboard_tx_rate",
+      "dashboard_tx_total",
+      "dashboard_updated",
+      "ram_cached",
+      "ram_free",
+      "ram_total",
+      "ram_used",
+      "sidebar_dashboard"
+    ],
+    "missing_es": [],
+    "missing_en": [],
+    "evidence": {
+      "sidebar_dashboard": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_subtitle": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_loading": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_cpu_per_core": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_ram_usage": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "ram_total": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "ram_used": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "ram_free": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "ram_cached": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_usage": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_total": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_used": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_available": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_bandwidth_by_interface": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_refresh_interval": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_interface": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_rx_rate": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_tx_rate": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_rx_total": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_tx_total": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_updated": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_error": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_no_interfaces": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_core_label": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_cpu_percent_label": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_ram_used_label": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_ram_free_label": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_ram_cached_label": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_mount": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ],
+      "dashboard_disk_no_mounts": [
+        "modern_format/modules/dashboard/web/dashboard/dashboard.php"
+      ]
+    }
+  },
+  "interfaces": {
+    "count": 168,
+    "keys": [
+      "802.3ad",
+      "accept-ra",
+      "access-points.<SSID>.band",
+      "access-points.<SSID>.channel",
+      "access-points.<SSID>.mode",
+      "access-points.<SSID>.password",
+      "active-backup",
+      "addresses",
+      "allowed_ips",
+      "balance-alb",
+      "balance-rr",
+      "balance-tlb",
+      "balance-xor",
+      "bonds",
+      "bridges",
+      "broadcast",
+      "client_private_key",
+      "client_public_key",
+      "client_vpn_ip",
+      "dhcp4",
+      "dhcp4-overrides.hostname",
+      "dhcp4-overrides.send-hostname",
+      "dhcp4-overrides.use-dns",
+      "dhcp4-overrides.use-hostname",
+      "dhcp4-overrides.use-routes",
+      "dhcp6",
+      "dhcp6-overrides.use-dns",
+      "dhcp6-overrides.use-routes",
+      "dns",
+      "download_config",
+      "download_qr",
+      "enabled",
+      "encap2+3",
+      "encap3+4",
+      "ethernets",
+      "fast",
+      "id",
+      "interface",
+      "interfaces",
+      "internal_networks",
+      "ipv6-privacy",
+      "keepalive",
+      "key.private",
+      "layer2",
+      "layer2+3",
+      "layer3+4",
+      "link",
+      "listen_port",
+      "local_networks",
+      "local_tunnel_ip",
+      "macaddress",
+      "mark",
+      "match.driver",
+      "match.macaddress",
+      "match.name",
+      "mtu",
+      "name",
+      "nameservers.addresses",
+      "nameservers.search",
+      "open",
+      "optional",
+      "parameters.ageing-time",
+      "parameters.down-delay",
+      "parameters.forward-delay",
+      "parameters.hello-time",
+      "parameters.lacp-rate",
+      "parameters.max-age",
+      "parameters.mii-monitor-interval",
+      "parameters.min-links",
+      "parameters.mode",
+      "parameters.primary",
+      "parameters.priority",
+      "parameters.stp",
+      "parameters.transmit-hash-policy",
+      "parameters.up-delay",
+      "peers.allowed-ips",
+      "peers.endpoint",
+      "peers.keepalive",
+      "peers.keys.public",
+      "port",
+      "private_key",
+      "public_endpoint",
+      "remote_endpoint",
+      "remote_networks",
+      "remote_public_key",
+      "remote_tunnel_ip",
+      "routes.metric",
+      "routes.table",
+      "routes.to",
+      "routes.via",
+      "routing-policy.from",
+      "routing-policy.table",
+      "server_vpn_ip",
+      "set-name",
+      "sidebar_bonds",
+      "sidebar_bridges",
+      "sidebar_ethernets",
+      "sidebar_vlans",
+      "sidebar_wifis",
+      "sidebar_wireguard",
+      "slow",
+      "vlans",
+      "vpn",
+      "vpn_network",
+      "wakeonlan",
+      "wifis",
+      "wireguard",
+      "wireguard_download_client_config",
+      "wireguard_download_client_qr",
+      "wireguard_error_bool",
+      "wireguard_error_cidr_format",
+      "wireguard_error_client_export_incomplete",
+      "wireguard_error_client_export_not_found",
+      "wireguard_error_client_ip_outside_vpn",
+      "wireguard_error_delete_missing",
+      "wireguard_error_delete_server_has_clients",
+      "wireguard_error_duplicate_client_ip",
+      "wireguard_error_duplicate_client_key",
+      "wireguard_error_duplicate_interface",
+      "wireguard_error_duplicate_port",
+      "wireguard_error_endpoint_format",
+      "wireguard_error_endpoint_host",
+      "wireguard_error_endpoint_ipv6",
+      "wireguard_error_field_too_long",
+      "wireguard_error_int_range",
+      "wireguard_error_interface_format",
+      "wireguard_error_invalid_ip_in_field",
+      "wireguard_error_invalid_payload",
+      "wireguard_error_ipv4_prefix",
+      "wireguard_error_ipv6_prefix",
+      "wireguard_error_key_format",
+      "wireguard_error_key_generation",
+      "wireguard_error_missing_client_vpn",
+      "wireguard_error_name_format",
+      "wireguard_error_network_overlap",
+      "wireguard_error_port_range",
+      "wireguard_error_qr_tool_missing",
+      "wireguard_error_required",
+      "wireguard_error_save_after_delete",
+      "wireguard_error_save_permissions",
+      "wireguard_error_server_ip_outside_vpn",
+      "wireguard_error_single_client_ip",
+      "wireguard_error_single_server_ip",
+      "wireguard_error_single_tunnel_ip",
+      "wireguard_error_tunnel_same_family",
+      "wireguard_error_tunnel_same_network",
+      "wireguard_error_unknown_field",
+      "wireguard_kicker",
+      "wireguard_load_error",
+      "wireguard_overview_description",
+      "wireguard_remote_access",
+      "wireguard_remote_access_desc",
+      "wireguard_remote_access_form_help",
+      "wireguard_remote_access_hint_1",
+      "wireguard_remote_access_hint_2",
+      "wireguard_remote_access_long_desc",
+      "wireguard_remote_access_table",
+      "wireguard_remote_clients",
+      "wireguard_remote_clients_help",
+      "wireguard_remote_clients_table",
+      "wireguard_remote_servers",
+      "wireguard_remote_servers_help",
+      "wireguard_site_to_site",
+      "wireguard_site_to_site_desc",
+      "wireguard_site_to_site_form_help",
+      "wireguard_site_to_site_hint_1",
+      "wireguard_site_to_site_hint_2",
+      "wireguard_site_to_site_long_desc"
+    ],
+    "missing_es": [
+      "802.3ad",
+      "active-backup",
+      "balance-alb",
+      "balance-rr",
+      "balance-tlb",
+      "balance-xor",
+      "bonds",
+      "bridges",
+      "broadcast",
+      "encap2+3",
+      "encap3+4",
+      "ethernets",
+      "fast",
+      "layer2",
+      "layer2+3",
+      "layer3+4",
+      "slow",
+      "vlans",
+      "wifis",
+      "wireguard",
+      "wireguard_remote_access_table",
+      "wireguard_remote_clients_table"
+    ],
+    "missing_en": [
+      "802.3ad",
+      "active-backup",
+      "balance-alb",
+      "balance-rr",
+      "balance-tlb",
+      "balance-xor",
+      "bonds",
+      "bridges",
+      "broadcast",
+      "encap2+3",
+      "encap3+4",
+      "ethernets",
+      "fast",
+      "layer2",
+      "layer2+3",
+      "layer3+4",
+      "slow",
+      "vlans",
+      "wifis",
+      "wireguard",
+      "wireguard_remote_access_table",
+      "wireguard_remote_clients_table"
+    ],
+    "evidence": {
+      "sidebar_bonds": [
+        "modern_format/modules/interfaces/web/interfaces/bonds.php"
+      ],
+      "sidebar_bridges": [
+        "modern_format/modules/interfaces/web/interfaces/bridges.php"
+      ],
+      "sidebar_ethernets": [
+        "modern_format/modules/interfaces/web/interfaces/ethernets.php"
+      ],
+      "sidebar_vlans": [
+        "modern_format/modules/interfaces/web/interfaces/vlans.php"
+      ],
+      "sidebar_wifis": [
+        "modern_format/modules/interfaces/web/interfaces/wifis.php"
+      ],
+      "wireguard_site_to_site": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_wireguard.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_forms_from_table.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_table_content.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_table_structure.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_update.php"
+      ],
+      "wireguard_remote_access": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_wireguard.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_forms_from_table.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_table_content.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_table_structure.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_update.php"
+      ],
+      "wireguard_remote_clients": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_wireguard.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_forms_from_table.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_table_content.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_table_structure.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_update.php"
+      ],
+      "wireguard_error_required": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_bool": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_name_format": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_interface_format": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_cidr_format": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_invalid_ip_in_field": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_ipv4_prefix": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_ipv6_prefix": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_port_range": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_int_range": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_key_format": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_endpoint_ipv6": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_endpoint_host": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_endpoint_format": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_single_tunnel_ip": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_tunnel_same_family": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_tunnel_same_network": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_network_overlap": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_duplicate_interface": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_duplicate_port": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_duplicate_client_ip": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_duplicate_client_key": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_missing_client_vpn": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_single_client_ip": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_client_ip_outside_vpn": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_single_server_ip": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_server_ip_outside_vpn": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_unknown_field": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_field_too_long": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_error_delete_server_has_clients": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/common/wireguard_store.php"
+      ],
+      "wireguard_kicker": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "sidebar_wireguard": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_overview_description": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_site_to_site_desc": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site.php"
+      ],
+      "wireguard_site_to_site_hint_1": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_site_to_site_hint_2": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "open": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_remote_access_desc": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_access_hint_1": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_remote_access_hint_2": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_load_error": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/index.php"
+      ],
+      "wireguard_remote_access_long_desc": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_access_form_help": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_servers": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_servers_help": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_clients_help": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_access_table": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_remote_clients_table": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access.php"
+      ],
+      "wireguard_error_delete_missing": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_delete.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_delete.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_delete.php"
+      ],
+      "wireguard_error_save_after_delete": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_delete.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_delete.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_delete.php"
+      ],
+      "wireguard_error_invalid_payload": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_update.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_update.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_update.php"
+      ],
+      "wireguard_error_save_permissions": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_access_table/get_update.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_update.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site_table/get_update.php"
+      ],
+      "wireguard_error_client_export_not_found": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_client_config.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_client_qr.php"
+      ],
+      "wireguard_error_client_export_incomplete": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_client_config.php",
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_client_qr.php"
+      ],
+      "wireguard_error_qr_tool_missing": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_client_qr.php"
+      ],
+      "wireguard_error_key_generation": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/remote_clients_table/get_update.php"
+      ],
+      "wireguard_site_to_site_long_desc": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site.php"
+      ],
+      "wireguard_site_to_site_form_help": [
+        "modern_format/modules/interfaces/web/interfaces/wireguard/site_to_site.php"
+      ],
+      "ethernets": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "ipv6-privacy": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "addresses": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "nameservers.addresses": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routes.to": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routes.via": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp6": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "optional": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "accept-ra": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "wakeonlan": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4-overrides.use-dns": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4-overrides.use-routes": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4-overrides.send-hostname": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4-overrides.use-hostname": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp6-overrides.use-dns": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp6-overrides.use-routes": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "name": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_wireguard.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "bridges": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "interfaces": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.stp": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "vlans": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "link": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "bonds": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.mode": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.lacp-rate": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.transmit-hash-policy": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "balance-rr": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "active-backup": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "balance-xor": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "broadcast": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "802.3ad": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "balance-tlb": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "balance-alb": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "slow": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "fast": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "layer2": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "layer3+4": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "layer2+3": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "encap2+3": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "encap3+4": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json"
+      ],
+      "wireguard": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "peers.allowed-ips": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routing-policy.from": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "wifis": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "enabled": [
+        "modern_format/modules/interfaces/backend/checks/default_forms/forms_wireguard.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "mtu": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json",
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "macaddress": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "nameservers.search": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routes.metric": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "dhcp4-overrides.hostname": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "match.name": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "match.macaddress": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "match.driver": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "set-name": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.primary": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.mii-monitor-interval": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.up-delay": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.down-delay": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.min-links": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.priority": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.forward-delay": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.hello-time": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.max-age": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "parameters.ageing-time": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "id": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "access-points.<SSID>.password": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "access-points.<SSID>.mode": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "access-points.<SSID>.band": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "access-points.<SSID>.channel": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "port": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "key.private": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "peers.keys.public": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "peers.keepalive": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "peers.endpoint": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routes.table": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "routing-policy.table": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "mark": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_interfaces.json"
+      ],
+      "interface": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "local_tunnel_ip": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "remote_tunnel_ip": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "local_networks": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "remote_networks": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "listen_port": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "remote_endpoint": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "private_key": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "remote_public_key": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "keepalive": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "server_vpn_ip": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "vpn_network": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "public_endpoint": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "internal_networks": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "dns": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "vpn": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "client_vpn_ip": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "client_private_key": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "client_public_key": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "allowed_ips": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "download_config": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "wireguard_download_client_config": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "download_qr": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ],
+      "wireguard_download_client_qr": [
+        "modern_format/modules/interfaces/backend/checks/default_tables_structure/structure_table_wireguard.json"
+      ]
+    }
+  },
+  "monitor": {
+    "count": 25,
+    "keys": [
+      "Action",
+      "Chain",
+      "DPT",
+      "DST",
+      "Date",
+      "Destination_IP",
+      "Destination_Port",
+      "End_Date",
+      "End_Time",
+      "Firewall",
+      "ID",
+      "IN",
+      "Max_Records",
+      "OUT",
+      "PROTO",
+      "Protocol",
+      "SPT",
+      "SRC",
+      "Search_Filter",
+      "Source_IP",
+      "Source_Port",
+      "Start_Date",
+      "Start_Time",
+      "Time",
+      "menu_monitor"
+    ],
+    "missing_es": [
+      "Action",
+      "Chain",
+      "DPT",
+      "DST",
+      "Date",
+      "Destination_IP",
+      "Destination_Port",
+      "End_Date",
+      "End_Time",
+      "Firewall",
+      "ID",
+      "IN",
+      "Max_Records",
+      "OUT",
+      "PROTO",
+      "Protocol",
+      "SPT",
+      "SRC",
+      "Search_Filter",
+      "Source_IP",
+      "Source_Port",
+      "Start_Date",
+      "Start_Time",
+      "Time"
+    ],
+    "missing_en": [
+      "Action",
+      "Chain",
+      "DPT",
+      "DST",
+      "Date",
+      "Destination_IP",
+      "Destination_Port",
+      "End_Date",
+      "End_Time",
+      "Firewall",
+      "ID",
+      "IN",
+      "Max_Records",
+      "OUT",
+      "PROTO",
+      "Protocol",
+      "SPT",
+      "SRC",
+      "Search_Filter",
+      "Source_IP",
+      "Source_Port",
+      "Start_Date",
+      "Start_Time",
+      "Time"
+    ],
+    "evidence": {
+      "menu_monitor": [
+        "modern_format/modules/monitor/web/monitor/monitor.php"
+      ],
+      "Protocol": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Action": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "Firewall": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Max_Records": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Start_Date": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "End_Date": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Start_Time": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "End_Time": [
+        "modern_format/modules/monitor/backend/checks/default_forms/forms_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Search_Filter": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json",
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "Source_IP": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Destination_IP": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Source_Port": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Destination_Port": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor.json"
+      ],
+      "Date": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "Time": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "ID": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "Chain": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "SRC": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "SPT": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "DST": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "DPT": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "PROTO": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "IN": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ],
+      "OUT": [
+        "modern_format/modules/monitor/backend/checks/default_tables_structure/structure_table_monitor_log.json"
+      ]
+    }
+  },
+  "monitor_session": {
+    "count": 28,
+    "keys": [
+      "menu_monitor_sessions",
+      "monitor_sessions_col_assured",
+      "monitor_sessions_col_destination",
+      "monitor_sessions_col_destination_port",
+      "monitor_sessions_col_id",
+      "monitor_sessions_col_proto",
+      "monitor_sessions_col_reply_destination",
+      "monitor_sessions_col_reply_destination_port",
+      "monitor_sessions_col_reply_source",
+      "monitor_sessions_col_reply_source_port",
+      "monitor_sessions_col_source",
+      "monitor_sessions_col_source_port",
+      "monitor_sessions_col_state",
+      "monitor_sessions_col_timeout",
+      "monitor_sessions_command_not_allowed",
+      "monitor_sessions_description",
+      "monitor_sessions_empty_snapshot",
+      "monitor_sessions_filter_no_results",
+      "monitor_sessions_filter_prefix",
+      "monitor_sessions_generate_hint",
+      "monitor_sessions_invalid_user",
+      "monitor_sessions_refreshing",
+      "monitor_sessions_reload",
+      "monitor_sessions_reload_error",
+      "monitor_sessions_reloaded",
+      "monitor_sessions_table_title",
+      "monitor_sessions_viewer_readonly",
+      "monitor_sessions_xml_read_error"
+    ],
+    "missing_es": [],
+    "missing_en": [],
+    "evidence": {
+      "monitor_sessions_filter_no_results": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.js"
+      ],
+      "monitor_sessions_refreshing": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.js"
+      ],
+      "monitor_sessions_reload_error": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.js",
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_generate_hint": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_xml_read_error": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_empty_snapshot": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_proto": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_state": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_source": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_source_port": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_destination": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_destination_port": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_reply_source": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_reply_source_port": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_reply_destination": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_reply_destination_port": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_timeout": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_assured": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_col_id": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_filter_prefix": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_command_not_allowed": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_invalid_user": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_reloaded": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "menu_monitor_sessions": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_description": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_reload": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_viewer_readonly": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ],
+      "monitor_sessions_table_title": [
+        "modern_format/modules/monitor_session/web/monitor_session/monitor_session.php"
+      ]
+    }
+  },
+  "networking": {
+    "count": 19,
+    "keys": [
+      "dhcp",
+      "dhcp_description",
+      "dns_primary",
+      "dns_secondary",
+      "enable",
+      "gateway",
+      "id",
+      "interface",
+      "lease_time",
+      "mode",
+      "netmask",
+      "ntp_server",
+      "range_end",
+      "range_start",
+      "relay",
+      "relay_dest_server",
+      "relay_local_ip",
+      "server",
+      "sidebar_dhcp"
+    ],
+    "missing_es": [
+      "dhcp",
+      "relay",
+      "server"
+    ],
+    "missing_en": [
+      "dhcp",
+      "relay",
+      "server"
+    ],
+    "evidence": {
+      "sidebar_dhcp": [
+        "modern_format/modules/networking/web/networking/dhcp_config.php"
+      ],
+      "dhcp_description": [
+        "modern_format/modules/networking/web/networking/dhcp_config.php"
+      ],
+      "dhcp": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json",
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "enable": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json",
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "mode": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json",
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "interface": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json",
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "server": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json"
+      ],
+      "relay": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json"
+      ],
+      "id": [
+        "modern_format/modules/networking/backend/checks/default_forms/forms_dhcp.json",
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "range_start": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "range_end": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "lease_time": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "gateway": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "netmask": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "dns_primary": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "dns_secondary": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "ntp_server": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "relay_local_ip": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ],
+      "relay_dest_server": [
+        "modern_format/modules/networking/backend/checks/default_tables_structure/structure_table_dhcp.json"
+      ]
+    }
+  },
+  "policies": {
+    "count": 114,
+    "keys": [
+      "!=",
+      "==",
+      "AH",
+      "ARP",
+      "BF_HOOK_TC_EGRESS",
+      "BF_HOOK_TC_INGRESS",
+      "BF_HOOK_XDP",
+      "DCCP",
+      "Destination",
+      "ESP",
+      "FORWARDING",
+      "Fragment",
+      "Hop-by-Hop",
+      "ICMPv6",
+      "IPX",
+      "IPv4",
+      "IPv6",
+      "MPLS",
+      "POSTROUTING",
+      "PREROUTING",
+      "Routing",
+      "SCTP",
+      "accept",
+      "ack",
+      "action",
+      "address-mask-reply",
+      "address-mask-request",
+      "bytes",
+      "chain",
+      "ct.state",
+      "cwr",
+      "description",
+      "destination",
+      "destination-unreachable",
+      "dnat.addr",
+      "dnat.port",
+      "dport",
+      "dport.op",
+      "drop",
+      "ece",
+      "echo-reply",
+      "echo-request",
+      "enable",
+      "established",
+      "family",
+      "filter",
+      "fin",
+      "hook",
+      "icmp",
+      "icmp_code",
+      "icmp_type",
+      "icmpv6",
+      "icmpv6_code",
+      "icmpv6_type",
+      "id",
+      "inet",
+      "input",
+      "interface",
+      "ip.daddr",
+      "ip.daddr.op",
+      "ip.protocol",
+      "ip.saddr",
+      "ip.saddr.op",
+      "ipv6_next_header",
+      "l3_protocol",
+      "l4_protocol",
+      "log",
+      "masquerade",
+      "meta.iifname",
+      "meta.oifname",
+      "multicast-listener-done",
+      "multicast-listener-query",
+      "multicast-listener-report",
+      "name",
+      "nat",
+      "neighbor-advertisement",
+      "neighbor-solicitation",
+      "new",
+      "output",
+      "packet-too-big",
+      "packets",
+      "parameter-problem",
+      "position",
+      "probability",
+      "psh",
+      "queue",
+      "redirect",
+      "reject",
+      "related",
+      "router-advertisement",
+      "router-solicitation",
+      "rst",
+      "sidebar_TC_Egress",
+      "sidebar_TC_Ingress",
+      "sidebar_XDP_policies",
+      "sidebar_nftables_forwarding",
+      "sidebar_nftables_input",
+      "sidebar_nftables_output",
+      "sidebar_nftables_postrouting",
+      "sidebar_nftables_prerouting",
+      "snat.addr",
+      "source",
+      "source-quench",
+      "sport",
+      "sport.op",
+      "syn",
+      "table",
+      "tcp",
+      "tcp_flags",
+      "time-exceeded",
+      "timestamp-reply",
+      "timestamp-request",
+      "udp",
+      "urg"
+    ],
+    "missing_es": [
+      "!=",
+      "==",
+      "AH",
+      "ARP",
+      "BF_HOOK_TC_EGRESS",
+      "BF_HOOK_TC_INGRESS",
+      "BF_HOOK_XDP",
+      "DCCP",
+      "Destination",
+      "ESP",
+      "FORWARDING",
+      "Fragment",
+      "Hop-by-Hop",
+      "ICMPv6",
+      "IPX",
+      "IPv4",
+      "IPv6",
+      "MPLS",
+      "POSTROUTING",
+      "PREROUTING",
+      "Routing",
+      "SCTP",
+      "accept",
+      "ack",
+      "address-mask-reply",
+      "address-mask-request",
+      "cwr",
+      "description",
+      "destination-unreachable",
+      "drop",
+      "ece",
+      "echo-reply",
+      "echo-request",
+      "established",
+      "fin",
+      "icmp",
+      "icmpv6",
+      "inet",
+      "input",
+      "multicast-listener-done",
+      "multicast-listener-query",
+      "multicast-listener-report",
+      "nat",
+      "neighbor-advertisement",
+      "neighbor-solicitation",
+      "new",
+      "output",
+      "packet-too-big",
+      "parameter-problem",
+      "psh",
+      "queue",
+      "redirect",
+      "reject",
+      "related",
+      "router-advertisement",
+      "router-solicitation",
+      "rst",
+      "source-quench",
+      "syn",
+      "tcp",
+      "time-exceeded",
+      "timestamp-reply",
+      "timestamp-request",
+      "udp",
+      "urg"
+    ],
+    "missing_en": [
+      "!=",
+      "==",
+      "AH",
+      "ARP",
+      "BF_HOOK_TC_EGRESS",
+      "BF_HOOK_TC_INGRESS",
+      "BF_HOOK_XDP",
+      "DCCP",
+      "Destination",
+      "ESP",
+      "FORWARDING",
+      "Fragment",
+      "Hop-by-Hop",
+      "ICMPv6",
+      "IPX",
+      "IPv4",
+      "IPv6",
+      "MPLS",
+      "POSTROUTING",
+      "PREROUTING",
+      "Routing",
+      "SCTP",
+      "accept",
+      "ack",
+      "address-mask-reply",
+      "address-mask-request",
+      "cwr",
+      "description",
+      "destination-unreachable",
+      "drop",
+      "ece",
+      "echo-reply",
+      "echo-request",
+      "established",
+      "fin",
+      "icmp",
+      "icmpv6",
+      "inet",
+      "input",
+      "multicast-listener-done",
+      "multicast-listener-query",
+      "multicast-listener-report",
+      "nat",
+      "neighbor-advertisement",
+      "neighbor-solicitation",
+      "new",
+      "output",
+      "packet-too-big",
+      "parameter-problem",
+      "psh",
+      "queue",
+      "redirect",
+      "reject",
+      "related",
+      "router-advertisement",
+      "router-solicitation",
+      "rst",
+      "source-quench",
+      "syn",
+      "tcp",
+      "time-exceeded",
+      "timestamp-reply",
+      "timestamp-request",
+      "udp",
+      "urg"
+    ],
+    "evidence": {
+      "sidebar_TC_Egress": [
+        "modern_format/modules/policies/web/policies/policies_TC_egress.php"
+      ],
+      "sidebar_TC_Ingress": [
+        "modern_format/modules/policies/web/policies/policies_TC_ingress.php"
+      ],
+      "sidebar_nftables_forwarding": [
+        "modern_format/modules/policies/web/policies/policies_nftables_forwarding.php"
+      ],
+      "sidebar_nftables_input": [
+        "modern_format/modules/policies/web/policies/policies_nftables_input.php"
+      ],
+      "sidebar_nftables_output": [
+        "modern_format/modules/policies/web/policies/policies_nftables_output.php"
+      ],
+      "sidebar_nftables_postrouting": [
+        "modern_format/modules/policies/web/policies/policies_nftables_postrouting.php"
+      ],
+      "sidebar_nftables_prerouting": [
+        "modern_format/modules/policies/web/policies/policies_nftables_prerouting.php"
+      ],
+      "sidebar_XDP_policies": [
+        "modern_format/modules/policies/web/policies/policies_xdp.php"
+      ],
+      "action": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "l3_protocol": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "interface": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "l4_protocol": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "ipv6_next_header": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "tcp_flags": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "icmp_type": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "icmp_code": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "icmpv6_type": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "icmpv6_code": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "IPv4": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "IPv6": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "MPLS": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "IPX": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "ARP": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "ICMPv6": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "SCTP": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "DCCP": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "Hop-by-Hop": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "Routing": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "Fragment": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "AH": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "ESP": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "Destination": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "fin": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "syn": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "rst": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "psh": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "ack": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "urg": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "ece": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "cwr": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "echo-reply": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "destination-unreachable": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "source-quench": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "redirect": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "echo-request": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "router-advertisement": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "router-solicitation": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "time-exceeded": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "parameter-problem": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "timestamp-request": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "timestamp-reply": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "address-mask-request": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "address-mask-reply": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "packet-too-big": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "neighbor-solicitation": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "neighbor-advertisement": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "multicast-listener-query": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "multicast-listener-report": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "multicast-listener-done": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json"
+      ],
+      "log": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "enable": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "id": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "hook": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "chain": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "BF_HOOK_XDP": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "BF_HOOK_TC_INGRESS": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "BF_HOOK_TC_EGRESS": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "source": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "destination": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "sport": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "dport": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_bpf.json",
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "meta.iifname": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "meta.oifname": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "ip.protocol": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "ct.state": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "accept": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "drop": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "reject": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "queue": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "tcp": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "udp": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "icmp": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "icmpv6": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "new": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "related": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "established": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "ip.saddr.op": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "ip.daddr.op": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "sport.op": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "dport.op": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "masquerade": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "!=": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "==": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "family": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "table": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "inet": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "filter": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "nat": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json"
+      ],
+      "FORWARDING": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "PREROUTING": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "POSTROUTING": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "input": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "output": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "ip.saddr": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "ip.daddr": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "dnat.addr": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "dnat.port": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "snat.addr": [
+        "modern_format/modules/policies/backend/checks/default_forms/forms_policies_nft.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "position": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "name": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json",
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "packets": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "bytes": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies.json"
+      ],
+      "probability": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ],
+      "description": [
+        "modern_format/modules/policies/backend/checks/default_tables_structure/structure_tables_policies_bpf.json"
+      ]
+    }
+  },
+  "routing": {
+    "count": 16,
+    "keys": [
+      "action",
+      "destination",
+      "gateway",
+      "interface",
+      "ip_version",
+      "loading_routes",
+      "metric",
+      "proto",
+      "reload_routes",
+      "routing_title",
+      "rule_from",
+      "rule_table",
+      "rules_title",
+      "scope",
+      "src",
+      "table"
+    ],
+    "missing_es": [],
+    "missing_en": [],
+    "evidence": {
+      "routing_title": [
+        "modern_format/modules/routing/web/routing/routing.php",
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "loading_routes": [
+        "modern_format/modules/routing/web/routing/routing.php",
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "reload_routes": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "table": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "ip_version": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "action": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "destination": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "interface": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "gateway": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "metric": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "proto": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "scope": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "src": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "rule_from": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "rule_table": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ],
+      "rules_title": [
+        "modern_format/modules/routing/web/routing/routing_table.php/routing_table.js"
+      ]
+    }
+  },
+  "system": {
+    "count": 63,
+    "keys": [
+      "100M",
+      "10M",
+      "14day",
+      "1G",
+      "1day",
+      "250M",
+      "25M",
+      "2G",
+      "30day",
+      "3day",
+      "500M",
+      "50M",
+      "7day",
+      "_field_map",
+      "configurable",
+      "daily",
+      "desired_enabled",
+      "disable_add",
+      "disable_delete",
+      "display_name",
+      "key",
+      "max",
+      "min",
+      "number",
+      "runtime_status",
+      "section",
+      "service_name",
+      "services",
+      "services_error_delete_disabled",
+      "services_error_invalid_desired",
+      "services_error_invalid_json",
+      "services_error_not_configurable",
+      "services_error_save_failed",
+      "services_error_service_not_allowed",
+      "services_no",
+      "services_refresh_runtime_status",
+      "services_refreshing",
+      "services_runtime_error",
+      "services_runtime_updated",
+      "services_yes",
+      "sidebar_logs",
+      "sidebar_services",
+      "sidebar_settings",
+      "system_logging",
+      "system_logging_description",
+      "system_logging_journald_compress",
+      "system_logging_journald_max_retention_sec",
+      "system_logging_journald_runtime_max_use",
+      "system_logging_journald_system_keep_free",
+      "system_logging_journald_system_max_use",
+      "system_logging_nftables_logs_compress",
+      "system_logging_nftables_logs_delaycompress",
+      "system_logging_nftables_logs_enabled",
+      "system_logging_nftables_logs_rotate",
+      "system_logging_nftables_logs_size",
+      "system_logging_system_logs_compress",
+      "system_logging_system_logs_delaycompress",
+      "system_logging_system_logs_enabled",
+      "system_logging_system_logs_maxsize",
+      "system_logging_system_logs_rotate",
+      "system_logging_system_logs_rotation",
+      "system_logging_title",
+      "weekly"
+    ],
+    "missing_es": [
+      "100M",
+      "10M",
+      "14day",
+      "1G",
+      "1day",
+      "250M",
+      "25M",
+      "2G",
+      "30day",
+      "3day",
+      "500M",
+      "50M",
+      "7day",
+      "_field_map",
+      "daily",
+      "disable_add",
+      "disable_delete",
+      "key",
+      "max",
+      "min",
+      "number",
+      "section",
+      "service_name",
+      "services",
+      "system_logging",
+      "weekly"
+    ],
+    "missing_en": [
+      "100M",
+      "10M",
+      "14day",
+      "1G",
+      "1day",
+      "250M",
+      "25M",
+      "2G",
+      "30day",
+      "3day",
+      "500M",
+      "50M",
+      "7day",
+      "_field_map",
+      "daily",
+      "disable_add",
+      "disable_delete",
+      "key",
+      "max",
+      "min",
+      "number",
+      "section",
+      "service_name",
+      "services",
+      "system_logging",
+      "weekly"
+    ],
+    "evidence": {
+      "system_logging_title": [
+        "modern_format/modules/system/web/system/logging/system_logging.php"
+      ],
+      "sidebar_settings": [
+        "modern_format/modules/system/web/system/logging/system_logging.php"
+      ],
+      "system_logging_description": [
+        "modern_format/modules/system/web/system/logging/system_logging.php"
+      ],
+      "sidebar_services": [
+        "modern_format/modules/system/web/system/services/services.php"
+      ],
+      "services_refresh_runtime_status": [
+        "modern_format/modules/system/web/system/services/services.php"
+      ],
+      "services_error_delete_disabled": [
+        "modern_format/modules/system/web/system/services/services_table/get_delete.php"
+      ],
+      "services_error_invalid_json": [
+        "modern_format/modules/system/web/system/services/services_table/get_update.php"
+      ],
+      "services_error_service_not_allowed": [
+        "modern_format/modules/system/web/system/services/services_table/get_update.php"
+      ],
+      "services_error_not_configurable": [
+        "modern_format/modules/system/web/system/services/services_table/get_update.php"
+      ],
+      "services_error_invalid_desired": [
+        "modern_format/modules/system/web/system/services/services_table/get_update.php"
+      ],
+      "services_error_save_failed": [
+        "modern_format/modules/system/web/system/services/services_table/get_update.php"
+      ],
+      "services_refreshing": [
+        "modern_format/modules/system/web/system/services/services_table/services.js"
+      ],
+      "services_runtime_updated": [
+        "modern_format/modules/system/web/system/services/services_table/services.js"
+      ],
+      "services_runtime_error": [
+        "modern_format/modules/system/web/system/services/services_table/services.js"
+      ],
+      "services_yes": [
+        "modern_format/modules/system/web/system/services/services_table/services_common.php"
+      ],
+      "services_no": [
+        "modern_format/modules/system/web/system/services/services_table/services_common.php"
+      ],
+      "sidebar_logs": [
+        "modern_format/modules/system/web/system/system-logs.php"
+      ],
+      "desired_enabled": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_services.json"
+      ],
+      "service_name": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json"
+      ],
+      "display_name": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_services.json"
+      ],
+      "runtime_status": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_services.json"
+      ],
+      "configurable": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_services.json"
+      ],
+      "disable_add": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "disable_delete": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_services.json",
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "system_logging": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_journald_system_max_use": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_journald_system_keep_free": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_journald_runtime_max_use": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_journald_max_retention_sec": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_system_logs_rotation": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_system_logs_maxsize": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_nftables_logs_size": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "10M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "25M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "50M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "100M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "250M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "500M": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "1G": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "2G": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "1day": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "3day": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "7day": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "14day": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "30day": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "daily": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "weekly": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "system_logging_journald_compress": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_system_logs_enabled": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_system_logs_compress": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_system_logs_delaycompress": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_nftables_logs_enabled": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_nftables_logs_compress": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "system_logging_nftables_logs_delaycompress": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "number": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "system_logging_system_logs_rotate": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "min": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "max": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "system_logging_nftables_logs_rotate": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json",
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_system_logging.json"
+      ],
+      "_field_map": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "section": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "key": [
+        "modern_format/modules/system/backend/checks/default_forms/forms_system_logging.json"
+      ],
+      "services": [
+        "modern_format/modules/system/backend/checks/default_tables_structure/structure_table_services.json"
+      ]
+    }
+  },
+  "users": {
+    "count": 1,
+    "keys": [
+      "menu_users"
+    ],
+    "missing_es": [],
+    "missing_en": [],
+    "evidence": {
+      "menu_users": [
+        "modern_format/modules/users/web/users/users.php"
+      ]
+    }
+  }
+}

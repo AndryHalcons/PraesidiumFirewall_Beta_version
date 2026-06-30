@@ -1,0 +1,15 @@
+{
+  "action": "Action",
+  "alias_addr_group": "alias addr group",
+  "alias_address": "alias address",
+  "alias_service": "alias service",
+  "alias_service_group": "alias service group",
+  "content": "Content",
+  "enable": "Enabled",
+  "id": "ID",
+  "name": "Name",
+  "sidebar_address_alias": "Address Aliases",
+  "sidebar_address_group_alias": "Address Groups",
+  "sidebar_services_group_objects": "Service Groups",
+  "sidebar_services_objects": "Service Aliases"
+}
