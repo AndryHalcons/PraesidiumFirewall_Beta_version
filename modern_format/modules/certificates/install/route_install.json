@@ -24,5 +24,19 @@
           "source": "modern_format/modules/certificates/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+ "mainpage_design": [
+    {
+      "menu": "sidebar",
+      "position_sidebar": "7",
+      "summary": "sidebar_certificates",
+      "pages": [
+        {
+          "dataPage": "/certificates/certificates.php",
+          "keyLang": "sidebar_certificates",
+          "position_page": "1"
+        }
+      ]
+    }
+  ]
 }

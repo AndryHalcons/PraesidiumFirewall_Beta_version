@@ -25,10 +25,33 @@
           "destination": "/var/www/html/"
         }
     ],
-      "permissions": [
+ "mainpage_design": [
+    {
+      "menu": "sidebar",
+      "position_sidebar": "5",
+      "summary": "sidebar_AliasObjects",
+      "pages": [
         {
-          "1": "modern_format/modules/alias/backend/checks/system_data/default_forms/*"
+          "dataPage": "/alias/address_alias.php",
+          "keyLang": "sidebar_address_alias",
+          "position_page": "1"
+        },
+        {
+          "dataPage": "/alias/address_alias_group.php",
+          "keyLang": "sidebar_address_group_alias",
+          "position_page": "2"
+        },
+        {
+          "dataPage": "/alias/service_alias.php",
+          "keyLang": "sidebar_services_objects",
+          "position_page": "3"
+        },
+        {
+          "dataPage": "/alias/service_alias_group.php",
+          "keyLang": "sidebar_services_group_objects",
+          "position_page": "4"
         }
-
-    ]
+      ]
+    }
+  ]
 }

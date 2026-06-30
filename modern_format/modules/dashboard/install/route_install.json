@@ -24,5 +24,19 @@
           "source": "modern_format/modules/dashboard/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],    
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "1",
+        "summary": "sidebar_dashboard",
+        "pages": [
+          {
+            "dataPage": "dashboard/dashboard.php",
+            "keyLang": "sidebar_dashboard",
+            "position_page": "1"
+          }
+        ]
+      }
+  ]
 }

@@ -24,5 +24,19 @@
           "source": "modern_format/modules/commits/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+     "mainpage_design": [
+    {
+      "menu": "top-menu",
+      "position_sidebar": "7",
+      "summary": "",
+      "pages": [
+        {
+          "dataPage": "commits/commit.php",
+          "keyLang": "menu_commit",
+          "position_page": "5"
+        }
+      ]
+    }
+  ]
 }
