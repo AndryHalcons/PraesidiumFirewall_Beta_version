@@ -69,13 +69,13 @@ $csrfToken = csrf_get_token();
         <a href="#" data-page="interfaces/wifis.php"><?= htmlspecialchars($L['sidebar_wifis']) ?></a>
       </details>
       <details>
-        <summary>BPfilter</summary>
+        <summary><?= htmlspecialchars($L['BPfilter']) ?></summary>
         <a href="#" data-page="policies/policies_xdp.php"><?= htmlspecialchars($L['sidebar_XDP_policies']) ?></a>
         <a href="#" data-page="policies/policies_TC_ingress.php"><?= htmlspecialchars($L['sidebar_TC_Ingress']) ?></a>
         <a href="#" data-page="policies/policies_TC_egress.php"><?= htmlspecialchars($L['sidebar_TC_Egress']) ?></a>
       </details>
       <details>
-        <summary>Nftables</summary>
+        <summary><?= htmlspecialchars($L['Nftables']) ?></summary>
         <a href="#" data-page="policies/policies_nftables_forwarding.php"><?= htmlspecialchars($L['sidebar_nftables_forwarding']) ?></a>
         <a href="#" data-page="policies/policies_nftables_prerouting.php"><?= htmlspecialchars($L['sidebar_nftables_prerouting']) ?></a>
         <a href="#" data-page="policies/policies_nftables_postrouting.php"><?= htmlspecialchars($L['sidebar_nftables_postrouting']) ?></a>

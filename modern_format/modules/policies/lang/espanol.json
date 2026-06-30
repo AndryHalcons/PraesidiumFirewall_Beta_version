@@ -112,5 +112,7 @@
   "timestamp-reply": "timestamp reply",
   "timestamp-request": "timestamp request",
   "udp": "udp",
+  "BPfilter": "BPfilter",
+  "Nftables": "Nftables",
   "urg": "urg"
 }
