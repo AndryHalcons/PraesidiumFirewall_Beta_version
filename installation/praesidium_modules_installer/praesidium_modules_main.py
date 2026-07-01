@@ -6,7 +6,10 @@ ES:
     Este script tiene un único trabajo: ejecutar, en orden, los otros scripts
     Python de la misma carpeta de instaladores modulares.
 
-    No contiene lógica de instalación propia. La lógica real vive en:
+    Antes de ejecutar los instaladores hijos prepara los directorios runtime
+    permitidos para que una reinstalación no deje restos antiguos.
+
+    La lógica de copia/generación real vive en:
         - praesidium_modules_installer.py
         - praesidium_modules_lang_installer.py
         - praesidium_modules_web_installer.py
@@ -17,7 +20,10 @@ EN:
     This script has one single job: execute, in order, the other Python scripts
     from the same modular-installer folder.
 
-    It does not contain installation logic of its own. The real logic lives in:
+    Before running child installers it prepares the allowed runtime directories
+    so a reinstall cannot leave stale files behind.
+
+    The real copy/generation logic lives in:
         - praesidium_modules_installer.py
         - praesidium_modules_lang_installer.py
         - praesidium_modules_web_installer.py
@@ -26,6 +32,7 @@ EN:
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -100,6 +107,37 @@ def validate_steps(installer_dir: Path, steps: tuple[InstallerStep, ...]) -> Non
     if missing:
         joined = ", ".join(missing)
         raise MainInstallerError(f"missing installer script(s): {joined}")
+
+
+# ES: Borra y recrea los directorios runtime controlados antes de reinstalar.
+# EN: Delete and recreate controlled runtime directories before reinstalling.
+def prepare_runtime_directories(dry_run: bool) -> None:
+    # ES: Directorios runtime que deben quedar limpios antes de reinstalar.
+    # EN: Runtime directories that must be clean before reinstalling.
+    runtime_dirs = (
+        Path("/var/www/html"),
+        Path("/var/www/backend"),
+        Path("/var/www/config"),
+        Path("/var/www/config_running"),
+        Path("/var/www/test"),
+    )
+
+    print("[PREPARE] runtime directories", flush=True)
+    for runtime_dir in runtime_dirs:
+        # ES: Protección simple: sólo permitimos borrar hijos directos de /var/www.
+        # EN: Simple guard: only direct children of /var/www may be deleted.
+        if runtime_dir.parent != Path("/var/www"):
+            raise MainInstallerError(f"refusing unsafe runtime directory: {runtime_dir}")
+
+        if dry_run:
+            print(f"  DRY-RUN rm -rf {runtime_dir} && mkdir -p {runtime_dir}", flush=True)
+            continue
+
+        # ES: Equivalente a rm -rf <dir> && mkdir -p <dir>.
+        # EN: Equivalent to rm -rf <dir> && mkdir -p <dir>.
+        shutil.rmtree(runtime_dir, ignore_errors=True)
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        print(f"  recreated {runtime_dir}", flush=True)
 
 
 # ES:
@@ -198,6 +236,12 @@ def main(argv: list[str] | None = None) -> int:
         for index, step in enumerate(INSTALLER_STEPS, start=1):
             print(f"{index}. {step.script_name}", flush=True)
         return 0
+
+    try:
+        prepare_runtime_directories(dry_run=args.dry_run)
+    except MainInstallerError as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
+        return 1
 
     failures: list[tuple[str, int]] = []
     for step in INSTALLER_STEPS:
