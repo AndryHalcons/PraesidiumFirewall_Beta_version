@@ -13,6 +13,10 @@
           "destination": "/var/www/backend/commits/commit_task/"
         },
         {
+          "source": "modern_format/modules/policies/backend/checks/system_data/templates/*",
+          "destination": "/var/www/backend/checks/system_data/templates/"
+        },
+        {
           "source": "modern_format/modules/policies/initial_config/*",
           "destination": "/var/www/config/"
         },
