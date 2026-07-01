@@ -1,0 +1,16 @@
+{
+  "select": {
+    "user_role": [
+      "admin",
+      "viewer"
+    ],
+    "user_language": [
+      "en",
+      "es"
+    ]
+  },
+  "checkbox": {},
+  "not_editable": {
+    "id": []
+  }
+}

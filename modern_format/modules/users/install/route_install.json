@@ -1,11 +1,11 @@
 {
   "install_route": [
         {
-          "source": "modern_format/modules/users/backend/checks/default_forms/*",
+          "source": "modern_format/modules/users/backend/checks/system_data/default_forms/*",
           "destination": "/var/www/backend/checks/system_data/default_forms/"
         },
         {
-          "source": "modern_format/modules/users/backend/checks/default_tables_structure/*",
+          "source": "modern_format/modules/users/backend/checks/system_data/default_tables_structure/*",
           "destination": "/var/www/backend/checks/system_data/default_tables_structure/"
         },
         {
