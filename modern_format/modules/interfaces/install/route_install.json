@@ -36,5 +36,49 @@
           "source": "modern_format/modules/interfaces/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "2",
+        "summary": "sidebar_interfaces",
+        "pages": [
+          {
+            "dataPage": "interfaces/ethernets.php",
+            "keyLang": "sidebar_ethernets",
+            "position_page": "1"
+          },
+          {
+            "dataPage": "interfaces/bonds.php",
+            "keyLang": "sidebar_bonds",
+            "position_page": "2"
+          },
+          {
+            "dataPage": "interfaces/bridges.php",
+            "keyLang": "sidebar_bridges",
+            "position_page": "3"
+          },
+          {
+            "dataPage": "interfaces/vlans.php",
+            "keyLang": "sidebar_vlans",
+            "position_page": "4"
+          },
+          {
+            "dataPage": "interfaces/wireguard/site_to_site.php",
+            "keyLang": "wireguard_site_to_site",
+            "position_page": "5"
+          },
+          {
+            "dataPage": "interfaces/wireguard/remote_access.php",
+            "keyLang": "wireguard_remote_access",
+            "position_page": "6"
+          },
+          {
+            "dataPage": "interfaces/wifis.php",
+            "keyLang": "sidebar_wifis",
+            "position_page": "7"
+          }
+        ]
+      }
+  ]
 }

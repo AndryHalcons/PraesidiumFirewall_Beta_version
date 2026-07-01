@@ -28,5 +28,19 @@
           "source": "modern_format/modules/users/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "top-menu",
+        "position_sidebar": "",
+        "summary": "",
+        "pages": [
+          {
+            "dataPage": "users/users.php",
+            "keyLang": "menu_users",
+            "position_page": "4"
+          }
+        ]
+      }
+  ]
 }

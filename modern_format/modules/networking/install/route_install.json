@@ -32,5 +32,19 @@
           "source": "modern_format/modules/networking/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "6",
+        "summary": "sidebar_networking",
+        "pages": [
+          {
+            "dataPage": "/networking/dhcp_config.php",
+            "keyLang": "sidebar_dhcp",
+            "position_page": "1"
+          }
+        ]
+      }
+  ]
 }

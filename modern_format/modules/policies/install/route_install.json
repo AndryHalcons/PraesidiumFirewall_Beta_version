@@ -28,5 +28,61 @@
           "source": "modern_format/modules/policies/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "3",
+        "summary": "BPfilter",
+        "pages": [
+          {
+            "dataPage": "policies/policies_xdp.php",
+            "keyLang": "sidebar_XDP_policies",
+            "position_page": "1"
+          },
+          {
+            "dataPage": "policies/policies_TC_ingress.php",
+            "keyLang": "sidebar_TC_Ingress",
+            "position_page": "2"
+          },
+          {
+            "dataPage": "policies/policies_TC_egress.php",
+            "keyLang": "sidebar_TC_Egress",
+            "position_page": "3"
+          }
+        ]
+      },
+      {
+        "menu": "sidebar",
+        "position_sidebar": "4",
+        "summary": "Nftables",
+        "pages": [
+          {
+            "dataPage": "policies/policies_nftables_forwarding.php",
+            "keyLang": "sidebar_nftables_forwarding",
+            "position_page": "1"
+          },
+          {
+            "dataPage": "policies/policies_nftables_prerouting.php",
+            "keyLang": "sidebar_nftables_prerouting",
+            "position_page": "2"
+          },
+          {
+            "dataPage": "policies/policies_nftables_postrouting.php",
+            "keyLang": "sidebar_nftables_postrouting",
+            "position_page": "3"
+          },
+          {
+            "dataPage": "policies/policies_nftables_input.php",
+            "keyLang": "sidebar_nftables_input",
+            "position_page": "4"
+          },
+          {
+            "dataPage": "policies/policies_nftables_output.php",
+            "keyLang": "sidebar_nftables_output",
+            "position_page": "5"
+          }
+        ]
+      }
+  ]
 }

@@ -84,14 +84,21 @@ class LangInstallerError(RuntimeError):
 def resolve_repo_root() -> Path:
     """
     ES:
-        El script vive en installation/praesidium_modules_lang_installer.py.
-        Por tanto, la raíz del repo es el directorio padre de installation/.
+        El script puede vivir en installation/ o en una subcarpeta de instaladores.
+        Subimos por los directorios padre hasta encontrar modern_format/modules,
+        evitando depender de una profundidad fija como parents[1].
 
     EN:
-        The script lives at installation/praesidium_modules_lang_installer.py.
-        Therefore, the repository root is the parent directory of installation/.
+        The script may live under installation/ or inside an installer subdirectory.
+        Walk up parent directories until modern_format/modules is found, avoiding
+        a fixed-depth dependency such as parents[1].
     """
-    return Path(__file__).resolve().parents[1]
+    script_path = Path(__file__).resolve()
+    for candidate in [script_path.parent, *script_path.parents]:
+        if (candidate / "modern_format" / "modules").is_dir():
+            return candidate
+
+    raise LangInstallerError("repository root not found: modern_format/modules is missing in parent directories")
 
 
 # ES: Escapa strings para un array PHP con comillas simples.

@@ -36,5 +36,43 @@
           "source": "modern_format/modules/system/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "8",
+        "summary": "sidebar_system",
+        "pages": [
+          {
+            "dataPage": "/system/system-logs.php",
+            "keyLang": "sidebar_logs",
+            "position_page": "1"
+          }
+        ]
+      },
+      {
+        "menu": "sidebar",
+        "position_sidebar": "8",
+        "summary": "sidebar_system",
+        "pages": [
+          {
+            "dataPage": "/system/logging/system_logging.php",
+            "keyLang": "sidebar_settings",
+            "position_page": "2"
+          }
+        ]
+      },
+      {
+        "menu": "sidebar",
+        "position_sidebar": "8",
+        "summary": "sidebar_system",
+        "pages": [
+          {
+            "dataPage": "/system/services/services.php",
+            "keyLang": "sidebar_services",
+            "position_page": "3"
+          }
+        ]
+      }
+  ]
 }

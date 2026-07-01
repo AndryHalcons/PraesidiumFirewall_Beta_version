@@ -28,5 +28,19 @@
           "source": "modern_format/modules/monitor/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "top-menu",
+        "position_sidebar": "",
+        "summary": "",
+        "pages": [
+          {
+            "dataPage": "monitor/monitor.php",
+            "keyLang": "menu_monitor",
+            "position_page": "2"
+          }
+        ]
+      }
+  ]
 }

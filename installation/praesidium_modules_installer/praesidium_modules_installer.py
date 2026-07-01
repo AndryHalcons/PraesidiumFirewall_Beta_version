@@ -97,27 +97,36 @@ class ModuleManifest:
 def infer_repo_root(script_path: Path) -> Path:
     """
     ES:
-        Infiera la raíz del repositorio desde la ubicación del script.
+        Infiere la raíz del repositorio desde la ubicación del script.
 
-        Este archivo está pensado para vivir en:
+        El script puede vivir en:
 
             <repo>/installation/praesidium_modules_installer.py
+            <repo>/installation/praesidium_modules_installer/praesidium_modules_installer.py
 
-        Por tanto, la raíz del repo es el padre de la carpeta "installation".
-        Así evitamos hardcodear rutas como /home/andres/... o /modern_format/...
+        Para no depender de una profundidad fija, sube por los directorios padre
+        hasta encontrar modern_format/modules. Así evitamos hardcodear rutas como
+        /home/andres/... o /modern_format/...
 
     EN:
         Infer the repository root from this script location.
 
-        This file is expected to live at:
+        The script may live at:
 
             <repo>/installation/praesidium_modules_installer.py
+            <repo>/installation/praesidium_modules_installer/praesidium_modules_installer.py
 
-        Therefore, the repo root is the parent of the "installation" directory.
-        This avoids hardcoded paths such as /home/andres/... or /modern_format/...
+        To avoid relying on a fixed depth, walk up parent directories until
+        modern_format/modules is found. This avoids hardcoded paths such as
+        /home/andres/... or /modern_format/...
     """
 
-    return script_path.resolve().parent.parent
+    resolved = script_path.resolve()
+    for candidate in [resolved.parent, *resolved.parents]:
+        if (candidate / MODULES_RELATIVE_PATH).is_dir():
+            return candidate
+
+    raise FileNotFoundError("Repository root not found: modern_format/modules is missing in parent directories")
 
 
 def get_modules_dir(repo_root: Path) -> Path:

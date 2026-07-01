@@ -32,5 +32,19 @@
           "source": "modern_format/modules/routing/web/*",
           "destination": "/var/www/html/"
         }
-    ]
+    ],
+    "mainpage_design": [
+      {
+        "menu": "sidebar",
+        "position_sidebar": "6",
+        "summary": "sidebar_networking",
+        "pages": [
+          {
+            "dataPage": "routing/routing.php",
+            "keyLang": "sidebar_Routing",
+            "position_page": "2"
+          }
+        ]
+      }
+  ]
 }

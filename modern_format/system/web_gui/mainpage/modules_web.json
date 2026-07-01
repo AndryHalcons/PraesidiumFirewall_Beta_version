@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "generated_from": "modern_format/modules/*/install/route_install.json:mainpage_design",
+  "menus": {
+    "top-menu": [
+      {
+        "position": 2,
+        "dataPage": "monitor/monitor.php",
+        "keyLang": "menu_monitor",
+        "source": {
+          "module": "monitor",
+          "manifest": "modern_format/modules/monitor/install/route_install.json",
+          "entry_index": 0
+        }
+      },
+      {
+        "position": 3,
+        "dataPage": "monitor_session/monitor_session.php",
+        "keyLang": "menu_monitor_sessions",
+        "source": {
+          "module": "monitor_session",
+          "manifest": "modern_format/modules/monitor_session/install/route_install.json",
+          "entry_index": 0
+        }
+      },
+      {
+        "position": 4,
+        "dataPage": "users/users.php",
+        "keyLang": "menu_users",
+        "source": {
+          "module": "users",
+          "manifest": "modern_format/modules/users/install/route_install.json",
+          "entry_index": 0
+        }
+      },
+      {
+        "position": 5,
+        "dataPage": "commits/commit.php",
+        "keyLang": "menu_commit",
+        "source": {
+          "module": "commits",
+          "manifest": "modern_format/modules/commits/install/route_install.json",
+          "entry_index": 0
+        }
+      }
+    ],
+    "sidebar": [
+      {
+        "position": 1,
+        "summary": "sidebar_dashboard",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "dashboard/dashboard.php",
+            "keyLang": "sidebar_dashboard"
+          }
+        ],
+        "sources": [
+          {
+            "module": "dashboard",
+            "manifest": "modern_format/modules/dashboard/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 2,
+        "summary": "sidebar_interfaces",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "interfaces/ethernets.php",
+            "keyLang": "sidebar_ethernets"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "interfaces/bonds.php",
+            "keyLang": "sidebar_bonds"
+          },
+          {
+            "position_page": 3,
+            "dataPage": "interfaces/bridges.php",
+            "keyLang": "sidebar_bridges"
+          },
+          {
+            "position_page": 4,
+            "dataPage": "interfaces/vlans.php",
+            "keyLang": "sidebar_vlans"
+          },
+          {
+            "position_page": 5,
+            "dataPage": "interfaces/wireguard/site_to_site.php",
+            "keyLang": "wireguard_site_to_site"
+          },
+          {
+            "position_page": 6,
+            "dataPage": "interfaces/wireguard/remote_access.php",
+            "keyLang": "wireguard_remote_access"
+          },
+          {
+            "position_page": 7,
+            "dataPage": "interfaces/wifis.php",
+            "keyLang": "sidebar_wifis"
+          }
+        ],
+        "sources": [
+          {
+            "module": "interfaces",
+            "manifest": "modern_format/modules/interfaces/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 3,
+        "summary": "BPfilter",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "policies/policies_xdp.php",
+            "keyLang": "sidebar_XDP_policies"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "policies/policies_TC_ingress.php",
+            "keyLang": "sidebar_TC_Ingress"
+          },
+          {
+            "position_page": 3,
+            "dataPage": "policies/policies_TC_egress.php",
+            "keyLang": "sidebar_TC_Egress"
+          }
+        ],
+        "sources": [
+          {
+            "module": "policies",
+            "manifest": "modern_format/modules/policies/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 4,
+        "summary": "Nftables",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "policies/policies_nftables_forwarding.php",
+            "keyLang": "sidebar_nftables_forwarding"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "policies/policies_nftables_prerouting.php",
+            "keyLang": "sidebar_nftables_prerouting"
+          },
+          {
+            "position_page": 3,
+            "dataPage": "policies/policies_nftables_postrouting.php",
+            "keyLang": "sidebar_nftables_postrouting"
+          },
+          {
+            "position_page": 4,
+            "dataPage": "policies/policies_nftables_input.php",
+            "keyLang": "sidebar_nftables_input"
+          },
+          {
+            "position_page": 5,
+            "dataPage": "policies/policies_nftables_output.php",
+            "keyLang": "sidebar_nftables_output"
+          }
+        ],
+        "sources": [
+          {
+            "module": "policies",
+            "manifest": "modern_format/modules/policies/install/route_install.json",
+            "entry_index": 1
+          }
+        ]
+      },
+      {
+        "position": 5,
+        "summary": "sidebar_AliasObjects",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "/alias/address_alias.php",
+            "keyLang": "sidebar_address_alias"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "/alias/address_alias_group.php",
+            "keyLang": "sidebar_address_group_alias"
+          },
+          {
+            "position_page": 3,
+            "dataPage": "/alias/service_alias.php",
+            "keyLang": "sidebar_services_objects"
+          },
+          {
+            "position_page": 4,
+            "dataPage": "/alias/service_alias_group.php",
+            "keyLang": "sidebar_services_group_objects"
+          }
+        ],
+        "sources": [
+          {
+            "module": "alias",
+            "manifest": "modern_format/modules/alias/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 6,
+        "summary": "sidebar_networking",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "/networking/dhcp_config.php",
+            "keyLang": "sidebar_dhcp"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "routing/routing.php",
+            "keyLang": "sidebar_Routing"
+          }
+        ],
+        "sources": [
+          {
+            "module": "networking",
+            "manifest": "modern_format/modules/networking/install/route_install.json",
+            "entry_index": 0
+          },
+          {
+            "module": "routing",
+            "manifest": "modern_format/modules/routing/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 7,
+        "summary": "sidebar_certificates",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "/certificates/certificates.php",
+            "keyLang": "sidebar_certificates"
+          }
+        ],
+        "sources": [
+          {
+            "module": "certificates",
+            "manifest": "modern_format/modules/certificates/install/route_install.json",
+            "entry_index": 0
+          }
+        ]
+      },
+      {
+        "position": 8,
+        "summary": "sidebar_system",
+        "pages": [
+          {
+            "position_page": 1,
+            "dataPage": "/system/system-logs.php",
+            "keyLang": "sidebar_logs"
+          },
+          {
+            "position_page": 2,
+            "dataPage": "/system/logging/system_logging.php",
+            "keyLang": "sidebar_settings"
+          },
+          {
+            "position_page": 3,
+            "dataPage": "/system/services/services.php",
+            "keyLang": "sidebar_services"
+          }
+        ],
+        "sources": [
+          {
+            "module": "system",
+            "manifest": "modern_format/modules/system/install/route_install.json",
+            "entry_index": 0
+          },
+          {
+            "module": "system",
+            "manifest": "modern_format/modules/system/install/route_install.json",
+            "entry_index": 1
+          },
+          {
+            "module": "system",
+            "manifest": "modern_format/modules/system/install/route_install.json",
+            "entry_index": 2
+          }
+        ]
+      }
+    ]
+  }
+}
