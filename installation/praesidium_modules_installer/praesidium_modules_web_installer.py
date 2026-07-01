@@ -5,10 +5,10 @@ ES:
 
     Este script recorre los módulos declarados en modern_format/modules,
     lee la sección mainpage_design de cada install/route_install.json y genera
-    un único fichero modules_web.json en modern_format/system/web_gui/mainpage/.
+    un único fichero modules_web.json en /var/www/html/.
 
     Objetivo único:
-        - generar modern_format/system/web_gui/mainpage/modules_web.json
+        - generar /var/www/html/modules_web.json
 
     Este script NO modifica mainpage.php, mainpage_pruebas.php ni ningún PHP.
 
@@ -17,10 +17,10 @@ EN:
 
     This script scans the modules declared under modern_format/modules,
     reads the mainpage_design section from each install/route_install.json and
-    generates a single modules_web.json file under modern_format/system/web_gui/mainpage/.
+    generates a single modules_web.json file under /var/www/html/.
 
     Single purpose:
-        - generate modern_format/system/web_gui/mainpage/modules_web.json
+        - generate /var/www/html/modules_web.json
 
     This script does NOT modify mainpage.php, mainpage_pruebas.php or any PHP file.
 """
@@ -412,7 +412,7 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 #   By default it generates modules_web.json. With --dry-run it only prints a summary.
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Generate modern_format/system/web_gui/mainpage/modules_web.json from module mainpage_design manifests.",
+        description="Generate /var/www/html/modules_web.json from module mainpage_design manifests.",
     )
     parser.add_argument(
         "--dry-run",
@@ -422,7 +422,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo_root = get_repo_root()
-    output_path = repo_root / "modern_format" / "system" / "web_gui" / "mainpage" / "modules_web.json"
+    output_path = Path("/var/www/html/modules_web.json")
 
     try:
         payload = build_modules_web(repo_root)
@@ -439,7 +439,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"[INFO] repo_root={repo_root}")
     print("[INFO] modules_dir=modern_format/modules")
-    print("[INFO] output=modern_format/system/web_gui/mainpage/modules_web.json")
+    print("[INFO] output=/var/www/html/modules_web.json")
     print(f"[INFO] top-menu links={top_count}")
     print(f"[INFO] sidebar sections={sidebar_count}")
     print(f"[INFO] total pages={page_count}")
@@ -449,7 +449,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     write_json(output_path, payload)
-    print("[OK] wrote modern_format/system/web_gui/mainpage/modules_web.json")
+    print("[OK] wrote /var/www/html/modules_web.json")
     return 0
 
 

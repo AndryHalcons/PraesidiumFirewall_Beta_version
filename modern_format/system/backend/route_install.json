@@ -1,3 +1,8 @@
 {
-  "install_route": []
+  "install_route": [
+        {
+          "source": "modern_format/system/backend/commits/*",
+          "destination": "/var/www/backend/commits/"
+        }
+    ]
 }

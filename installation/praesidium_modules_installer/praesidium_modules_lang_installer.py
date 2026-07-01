@@ -243,6 +243,7 @@ def compile_language(
     repo_root: Path,
     modules_dir: Path,
     global_lang_dir: Path,
+    runtime_lang_dir: Path,
     spec: LanguageSpec,
     dry_run: bool,
 ) -> tuple[int, Path]:
@@ -254,12 +255,18 @@ def compile_language(
 
         El orden no permite pisados: cualquier valor distinto en clave duplicada falla.
 
+        La salida se escribe en el directorio runtime /var/www/html/lang para que
+        el instalador genere los PHP finales después de copiar system y módulos.
+
     EN:
         Merge order:
           1. Global mainpage/lang JSON.
           2. Each module JSON in alphabetical order.
 
         The order does not allow overwrites: any different duplicate value fails.
+
+        Output is written to the /var/www/html/lang runtime directory so the
+        installer generates final PHP files after copying system and modules.
     """
     merged: dict[str, str] = {}
     origins: dict[str, Path] = {}
@@ -281,14 +288,15 @@ def compile_language(
             module_json.relative_to(repo_root),
         )
 
-    output_php = global_lang_dir / spec.php_name
+    output_php = runtime_lang_dir / spec.php_name
     php_content = render_php_array(merged, spec.label)
 
     if dry_run:
-        print(f"[DRY-RUN] Would write {output_php.relative_to(repo_root)} with {len(merged)} keys")
+        print(f"[DRY-RUN] Would write {output_php} with {len(merged)} keys")
     else:
+        runtime_lang_dir.mkdir(parents=True, exist_ok=True)
         output_php.write_text(php_content, encoding="utf-8")
-        print(f"[OK] Wrote {output_php.relative_to(repo_root)} with {len(merged)} keys")
+        print(f"[OK] Wrote {output_php} with {len(merged)} keys")
 
     return len(merged), output_php
 
@@ -322,12 +330,12 @@ def validate_layout(repo_root: Path) -> tuple[Path, Path]:
 # EN: Main entry point.
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Compile Praesidium modular language JSON files into runtime PHP language files."
+        description="Compile Praesidium modular language JSON files into /var/www/html/lang PHP files."
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Validate and show what would be generated without writing PHP files.",
+        help="Validate and show what would be generated without writing runtime PHP files.",
     )
     args = parser.parse_args(argv)
 
@@ -337,13 +345,17 @@ def main(argv: list[str] | None = None) -> int:
 
         print(f"[INFO] repo_root={repo_root}")
         print(f"[INFO] modules_dir={modules_dir.relative_to(repo_root)}")
+        runtime_lang_dir = Path("/var/www/html/lang")
+
         print(f"[INFO] global_lang_dir={global_lang_dir.relative_to(repo_root)}")
+        print(f"[INFO] output_lang_dir={runtime_lang_dir}")
 
         for spec in LANGUAGES:
             compile_language(
                 repo_root=repo_root,
                 modules_dir=modules_dir,
                 global_lang_dir=global_lang_dir,
+                runtime_lang_dir=runtime_lang_dir,
                 spec=spec,
                 dry_run=args.dry_run,
             )

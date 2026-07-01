@@ -61,6 +61,10 @@ from typing import Iterable, List, Sequence
 # EN: Path relative to the repository root. Important: it is NOT "/modern_format/modules".
 MODULES_RELATIVE_PATH = Path("modern_format") / "modules"
 
+# ES: Ruta relativa de la base del sistema que debe instalarse antes que los módulos.
+# EN: Relative path for the system base that must be installed before modules.
+SYSTEM_RELATIVE_PATH = Path("modern_format") / "system"
+
 # ES: Ubicación estándar del manifiesto dentro de cada módulo.
 # EN: Standard manifest location inside every module.
 MANIFEST_RELATIVE_PATH = Path("install") / "route_install.json"
@@ -138,6 +142,15 @@ def get_modules_dir(repo_root: Path) -> Path:
     return repo_root / MODULES_RELATIVE_PATH
 
 
+def get_system_dir(repo_root: Path) -> Path:
+    """
+    ES: Construye la ruta modern_format/system relativa al repo.
+    EN: Build the modern_format/system path relative to the repo.
+    """
+
+    return repo_root / SYSTEM_RELATIVE_PATH
+
+
 def discover_module_dirs(modules_dir: Path) -> List[Path]:
     """
     ES:
@@ -159,6 +172,29 @@ def discover_module_dirs(modules_dir: Path) -> List[Path]:
     return sorted(path for path in modules_dir.iterdir() if path.is_dir())
 
 
+def discover_system_manifest_paths(system_dir: Path) -> List[Path]:
+    """
+    ES:
+        Lista los route_install.json directos de modern_format/system/*.
+
+        Esta fase representa la base del sistema y debe ejecutarse antes que los
+        módulos, porque los módulos se instalan encima de los directorios creados
+        por system/backend y system/web_gui.
+
+    EN:
+        List direct modern_format/system/* route_install.json files.
+
+        This phase represents the system base and must run before modules,
+        because modules are installed on top of directories created by
+        system/backend and system/web_gui.
+    """
+
+    if not system_dir.is_dir():
+        raise FileNotFoundError(f"System directory not found: {system_dir}")
+
+    return sorted(path for path in system_dir.glob("*/route_install.json") if path.is_file())
+
+
 # ---------------------------------------------------------------------------
 # Lectura y validación de manifiestos / Manifest loading and validation
 # ---------------------------------------------------------------------------
@@ -178,46 +214,16 @@ def load_json_file(path: Path) -> object:
         ) from exc
 
 
-def parse_manifest(module_dir: Path) -> ModuleManifest | None:
+def parse_manifest_file(component_name: str, component_dir: Path, manifest_path: Path) -> ModuleManifest:
     """
     ES:
-        Busca y valida el manifiesto:
-
-            <modulo>/install/route_install.json
-
-        Si el módulo no tiene manifiesto, devuelve None y el instalador podrá
-        saltarlo. No inventamos rutas ni aplicamos defaults ocultos.
-
-        Validaciones mínimas:
-            - la raíz del JSON debe ser un objeto
-            - debe existir la clave "install_route"
-            - "install_route" debe ser una lista
-            - cada entrada debe tener "source" y "destination" como texto
-
-        Esta función NO corrige rutas. Si source/destination están mal, deben
-        revisarse en el manifiesto.
+        Valida un route_install.json concreto, tanto si pertenece a system como
+        si pertenece a un módulo.
 
     EN:
-        Find and validate the manifest:
-
-            <module>/install/route_install.json
-
-        If the module has no manifest, return None and the installer can skip it.
-        We do not invent routes or apply hidden defaults.
-
-        Minimum validations:
-            - JSON root must be an object
-            - the "install_route" key must exist
-            - "install_route" must be a list
-            - every entry must have "source" and "destination" as text
-
-        This function does NOT fix paths. If source/destination are wrong, they
-        must be reviewed in the manifest.
+        Validate one concrete route_install.json, whether it belongs to system or
+        to a module.
     """
-
-    manifest_path = module_dir / MANIFEST_RELATIVE_PATH
-    if not manifest_path.exists():
-        return None
 
     raw = load_json_file(manifest_path)
     if not isinstance(raw, dict):
@@ -247,12 +253,41 @@ def parse_manifest(module_dir: Path) -> ModuleManifest | None:
         routes.append(InstallRoute(source=source.strip(), destination=destination.strip()))
 
     return ModuleManifest(
-        module_name=module_dir.name,
-        module_dir=module_dir,
+        module_name=component_name,
+        module_dir=component_dir,
         manifest_path=manifest_path,
         install_routes=routes,
     )
 
+
+def parse_manifest(module_dir: Path) -> ModuleManifest | None:
+    """
+    ES:
+        Busca y valida el manifiesto:
+
+            <modulo>/install/route_install.json
+
+        Si el módulo no tiene manifiesto, devuelve None y el instalador podrá
+        saltarlo. No inventamos rutas ni aplicamos defaults ocultos.
+
+    EN:
+        Find and validate the manifest:
+
+            <module>/install/route_install.json
+
+        If the module has no manifest, return None and the installer can skip it.
+        We do not invent routes or apply hidden defaults.
+    """
+
+    manifest_path = module_dir / MANIFEST_RELATIVE_PATH
+    if not manifest_path.exists():
+        return None
+
+    return parse_manifest_file(
+        component_name=module_dir.name,
+        component_dir=module_dir,
+        manifest_path=manifest_path,
+    )
 
 # ---------------------------------------------------------------------------
 # Seguridad básica de rutas / Basic path safety
@@ -419,22 +454,22 @@ def install_route(repo_root: Path, manifest: ModuleManifest, route: InstallRoute
         copy_one_path(source=source, destination_dir=destination_dir, dry_run=dry_run)
 
 
-def install_module(repo_root: Path, manifest: ModuleManifest, dry_run: bool) -> None:
+def install_module(repo_root: Path, manifest: ModuleManifest, dry_run: bool, label: str = "MODULE") -> None:
     """
     ES:
-        Instala un módulo usando sólo su route_install.json.
+        Instala una unidad declarativa usando sólo su route_install.json.
 
-        Esta función no sabe nada especial sobre alias, networking, policies,
-        interfaces, etc. Esa información vive en el manifiesto del módulo.
+        La unidad puede ser base de system o módulo. La lógica vive en el
+        manifiesto; el instalador sólo ejecuta source -> destination.
 
     EN:
-        Install a module using only its route_install.json.
+        Install one declarative unit using only its route_install.json.
 
-        This function knows nothing special about alias, networking, policies,
-        interfaces, etc. That information lives in the module manifest.
+        The unit may be a system base or a module. Logic lives in the manifest;
+        the installer only executes source -> destination.
     """
 
-    print(f"[MODULE] {manifest.module_name}")
+    print(f"[{label}] {manifest.module_name}")
     print(f"  manifest: {manifest.manifest_path.relative_to(repo_root)}")
 
     if not manifest.install_routes:
@@ -521,13 +556,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def list_modules(repo_root: Path, module_dirs: Sequence[Path]) -> None:
+def list_modules(repo_root: Path, system_manifests: Sequence[Path], module_dirs: Sequence[Path]) -> None:
     """
-    ES: Lista módulos detectados y si tienen manifiesto.
-    EN: List discovered modules and whether they have a manifest.
+    ES: Lista manifests de system y módulos detectados.
+    EN: List discovered system manifests and module manifests.
     """
 
     print(f"Repository root: {repo_root}")
+    print(f"System dir:      {repo_root / SYSTEM_RELATIVE_PATH}")
+    for manifest_path in system_manifests:
+        print(f"system/{manifest_path.parent.name:13} manifest=yes")
     print(f"Modules dir:     {repo_root / MODULES_RELATIVE_PATH}")
     for module_dir in module_dirs:
         manifest_path = module_dir / MANIFEST_RELATIVE_PATH
@@ -540,40 +578,67 @@ def main(argv: Sequence[str] | None = None) -> int:
     ES:
         Flujo principal:
             1. inferir raíz del repo
-            2. entrar conceptualmente en modern_format/modules mediante ruta relativa
-            3. listar directorios de módulos
-            4. buscar install/route_install.json en cada módulo
-            5. copiar cada source -> destination
+            2. instalar primero modern_format/system/*/route_install.json
+            3. entrar conceptualmente en modern_format/modules mediante ruta relativa
+            4. listar directorios de módulos
+            5. buscar install/route_install.json en cada módulo
+            6. copiar cada source -> destination
 
     EN:
         Main flow:
             1. infer repo root
-            2. conceptually enter modern_format/modules through a relative path
-            3. list module directories
-            4. find install/route_install.json in every module
-            5. copy every source -> destination
+            2. install modern_format/system/*/route_install.json first
+            3. conceptually enter modern_format/modules through a relative path
+            4. list module directories
+            5. find install/route_install.json in every module
+            6. copy every source -> destination
     """
 
     args = build_arg_parser().parse_args(argv)
 
     repo_root = infer_repo_root(Path(__file__))
+    system_dir = get_system_dir(repo_root)
     modules_dir = get_modules_dir(repo_root)
+    system_manifests = discover_system_manifest_paths(system_dir)
     module_dirs = discover_module_dirs(modules_dir)
 
     if args.list:
-        list_modules(repo_root, module_dirs)
+        list_modules(repo_root, system_manifests, module_dirs)
         return 0
 
     selected_dirs = list(iter_selected_modules(module_dirs, args.modules))
 
     errors: List[str] = []
+
+    # ES:
+    #     Primero se instala la base modern_format/system. Los módulos dependen
+    #     de esos directorios base y se copian encima después.
+    # EN:
+    #     Install the modern_format/system base first. Modules depend on those
+    #     base directories and are copied on top afterwards.
+    for manifest_path in system_manifests:
+        component_name = f"system/{manifest_path.parent.name}"
+        try:
+            manifest = parse_manifest_file(
+                component_name=component_name,
+                component_dir=manifest_path.parent,
+                manifest_path=manifest_path,
+            )
+            install_module(repo_root=repo_root, manifest=manifest, dry_run=args.dry_run, label="SYSTEM")
+        except Exception as exc:
+            message = f"[ERROR] {component_name}: {exc}"
+            print(message, file=sys.stderr)
+            errors.append(message)
+            if not args.continue_on_error:
+                return 1
+
     for module_dir in selected_dirs:
         try:
             manifest = parse_manifest(module_dir)
             if manifest is None:
                 print(f"[SKIP] {module_dir.name}: missing {MANIFEST_RELATIVE_PATH}")
                 continue
-            install_module(repo_root=repo_root, manifest=manifest, dry_run=args.dry_run)
+            install_module(repo_root=repo_root, manifest=manifest, dry_run=args.dry_run, label="MODULE")
         except Exception as exc:  # installer: report module context clearly
             message = f"[ERROR] {module_dir.name}: {exc}"
             print(message, file=sys.stderr)
