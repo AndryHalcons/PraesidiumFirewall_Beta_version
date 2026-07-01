@@ -118,17 +118,18 @@ run_module() {
         exit 2
     fi
     case "$module" in
-        nftables) module_dir="tests/test_modules/nftables_test" ;;
-        bpfilter) module_dir="tests/test_modules/bpfilter_test" ;;
-        dnsmasq|dhcp) module_dir="tests/test_modules/dnsmasq_test" ;;
-        services) module_dir="tests/test_modules/services_test" ;;
-        wireguard) module_dir="tests/test_modules/wireguard_test" ;;
-        users) module_dir="tests/test_modules/users_test" ;;
-        certificates) module_dir="tests/test_modules/certificates_test" ;;
-        interfaces) module_dir="tests/test_modules/interfaces_test" ;;
-        monitor) module_dir="tests/test_modules/monitor_test" ;;
-        system_logging) module_dir="tests/test_modules/system_logging_test" ;;
-        alias) module_dir="tests/test_modules/alias_test" ;;
+        nftables) module_dir="modern_format/modules/policies/test/nftables_test" ;;
+        bpfilter) module_dir="modern_format/modules/policies/test/bpfilter_test" ;;
+        dnsmasq|dhcp) module_dir="modern_format/modules/networking/test/dnsmasq_test" ;;
+        services) module_dir="modern_format/modules/system/test/services_test" ;;
+        wireguard) module_dir="modern_format/modules/interfaces/test/wireguard_test" ;;
+        users) module_dir="modern_format/modules/users/test/users_test" ;;
+        certificates) module_dir="modern_format/modules/certificates/test/certificates_test" ;;
+        interfaces) module_dir="modern_format/modules/interfaces/test/interfaces_test" ;;
+        monitor) module_dir="modern_format/modules/monitor/test/monitor_test" ;;
+        dashboard) module_dir="modern_format/modules/dashboard/test/dashboard_test" ;;
+        system_logging) module_dir="modern_format/modules/system/test/system_logging_test" ;;
+        alias) module_dir="modern_format/modules/alias/test/alias_test" ;;
         *) echo "Modulo desconocido: $module" >&2; exit 2 ;;
     esac
     while IFS= read -r test_file; do
@@ -160,7 +161,7 @@ Uso:
   ./tests/run_tests.sh web
   ./tests/run_tests.sh security
   ./tests/run_tests.sh all-safe
-  ./tests/run_tests.sh module <nftables|bpfilter|dnsmasq|services|wireguard|users|certificates|interfaces|monitor|system_logging|alias>
+  ./tests/run_tests.sh module <nftables|bpfilter|dnsmasq|services|wireguard|users|certificates|interfaces|monitor|dashboard|system_logging|alias>
   PRAESIDIUM_ALLOW_DESTRUCTIVE=1 ./tests/run_tests.sh commit
 USAGE
         exit 2

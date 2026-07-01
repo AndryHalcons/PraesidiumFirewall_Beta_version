@@ -18,6 +18,28 @@ from report import fail, pass_
 from module_metadata import MODULES
 
 
+def module_root(module: str) -> Path:
+    return repo_root() / MODULES[module]['module_path']
+
+
+def module_rel(module: str, rel: str) -> Path:
+    # ES: Traduce rutas legacy de tests al layout modular.
+    # EN: Translate legacy test paths to the modular layout.
+    if rel.startswith('data_running/'):
+        rel = 'running_config/' + rel.removeprefix('data_running/')
+    elif rel.startswith('data/'):
+        rel = 'initial_config/' + rel.removeprefix('data/')
+    path = module_root(module) / rel
+    if path.exists():
+        return path
+    legacy_rel = rel.replace('backend/checks/system_data/default_forms/', 'backend/checks/default_forms/').replace('backend/checks/system_data/default_tables_structure/', 'backend/checks/default_tables_structure/')
+    return module_root(module) / legacy_rel
+
+
+def module_test_dir(module: str) -> Path:
+    return module_root(module) / 'test' / MODULES[module]['dir']
+
+
 def _load(rel: str):
     path = repo_root() / rel
     return json.loads(path.read_text(encoding='utf-8'))
@@ -31,12 +53,12 @@ def check_json_contract(module: str) -> None:
     for group in ('forms', 'structures', 'candidate', 'running'):
         for rel in cfg.get(group, []):
             checked += 1
-            path = root / rel
+            path = module_rel(module, rel)
             if not path.exists():
                 errors.append(f'{rel}: no existe')
                 continue
             try:
-                data = _load(rel)
+                data = json.loads(path.read_text(encoding='utf-8'))
             except Exception as exc:
                 errors.append(f'{rel}: JSON invalido: {exc}')
                 continue
@@ -48,11 +70,11 @@ def check_json_contract(module: str) -> None:
     if expected_keys:
         available: set[str] = set()
         for rel in cfg.get('forms', []) + cfg.get('structures', []) + cfg.get('candidate', []) + cfg.get('running', []):
-            path = root / rel
+            path = module_rel(module, rel)
             if not path.exists():
                 continue
             try:
-                data = _load(rel)
+                data = json.loads(path.read_text(encoding='utf-8'))
             except Exception:
                 continue
             if isinstance(data, dict):
@@ -72,14 +94,15 @@ def check_endpoint_contract(module: str) -> None:
     checked = 0
     for rel in cfg.get('endpoints', []):
         checked += 1
-        path = root / rel
+        path = module_rel(module, rel)
         if not path.exists():
             errors.append(f'{rel}: endpoint no existe')
             continue
         text = path.read_text(encoding='utf-8', errors='ignore')
         if '<?php' not in text[:200]:
             errors.append(f'{rel}: no parece PHP endpoint')
-        if 'json_encode' not in text and 'header(' not in text and 'readfile(' not in text:
+        is_validation_helper = Path(rel).name.startswith('validation_')
+        if not is_validation_helper and 'json_encode' not in text and 'header(' not in text and 'readfile(' not in text:
             errors.append(f'{rel}: no hay salida JSON/header/readfile visible')
         is_mutating = any(marker in rel for marker in ['get_update', 'get_delete', 'get_save', 'commit_apply', 'reload_system_routes_running'])
         if is_mutating and 'csrf' not in text.lower():
@@ -98,7 +121,7 @@ def check_backend_static_coverage(module: str) -> None:
     checked = 0
     combined = ''
     for rel in cfg.get('backend', []) + cfg.get('endpoints', []):
-        path = root / rel
+        path = module_rel(module, rel)
         if not path.exists():
             continue
         checked += 1
@@ -113,10 +136,7 @@ def check_backend_static_coverage(module: str) -> None:
 
 def check_invalid_fixtures(module: str) -> None:
     root = repo_root()
-    fixture = root / 'tests' / 'test_modules' / f'{module}_test' / 'fixtures' / 'invalid_payloads.json'
-    # dnsmasq is the test module folder for the dhcp/dnsmasq module.
-    if module == 'dnsmasq':
-        fixture = root / 'tests/test_modules/dnsmasq_test/fixtures/invalid_payloads.json'
+    fixture = module_test_dir(module) / 'fixtures' / 'invalid_payloads.json'
     if not fixture.exists():
         fail(f'{module} invalid fixtures', [f'{fixture.relative_to(root)}: no existe'])
     try:

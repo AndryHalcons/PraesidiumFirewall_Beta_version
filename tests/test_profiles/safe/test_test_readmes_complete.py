@@ -23,6 +23,7 @@ from report import fail, pass_
 root = repo_root()
 required_dirs = [root / 'tests', root / 'tests/test_profiles', root / 'tests/test_modules', root / 'tests/fixtures', root / 'tests/lib']
 required_dirs += sorted((root / 'tests/test_modules').glob('*_test'))
+required_dirs += sorted((root / 'modern_format/modules').glob('*/test/*_test'))
 errors = []
 for directory in required_dirs:
     readme = directory / 'README.md'

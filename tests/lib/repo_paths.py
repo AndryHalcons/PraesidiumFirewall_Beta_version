@@ -15,6 +15,8 @@ from pathlib import Path
 def repo_root() -> Path:
     current = Path(__file__).resolve()
     for parent in current.parents:
+        if (parent / '.git').exists() and (parent / 'modern_format' / 'modules').is_dir():
+            return parent
         if (parent / '.git').exists() and (parent / 'web').exists() and (parent / 'backend').exists():
             return parent
     raise RuntimeError('No se pudo detectar la raiz del repo PraesidiumFirewall')

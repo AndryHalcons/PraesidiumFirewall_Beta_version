@@ -24,7 +24,7 @@ from report import fail, pass_
 root = repo_root()
 errors = []
 for module, cfg in MODULES.items():
-    path = root / 'tests/test_modules' / cfg['dir'] / 'fixtures/invalid_payloads.json'
+    path = root / cfg['module_path'] / 'test' / cfg['dir'] / 'fixtures/invalid_payloads.json'
     if not path.exists():
         errors.append(f'{module}: falta invalid_payloads.json')
         continue
