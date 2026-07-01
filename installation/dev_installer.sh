@@ -5,9 +5,10 @@ set -e
 echo "Dando permisos a los scripts... / Granting execution permissions..."
 chmod +x uninstall_unnecessary.sh
 chmod +x system_requirements.sh
-chmod +x web_installation.sh
-chmod +x initial_data.sh
-chmod +x install_backend.sh
+chmod +x praesidium_modules_installer/praesidium_modules_main.py
+chmod +x praesidium_modules_installer/praesidium_modules_installer.py
+chmod +x praesidium_modules_installer/praesidium_modules_lang_installer.py
+chmod +x praesidium_modules_installer/praesidium_modules_web_installer.py
 chmod +x system_configuration.sh
 chmod +x uninstall_unnecessary.sh
 chmod +x permissions.sh
@@ -28,20 +29,10 @@ echo "Instalando dependencias del sistema... / Installing system dependencies...
 #./system_requirements.sh
 echo "Instalación system_requirements.sh completada / Installation system_requirements.sh completed"
 
-# Ejecutar web_installation.sh / Run web_installation.sh
-echo "Instalando archivos web... / Installing web files..."
-./web_installation.sh
-echo "Instalación web_installation.sh completada / Installation web_installation.sh completed"
-
-# Ejecutar initial_data.sh / Run initial_data.sh
-echo "Instalando initial_data... / Installing initial_data..."
-./initial_data.sh
-echo "Instalación initial_data.sh completada / Installation initial_data.sh completed"
-
-# Ejecutar install_backend.sh / Run install_backend.sh
-echo "Instalando install_backend... / Installing install_backend..."
-./install_backend.sh
-echo "Instalación install_backend.sh completada / Installation install_backend.sh completed"
+# Ejecutar instalador modular Praesidium / Run Praesidium modular installer
+echo "Instalando estructura modular Praesidium... / Installing Praesidium modular structure..."
+python3 praesidium_modules_installer/praesidium_modules_main.py
+echo "Instalación modular Praesidium completada / Praesidium modular installation completed"
 
 # Ejecutar system_configuration.sh / Run system_configuration.sh
 echo "Instalando system_configuration... / Installing system_configuration..."
